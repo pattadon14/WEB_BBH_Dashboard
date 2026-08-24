@@ -1,0 +1,1332 @@
+@font-face {
+    font-family: 'THSarabun';
+    src: url('../fonts/THSarabunNew.ttf') format('truetype');
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: 'THSarabun';
+    src: url('../fonts/THSarabunNew Bold.ttf') format('truetype');
+    font-weight: bold;
+}
+
+body {
+    font-family: 'THSarabun', sans-serif;
+    font-size: 24px;
+    background-color: #f4f6f9;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'THSarabun', sans-serif;
+}
+
+.skip-link {
+    display: none !important;
+}
+
+.small-box {
+    background-color: #ffffff !important;
+    /* border: 2px solid #198754; */
+    border-radius: 14px;
+    overflow: hidden;
+    min-height: 175px;
+
+    /* SHADOW */
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+
+    transition: all 0.25s ease;
+}
+
+.small-box:hover {
+
+    transform: translateY(-4px);
+
+    box-shadow:
+        rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
+
+}
+
+/* CONTENT */
+.small-box .inner {
+    position: relative;
+    z-index: 2;
+    padding: 18px;
+}
+
+/* NUMBER */
+.small-box h3 {
+    font-size: 3.8rem !important;
+    font-weight: bold;
+    color: #198754 !important;
+    margin-bottom: 5px;
+    line-height: 1;
+}
+
+/* TITLE */
+.small-box .kpi-title {
+    font-size: 2.2rem !important;
+    color: #198754 !important;
+    font-weight: bold;
+    line-height: 1.1;
+}
+
+/* SUBTEXT */
+.small-box .kpi-sub {
+    font-size: 1.9rem !important;
+    color: #198754 !important;
+    font-weight: bold;
+}
+
+/* ICON */
+.small-box .icon {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    z-index: 1;
+}
+
+
+.small-box .icon i {
+    font-size: 75px;
+    color: rgba(25, 135, 84, 0.15);
+}
+
+/* FOOTER */
+.small-box-footer {
+    background-color: #198754 !important;
+    color: #ffffff !important;
+
+    font-size: 1.6rem;
+    font-weight: bold;
+
+    padding: 6px;
+
+    position: relative;
+    z-index: 2;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    gap: 8px;
+
+    text-decoration: none !important;
+
+    transition: all 0.2s ease;
+}
+
+.small-box-footer i {
+    font-size: 1.5rem;
+    align-items: center;
+}
+
+.small-box-footer:hover {
+    color: #eafff2 !important;
+
+    text-decoration: none !important;
+
+    transform: translateY(-1px);
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+
+.nav-sidebar .nav-link p {
+    font-size: 1.7rem;
+}
+
+.brand-text {
+    color: #198754 !important;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+/* =========================
+   NAVBAR
+========================= */
+
+.navbar-info {
+    background-color: #c0c0c0 !important;
+}
+
+/* Navbar หลัก */
+.custom-navbar {
+    background-color: #ffffff !important;
+    border-bottom: 4px solid #198754;
+    min-height: 65px;
+    padding: 0.5rem 1rem;
+}
+
+/* ชื่อระบบ */
+.custom-navbar .navbar-brand {
+    color: #198754 !important;
+    font-size: 2rem;
+    font-weight: bold;
+    margin-left: 8px;
+}
+
+/* ปุ่มเมนู */
+.custom-navbar .nav-link {
+    color: #198754 !important;
+    font-size: 1.8rem;
+    transition: all .25s ease;
+}
+
+.custom-navbar .nav-link:hover {
+    color: #146c43 !important;
+}
+
+/* =========================
+   ปุ่มเสนอความคิดเห็น
+========================= */
+
+.feedback-btn {
+
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    background: #198754;
+    color: #fff !important;
+
+    border-radius: 30px;
+
+    padding: 8px 18px;
+
+    font-size: 1rem;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    transition: all .25s ease;
+
+    box-shadow: 0 4px 10px rgba(25,135,84,.18);
+
+}
+
+.feedback-btn:hover {
+
+    background: #157347;
+
+    color: #fff !important;
+
+    transform: translateY(-2px);
+
+    box-shadow: 0 8px 18px rgba(25,135,84,.28);
+
+}
+
+.feedback-btn i{
+
+    font-size:1rem;
+
+}
+
+/* Responsive */
+
+@media (max-width:768px){
+
+    .custom-navbar .navbar-brand{
+
+        font-size:1.35rem;
+
+    }
+
+    .feedback-btn{
+
+        padding:6px 12px;
+
+        font-size:.9rem;
+
+    }
+
+}
+
+/* SIDEBAR */
+.main-sidebar {
+    background-color: #ffffff !important;
+    border-right: 3px solid #198754;
+}
+
+.nav-sidebar .nav-link {
+    color: #198754 !important;
+    font-size: 1.7rem;
+}
+
+/* SIDEBAR ICON */
+.nav-icon {
+    color: inherit !important;
+}
+
+.brand-link {
+    border-bottom: 2px solid #198754 !important;
+}
+
+.nav-sidebar .nav-link.active {
+    background-color: #198754 !important;
+    color: #ffffff !important;
+}
+
+.form-control {
+    border: 2px solid #198754;
+    color: #198754;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.card {
+    border: 1px solid #dfe6e9;
+    border-radius: 12px;
+}
+
+/* =========================
+   BUDGET SELECT
+========================= */
+
+.budget-select-wrapper {
+    position: relative;
+}
+
+.budget-select{
+    width: 175px;
+    height: 48px;
+    border: 1px solid #198754;
+    border-radius: 10px;
+    font-size: 1.3rem;
+    appearance: none;
+    padding-right: 40px;
+}
+
+
+.budget-select:focus{
+
+    color: #198754 !important;
+
+    border-color: #198754 !important;
+
+    box-shadow:
+        0 0 0 0.2rem rgba(25,135,84,0.15);
+
+    outline: none;
+}
+
+.budget-select-icon{
+    padding-left: 140px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #198754;
+    pointer-events: none;
+}
+
+#budget-date-text {
+    font-size: 1.6rem;
+    color: #198754;
+}
+
+/* WARD CARD */
+
+.progress {
+    height: 8px;
+    border-radius: 10px;
+}
+
+.progress-bar {
+    border-radius: 10px;
+}
+
+/* =========================
+   WARD BED STATUS
+========================= */
+
+.ward-card {
+
+    position: relative;
+
+    background: #ffffff;
+
+    /* border: 1px solid #198754; */
+
+    border-radius: 20px;
+
+    padding: 12px;
+
+    overflow: hidden;
+
+    transition: 0.3s;
+
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+        
+
+}
+
+
+.ward-card:hover {
+
+    transform: translateY(-3px);
+
+    box-shadow:
+        rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
+
+}
+
+.ward-card h5{
+    margin-bottom: 6px;
+    line-height: 1.1;
+}
+
+.ward-card p{
+    margin-bottom: 4px;
+    line-height: 1.1;
+}
+
+.ward-name {
+    font-size: 22px;
+    font-weight: bold;
+    color: #333;
+
+}
+
+.ward-detail {
+
+    font-size: 20px;
+    color: #333;
+
+}
+
+.ward-percent {
+
+    font-size: 18px;
+
+    color: #333;
+
+}
+
+.ward-progress {
+
+    height: 10px;
+
+    border-radius: 50px;
+
+    background: #e9ecef;
+
+    overflow: hidden;
+
+}
+
+.ward-progress .progress-bar {
+
+    border-radius: 50px;
+
+    transition: 0.5s;
+
+}
+
+.ward-icon {
+
+    position: absolute;
+    top: 18px;
+    right: 20px;
+    font-size: 4rem;
+
+}
+
+.bed-full {
+
+    color: #dc3545;
+    font-weight: bold;
+
+}
+
+/* BORDER COLORS */
+
+.border-success {
+
+    border-color: #198754 !important;
+
+}
+
+.border-info {
+
+    border-color: #0dcaf0 !important;
+
+}
+
+.border-warning {
+
+    border-color: #ffc107 !important;
+
+}
+
+.border-danger {
+
+    border-color: #dc3545 !important;
+
+}
+
+/* =========================
+   BED SUMMARY
+========================= */
+
+.summary-card{
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    transition: 0.3s;
+    border-left: 6px solid #198754;
+}
+
+.summary-card:hover{
+
+    transform: translateY(-2px);
+}
+
+.bed-summary-card {
+    background: #198754;
+
+    border-radius: 18px;
+
+    overflow: hidden;
+
+    color: white;
+
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+
+}
+
+.summary-header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 20px;
+
+}
+
+.summary-icon {
+
+    width: 72px;
+    height: 72px;
+
+    border-radius: 50%;
+
+    background: rgba(255,255,255,0.2);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 2.5rem;
+
+}
+
+.summary-number{
+    font-size: 3.8rem;
+    font-weight: bold;
+    line-height: 1.1;
+}
+
+.summary-unit{
+    font-size: 2rem;
+    font-weight: 400;
+}
+
+.summary-title{
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    font-size: 1.8rem;
+
+    font-weight: bold;
+
+    line-height: 1.2;
+}
+
+.summary-title i{
+    font-size: 1.5rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    top: -1px;
+}
+
+.summary-sub{
+    font-size: 1.5rem;
+}
+
+.summary-list {
+
+    background: white;
+
+    color: #333;
+
+}
+
+.summary-item {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 8px 18px;
+
+    border-bottom:
+        1px solid #ececec;
+
+    font-size: 1.4rem;
+
+}
+
+.summary-item:last-child {
+
+    border-bottom: 0;
+
+}
+
+.summary-item .badge {
+
+    font-size: 1.1rem;
+
+    border-radius: 50px;
+
+    padding: 6px 12px;
+
+}
+
+.detail-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    color: #ffffff;
+    font-size: 1.15rem;
+    font-weight: 600;
+
+    text-decoration: none !important;
+
+    transition: all 0.2s ease;
+}
+
+.detail-link i {
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+}
+
+.detail-link:hover {
+    color: #e8fff1;
+    transform: translateX(2px);
+}
+
+/* WALK IN */
+
+.walkin-card{
+
+    border-left-color: #0d6efd;
+}
+
+.walkin-card .summary-title {
+    margin-bottom: 10px;
+    color: #0d6efd;
+}
+
+.walkin-card .summary-number{
+    color: #0d6efd;
+}
+
+/* APPOINT */
+
+.appoint-card{
+
+    border-left-color: #198754;
+}
+
+.appoint-card .summary-title{
+    margin-bottom: 10px;
+    color: #198754;
+}
+
+.appoint-card .summary-number{
+
+    color: #198754;
+}
+
+/* MISS */
+
+.miss-card{
+
+    border-left-color: #dc3545;
+}
+
+.miss-card .summary-title {
+    margin-bottom: 10px;
+    color: #dc3545;
+}
+
+.miss-card .summary-number{
+
+    color: #dc3545;
+}
+
+.todaysummary-sub{
+    font-size: 1.5rem;
+    margin-top: 8px;
+    color: #6c757d;
+}
+
+.opd-chart{
+    height: 80px;
+    padding:
+        0 16px;
+    margin-top: 15px;
+    
+}
+
+.wait-card{
+
+    border-left: 6px solid #0dcaf0;
+}
+
+.wait-card .summary-title,
+.wait-card .summary-number{
+
+    color: #0dcaf0;
+}
+
+/* รอตรวจ */
+
+.exam-card{
+    
+    border-left: 6px solid #6610f2;
+}
+
+.exam-card .summary-title,
+.exam-card .summary-number{
+
+    color: #6610f2;
+}
+
+/* ตรวจเสร็จ */
+
+.finish-card{
+
+    border-left: 6px solid #198754;
+}
+
+.finish-card .summary-title,
+.finish-card .summary-number{
+
+    color: #198754;
+}
+
+.opd-summary-wrapper{
+
+    border-radius: 20px;
+
+    overflow: hidden;
+
+    background: #ffffff;
+}
+
+.opd-summary-header{
+
+    font-size: 2rem;
+
+    font-weight: bold;
+
+    color: #198754;
+
+    margin-bottom: 20px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding-bottom: 12px;
+
+    border-bottom: 2px solid #e9ecef;
+}
+
+.opd-summary-header i{
+
+    font-size: 1.8rem;
+}
+
+.pttype-header{
+
+    font-size: 1.8rem;
+
+    font-weight: bold;
+
+    color: #198754;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 15px;
+}
+
+.pttype-chart{
+
+    height: 420px;
+
+    width: 100%;
+}
+
+.opd-detail-header{
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 15px;
+
+    padding-bottom: 15px;
+
+    border-bottom: 1px solid #dfe6e9;
+
+    margin-bottom: 20px;
+}
+
+.opd-summary-top{
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    color: #198754;
+}
+
+.opd-summary-top i{
+
+    font-size: 3rem;
+}
+
+.opd-summary-title{
+    
+    font-size: 2.2rem;
+
+    font-weight: bold;
+
+    line-height: 1.2;
+}
+
+.opd-summary-total-label{
+    font-size: 1.5rem;
+
+    color: #6c757d;
+
+    margin-top: 5px;
+}
+
+.opd-summary-total-number{
+    justify-content: center;
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.opd-summary-total-number span{
+
+    font-size: 4.5rem;
+
+    line-height: 1;
+
+    font-weight: bold;
+
+    color: #198754;
+}
+
+.opd-summary-total-number small{
+
+    font-size: 2rem;
+
+    color: #198754;
+
+    margin-bottom: 5px;
+}
+
+.service-summary-card{
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 18px;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    height: 100%;
+}
+
+.service-header{
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #198754;
+    margin-bottom: 15px;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.service-item{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 10px 8px;
+
+    border-bottom: 1px solid #ececec;
+}
+
+.service-name{
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: #444;
+
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.service-name i{
+    color: #198754;
+    font-size: 1.5rem;
+    width: 22px;
+    text-align: center;
+}
+
+.service-total{
+    background: #198754;
+
+    color: #ffffff;
+
+    padding: 4px 12px;
+
+    border-radius: 30px;
+
+    font-size: 1.4rem;
+
+    font-weight: bold;
+
+    min-width: 80px;
+
+    text-align: center;
+}
+
+.opd-room-card{
+
+    background: #ffffff;
+    border-radius: 22px;
+    padding: 18px 18px;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+
+    border-left: 6px solid #198754;
+    margin-left: 20px;
+    transition: .2s;
+    overflow: hidden;
+    height: 100%;
+}
+
+.opd-room-card:hover{
+
+    transform: translateY(-2px);
+}
+
+.opd-room-content{
+
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.opd-room-title{
+
+    font-size: 1.45rem;
+    font-weight: bold;
+    color: #198754;
+    margin-bottom: 12px;
+}
+
+.opd-room-detail{
+
+    font-size: 1.15rem;
+    color: #444;
+    margin-bottom: 6px;
+}
+
+.opd-room-sub{
+
+    font-size: 1rem;
+    color: #777;
+}
+
+.opd-room-icon{
+
+    font-size: 4rem;
+    color: rgba(25,135,84,.20);
+}
+
+.opd-room-progress{
+
+    margin-top: 14px;
+}
+
+.opd-room-progress .progress{
+
+    height: 10px;
+    border-radius: 30px;
+    background: #e9ecef;
+}
+
+.opd-room-progress .progress-bar{
+
+    border-radius: 30px;
+    background: #198754;
+}
+
+.chart-box{
+
+    border:1px solid #dfe6e9;
+
+    border-radius:15px;
+
+    padding:15px;
+
+    background:#fff;
+
+    height:100%;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+
+.chart-title{
+
+    color:#198754;
+
+    font-weight:600;
+
+    margin-bottom:15px;
+}
+
+#ipd-chart,
+#bed-occupancy-chart{
+
+    height:420px;
+}
+
+.table-ipd-top10 {
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 0;
+}
+
+.table-ipd-top10 thead th {
+    background: linear-gradient(135deg, #198754, #1fa079);
+    color: #fff;
+    font-weight: 600;
+    font-size: 20px;
+    text-align: center;
+    vertical-align: middle;
+    border: none;
+    padding: 14px 10px;
+}
+
+.table-ipd-top10 tbody td {
+    font-size: 18px;
+    vertical-align: middle;
+    padding: 6px 8px;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.table-ipd-top10 tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table-ipd-top10 tbody tr:hover {
+    background: #f3fff8;
+}
+
+.rank-badge {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #198754;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+/* =========================
+   HIGHCHARTS — Force Light Theme
+   แก้ปัญหาพื้นหลังสีดำจาก dark theme
+========================= */
+
+:root {
+    /* พื้นหลังกราฟ */
+    --highcharts-background-color: #ffffff;
+
+    /* neutral colors — ใช้ค่าจาก Highcharts light theme มาตรฐาน
+       neutral-color-100 ต้องไม่เป็นดำทึบ ไม่งั้นเส้น grid/axis จะดำ */
+    --highcharts-neutral-color-100: #334eff00; /* ซ่อน — ให้ Highcharts จัดการเอง */
+    --highcharts-neutral-color-80:  #333333;
+    --highcharts-neutral-color-60:  #666666;
+    --highcharts-neutral-color-40:  #999999;
+    --highcharts-neutral-color-20:  #cccccc;
+    --highcharts-neutral-color-10:  #e6e6e6;
+    --highcharts-neutral-color-5:   #f2f2f2;
+    --highcharts-neutral-color-3:   #f7f7f7;
+}
+
+/* พื้นหลัง SVG */
+.highcharts-background {
+    fill: #ffffff !important;
+}
+
+/* ตัวหนังสือ title, label */
+.highcharts-title,
+.highcharts-subtitle,
+.highcharts-axis-title,
+.highcharts-axis-labels text,
+.highcharts-legend-item text,
+.highcharts-data-label text {
+    fill: #333333 !important;
+    color: #333333 !important;
+}
+
+/* เส้น grid ให้เบาและสีเทาอ่อน */
+.highcharts-grid-line {
+    stroke: #e6e6e6 !important;
+    stroke-width: 1px !important;
+}
+
+/* เส้นแกน axis ให้บางและเทา */
+.highcharts-axis-line {
+    stroke: #cccccc !important;
+    stroke-width: 1px !important;
+}
+
+/* เส้น tick บนแกน */
+.highcharts-tick {
+    stroke: #cccccc !important;
+}
+
+/* ════════════════════════════
+   Section Label
+════════════════════════════ */
+.section-label {
+    font-size: 18px;
+    font-weight: 700;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-left: 3px solid #198754;
+    padding-left: 8px;
+}
+
+/* ════════════════════════════
+   Summary Card ทั่วไป
+════════════════════════════ */
+
+.summary-card .summary-number {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 48px;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+.summary-card .summary-sub {
+    font-size: 15px;
+}
+
+/* ════════════════════════════
+   Appointment Combined Card
+════════════════════════════ */
+.appoint-combined-card {
+    background: #fff;
+    border-left: 6px solid #198754;
+    border-radius: 18px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    transition: 0.3s;
+}
+
+.appoint-combined-header {
+    font-weight: 700;
+    color: #198754;
+    margin-bottom: 6px;
+    transition: 0.3s;
+}
+
+.appoint-combined-total {
+    text-align: center;
+    font-size: 48px;
+    font-weight: 900;
+    color: #198754;
+    line-height: 1;
+    margin-bottom: 4px;
+    transition: 0.3s;
+}
+
+.appoint-combined-unit {
+    text-align: center;
+    font-size: 16px;
+    color: #198754;
+    margin-bottom: 12px;
+    transition: 0.3s;
+}
+
+.appoint-combined-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    transition: 0.3s;
+}
+
+.appoint-sub-box {
+    border-radius: 18px;
+    padding: 12px 8px;
+    text-align: center;
+}
+
+.appoint-sub-box.came {
+    background: #d1e7dd;
+    border: 1.5px solid #198754;
+}
+
+.appoint-sub-box.miss {
+    background: #fde8e8;
+    border: 1.5px solid #dc3545;
+}
+
+.appoint-sub-label {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.appoint-sub-label.came {
+    color: #198754;
+}
+
+.appoint-sub-label.miss {
+    color: #dc3545;
+}
+
+.appoint-sub-number {
+    font-size: 38px;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.appoint-sub-number.came {
+    color: #198754;
+}
+
+.appoint-sub-number.miss {
+    color: #dc3545;
+}
+
+.appoint-sub-unit {
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin-left: 2px;
+}
+
+.appoint-combined-card .appoint-combined-header 
+.appoint-combined-row .appoint-sub-box
+.appoint-combined-total .appoint-combined-unit:hover {
+
+    transform: translateY(-2px);
+}
+
+/* ════════════════════════════
+   Time Group Cards
+════════════════════════════ */
+.time-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.time-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+}
+
+.time-night {
+    background: #1e293b;
+    color: #e2e8f0;
+}
+
+.time-morning {
+    background: #fef9c3;
+    color: #713f12;
+}
+
+.time-evening {
+    background: #fed7aa;
+    color: #7c2d12;
+}
+
+.time-icon {
+    font-size: 24px;
+    width: 36px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.time-info {
+    flex: 1;
+}
+
+.time-label {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.time-range {
+    font-size: 18px;
+    opacity: 0.8;
+}
+
+.time-count {
+    font-size: 32px;
+    font-weight: 900;
+    text-align: right;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.time-unit {
+    font-size: 20px;
+    font-weight: 500;
+    margin-left: 2px;
+}
