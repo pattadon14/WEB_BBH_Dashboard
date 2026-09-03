@@ -1330,3 +1330,1172 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: 500;
     margin-left: 2px;
 }
+
+/* =========================================================
+   OPD DETAIL - HORIZONTAL SUMMARY
+========================================================= */
+
+.opd-summary-horizontal {
+
+    border-radius: 20px;
+
+    overflow: hidden;
+
+    background: #ffffff;
+
+    border: 1px solid #dfe6e9;
+
+    box-shadow:
+        rgba(0, 0, 0, 0.15) 0px 4px 12px;
+
+}
+
+
+/* =========================================================
+   MAIN TOTAL
+========================================================= */
+
+.opd-summary-main {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 18px;
+
+    padding: 18px 24px;
+
+    border-bottom: 1px solid #e9ecef;
+
+}
+
+
+.opd-summary-main-icon {
+
+    width: 64px;
+
+    height: 64px;
+
+    min-width: 64px;
+
+    border-radius: 16px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: rgba(25, 135, 84, 0.12);
+
+    color: #198754;
+
+    font-size: 2.3rem;
+
+}
+
+
+.opd-summary-main-info {
+
+    flex: 1;
+
+}
+
+
+.opd-summary-main .opd-summary-title {
+
+    font-size: 1.9rem;
+
+    font-weight: bold;
+
+    color: #198754;
+
+    line-height: 1.1;
+
+}
+
+
+.opd-summary-main .opd-summary-total-label {
+
+    color: #6c757d;
+
+    font-size: 1.25rem;
+
+    margin-top: 3px;
+
+}
+
+
+.opd-summary-main-number {
+
+    display: flex;
+
+    align-items: baseline;
+
+    gap: 8px;
+
+    padding-right: 15px;
+
+}
+
+
+.opd-summary-main-number span {
+
+    font-size: 3.8rem;
+
+    line-height: 1;
+
+    font-weight: bold;
+
+    color: #198754;
+
+}
+
+
+.opd-summary-main-number small {
+
+    font-size: 1.6rem;
+
+    color: #198754;
+
+}
+
+
+/* =========================================================
+   SUMMARY GRID
+========================================================= */
+
+.opd-summary-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr
+        1.25fr
+        1.6fr
+        1.7fr;
+
+    gap: 0;
+
+}
+
+
+.opd-summary-section {
+
+    padding: 16px;
+
+    min-width: 0;
+
+    border-right: 1px solid #e9ecef;
+
+}
+
+
+.opd-summary-section:last-child {
+
+    border-right: none;
+
+}
+
+
+.summary-section-title {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    font-size: 1.35rem;
+
+    font-weight: bold;
+
+    color: #198754;
+
+    margin-bottom: 10px;
+
+}
+
+
+.summary-section-title i {
+
+    font-size: 1.15rem;
+
+}
+
+
+/* =========================================================
+   WALK-IN
+========================================================= */
+
+.horizontal-summary-item {
+
+    height: 105px;
+
+    padding: 12px 15px;
+
+    border-radius: 14px;
+
+    border-left: 5px solid #0d6efd;
+
+    background: #f8fbff;
+
+}
+
+
+.horizontal-summary-item .summary-title {
+
+    font-size: 1.35rem;
+
+    margin-bottom: 3px;
+
+    color: #0d6efd;
+
+}
+
+
+.horizontal-summary-item .summary-number {
+
+    font-size: 2.4rem;
+
+    color: #0d6efd;
+
+    line-height: 1;
+
+}
+
+
+.horizontal-summary-item .summary-unit {
+
+    font-size: 1.2rem;
+
+}
+
+
+.horizontal-summary-item .todaysummary-sub {
+
+    font-size: 1rem;
+
+    margin-top: 3px;
+
+}
+
+
+/* =========================================================
+   APPOINTMENT
+========================================================= */
+
+.appointment-horizontal-card {
+
+    border-radius: 14px;
+
+    background: #f8faf9;
+
+    border: 1px solid #dcefe5;
+
+    overflow: hidden;
+
+}
+
+
+.appointment-total {
+
+    text-align: center;
+
+    padding: 5px 10px;
+
+    color: #198754;
+
+}
+
+
+.appointment-total span {
+
+    font-size: 2.4rem;
+
+    font-weight: bold;
+
+}
+
+
+.appointment-total small {
+
+    font-size: 1.1rem;
+
+}
+
+
+.appointment-status {
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    border-top: 1px solid #dcefe5;
+
+}
+
+
+.appointment-status-item {
+
+    text-align: center;
+
+    padding: 7px 5px;
+
+}
+
+
+.appointment-status-item:first-child {
+
+    border-right: 1px solid #dcefe5;
+
+}
+
+
+.appointment-status-item div {
+
+    font-size: 1.05rem;
+
+    font-weight: bold;
+
+}
+
+
+.appointment-status-item strong {
+
+    font-size: 1.6rem;
+
+    display: inline-block;
+
+}
+
+
+.appointment-status-item small {
+
+    font-size: .95rem;
+
+}
+
+
+.appointment-status-item.came {
+
+    color: #198754;
+
+}
+
+
+.appointment-status-item.miss {
+
+    color: #dc3545;
+
+}
+
+
+/* =========================================================
+   TIME
+========================================================= */
+
+.time-horizontal-group {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 6px;
+
+}
+
+
+.time-horizontal-card {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    padding: 6px 10px;
+
+    min-height: 43px;
+
+    border-radius: 10px;
+
+}
+
+
+.time-horizontal-card .time-icon {
+
+    width: 30px;
+
+    text-align: center;
+
+    font-size: 1.15rem;
+
+}
+
+
+.time-horizontal-card .time-info {
+
+    flex: 1;
+
+    min-width: 0;
+
+}
+
+
+.time-horizontal-card .time-label {
+
+    font-size: 1.05rem;
+
+    font-weight: bold;
+
+    line-height: 1.1;
+
+}
+
+
+.time-horizontal-card .time-range {
+
+    font-size: .82rem;
+
+    color: #6c757d;
+
+    line-height: 1;
+
+}
+
+
+.time-horizontal-card .time-count {
+
+    white-space: nowrap;
+
+    font-size: 1.35rem;
+
+    font-weight: bold;
+
+}
+
+
+.time-horizontal-card .time-count small {
+
+    font-size: .85rem;
+
+    font-weight: normal;
+
+}
+
+
+.time-night {
+
+    background: #eef2f8;
+
+    color: #1f2937;
+
+}
+
+
+.time-morning {
+
+    background: #fff9df;
+
+    color: #a16207;
+
+}
+
+
+.time-evening {
+
+    background: #fff1e6;
+
+    color: #c2410c;
+
+}
+
+
+/* =========================================================
+   EXAM STATUS
+========================================================= */
+
+.exam-horizontal-group {
+
+    display: grid;
+
+    grid-template-columns: 1fr;
+
+    gap: 6px;
+
+}
+
+
+.exam-horizontal-card {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    min-height: 44px;
+
+    padding: 6px 12px;
+
+    border-radius: 10px;
+
+    background: #ffffff;
+
+    border-left-width: 5px;
+
+    border-left-style: solid;
+
+}
+
+
+.exam-horizontal-card .summary-title {
+
+    font-size: 1.05rem;
+
+    margin: 0;
+
+}
+
+
+.exam-horizontal-card .summary-number {
+
+    font-size: 1.6rem;
+
+    line-height: 1;
+
+}
+
+
+.exam-horizontal-card .summary-unit {
+
+    font-size: .9rem;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1400px) {
+
+    .opd-summary-grid {
+
+        grid-template-columns:
+            1fr
+            1.2fr
+            1.4fr
+            1.4fr;
+
+    }
+
+    .opd-summary-main .opd-summary-title {
+
+        font-size: 1.7rem;
+
+    }
+
+}
+
+
+@media (max-width: 1100px) {
+
+    .opd-summary-grid {
+
+        grid-template-columns: 1fr 1fr;
+
+    }
+
+    .opd-summary-section:nth-child(2) {
+
+        border-right: none;
+
+    }
+
+    .opd-summary-section:nth-child(-n+2) {
+
+        border-bottom: 1px solid #e9ecef;
+
+    }
+
+}
+
+
+@media (max-width: 768px) {
+
+    .opd-summary-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+    .opd-summary-section {
+
+        border-right: none;
+
+        border-bottom: 1px solid #e9ecef;
+
+    }
+
+    .opd-summary-section:last-child {
+
+        border-bottom: none;
+
+    }
+
+    .opd-summary-main {
+
+        flex-wrap: wrap;
+
+    }
+
+    .opd-summary-main-number {
+
+        width: 100%;
+
+        justify-content: center;
+
+        padding-right: 0;
+
+    }
+
+    .opd-summary-main-number span {
+
+        font-size: 3.2rem;
+
+    }
+
+    .appointment-status {
+
+        grid-template-columns: 1fr 1fr;
+
+    }
+
+}
+
+/* =========================================================
+   SPECIAL CLINIC SUMMARY
+========================================================= */
+
+.special-clinic-summary {
+
+    border: 1px solid #dfe6e9;
+
+    border-radius: 18px;
+
+    background: #ffffff;
+
+    overflow: hidden;
+
+    margin-bottom: 20px;
+
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.special-clinic-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 22px 28px;
+
+    border-bottom: 1px solid #e5e7eb;
+
+}
+
+
+.special-clinic-title {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+}
+
+
+.special-clinic-icon {
+
+    width: 64px;
+
+    height: 64px;
+
+    min-width: 64px;
+
+    border-radius: 16px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: rgba(25, 135, 84, 0.12);
+
+    color: #198754;
+
+    font-size: 2.3rem;
+
+}
+
+
+.special-clinic-name {
+
+    font-size: 1.9rem;
+
+    font-weight: 600;
+
+    color: #198754;
+
+}
+
+
+.special-clinic-label {
+
+    margin-top: 3px;
+
+    font-size: 1.25rem;
+
+    color: #6c757d;
+
+}
+
+
+.special-clinic-total {
+
+    display: flex;
+
+    align-items: baseline;
+
+    gap: 8px;
+
+    color: #198754;
+
+}
+
+
+.special-clinic-total span {
+
+    font-size: 2.625rem;
+
+    font-weight: 600;
+
+    line-height: 1;
+
+}
+
+
+.special-clinic-total small {
+
+    font-size: 1.6rem;
+
+}
+
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.special-clinic-content {
+
+    display: grid;
+
+    grid-template-columns: 1fr 1.35fr;
+
+}
+
+
+.special-section {
+
+    padding: 18px 24px;
+
+}
+
+
+.special-section + .special-section {
+
+    border-left: 1px solid #e5e7eb;
+
+}
+
+
+.special-section-title {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin-bottom: 12px;
+
+    color: #198754;
+
+    font-size: 1.35rem;
+
+    font-weight: bold;
+
+}
+
+
+.special-section-title i {
+
+    font-size: 18px;
+
+}
+
+
+/* =========================================================
+   APPOINTMENT
+========================================================= */
+
+.special-appointment-card {
+
+    border: 1px solid #d7e9df;
+
+    border-radius: 14px;
+
+    overflow: hidden;
+
+    background: #f8fbf9;
+
+}
+
+
+.special-appointment-total {
+
+    text-align: center;
+
+    padding: 12px 10px;
+
+    border-bottom: 1px solid #d7e9df;
+
+    color: #198754;
+
+}
+
+
+.special-appointment-total span {
+
+    font-size: 2.4rem;
+
+    font-weight: bold;
+
+}
+
+
+.special-appointment-total small {
+
+    margin-left: 5px;
+
+    font-size: 1.1rem;
+
+}
+
+
+.special-appointment-result {
+
+    display: grid;
+
+    grid-template-columns: 1fr 1px 1fr;
+
+}
+
+
+.special-result-item {
+
+    padding: 13px 15px;
+
+    text-align: center;
+
+}
+
+
+.special-result-divider {
+
+    background: #d7e9df;
+
+}
+
+
+.special-result-label {
+
+    font-size: 1.05rem;
+
+    font-weight: bold;
+
+}
+
+
+.special-result-number {
+
+    margin-top: 4px;
+
+}
+
+
+.special-result-number span {
+
+    font-size: 1.6rem;
+    display: inline-block;
+
+}
+
+
+.special-result-number small {
+
+    margin-left: 4px;
+
+    font-size: 1.25rem;
+
+}
+
+
+/* มาตามนัด */
+
+.special-result-item.came {
+
+    color: #198754;
+
+}
+
+
+/* ไม่มาตามนัด */
+
+.special-result-item.miss {
+
+    color: #dc3545;
+
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.special-status-list {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+}
+
+
+.special-status-item {
+
+    display: flex;
+
+    align-items: center;
+
+    min-height: 62px;
+
+    padding: 9px 14px;
+
+    border-radius: 11px;
+
+    border-left: 4px solid;
+
+}
+
+
+.special-status-icon {
+
+    width: 38px;
+
+    height: 38px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 18px;
+
+    margin-right: 10px;
+
+}
+
+
+.special-status-info {
+
+    flex: 1;
+
+}
+
+
+.special-status-name {
+
+    font-size: 16px;
+
+    font-weight: 600;
+
+}
+
+
+.special-status-description {
+
+    font-size: 12px;
+
+    color: #6c757d;
+
+    margin-top: 1px;
+
+}
+
+
+.special-status-count {
+
+    display: flex;
+
+    align-items: baseline;
+
+    gap: 5px;
+
+}
+
+
+.special-status-count span {
+
+    font-size: 1.9rem;
+
+    font-weight: 600;
+
+}
+
+
+.special-status-count small {
+
+    font-size: 1.25rem;
+
+}
+
+
+/* =========================================================
+   STATUS COLORS
+========================================================= */
+
+
+/* รอซักประวัติ */
+
+.status-triage {
+
+    background: #eef9fc;
+
+    border-color: #0dcaf0;
+
+    color: #0aa2c0;
+
+}
+
+
+.status-triage .special-status-icon {
+
+    color: #0dcaf0;
+
+}
+
+
+/* รอตรวจ */
+
+.status-exam {
+
+    background: #f5efff;
+
+    border-color: #6f42c1;
+
+    color: #6f42c1;
+
+}
+
+
+.status-exam .special-status-icon {
+
+    color: #6f42c1;
+
+}
+
+
+/* ตรวจเสร็จ */
+
+.status-finish {
+
+    background: #eef8f2;
+
+    border-color: #198754;
+
+    color: #198754;
+
+}
+
+
+.status-finish .special-status-icon {
+
+    color: #198754;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 991px) {
+
+    .special-clinic-content {
+
+        grid-template-columns: 1fr;
+
+    }
+
+    .special-section + .special-section {
+
+        border-left: none;
+
+        border-top: 1px solid #e5e7eb;
+
+    }
+
+}
+
+
+@media (max-width: 576px) {
+
+    .special-clinic-header {
+
+        padding: 18px;
+
+    }
+
+    .special-clinic-name {
+
+        font-size: 1.9rem;
+
+    }
+
+    .special-clinic-total span {
+
+        font-size: 2.625rem;
+
+    }
+
+    .special-section {
+
+        padding: 16px;
+
+    }
+
+}
