@@ -1,0 +1,260 @@
+/* =========================================================
+   OPD DETAIL TABS
+   แยก ตรวจโรคทั่วไป / คลินิคพิเศษ
+========================================================= */
+
+.opd-page-tabs {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px;
+    background: #ffffff;
+    border: 1px solid #dfe6e9;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.opd-page-tab {
+    border: 0;
+    background: transparent;
+    color: #6c757d;
+    border-radius: 9px;
+    padding: 10px 24px;
+    min-height: 44px;
+    font-family: 'THSarabun', sans-serif;
+    font-size: 1.35rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.opd-page-tab i {
+    margin-right: 7px;
+}
+
+.opd-page-tab:hover {
+    color: #198754;
+    background: #f1f8f4;
+}
+
+.opd-page-tab.active {
+    background: #198754;
+    color: #ffffff;
+    box-shadow: 0 3px 8px rgba(25, 135, 84, 0.20);
+}
+
+.opd-tab-panel {
+    display: none;
+}
+
+.opd-tab-panel.active {
+    display: block;
+    animation: opdTabFadeIn 0.18s ease;
+}
+
+@keyframes opdTabFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(3px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================================================
+   SPECIAL CLINIC
+========================================================= */
+
+.special-clinic-summary .special-total-number span {
+    color: #198754;
+}
+
+.special-clinic-grid {
+    display: grid;
+    grid-template-columns: minmax(300px, 0.9fr) minmax(420px, 1.1fr);
+    gap: 0;
+    margin-top: 2px;
+}
+
+.special-clinic-section {
+    padding: 5px 18px 8px;
+}
+
+.special-clinic-section + .special-clinic-section {
+    border-left: 1px solid #e5e7eb;
+}
+
+.special-appointment-card {
+    overflow: hidden;
+    border: 1px solid #d7e9df;
+    border-radius: 14px;
+    background: #f8fbf9;
+}
+
+.special-appointment-total {
+    padding: 10px;
+    text-align: center;
+    color: #198754;
+    border-bottom: 1px solid #d7e9df;
+}
+
+.special-appointment-total span {
+    font-size: 2.2rem;
+    font-weight: bold;
+}
+
+.special-appointment-total small,
+.special-result-number small,
+.special-status-count small {
+    margin-left: 4px;
+    font-size: 1rem;
+}
+
+.special-appointment-result {
+    display: grid;
+    grid-template-columns: 1fr 1px 1fr;
+}
+
+.special-result-item {
+    padding: 10px 12px;
+    text-align: center;
+}
+
+.special-result-divider {
+    background: #d7e9df;
+}
+
+.special-result-label {
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.special-result-number span {
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+.special-result-item.came {
+    color: #198754;
+}
+
+.special-result-item.miss {
+    color: #dc3545;
+}
+
+.special-status-list {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.special-status-item {
+    display: flex;
+    align-items: center;
+    min-height: 54px;
+    padding: 7px 12px;
+    border-radius: 10px;
+    border-left: 4px solid;
+}
+
+.special-status-icon {
+    width: 36px;
+    text-align: center;
+    margin-right: 8px;
+    font-size: 1.25rem;
+}
+
+.special-status-info {
+    flex: 1;
+}
+
+.special-status-name {
+    font-size: 1.15rem;
+    font-weight: bold;
+}
+
+.special-status-description {
+    color: #8a8f98;
+    font-size: 0.85rem;
+}
+
+.special-status-count {
+    display: flex;
+    align-items: baseline;
+}
+
+.special-status-count span {
+    font-size: 1.45rem;
+    font-weight: bold;
+}
+
+.status-triage {
+    background: #eef9fc;
+    border-color: #0dcaf0;
+    color: #0aa2c0;
+}
+
+.status-exam {
+    background: #f5efff;
+    border-color: #6610f2;
+    color: #6610f2;
+}
+
+.status-finish {
+    background: #eef8f2;
+    border-color: #198754;
+    color: #198754;
+}
+
+.special-clinic-placeholder {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px;
+    color: #6c757d;
+    background: #f8f9fa;
+    border: 1px dashed #cfd8d3;
+    border-radius: 12px;
+}
+
+.special-clinic-placeholder > i {
+    color: #198754;
+    font-size: 1.7rem;
+}
+
+.special-clinic-placeholder strong {
+    color: #198754;
+    font-size: 1.15rem;
+}
+
+.special-clinic-placeholder div div {
+    font-size: 0.95rem;
+}
+
+@media (max-width: 991px) {
+    .special-clinic-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .special-clinic-section + .special-clinic-section {
+        border-left: 0;
+        border-top: 1px solid #e5e7eb;
+        margin-top: 10px;
+        padding-top: 15px;
+    }
+}
+
+@media (max-width: 576px) {
+    .opd-page-tab {
+        flex: 1;
+        padding: 8px 10px;
+        font-size: 1.1rem;
+    }
+
+    .special-clinic-section {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+}
