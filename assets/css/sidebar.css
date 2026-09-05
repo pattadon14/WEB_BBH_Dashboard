@@ -1,0 +1,162 @@
+/* =========================================================
+   BBH DASHBOARD - SLIDE OUT SIDEBAR
+========================================================= */
+
+.bbh-sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.35);
+    opacity: 0;
+    visibility: hidden;
+    z-index: 1040;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.bbh-sidebar-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.bbh-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 285px;
+    height: 100vh;
+    background: #24333a;
+    color: #dce5e8;
+    z-index: 1050;
+    transform: translateX(-100%);
+    transition: transform 0.28s ease;
+    box-shadow: 5px 0 18px rgba(0, 0, 0, 0.18);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.bbh-sidebar.open {
+    transform: translateX(0);
+}
+
+.bbh-sidebar-header {
+    min-height: 68px;
+    padding: 0 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #198754;
+    color: #fff;
+}
+
+.bbh-sidebar-brand {
+    font-size: 1.45rem;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.bbh-sidebar-close {
+    border: 0;
+    background: transparent;
+    color: #fff;
+    font-size: 1.35rem;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.bbh-sidebar-close:hover {
+    background: rgba(255, 255, 255, 0.14);
+}
+
+.bbh-sidebar-body {
+    padding: 12px 10px 20px;
+}
+
+.bbh-sidebar-section-title {
+    padding: 10px 12px 6px;
+    color: #91a4ab;
+    font-size: 0.95rem;
+    font-weight: bold;
+}
+
+.bbh-sidebar-menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.bbh-sidebar-menu li {
+    margin: 3px 0;
+}
+
+.bbh-sidebar-menu a {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-height: 43px;
+    padding: 8px 13px;
+    color: #dce5e8;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 1.05rem;
+    transition: background 0.18s ease, color 0.18s ease;
+}
+
+.bbh-sidebar-menu a i {
+    width: 22px;
+    text-align: center;
+    font-size: 1rem;
+}
+
+.bbh-sidebar-menu a:hover {
+    background: #31444c;
+    color: #fff;
+}
+
+.bbh-sidebar-menu a.active {
+    background: #198754;
+    color: #fff;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.14);
+}
+
+.bbh-sidebar-divider {
+    height: 1px;
+    margin: 12px 8px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+body.bbh-sidebar-open {
+    overflow: hidden;
+}
+
+/* ปุ่ม Hamburger */
+.custom-navbar .bbh-menu-toggle {
+    border: 0;
+    background: transparent;
+    color: #198754;
+    cursor: pointer;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 1.65rem;
+    transition: background 0.18s ease, color 0.18s ease;
+}
+
+.custom-navbar .bbh-menu-toggle:hover {
+    background: #eaf6ef;
+    color: #157347;
+}
+
+@media (max-width: 576px) {
+    .bbh-sidebar {
+        width: min(285px, 86vw);
+    }
+
+    .bbh-sidebar-brand {
+        font-size: 1.3rem;
+    }
+}
