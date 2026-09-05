@@ -77,6 +77,78 @@
 }
 
 /* =========================================================
+   GENERAL OPD - EXAM STATUS
+   ใช้สีพื้นหลังแบบเดียวกับคลินิคพิเศษ
+========================================================= */
+
+.opd-summary-horizontal .exam-horizontal-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.opd-summary-horizontal .exam-horizontal-card {
+    display: flex;
+    align-items: center;
+    min-height: 52px;
+    padding: 7px 12px;
+    border-radius: 10px;
+    border-left: 4px solid;
+    box-sizing: border-box;
+}
+
+.opd-summary-horizontal .exam-horizontal-card .summary-title {
+    flex: 1;
+    margin: 0;
+    font-size: 1.15rem;
+}
+
+.opd-summary-horizontal .exam-horizontal-card .summary-number {
+    display: flex;
+    align-items: baseline;
+    margin-left: 12px;
+    font-size: 1.45rem;
+}
+
+.opd-summary-horizontal .exam-horizontal-card .summary-unit {
+    margin-left: 4px;
+    font-size: 1rem;
+}
+
+/* รอซักประวัติ */
+.opd-summary-horizontal .exam-horizontal-card.wait-card {
+    background: #eef9fc;
+    border-left-color: #0dcaf0;
+}
+
+.opd-summary-horizontal .exam-horizontal-card.wait-card .summary-title,
+.opd-summary-horizontal .exam-horizontal-card.wait-card .summary-number {
+    color: #0aa2c0;
+}
+
+/* รอตรวจ */
+.opd-summary-horizontal .exam-horizontal-card.exam-card {
+    background: #f5efff;
+    border-left-color: #6610f2;
+}
+
+.opd-summary-horizontal .exam-horizontal-card.exam-card .summary-title,
+.opd-summary-horizontal .exam-horizontal-card.exam-card .summary-number {
+    color: #6610f2;
+}
+
+/* ตรวจเสร็จแล้ว */
+.opd-summary-horizontal .exam-horizontal-card.finish-card {
+    background: #eef8f2;
+    border-left-color: #198754;
+}
+
+.opd-summary-horizontal .exam-horizontal-card.finish-card .summary-title,
+.opd-summary-horizontal .exam-horizontal-card.finish-card .summary-number {
+    color: #198754;
+}
+
+/* =========================================================
    SPECIAL CLINIC
 ========================================================= */
 
