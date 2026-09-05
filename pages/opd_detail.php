@@ -650,50 +650,6 @@ include '../templates/sidebar.php';
                     </div>
 
                 </div>
-                <!-- =========================================================
-     SPECIAL CLINIC SUMMARY
-========================================================= -->
-
-                <div class="card shadow-sm special-clinic-summary">
-
-                    <div class="card-body">
-
-                        <!-- HEADER -->
-                        <div class="special-clinic-header">
-
-                            <div class="special-clinic-title">
-
-                                <div class="special-clinic-icon">
-                                    <i class="fa-solid fa-hospital-user"></i>
-                                </div>
-
-                                <div>
-
-                                    <div class="special-clinic-name">
-                                        ผู้มารับบริการตรวจโรคคลินิคพิเศษวันนี้
-                                    </div>
-
-                                    <div class="special-clinic-label">
-                                        จำนวนผู้มารับบริการ
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                            <div class="special-clinic-total">
-
-                                <span id="special_total">Loading...</span>
-
-                                <small>คน</small>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
 
                 <!-- =====================================================
          CHART SECTION

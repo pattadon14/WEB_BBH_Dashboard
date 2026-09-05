@@ -9,18 +9,18 @@ echo.
 git add .
 
 echo.
-set /p msg="ใส่ข้อความ Commit: "
+set /p msg="Enter Note for Edit: "
 
 git commit -m "%msg%"
 
 echo.
-echo กำลัง Upload ขึ้น GitHub...
+echo Uploading on GitHub ...
 echo.
 
 git push
 
 echo.
 echo ================================
-echo   Upload เสร็จเรียบร้อย
+echo   Upload Success
 echo ================================
 pause
