@@ -1,15 +1,17 @@
 /* =========================================================
    BBH DASHBOARD - SLIDE OUT SIDEBAR
+   Theme: White / Green
 ========================================================= */
 
 .bbh-sidebar-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(15, 23, 42, 0.35);
+    background: rgba(25, 135, 84, 0.10);
+    backdrop-filter: blur(1.5px);
     opacity: 0;
     visibility: hidden;
     z-index: 1040;
-    transition: opacity 0.25s ease, visibility 0.25s ease;
+    transition: opacity .25s ease, visibility .25s ease;
 }
 .bbh-sidebar-overlay.show { opacity: 1; visibility: visible; }
 
@@ -19,18 +21,20 @@
     left: 0;
     width: 285px;
     height: 100vh;
-    background: #24333a;
-    color: #dce5e8;
+    background: #ffffff;
+    color: #344054;
     z-index: 1050;
     transform: translateX(-100%);
-    transition: transform 0.28s ease;
-    box-shadow: 5px 0 18px rgba(0,0,0,.18);
+    transition: transform .28s ease;
+    box-shadow: 6px 0 22px rgba(25, 135, 84, .14);
+    border-right: 1px solid #dfeee6;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
 }
 .bbh-sidebar.open { transform: translateX(0); }
 
+/* Header สีเขียวตาม Theme เว็บ */
 .bbh-sidebar-header {
     min-height: 68px;
     padding: 0 18px;
@@ -39,68 +43,187 @@
     justify-content: space-between;
     background: #198754;
     color: #fff;
+    box-shadow: 0 2px 8px rgba(25, 135, 84, .15);
 }
-.bbh-sidebar-brand { font-size: 1.45rem; font-weight: bold; white-space: nowrap; }
+.bbh-sidebar-brand {
+    font-size: 1.35rem;
+    font-weight: bold;
+    white-space: nowrap;
+}
+.bbh-sidebar-brand i { font-size: 1.25rem; }
+
 .bbh-sidebar-close {
-    border: 0; background: transparent; color: #fff; font-size: 1.35rem;
-    width: 38px; height: 38px; border-radius: 8px; cursor: pointer;
+    border: 0;
+    background: transparent;
+    color: #fff;
+    font-size: 1.35rem;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background .18s ease, transform .18s ease;
 }
-.bbh-sidebar-close:hover { background: rgba(255,255,255,.14); }
+.bbh-sidebar-close:hover {
+    background: rgba(255,255,255,.16);
+    transform: rotate(4deg);
+}
+
 .bbh-sidebar-body { padding: 12px 10px 20px; }
-.bbh-sidebar-section-title { padding: 10px 12px 6px; color: #91a4ab; font-size: .95rem; font-weight: bold; }
+
+.bbh-sidebar-section-title {
+    padding: 10px 12px 6px;
+    color: #198754;
+    font-size: .92rem;
+    font-weight: bold;
+}
+
 .bbh-sidebar-menu { list-style: none; margin: 0; padding: 0; }
 .bbh-sidebar-menu li { margin: 3px 0; }
+
 .bbh-sidebar-menu a {
-    display: flex; align-items: center; gap: 11px; min-height: 43px; padding: 8px 13px;
-    color: #dce5e8; text-decoration: none; border-radius: 8px; font-size: 1.05rem;
-    transition: background .18s ease, color .18s ease;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-height: 43px;
+    padding: 8px 13px;
+    color: #475467;
+    text-decoration: none;
+    border-radius: 9px;
+    font-size: 1.05rem;
+    border: 1px solid transparent;
+    transition: background .18s ease, color .18s ease, border-color .18s ease, transform .18s ease;
 }
-.bbh-sidebar-menu a i { width: 22px; text-align: center; font-size: 1rem; }
-.bbh-sidebar-menu a:hover { background: #31444c; color: #fff; }
-.bbh-sidebar-menu a.active { background: #198754; color: #fff; box-shadow: 0 3px 8px rgba(0,0,0,.14); }
+.bbh-sidebar-menu a i {
+    width: 22px;
+    text-align: center;
+    font-size: 1rem;
+    color: #198754;
+}
+
+/* Hover เป็นเขียวอ่อน */
+.bbh-sidebar-menu a:hover {
+    background: #eef8f2;
+    color: #157347;
+    border-color: #d6ecdf;
+    transform: translateX(2px);
+}
+.bbh-sidebar-menu a:hover i { color: #157347; }
+
+/* Active เป็นเขียวเข้ม */
+.bbh-sidebar-menu a.active {
+    background: #198754;
+    color: #fff;
+    border-color: #198754;
+    box-shadow: 0 3px 9px rgba(25, 135, 84, .18);
+}
+.bbh-sidebar-menu a.active i { color: #fff; }
 
 /* เมนูหลักแบบกดเพื่อเปิด/ปิด submenu */
 .bbh-sidebar-parent-toggle {
-    width: 100%; min-height: 43px; padding: 8px 13px; border: 0; border-radius: 8px;
-    background: transparent; color: #dce5e8; display: flex; align-items: center;
-    justify-content: space-between; cursor: pointer; font: inherit; font-size: 1.05rem;
-    text-align: left; transition: background .18s ease, color .18s ease;
+    width: 100%;
+    min-height: 43px;
+    padding: 8px 13px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: transparent;
+    color: #475467;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    font: inherit;
+    font-size: 1.05rem;
+    text-align: left;
+    transition: background .18s ease, color .18s ease, border-color .18s ease;
 }
 .bbh-sidebar-parent-main { display: flex; align-items: center; gap: 11px; }
-.bbh-sidebar-parent-main i { width: 22px; text-align: center; font-size: 1rem; }
-.bbh-sidebar-parent-toggle:hover { background: #31444c; color: #fff; }
+.bbh-sidebar-parent-main i {
+    width: 22px;
+    text-align: center;
+    font-size: 1rem;
+    color: #198754;
+}
+.bbh-sidebar-parent-toggle:hover {
+    background: #eef8f2;
+    color: #157347;
+    border-color: #d6ecdf;
+}
+.bbh-sidebar-parent-toggle:hover .bbh-sidebar-parent-main i { color: #157347; }
 .bbh-sidebar-parent-toggle.active,
-.bbh-sidebar-parent-toggle.parent-active { background: #198754; color: #fff; box-shadow: 0 3px 8px rgba(0,0,0,.14); }
-.bbh-sidebar-arrow { font-size: .72rem !important; width: auto !important; transition: transform .2s ease; }
+.bbh-sidebar-parent-toggle.parent-active {
+    background: #198754;
+    color: #fff;
+    border-color: #198754;
+    box-shadow: 0 3px 9px rgba(25, 135, 84, .18);
+}
+.bbh-sidebar-parent-toggle.active .bbh-sidebar-parent-main i,
+.bbh-sidebar-parent-toggle.parent-active .bbh-sidebar-parent-main i { color: #fff; }
+.bbh-sidebar-arrow {
+    font-size: .72rem !important;
+    width: auto !important;
+    color: inherit !important;
+    transition: transform .2s ease;
+}
 .bbh-sidebar-parent-toggle[aria-expanded="true"] .bbh-sidebar-arrow { transform: rotate(180deg); }
 
+/* Submenu */
 .bbh-sidebar-submenu {
-    list-style: none; margin: 2px 0 5px; padding: 3px 0 3px 15px;
-    border-left: 1px solid rgba(255,255,255,.12);
+    list-style: none;
+    margin: 3px 0 5px;
+    padding: 4px 0 4px 15px;
+    border-left: 2px solid #dcefe4;
     display: none;
 }
 .bbh-sidebar-submenu.open { display: block; }
 .bbh-sidebar-submenu li { margin: 2px 0; }
 .bbh-sidebar-submenu a {
-    min-height: 36px; padding: 6px 9px; gap: 8px; font-size: .94rem; border-radius: 7px;
+    min-height: 36px;
+    padding: 6px 9px;
+    gap: 8px;
+    font-size: .94rem;
 }
-.bbh-sidebar-submenu a i { width: 20px; font-size: .82rem; color: #9fb0b6; }
+.bbh-sidebar-submenu a i {
+    width: 20px;
+    font-size: .82rem;
+    color: #198754;
+}
 .bbh-sidebar-submenu a:hover i,
-.bbh-sidebar-submenu a.active i { color: #fff; }
-.bbh-sidebar-submenu a.active { background: #167a4b; }
+.bbh-sidebar-submenu a.active i { color: #157347; }
+.bbh-sidebar-submenu a.active {
+    background: #eaf7ef;
+    color: #157347;
+    border-color: #cfe9da;
+    box-shadow: none;
+}
 
 .bbh-sidebar-static-item { opacity: .98; }
-.bbh-sidebar-divider { height: 1px; margin: 12px 8px; background: rgba(255,255,255,.08); }
+
+.bbh-sidebar-divider {
+    height: 1px;
+    margin: 12px 8px;
+    background: #e5eee9;
+}
+
 body.bbh-sidebar-open { overflow: hidden; }
 
+/* ปุ่ม Hamburger */
 .custom-navbar .bbh-menu-toggle {
-    border: 0; background: transparent; color: #198754; cursor: pointer; width: 48px; height: 48px;
-    display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 1.65rem;
+    border: 0;
+    background: transparent;
+    color: #198754;
+    cursor: pointer;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 1.65rem;
     transition: background .18s ease, color .18s ease;
 }
 .custom-navbar .bbh-menu-toggle:hover { background: #eaf6ef; color: #157347; }
 
 @media (max-width:576px) {
     .bbh-sidebar { width: min(285px, 86vw); }
-    .bbh-sidebar-brand { font-size: 1.3rem; }
+    .bbh-sidebar-brand { font-size: 1.25rem; }
 }
