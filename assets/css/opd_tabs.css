@@ -39,7 +39,6 @@
     margin-right: 6px;
 }
 
-/* Tab ที่ยังไม่ได้เลือก ให้ดูเป็นปุ่มกดได้ */
 .opd-page-tab:hover {
     color: #198754;
     background: #f1f3f5;
@@ -48,7 +47,6 @@
     box-shadow: 0 3px 7px rgba(0, 0, 0, 0.10);
 }
 
-/* Tab ที่เลือก */
 .opd-page-tab.active {
     background: #198754;
     border-color: #198754;
@@ -78,7 +76,6 @@
 
 /* =========================================================
    GENERAL OPD - EXAM STATUS
-   ใช้สีพื้นหลังแบบเดียวกับคลินิคพิเศษ
 ========================================================= */
 
 .opd-summary-horizontal .exam-horizontal-group {
@@ -115,7 +112,6 @@
     font-size: 1rem;
 }
 
-/* รอซักประวัติ */
 .opd-summary-horizontal .exam-horizontal-card.wait-card {
     background: #eef9fc;
     border-left-color: #0dcaf0;
@@ -126,7 +122,6 @@
     color: #0aa2c0;
 }
 
-/* รอตรวจ */
 .opd-summary-horizontal .exam-horizontal-card.exam-card {
     background: #f5efff;
     border-left-color: #6610f2;
@@ -137,7 +132,6 @@
     color: #6610f2;
 }
 
-/* ตรวจเสร็จแล้ว */
 .opd-summary-horizontal .exam-horizontal-card.finish-card {
     background: #eef8f2;
     border-left-color: #198754;
@@ -150,6 +144,7 @@
 
 /* =========================================================
    SPECIAL CLINIC
+   ให้ 2 ส่วนหลักมีความกว้างและความสูงสมดุลกัน
 ========================================================= */
 
 .special-clinic-summary .special-total-number span {
@@ -158,28 +153,49 @@
 
 .special-clinic-grid {
     display: grid;
-    grid-template-columns: minmax(300px, 0.9fr) minmax(420px, 1.1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 0;
     margin-top: 2px;
+    align-items: stretch;
 }
 
 .special-clinic-section {
     padding: 5px 18px 8px;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
 }
 
 .special-clinic-section + .special-clinic-section {
     border-left: 1px solid #e5e7eb;
 }
 
+/* ให้หัวข้อของแต่ละฝั่งมีความสูงเท่ากัน */
+.special-clinic-section .summary-section-title {
+    min-height: 30px;
+    display: flex;
+    align-items: center;
+}
+
+/* กล่องนัดหมายให้กินพื้นที่เต็มความสูงของ section */
 .special-appointment-card {
     overflow: hidden;
     border: 1px solid #d7e9df;
     border-radius: 14px;
     background: #f8fbf9;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 175px;
 }
 
 .special-appointment-total {
+    flex: 1;
+    min-height: 82px;
     padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
     color: #198754;
     border-bottom: 1px solid #d7e9df;
@@ -198,12 +214,18 @@
 }
 
 .special-appointment-result {
+    flex: 1;
+    min-height: 82px;
     display: grid;
     grid-template-columns: 1fr 1px 1fr;
 }
 
 .special-result-item {
     padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     text-align: center;
 }
 
@@ -229,23 +251,29 @@
     color: #dc3545;
 }
 
+/* สถานะการตรวจ 3 ช่องสูงเท่ากัน */
 .special-status-list {
+    flex: 1;
     display: flex;
     flex-direction: column;
     gap: 7px;
+    min-height: 175px;
 }
 
 .special-status-item {
+    flex: 1;
+    min-height: 0;
     display: flex;
     align-items: center;
-    min-height: 54px;
     padding: 7px 12px;
     border-radius: 10px;
     border-left: 4px solid;
+    box-sizing: border-box;
 }
 
 .special-status-icon {
     width: 36px;
+    flex: 0 0 36px;
     text-align: center;
     margin-right: 8px;
     font-size: 1.25rem;
@@ -253,6 +281,7 @@
 
 .special-status-info {
     flex: 1;
+    min-width: 0;
 }
 
 .special-status-name {
@@ -268,6 +297,7 @@
 .special-status-count {
     display: flex;
     align-items: baseline;
+    white-space: nowrap;
 }
 
 .special-status-count span {
@@ -329,6 +359,11 @@
         margin-top: 10px;
         padding-top: 15px;
     }
+
+    .special-appointment-card,
+    .special-status-list {
+        min-height: 175px;
+    }
 }
 
 @media (max-width: 576px) {
@@ -347,5 +382,13 @@
     .special-clinic-section {
         padding-left: 8px;
         padding-right: 8px;
+    }
+
+    .special-status-name {
+        font-size: 1.05rem;
+    }
+
+    .special-status-description {
+        font-size: 0.78rem;
     }
 }
