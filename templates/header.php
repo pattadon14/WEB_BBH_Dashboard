@@ -17,11 +17,11 @@ require_once __DIR__ . '/../config/app.php';
     <!-- AdminLTE -->
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/AdminLTE/dist/css/adminlte.min.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/custom.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/sidebar.css">
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/AdminLTE/plugins/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/custom.css">
 
     <!-- OPD page styles -->
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_tabs.css">
