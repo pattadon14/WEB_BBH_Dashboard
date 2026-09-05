@@ -13,15 +13,14 @@ include '../templates/sidebar.php';
             <!-- =====================================================
                  OPD TABS
             ====================================================== -->
-            <div class="opd-page-tabs mb-3" role="tablist" aria-label="ประเภทผู้รับบริการ OPD">
-                <button class="opd-page-tab active" type="button" role="tab"
-                        aria-selected="true" data-opd-tab="general">
+            <div class="opd-page-tabs mb-2" role="tablist" aria-label="ประเภทผู้รับบริการ OPD">
+                <button class="opd-page-tab active" type="button" role="tab" aria-selected="true"
+                    data-opd-tab="general">
                     <i class="fa-solid fa-stethoscope"></i>
                     ตรวจโรคทั่วไป
                 </button>
 
-                <button class="opd-page-tab" type="button" role="tab"
-                        aria-selected="false" data-opd-tab="special">
+                <button class="opd-page-tab" type="button" role="tab" aria-selected="false" data-opd-tab="special">
                     <i class="fa-solid fa-hospital-user"></i>
                     คลินิคพิเศษ
                 </button>
@@ -260,8 +259,11 @@ include '../templates/sidebar.php';
                                                     <th>ชื่อโรค (ไทย)</th>
                                                     <th>การวินิจฉัย (EN)</th>
                                                     <th class="text-center" style="width:90px">รวม</th>
-                                                    <th class="text-center" style="width:80px"><i class="fa-solid fa-mars" style="color:#3b82f6"></i> ชาย</th>
-                                                    <th class="text-center" style="width:80px"><i class="fa-solid fa-venus" style="color:#ec4899"></i> หญิง</th>
+                                                    <th class="text-center" style="width:80px"><i
+                                                            class="fa-solid fa-mars" style="color:#3b82f6"></i> ชาย</th>
+                                                    <th class="text-center" style="width:80px"><i
+                                                            class="fa-solid fa-venus" style="color:#ec4899"></i> หญิง
+                                                    </th>
                                                 </tr>
                                             </thead>
                                             <tbody id="opd-top10-tbody">
@@ -371,30 +373,37 @@ include '../templates/sidebar.php';
 
                                         <div class="special-status-list">
                                             <div class="special-status-item status-triage">
-                                                <div class="special-status-icon"><i class="fa-solid fa-user-nurse"></i></div>
+                                                <div class="special-status-icon"><i class="fa-solid fa-user-nurse"></i>
+                                                </div>
                                                 <div class="special-status-info">
                                                     <div class="special-status-name">รอซักประวัติ</div>
                                                     <div class="special-status-description">รอซักประวัติและคัดกรอง</div>
                                                 </div>
-                                                <div class="special-status-count"><span id="special_wait_triage">—</span><small>คน</small></div>
+                                                <div class="special-status-count"><span
+                                                        id="special_wait_triage">—</span><small>คน</small></div>
                                             </div>
 
                                             <div class="special-status-item status-exam">
-                                                <div class="special-status-icon"><i class="fa-solid fa-stethoscope"></i></div>
+                                                <div class="special-status-icon"><i class="fa-solid fa-stethoscope"></i>
+                                                </div>
                                                 <div class="special-status-info">
                                                     <div class="special-status-name">รอตรวจ</div>
                                                     <div class="special-status-description">กำลังรอพบแพทย์</div>
                                                 </div>
-                                                <div class="special-status-count"><span id="special_wait_exam">—</span><small>คน</small></div>
+                                                <div class="special-status-count"><span
+                                                        id="special_wait_exam">—</span><small>คน</small></div>
                                             </div>
 
                                             <div class="special-status-item status-finish">
-                                                <div class="special-status-icon"><i class="fa-solid fa-circle-check"></i></div>
+                                                <div class="special-status-icon"><i
+                                                        class="fa-solid fa-circle-check"></i></div>
                                                 <div class="special-status-info">
                                                     <div class="special-status-name">ตรวจเสร็จแล้ว</div>
-                                                    <div class="special-status-description">ตรวจเสร็จและออกจากระบบแล้ว</div>
+                                                    <div class="special-status-description">ตรวจเสร็จและออกจากระบบแล้ว
+                                                    </div>
                                                 </div>
-                                                <div class="special-status-count"><span id="special_finish_exam">—</span><small>คน</small></div>
+                                                <div class="special-status-count"><span
+                                                        id="special_finish_exam">—</span><small>คน</small></div>
                                             </div>
                                         </div>
                                     </div>
@@ -428,12 +437,12 @@ include '../templates/sidebar.php';
    OPD DETAIL TABS
    ตรวจโรคทั่วไป / คลินิคพิเศษ
 ========================================================= */
-(function () {
+(function() {
     const tabs = document.querySelectorAll('[data-opd-tab]');
     const panels = document.querySelectorAll('.opd-tab-panel');
 
     tabs.forEach(tab => {
-        tab.addEventListener('click', function () {
+        tab.addEventListener('click', function() {
             const target = this.dataset.opdTab;
 
             tabs.forEach(item => {
@@ -449,7 +458,9 @@ include '../templates/sidebar.php';
             });
 
             window.dispatchEvent(new CustomEvent('opdTabChanged', {
-                detail: { tab: target }
+                detail: {
+                    tab: target
+                }
             }));
         });
     });
