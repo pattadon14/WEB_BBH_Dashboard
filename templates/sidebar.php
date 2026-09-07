@@ -28,11 +28,33 @@ $currentWard = $_GET['ward'] ?? '';
 
         <div class="bbh-sidebar-section-title">ข้อมูลผู้รับบริการ</div>
         <ul class="bbh-sidebar-menu">
-            <li>
-                <a href="<?= BASE_URL ?>pages/opd_detail.php"
-                    class="<?= $currentPage === 'opd_detail.php' ? 'active' : '' ?>">
-                    <i class="fa-solid fa-user-doctor"></i><span>ผู้ป่วยนอก (OPD)</span>
-                </a>
+
+            <!-- ผู้ป่วยนอก (OPD) : เมนูซ้อนประเภทบริการ -->
+            <li class="bbh-sidebar-parent <?= $currentPage === 'opd_detail.php' ? 'parent-active' : '' ?>">
+                <button type="button"
+                    class="bbh-sidebar-parent-toggle <?= $currentPage === 'opd_detail.php' ? 'active' : '' ?>"
+                    data-sidebar-submenu="opd-submenu"
+                    aria-expanded="<?= $currentPage === 'opd_detail.php' ? 'true' : 'false' ?>">
+                    <span class="bbh-sidebar-parent-main">
+                        <i class="fa-solid fa-user-doctor"></i><span>ผู้ป่วยนอก (OPD)</span>
+                    </span>
+                    <i class="fa-solid fa-chevron-down bbh-sidebar-arrow"></i>
+                </button>
+
+                <ul class="bbh-sidebar-submenu <?= $currentPage === 'opd_detail.php' ? 'open' : '' ?>" id="opd-submenu">
+                    <li>
+                        <a href="<?= BASE_URL ?>pages/opd_detail.php#opd-tab-general" data-opd-tab-link="general">
+                            <i class="fa-solid fa-stethoscope"></i>
+                            <span>ผู้ป่วยตรวจโรคทั่วไป</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= BASE_URL ?>pages/opd_detail.php#opd-tab-special" data-opd-tab-link="special">
+                            <i class="fa-solid fa-hospital-user"></i>
+                            <span>ผู้ป่วยตรวจโรคคลินิคพิเศษ</span>
+                        </a>
+                    </li>
+                </ul>
             </li>
 
             <!-- ผู้ป่วยใน (IPD) : เมนูซ้อน Ward -->
