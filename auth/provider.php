@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../config/app.php';
+
 if (session_status() !== PHP_SESSION_ACTIVE) {
     $secureCookie = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
 
@@ -15,8 +18,6 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
     session_start();
 }
-
-require_once __DIR__ . '/../config/app.php';
 
 function provider_config(string $key, ?string $default = null): ?string
 {
@@ -59,13 +60,12 @@ function provider_http_json(
         throw new RuntimeException('ไม่สามารถเริ่มการเชื่อมต่อกับ MOPH ได้');
     }
 
-    $requestHeaders = $headers;
     $options = [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_FOLLOWLOCATION => false,
         CURLOPT_TIMEOUT => 20,
         CURLOPT_CUSTOMREQUEST => strtoupper($method),
-        CURLOPT_HTTPHEADER => $requestHeaders,
+        CURLOPT_HTTPHEADER => $headers,
     ];
 
     if ($jsonBody !== null) {
