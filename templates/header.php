@@ -26,6 +26,9 @@ require_once __DIR__ . '/../config/app.php';
     <!-- OPD page styles -->
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_tabs.css">
 
+    <!-- Login styles -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/login.css">
+
     <style>
         /* =========================================================
            OPD SUMMARY - BALANCED COLUMNS
