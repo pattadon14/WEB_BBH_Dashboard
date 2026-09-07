@@ -1,3 +1,16 @@
+<?php
+require_once __DIR__ . '/../auth/provider.php';
+
+$isProviderLoggedIn = provider_is_logged_in();
+$providerName = trim((string) ($_SESSION['provider_auth']['name_th'] ?? ''));
+if ($providerName === '') {
+    $providerName = trim(
+        (string) ($_SESSION['provider_auth']['firstname_th'] ?? '') . ' ' .
+        (string) ($_SESSION['provider_auth']['lastname_th'] ?? '')
+    );
+}
+?>
+
 <nav class="main-header navbar navbar-expand navbar-light custom-navbar">
 
     <!-- Left -->
@@ -23,12 +36,23 @@
                 <span>เสนอความคิดเห็น</span>
             </a>
         </li>
-        <li class="nav-item">
-            <a href="<?= BASE_URL ?>auth/provider_login.php" class="login-btn" id="provider-login-btn" aria-label="เข้าสู่ระบบด้วย MOPH Provider ID">
-                <i class="fas fa-id-card"></i>
-                <span>เข้าสู่ระบบ</span>
-            </a>
-        </li>
+
+        <?php if ($isProviderLoggedIn): ?>
+            <li class="nav-item">
+                <a href="<?= BASE_URL ?>auth/logout.php" class="login-btn" aria-label="ออกจากระบบ">
+                    <i class="fas fa-user-check"></i>
+                    <span><?= htmlspecialchars($providerName !== '' ? $providerName : 'Provider ID', ENT_QUOTES, 'UTF-8') ?></span>
+                    <i class="fas fa-sign-out-alt ml-1"></i>
+                </a>
+            </li>
+        <?php else: ?>
+            <li class="nav-item">
+                <a href="<?= BASE_URL ?>auth/provider_login.php" class="login-btn" id="provider-login-btn" aria-label="เข้าสู่ระบบด้วย MOPH Provider ID">
+                    <i class="fas fa-id-card"></i>
+                    <span>เข้าสู่ระบบ</span>
+                </a>
+            </li>
+        <?php endif; ?>
     </ul>
 
 </nav>
