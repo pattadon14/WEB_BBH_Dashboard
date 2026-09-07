@@ -1,6 +1,7 @@
-/* =========================
-   HOSxP LOGIN
-========================= */
+/* =========================================================
+   BBH DASHBOARD - HOSxP LOGIN
+========================================================= */
+
 .login-btn {
     display: inline-flex;
     align-items: center;
@@ -33,14 +34,71 @@
     font-size: 1rem;
 }
 
-.hosxp-login-modal {
-    border: 0;
-    border-radius: 14px;
-    overflow: hidden;
-    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.22);
+/* =========================================================
+   LOGIN MODAL
+   ใช้ overlay ของเราเอง เพื่อให้ปุ่ม X / ยกเลิกทำงานแน่นอน
+========================================================= */
+#hosxpLoginModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1060;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    outline: 0;
+    padding: 20px;
+    align-items: center;
+    justify-content: center;
 }
 
+#hosxpLoginModal.hosxp-modal-show {
+    display: flex !important;
+}
+
+#hosxpLoginModal .modal-dialog {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    pointer-events: auto;
+}
+
+.hosxp-login-modal {
+    width: 100%;
+    border: 0;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #ffffff;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.30);
+    transform: translateY(-8px);
+    transition: transform 0.2s ease;
+}
+
+#hosxpLoginModal.hosxp-modal-show .hosxp-login-modal {
+    transform: translateY(0);
+}
+
+/* พื้นหลังมืด + เบลอเล็กน้อย */
+.hosxp-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1050;
+    background: rgba(20, 30, 35, 0.48);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+}
+
+body.hosxp-modal-open {
+    overflow: hidden;
+}
+
+/* Header */
 .hosxp-login-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 64px;
     background: #198754;
     color: #ffffff;
     border-bottom: 0;
@@ -48,19 +106,42 @@
 }
 
 .hosxp-login-header .modal-title {
+    margin: 0;
     font-family: 'THSarabun', sans-serif;
-    font-size: 1.7rem;
+    font-size: 1.65rem;
     font-weight: bold;
+    line-height: 1.2;
 }
 
-.hosxp-login-header .close {
-    opacity: 0.9;
-    text-shadow: none;
-    font-size: 1.7rem;
+/* ปุ่ม X */
+.hosxp-login-close {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+    font-size: 1.55rem;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
+.hosxp-login-close:hover,
+.hosxp-login-close:focus {
+    background: rgba(255, 255, 255, 0.26);
+    color: #ffffff;
+    outline: none;
+    transform: scale(1.04);
+}
+
+/* Body */
 .hosxp-login-body {
-    padding: 24px 26px 10px;
+    padding: 24px 28px 10px;
     background: #ffffff;
 }
 
@@ -68,9 +149,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 9px;
-    margin-bottom: 20px;
-    padding: 10px 14px;
+    gap: 10px;
+    margin-bottom: 22px;
+    padding: 11px 14px;
+    border: 1px solid #d9eee2;
     border-radius: 10px;
     background: #eef8f2;
     color: #198754;
@@ -83,63 +165,94 @@
     font-size: 1.2rem;
 }
 
+.hosxp-login-body .form-group {
+    margin-bottom: 18px;
+}
+
 .hosxp-login-body label {
     display: block;
-    margin-bottom: 6px;
-    color: #333333;
+    margin-bottom: 7px;
+    color: #343a40;
     font-family: 'THSarabun', sans-serif;
     font-size: 1.2rem;
     font-weight: bold;
 }
 
+.hosxp-login-body .input-group {
+    width: 100%;
+}
+
 .hosxp-login-body .form-control {
-    height: 44px;
+    height: 46px;
     border: 1px solid #ced4da;
     border-left: 0;
-    border-radius: 0 8px 8px 0;
+    border-radius: 0 9px 9px 0;
     color: #333333;
+    background: #ffffff;
     font-family: 'THSarabun', sans-serif;
     font-size: 1.15rem;
     font-weight: normal;
+    box-shadow: none;
 }
 
 .hosxp-login-body .form-control:focus {
     border-color: #198754;
-    box-shadow: 0 0 0 0.15rem rgba(25, 135, 84, 0.15);
+    box-shadow: 0 0 0 0.15rem rgba(25, 135, 84, 0.12);
 }
 
 .hosxp-login-body .input-group-text {
-    width: 45px;
+    width: 46px;
+    height: 46px;
     justify-content: center;
     border: 1px solid #ced4da;
     border-right: 0;
-    border-radius: 8px 0 0 8px;
-    background: #f8f9fa;
+    border-radius: 9px 0 0 9px;
+    background: #f8faf9;
     color: #198754;
 }
 
+/* Footer */
 .hosxp-login-footer {
-    padding: 12px 26px 20px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 9px;
+    padding: 12px 28px 24px;
     border-top: 0;
     background: #ffffff;
 }
 
 .hosxp-login-footer .btn-light {
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
+    min-width: 82px;
+    height: 43px;
+    border: 1px solid #d9dee3;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #495057;
     font-family: 'THSarabun', sans-serif;
     font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.hosxp-login-footer .btn-light:hover,
+.hosxp-login-footer .btn-light:focus {
+    background: #f1f3f5;
+    outline: none;
 }
 
 .login-submit-btn {
+    min-width: 125px;
+    height: 43px;
     border: 0;
-    border-radius: 8px;
-    padding: 8px 22px;
+    border-radius: 9px;
+    padding: 8px 20px;
     background: #198754;
     color: #ffffff;
     font-family: 'THSarabun', sans-serif;
     font-size: 1.15rem;
     font-weight: bold;
+    cursor: pointer;
     transition: all 0.2s ease;
 }
 
@@ -148,6 +261,29 @@
     background: #157347;
     color: #ffffff;
     outline: none;
+    box-shadow: 0 4px 10px rgba(25, 135, 84, 0.20);
+}
+
+@media (max-width: 576px) {
+    #hosxpLoginModal {
+        padding: 12px;
+    }
+
+    #hosxpLoginModal .modal-dialog {
+        max-width: 100%;
+    }
+
+    .hosxp-login-header {
+        padding: 13px 16px;
+    }
+
+    .hosxp-login-body {
+        padding: 20px 18px 8px;
+    }
+
+    .hosxp-login-footer {
+        padding: 10px 18px 18px;
+    }
 }
 
 @media (max-width: 768px) {
@@ -158,13 +294,5 @@
 
     .login-btn span {
         display: none;
-    }
-
-    .hosxp-login-body {
-        padding: 20px 18px 8px;
-    }
-
-    .hosxp-login-footer {
-        padding: 10px 18px 18px;
     }
 }
