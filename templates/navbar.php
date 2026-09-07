@@ -36,14 +36,14 @@
 </nav>
 
 <!-- HOSxP Login Modal -->
-<div class="modal fade" id="hosxpLoginModal" tabindex="-1" role="dialog" aria-labelledby="hosxpLoginModalLabel" aria-hidden="true">
+<div class="modal" id="hosxpLoginModal" tabindex="-1" role="dialog" aria-labelledby="hosxpLoginModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content hosxp-login-modal">
             <div class="modal-header hosxp-login-header">
                 <h5 class="modal-title" id="hosxpLoginModalLabel">
                     <i class="fas fa-user-lock mr-2"></i>เข้าสู่ระบบ
                 </h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="ปิด">
+                <button type="button" class="hosxp-login-close" aria-label="ปิด">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -79,7 +79,7 @@
                 </div>
 
                 <div class="modal-footer hosxp-login-footer">
-                    <button type="button" class="btn btn-light" data-dismiss="modal">ยกเลิก</button>
+                    <button type="button" class="btn btn-light hosxp-login-cancel">ยกเลิก</button>
                     <button type="submit" class="login-submit-btn">
                         <i class="fas fa-sign-in-alt mr-1"></i>เข้าสู่ระบบ
                     </button>
