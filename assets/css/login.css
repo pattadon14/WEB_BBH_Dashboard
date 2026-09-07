@@ -1,0 +1,170 @@
+/* =========================
+   HOSxP LOGIN
+========================= */
+.login-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 0;
+    border-radius: 30px;
+    padding: 8px 18px;
+    background: #198754;
+    color: #ffffff;
+    font-family: 'THSarabun', sans-serif;
+    font-size: 1.15rem;
+    font-weight: bold;
+    line-height: 1.2;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(25, 135, 84, 0.18);
+    transition: all 0.25s ease;
+}
+
+.login-btn:hover,
+.login-btn:focus {
+    background: #157347;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(25, 135, 84, 0.28);
+    outline: none;
+}
+
+.login-btn i {
+    font-size: 1rem;
+}
+
+.hosxp-login-modal {
+    border: 0;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.22);
+}
+
+.hosxp-login-header {
+    background: #198754;
+    color: #ffffff;
+    border-bottom: 0;
+    padding: 14px 20px;
+}
+
+.hosxp-login-header .modal-title {
+    font-family: 'THSarabun', sans-serif;
+    font-size: 1.7rem;
+    font-weight: bold;
+}
+
+.hosxp-login-header .close {
+    opacity: 0.9;
+    text-shadow: none;
+    font-size: 1.7rem;
+}
+
+.hosxp-login-body {
+    padding: 24px 26px 10px;
+    background: #ffffff;
+}
+
+.hosxp-login-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    margin-bottom: 20px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: #eef8f2;
+    color: #198754;
+    font-family: 'THSarabun', sans-serif;
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.hosxp-login-note i {
+    font-size: 1.2rem;
+}
+
+.hosxp-login-body label {
+    display: block;
+    margin-bottom: 6px;
+    color: #333333;
+    font-family: 'THSarabun', sans-serif;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.hosxp-login-body .form-control {
+    height: 44px;
+    border: 1px solid #ced4da;
+    border-left: 0;
+    border-radius: 0 8px 8px 0;
+    color: #333333;
+    font-family: 'THSarabun', sans-serif;
+    font-size: 1.15rem;
+    font-weight: normal;
+}
+
+.hosxp-login-body .form-control:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.15rem rgba(25, 135, 84, 0.15);
+}
+
+.hosxp-login-body .input-group-text {
+    width: 45px;
+    justify-content: center;
+    border: 1px solid #ced4da;
+    border-right: 0;
+    border-radius: 8px 0 0 8px;
+    background: #f8f9fa;
+    color: #198754;
+}
+
+.hosxp-login-footer {
+    padding: 12px 26px 20px;
+    border-top: 0;
+    background: #ffffff;
+}
+
+.hosxp-login-footer .btn-light {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    font-family: 'THSarabun', sans-serif;
+    font-size: 1.1rem;
+}
+
+.login-submit-btn {
+    border: 0;
+    border-radius: 8px;
+    padding: 8px 22px;
+    background: #198754;
+    color: #ffffff;
+    font-family: 'THSarabun', sans-serif;
+    font-size: 1.15rem;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+
+.login-submit-btn:hover,
+.login-submit-btn:focus {
+    background: #157347;
+    color: #ffffff;
+    outline: none;
+}
+
+@media (max-width: 768px) {
+    .login-btn {
+        padding: 7px 12px;
+        font-size: 1rem;
+    }
+
+    .login-btn span {
+        display: none;
+    }
+
+    .hosxp-login-body {
+        padding: 20px 18px 8px;
+    }
+
+    .hosxp-login-footer {
+        padding: 10px 18px 18px;
+    }
+}
