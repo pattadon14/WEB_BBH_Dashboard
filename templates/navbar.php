@@ -18,7 +18,8 @@
     <!-- Right -->
     <ul class="navbar-nav ms-auto align-items-center">
         <li class="nav-item mr-2">
-            <button type="button" class="login-btn" data-toggle="modal" data-target="#hosxpLoginModal">
+            <button type="button" class="login-btn" id="hosxp-login-btn"
+                aria-label="เข้าสู่ระบบด้วย HOSxP User">
                 <i class="fas fa-sign-in-alt"></i>
                 <span>เข้าสู่ระบบ</span>
             </button>
