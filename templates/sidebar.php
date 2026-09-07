@@ -113,5 +113,3 @@ $currentWard = $_GET['ward'] ?? '';
         </ul>
     </div>
 </aside>
-
-<script src="<?= BASE_URL ?>assets/js/sidebar.js"></script>
