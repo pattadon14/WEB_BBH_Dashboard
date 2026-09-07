@@ -17,19 +17,17 @@
 
     <!-- Right -->
     <ul class="navbar-nav ms-auto align-items-center">
-        <li class="nav-item mr-2">
-            <button type="button" class="login-btn" id="hosxp-login-btn"
-                aria-label="เข้าสู่ระบบด้วย HOSxP User">
-                <i class="fas fa-sign-in-alt"></i>
-                <span>เข้าสู่ระบบ</span>
-            </button>
-        </li>
-        <li class="nav-item">
-            <a href="https://docs.google.com/forms/d/e/1FAIpQLScKGR0_xvvq1uHqdwm3Npj0y6tEAZq0o5KEp9tQaufokUWzwg/viewform?usp=dialog"
-                target="_blank" class="feedback-btn">
+        <li class="nav-item mr-3">
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLScKGR0_xvvq1uHqdwm3Npj0y6tEAZq0o5KEp9tQaufokUWzwg/viewform?usp=dialog" target="_blank" class="feedback-btn">
                 <i class="fas fa-comment-dots"></i>
                 <span>เสนอความคิดเห็น</span>
             </a>
+        </li>
+        <li class="nav-item">
+            <button type="button" class="login-btn" id="hosxp-login-btn" aria-label="เข้าสู่ระบบด้วย HOSxP User">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>เข้าสู่ระบบ</span>
+            </button>
         </li>
     </ul>
 
@@ -61,8 +59,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fas fa-user"></i></span>
                             </div>
-                            <input type="text" class="form-control" id="hosxp-username" name="username"
-                                placeholder="ชื่อผู้ใช้ HOSxP" autocomplete="username">
+                            <input type="text" class="form-control" id="hosxp-username" name="username" placeholder="ชื่อผู้ใช้ HOSxP" autocomplete="username">
                         </div>
                     </div>
 
@@ -72,8 +69,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fas fa-lock"></i></span>
                             </div>
-                            <input type="password" class="form-control" id="hosxp-password" name="password"
-                                placeholder="รหัสผ่าน HOSxP" autocomplete="current-password">
+                            <input type="password" class="form-control" id="hosxp-password" name="password" placeholder="รหัสผ่าน HOSxP" autocomplete="current-password">
                         </div>
                     </div>
                 </div>
