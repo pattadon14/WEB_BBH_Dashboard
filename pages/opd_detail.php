@@ -313,7 +313,7 @@ include '../templates/sidebar.php';
                                             ผู้มารับบริการตรวจโรคคลินิคพิเศษวันนี้
                                         </div>
                                         <div class="opd-summary-total-label">
-                                            จำนวนผู้มารับบริการคลินิคพิเศษ
+                                            จำนวนผู้มารับบริการ
                                         </div>
                                     </div>
 
