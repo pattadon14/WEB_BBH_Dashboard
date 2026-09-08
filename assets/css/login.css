@@ -4,10 +4,10 @@
 ========================================================= */
 
 /* =========================================================
-   NAVBAR LOGIN / FEEDBACK BUTTONS
+   NAVBAR LOGIN / FEEDBACK / PROVIDER USER BUTTONS
 ========================================================= */
 
-/* บังคับระยะห่างระหว่างปุ่มทั้ง 2 ให้ชัดเจน */
+/* บังคับระยะห่างระหว่างรายการด้านขวาให้ชัดเจน */
 .custom-navbar .navbar-nav.ms-auto {
     display: flex;
     align-items: center;
@@ -19,8 +19,9 @@
     margin-right: 0 !important;
 }
 
-/* ปุ่ม Login ให้รูปทรงเหมือนปุ่มเสนอความคิดเห็น */
-.login-btn {
+/* ปุ่ม Login */
+.login-btn,
+.logout-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -42,7 +43,9 @@
 }
 
 .login-btn:hover,
-.login-btn:focus {
+.login-btn:focus,
+.logout-btn:hover,
+.logout-btn:focus {
     background: #157347;
     color: #ffffff;
     transform: translateY(-2px);
@@ -50,8 +53,32 @@
     outline: none;
 }
 
-.login-btn i {
+.login-btn i,
+.logout-btn i {
     font-size: 1rem;
+}
+
+/* ชื่อเจ้าหน้าที่ที่เข้าสู่ระบบแล้ว */
+.provider-user {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 8px 16px;
+    border: 1px solid rgba(25, 135, 84, 0.18);
+    border-radius: 30px;
+    background: #f2fbf5;
+    color: #157347;
+    font-family: 'THSarabun', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.3;
+    white-space: nowrap;
+}
+
+.provider-user i {
+    font-size: 1.15rem;
 }
 
 /* =========================================================
@@ -329,12 +356,18 @@ body.hosxp-modal-open {
         gap: 10px;
     }
 
-    .login-btn {
+    .login-btn,
+    .logout-btn {
         padding: 6px 12px;
         font-size: 1rem;
     }
 
-    .login-btn span {
+    .provider-user {
+        padding: 6px 10px;
+    }
+
+    .provider-user span,
+    .logout-btn span {
         display: none;
     }
 }
@@ -362,5 +395,9 @@ body.hosxp-modal-open {
 
     .custom-navbar .navbar-nav.ms-auto {
         gap: 8px;
+    }
+
+    .provider-user {
+        padding: 6px 9px;
     }
 }
