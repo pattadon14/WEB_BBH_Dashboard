@@ -1,11 +1,17 @@
 <?php
 $currentPage = basename($_SERVER['PHP_SELF']);
 $currentWard = $_GET['ward'] ?? '';
+$isProviderLoggedIn = provider_is_logged_in();
 ?>
 
 <div class="bbh-sidebar-overlay" id="bbh-sidebar-overlay"></div>
 
-<aside class="bbh-sidebar" id="bbh-sidebar" aria-label="เมนูหลัก">
+<div class="bbh-sidebar-guest-message" id="bbh-sidebar-guest-message" role="alert" aria-live="polite" aria-hidden="true">
+    <i class="fa-solid fa-lock"></i>
+    <span>กรุณาเข้าสู่ระบบเพื่อดูข้อมูลเพิ่มเติม</span>
+</div>
+
+<aside class="bbh-sidebar" id="bbh-sidebar" data-provider-logged-in="<?= $isProviderLoggedIn ? '1' : '0' ?>" aria-label="เมนูหลัก">
     <div class="bbh-sidebar-header">
         <div class="bbh-sidebar-brand">
             <i class="fa-solid fa-hospital me-2"></i>
