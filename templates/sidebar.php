@@ -6,11 +6,6 @@ $isProviderLoggedIn = provider_is_logged_in();
 
 <div class="bbh-sidebar-overlay" id="bbh-sidebar-overlay"></div>
 
-<div class="bbh-sidebar-guest-message" id="bbh-sidebar-guest-message" role="alert" aria-live="polite" aria-hidden="true">
-    <i class="fa-solid fa-lock"></i>
-    <span>กรุณาเข้าสู่ระบบเพื่อดูข้อมูลเพิ่มเติม</span>
-</div>
-
 <aside class="bbh-sidebar" id="bbh-sidebar" data-provider-logged-in="<?= $isProviderLoggedIn ? '1' : '0' ?>" aria-label="เมนูหลัก">
     <div class="bbh-sidebar-header">
         <div class="bbh-sidebar-brand">
@@ -21,6 +16,16 @@ $isProviderLoggedIn = provider_is_logged_in();
             <i class="fa-solid fa-xmark"></i>
         </button>
     </div>
+
+    <?php if (!$isProviderLoggedIn): ?>
+        <div class="bbh-sidebar-guest-lock" aria-hidden="true">
+            <div class="bbh-sidebar-guest-lock-card">
+                <i class="fa-solid fa-lock"></i>
+                <strong>กรุณาเข้าสู่ระบบ</strong>
+                <span>เพื่อดูข้อมูลเพิ่มเติม</span>
+            </div>
+        </div>
+    <?php endif; ?>
 
     <div class="bbh-sidebar-body">
         <div class="bbh-sidebar-section-title">เมนูหลัก</div>
@@ -77,67 +82,47 @@ $isProviderLoggedIn = provider_is_logged_in();
 
                 <ul class="bbh-sidebar-submenu <?= $currentPage === 'ipd_detail.php' ? 'open' : '' ?>" id="ipd-submenu">
                     <li><a href="<?= BASE_URL ?>pages/ipd_detail.php?ward=pediatric"
-                            class="<?= $currentWard === 'pediatric' ? 'active' : '' ?>"><i
-                                class="fa-solid fa-child"></i><span>ภาพรวมผู้ป่วยใน</span></a></li>
+                            class="<?= $currentWard === 'pediatric' ? 'active' : '' ?>"><i class="fa-solid fa-child"></i><span>ภาพรวมผู้ป่วยใน</span></a></li>
                     <li><a href="<?= BASE_URL ?>pages/ipd_detail.php?ward=pediatric"
-                            class="<?= $currentWard === 'pediatric' ? 'active' : '' ?>"><i
-                                class="fa-solid fa-child"></i><span>ผู้ป่วยเด็ก</span></a></li>
+                            class="<?= $currentWard === 'pediatric' ? 'active' : '' ?>"><i class="fa-solid fa-child"></i><span>ผู้ป่วยเด็ก</span></a></li>
                     <li><a href="<?= BASE_URL ?>pages/ipd_detail.php?ward=medicine_female"
-                            class="<?= $currentWard === 'medicine_female' ? 'active' : '' ?>"><i
-                                class="fa-solid fa-person-dress"></i><span>อายุรกรรมหญิง</span></a></li>
+                            class="<?= $currentWard === 'medicine_female' ? 'active' : '' ?>"><i class="fa-solid fa-person-dress"></i><span>อายุรกรรมหญิง</span></a></li>
                     <li><a href="<?= BASE_URL ?>pages/ipd_detail.php?ward=medicine_male"
-                            class="<?= $currentWard === 'medicine_male' ? 'active' : '' ?>"><i
-                                class="fa-solid fa-person"></i><span>อายุรกรรมชาย</span></a></li>
+                            class="<?= $currentWard === 'medicine_male' ? 'active' : '' ?>"><i class="fa-solid fa-person"></i><span>อายุรกรรมชาย</span></a></li>
                     <li><a href="<?= BASE_URL ?>pages/ipd_detail.php?ward=surgery"
-                            class="<?= $currentWard === 'surgery' ? 'active' : '' ?>"><i
-                                class="fa-solid fa-user-doctor"></i><span>ศัลยกรรม</span></a></li>
+                            class="<?= $currentWard === 'surgery' ? 'active' : '' ?>"><i class="fa-solid fa-user-doctor"></i><span>ศัลยกรรม</span></a></li>
                     <li><a href="<?= BASE_URL ?>pages/ipd_detail.php?ward=private5"
-                            class="<?= $currentWard === 'private5' ? 'active' : '' ?>"><i
-                                class="fa-solid fa-door-open"></i><span>ผู้ป่วยห้องพิเศษ ชั้น 5</span></a></li>
+                            class="<?= $currentWard === 'private5' ? 'active' : '' ?>"><i class="fa-solid fa-door-open"></i><span>ผู้ป่วยห้องพิเศษ ชั้น 5</span></a></li>
                     <li><a href="<?= BASE_URL ?>pages/ipd_detail.php?ward=stroke"
-                            class="<?= $currentWard === 'stroke' ? 'active' : '' ?>"><i
-                                class="fa-solid fa-brain"></i><span>STROKE UNIT (หลอดเลือดสมอง)</span></a></li>
+                            class="<?= $currentWard === 'stroke' ? 'active' : '' ?>"><i class="fa-solid fa-brain"></i><span>STROKE UNIT (หลอดเลือดสมอง)</span></a></li>
                     <li><a href="<?= BASE_URL ?>pages/ipd_detail.php?ward=lr"
-                            class="<?= $currentWard === 'lr' ? 'active' : '' ?>"><i
-                                class="fa-solid fa-person-pregnant"></i><span>LR (ห้องคลอด)</span></a></li>
+                            class="<?= $currentWard === 'lr' ? 'active' : '' ?>"><i class="fa-solid fa-person-pregnant"></i><span>LR (ห้องคลอด)</span></a></li>
                     <li><a href="<?= BASE_URL ?>pages/ipd_detail.php?ward=icu"
-                            class="<?= $currentWard === 'icu' ? 'active' : '' ?>"><i
-                                class="fa-solid fa-heart-pulse"></i><span>ICU (ผู้ป่วยหนัก)</span></a></li>
+                            class="<?= $currentWard === 'icu' ? 'active' : '' ?>"><i class="fa-solid fa-heart-pulse"></i><span>ICU (ผู้ป่วยหนัก)</span></a></li>
                     <li><a href="<?= BASE_URL ?>pages/ipd_detail.php?ward=snb"
-                            class="<?= $currentWard === 'snb' ? 'active' : '' ?>"><i
-                                class="fa-solid fa-baby"></i><span>SNB (ทารกแรกเกิดป่วย)</span></a></li>
+                            class="<?= $currentWard === 'snb' ? 'active' : '' ?>"><i class="fa-solid fa-baby"></i><span>SNB (ทารกแรกเกิดป่วย)</span></a></li>
                     <li><a href="<?= BASE_URL ?>pages/ipd_detail.php?ward=pp"
-                            class="<?= $currentWard === 'pp' ? 'active' : '' ?>"><i
-                                class="fa-solid fa-person-breastfeeding"></i><span>PP (มารดาหลังคลอด)</span></a></li>
+                            class="<?= $currentWard === 'pp' ? 'active' : '' ?>"><i class="fa-solid fa-person-breastfeeding"></i><span>PP (มารดาหลังคลอด)</span></a></li>
                     <li><a href="<?= BASE_URL ?>pages/ipd_detail.php?ward=home"
-                            class="<?= $currentWard === 'home' ? 'active' : '' ?>"><i
-                                class="fa-solid fa-house-user"></i><span>Home Ward</span></a></li>
+                            class="<?= $currentWard === 'home' ? 'active' : '' ?>"><i class="fa-solid fa-house-user"></i><span>Home Ward</span></a></li>
                 </ul>
             </li>
 
             <li><a href="<?= BASE_URL ?>pages/ER_detail.php"
-                    class="<?= $currentPage === 'ER_detail.php' ? 'active' : '' ?>"><i
-                        class="fa-solid fa-truck-medical"></i><span>ห้องอุบัติฉุกเฉินและฉุกเฉิน (ER)</span></a></li>
-            <li><a href="#" class="bbh-sidebar-static-item"><i class="fa-solid fa-tooth"></i><span>ทันตกรรม</span></a>
-            </li>
-            <li><a href="#" class="bbh-sidebar-static-item"><i
-                        class="fa-solid fa-mortar-pestle"></i><span>แพทย์แผนไทย</span></a></li>
-            <li><a href="#" class="bbh-sidebar-static-item"><i
-                        class="fa-solid fa-person-walking"></i><span>กายภาพบำบัด</span></a></li>
-            <li><a href="#" class="bbh-sidebar-static-item"><i
-                        class="fa-solid fa-droplet"></i><span>บำบัดไตเทียม</span></a></li>
-            <li><a href="#" class="bbh-sidebar-static-item"><i
-                        class="fa-solid fa-person-running"></i><span>ผ่าตัดและวิสัญญี</span></a></li>
-            <li><a href="#" class="bbh-sidebar-static-item"><i class="fa-solid fa-x-ray"></i><span>X-ray และ
-                        Ultrasound</span></a></li>
+                    class="<?= $currentPage === 'ER_detail.php' ? 'active' : '' ?>"><i class="fa-solid fa-truck-medical"></i><span>ห้องอุบัติฉุกเฉินและฉุกเฉิน (ER)</span></a></li>
+            <li><a href="#" class="bbh-sidebar-static-item"><i class="fa-solid fa-tooth"></i><span>ทันตกรรม</span></a></li>
+            <li><a href="#" class="bbh-sidebar-static-item"><i class="fa-solid fa-mortar-pestle"></i><span>แพทย์แผนไทย</span></a></li>
+            <li><a href="#" class="bbh-sidebar-static-item"><i class="fa-solid fa-person-walking"></i><span>กายภาพบำบัด</span></a></li>
+            <li><a href="#" class="bbh-sidebar-static-item"><i class="fa-solid fa-droplet"></i><span>บำบัดไตเทียม</span></a></li>
+            <li><a href="#" class="bbh-sidebar-static-item"><i class="fa-solid fa-person-running"></i><span>ผ่าตัดและวิสัญญี</span></a></li>
+            <li><a href="#" class="bbh-sidebar-static-item"><i class="fa-solid fa-x-ray"></i><span>X-ray และ Ultrasound</span></a></li>
         </ul>
 
         <div class="bbh-sidebar-divider"></div>
 
         <div class="bbh-sidebar-section-title">ระบบ</div>
         <ul class="bbh-sidebar-menu">
-            <li><a href="<?= BASE_URL ?>" title="กลับหน้าหลัก"><i
-                        class="fa-solid fa-chart-line"></i><span>Dashboard</span></a></li>
+            <li><a href="<?= BASE_URL ?>" title="กลับหน้าหลัก"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a></li>
         </ul>
     </div>
 </aside>
