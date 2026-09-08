@@ -204,6 +204,41 @@
     background: #e5eee9;
 }
 
+/* ข้อความแจ้งเตือนสำหรับ Guest */
+.bbh-sidebar-guest-message {
+    position: fixed;
+    top: 88px;
+    left: 50%;
+    transform: translate(-50%, -12px);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: calc(100vw - 30px);
+    padding: 12px 18px;
+    background: #ffffff;
+    color: #157347;
+    border: 1px solid #cfe9da;
+    border-left: 4px solid #198754;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(25, 135, 84, .18);
+    font-size: .98rem;
+    font-weight: 600;
+    z-index: 1100;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity .2s ease, transform .2s ease, visibility .2s ease;
+}
+.bbh-sidebar-guest-message i {
+    color: #198754;
+    font-size: 1rem;
+}
+.bbh-sidebar-guest-message.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, 0);
+}
+
 body.bbh-sidebar-open { overflow: hidden; }
 
 /* ปุ่ม Hamburger */
@@ -226,4 +261,10 @@ body.bbh-sidebar-open { overflow: hidden; }
 @media (max-width:576px) {
     .bbh-sidebar { width: min(285px, 86vw); }
     .bbh-sidebar-brand { font-size: 1.25rem; }
+    .bbh-sidebar-guest-message {
+        top: 78px;
+        width: calc(100vw - 30px);
+        justify-content: center;
+        text-align: center;
+    }
 }
