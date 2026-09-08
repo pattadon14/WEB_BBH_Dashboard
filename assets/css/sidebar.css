@@ -276,6 +276,32 @@ body.bbh-sidebar-open { overflow: hidden; }
 }
 .custom-navbar .bbh-menu-toggle:hover { background: #eaf6ef; color: #157347; }
 
+/* =========================================================
+   INDEX DASHBOARD - สลับตำแหน่ง Section
+   ให้ "สถานะเตียงและบริการวันนี้" อยู่ก่อน Heatmap
+   จำกัดเฉพาะหน้า Index ที่มี Heatmap
+========================================================= */
+.content-wrapper .content > .container-fluid:has(#heatmap-chart) {
+    display: flex;
+    flex-direction: column;
+}
+
+.content-wrapper .content > .container-fluid:has(#heatmap-chart) > .row:nth-child(1) {
+    order: 1;
+}
+
+.content-wrapper .content > .container-fluid:has(#heatmap-chart) > .row:nth-child(2) {
+    order: 4;
+}
+
+.content-wrapper .content > .container-fluid:has(#heatmap-chart) > .row:nth-child(3) {
+    order: 2;
+}
+
+.content-wrapper .content > .container-fluid:has(#heatmap-chart) > .row:nth-child(4) {
+    order: 3;
+}
+
 @media (max-width:576px) {
     .bbh-sidebar { width: min(285px, 86vw); }
     .bbh-sidebar-brand { font-size: 1.25rem; }
