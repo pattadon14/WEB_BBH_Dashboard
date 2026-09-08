@@ -7,36 +7,19 @@
         const overlay = document.getElementById('bbh-sidebar-overlay');
         const toggle = document.getElementById('bbh-menu-toggle');
         const close = document.getElementById('bbh-sidebar-close');
-        const guestMessage = document.getElementById('bbh-sidebar-guest-message');
 
         if (!sidebar || !overlay || !toggle) return;
 
         const isProviderLoggedIn = sidebar.getAttribute('data-provider-logged-in') === '1';
-        let guestMessageTimer = null;
-
-        function showGuestMessage() {
-            if (!guestMessage) return;
-
-            guestMessage.classList.add('show');
-            guestMessage.setAttribute('aria-hidden', 'false');
-
-            if (guestMessageTimer) clearTimeout(guestMessageTimer);
-            guestMessageTimer = setTimeout(function () {
-                guestMessage.classList.remove('show');
-                guestMessage.setAttribute('aria-hidden', 'true');
-            }, 3000);
-        }
 
         function openSidebar() {
-            if (!isProviderLoggedIn) {
-                showGuestMessage();
-                return;
-            }
-
+            /* Guest เปิด Sidebar ได้ แต่เนื้อหาด้านในจะถูก Lock/Blur */
             sidebar.classList.add('open');
             overlay.classList.add('show');
             document.body.classList.add('bbh-sidebar-open');
             toggle.setAttribute('aria-expanded', 'true');
+
+            sidebar.classList.toggle('guest-locked', !isProviderLoggedIn);
         }
 
         function closeSidebar() {
@@ -58,9 +41,21 @@
             if (event.key === 'Escape') closeSidebar();
         });
 
+        /* Guest: ไม่ให้คลิกเมนูที่อยู่ใต้ชั้น Lock */
+        sidebar.querySelectorAll('.bbh-sidebar-body a, .bbh-sidebar-body button').forEach(function (element) {
+            element.addEventListener('click', function (event) {
+                if (!isProviderLoggedIn) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+            });
+        });
+
         /* OPD / IPD submenu */
         sidebar.querySelectorAll('[data-sidebar-submenu]').forEach(function (button) {
             button.addEventListener('click', function () {
+                if (!isProviderLoggedIn) return;
+
                 const submenuId = this.getAttribute('data-sidebar-submenu');
                 const submenu = document.getElementById(submenuId);
                 if (!submenu) return;
@@ -73,7 +68,7 @@
 
         /* OPD submenu -> switch tab */
         function activateOpdTab(tabName) {
-            if (!tabName) return false;
+            if (!tabName || !isProviderLoggedIn) return false;
 
             const tabButton = document.querySelector('[data-opd-tab="' + tabName + '"]');
             const tabPanel = document.getElementById('opd-tab-' + tabName);
@@ -97,6 +92,8 @@
 
         sidebar.querySelectorAll('[data-opd-tab-link]').forEach(function (link) {
             link.addEventListener('click', function (event) {
+                if (!isProviderLoggedIn) return;
+
                 const tabName = this.getAttribute('data-opd-tab-link');
                 const targetUrl = this.href;
                 const isOpdPage = window.location.pathname.endsWith('/pages/opd_detail.php') ||
@@ -113,14 +110,13 @@
         /* ถ้าเปิดหน้า OPD จาก submenu ให้เลือก tab ตาม hash */
         const currentHash = window.location.hash;
         if (currentHash === '#opd-tab-general' || currentHash === '#opd-tab-special') {
-            const tabName = currentHash.replace('#opd-tab-', '');
-            activateOpdTab(tabName);
+            activateOpdTab(currentHash.replace('#opd-tab-', ''));
         }
 
         /* ปิด Sidebar เมื่อเลือกเมนูปลายทาง */
         sidebar.querySelectorAll('a[href]').forEach(function (link) {
             link.addEventListener('click', function () {
-                if (this.getAttribute('href') !== '#') closeSidebar();
+                if (isProviderLoggedIn && this.getAttribute('href') !== '#') closeSidebar();
             });
         });
     }
