@@ -44,6 +44,9 @@
     background: #198754;
     color: #fff;
     box-shadow: 0 2px 8px rgba(25, 135, 84, .15);
+    position: relative;
+    z-index: 3;
+    flex-shrink: 0;
 }
 .bbh-sidebar-brand {
     font-size: 1.35rem;
@@ -69,6 +72,61 @@
 }
 
 .bbh-sidebar-body { padding: 12px 10px 20px; }
+
+/* =========================================================
+   Guest Lock
+   Sidebar ยังคงเลื่อนออกมา แต่เบลอ/บังเมนูสำหรับ Guest
+========================================================= */
+.bbh-sidebar-guest-lock {
+    position: absolute;
+    top: 68px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(255, 255, 255, .58);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+.bbh-sidebar-guest-lock-card {
+    width: 100%;
+    max-width: 245px;
+    padding: 24px 18px;
+    border: 1px solid rgba(25, 135, 84, .18);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, .84);
+    box-shadow: 0 10px 28px rgba(25, 55, 45, .12);
+    text-align: center;
+    color: #475467;
+}
+
+.bbh-sidebar-guest-lock-card i {
+    display: block;
+    margin-bottom: 12px;
+    font-size: 1.65rem;
+    color: #198754;
+}
+
+.bbh-sidebar-guest-lock-card strong,
+.bbh-sidebar-guest-lock-card span {
+    display: block;
+}
+
+.bbh-sidebar-guest-lock-card strong {
+    margin-bottom: 5px;
+    color: #198754;
+    font-size: 1.08rem;
+}
+
+.bbh-sidebar-guest-lock-card span {
+    color: #7a8b82;
+    font-size: .92rem;
+}
 
 .bbh-sidebar-section-title {
     padding: 10px 12px 6px;
@@ -100,7 +158,6 @@
     color: #198754;
 }
 
-/* Hover เป็นเขียวอ่อน */
 .bbh-sidebar-menu a:hover {
     background: #eef8f2;
     color: #157347;
@@ -109,7 +166,6 @@
 }
 .bbh-sidebar-menu a:hover i { color: #157347; }
 
-/* Active เป็นเขียวเข้ม */
 .bbh-sidebar-menu a.active {
     background: #198754;
     color: #fff;
@@ -118,7 +174,6 @@
 }
 .bbh-sidebar-menu a.active i { color: #fff; }
 
-/* เมนูหลักแบบกดเพื่อเปิด/ปิด submenu */
 .bbh-sidebar-parent-toggle {
     width: 100%;
     min-height: 43px;
@@ -166,7 +221,6 @@
 }
 .bbh-sidebar-parent-toggle[aria-expanded="true"] .bbh-sidebar-arrow { transform: rotate(180deg); }
 
-/* Submenu */
 .bbh-sidebar-submenu {
     list-style: none;
     margin: 3px 0 5px;
@@ -204,44 +258,8 @@
     background: #e5eee9;
 }
 
-/* ข้อความแจ้งเตือนสำหรับ Guest */
-.bbh-sidebar-guest-message {
-    position: fixed;
-    top: 88px;
-    left: 50%;
-    transform: translate(-50%, -12px);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    max-width: calc(100vw - 30px);
-    padding: 12px 18px;
-    background: #ffffff;
-    color: #157347;
-    border: 1px solid #cfe9da;
-    border-left: 4px solid #198754;
-    border-radius: 10px;
-    box-shadow: 0 8px 24px rgba(25, 135, 84, .18);
-    font-size: .98rem;
-    font-weight: 600;
-    z-index: 1100;
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transition: opacity .2s ease, transform .2s ease, visibility .2s ease;
-}
-.bbh-sidebar-guest-message i {
-    color: #198754;
-    font-size: 1rem;
-}
-.bbh-sidebar-guest-message.show {
-    opacity: 1;
-    visibility: visible;
-    transform: translate(-50%, 0);
-}
-
 body.bbh-sidebar-open { overflow: hidden; }
 
-/* ปุ่ม Hamburger */
 .custom-navbar .bbh-menu-toggle {
     border: 0;
     background: transparent;
@@ -261,10 +279,5 @@ body.bbh-sidebar-open { overflow: hidden; }
 @media (max-width:576px) {
     .bbh-sidebar { width: min(285px, 86vw); }
     .bbh-sidebar-brand { font-size: 1.25rem; }
-    .bbh-sidebar-guest-message {
-        top: 78px;
-        width: calc(100vw - 30px);
-        justify-content: center;
-        text-align: center;
-    }
+    .bbh-sidebar-guest-lock-card { max-width: 220px; }
 }
