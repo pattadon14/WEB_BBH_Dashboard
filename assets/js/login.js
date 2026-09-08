@@ -74,9 +74,34 @@
         });
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initHosxpLoginModal);
-    } else {
+    function applyProviderAccessUI() {
+        /* navbar.php แสดง .login-btn เฉพาะเมื่อยังไม่ได้ Login Provider ID */
+        var isGuest = !!document.querySelector('.custom-navbar .login-btn');
+        var path = window.location.pathname;
+        var isRestrictedDetailPage = /\/pages\/(opd_detail|ipd_detail|ER_detail)\.php$/i.test(path);
+
+        if (!isGuest) return;
+
+        /* Guest: ซ่อนปุ่ม "รายละเอียด" บนหน้า Index */
+        document.querySelectorAll('.small-box-footer').forEach(function (link) {
+            link.style.display = 'none';
+        });
+
+        /* Guest: หากเข้าหน้ารายละเอียดโดยตรง ให้กลับไปหน้า Index */
+        if (isRestrictedDetailPage) {
+            var basePath = path.split('/pages/')[0];
+            window.location.replace(basePath + '/index.php');
+        }
+    }
+
+    function init() {
         initHosxpLoginModal();
+        applyProviderAccessUI();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
     }
 })();
