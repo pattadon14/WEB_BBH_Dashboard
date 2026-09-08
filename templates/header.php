@@ -1,11 +1,15 @@
-<!DOCTYPE html>
-<html lang="th">
-
 <?php
 
+// Start the Provider ID session before any HTML output is sent.
+// This is required so the session cookie can be created and the
+// Provider ID login state remains available to navbar.php.
+require_once __DIR__ . '/../auth/provider.php';
 require_once __DIR__ . '/../config/app.php';
 
 ?>
+
+<!DOCTYPE html>
+<html lang="th">
 
 <head>
 
