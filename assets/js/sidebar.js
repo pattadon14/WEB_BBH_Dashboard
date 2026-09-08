@@ -7,10 +7,32 @@
         const overlay = document.getElementById('bbh-sidebar-overlay');
         const toggle = document.getElementById('bbh-menu-toggle');
         const close = document.getElementById('bbh-sidebar-close');
+        const guestMessage = document.getElementById('bbh-sidebar-guest-message');
 
         if (!sidebar || !overlay || !toggle) return;
 
+        const isProviderLoggedIn = sidebar.getAttribute('data-provider-logged-in') === '1';
+        let guestMessageTimer = null;
+
+        function showGuestMessage() {
+            if (!guestMessage) return;
+
+            guestMessage.classList.add('show');
+            guestMessage.setAttribute('aria-hidden', 'false');
+
+            if (guestMessageTimer) clearTimeout(guestMessageTimer);
+            guestMessageTimer = setTimeout(function () {
+                guestMessage.classList.remove('show');
+                guestMessage.setAttribute('aria-hidden', 'true');
+            }, 3000);
+        }
+
         function openSidebar() {
+            if (!isProviderLoggedIn) {
+                showGuestMessage();
+                return;
+            }
+
             sidebar.classList.add('open');
             overlay.classList.add('show');
             document.body.classList.add('bbh-sidebar-open');
