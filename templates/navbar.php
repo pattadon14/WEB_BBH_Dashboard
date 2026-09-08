@@ -9,6 +9,15 @@ if ($providerName === '') {
         (string) ($_SESSION['provider_auth']['lastname_th'] ?? '')
     );
 }
+
+// Provider ID profile สามารถมีหลายหน่วยงาน ให้เลือกตำแหน่งจากหน่วยงานแรกที่มีข้อมูล
+$providerPosition = '';
+foreach (($_SESSION['provider_auth']['organization'] ?? []) as $organization) {
+    $providerPosition = trim((string) ($organization['position'] ?? ''));
+    if ($providerPosition !== '') {
+        break;
+    }
+}
 ?>
 
 <nav class="main-header navbar navbar-expand navbar-light custom-navbar">
@@ -40,14 +49,23 @@ if ($providerName === '') {
         <?php if ($isProviderLoggedIn): ?>
             <li class="nav-item">
                 <div class="provider-user" aria-label="ผู้ใช้งานที่เข้าสู่ระบบ">
-                    <i class="fas fa-user-circle"></i>
-                    <span><?= htmlspecialchars($providerName !== '' ? $providerName : 'Provider ID', ENT_QUOTES, 'UTF-8') ?></span>
+                    <i class="fas fa-user-circle provider-user-icon"></i>
+                    <div class="provider-user-info">
+                        <span class="provider-user-name">
+                            <?= htmlspecialchars($providerName !== '' ? $providerName : 'Provider ID', ENT_QUOTES, 'UTF-8') ?>
+                        </span>
+                        <?php if ($providerPosition !== ''): ?>
+                            <span class="provider-user-position">
+                                <?= htmlspecialchars($providerPosition, ENT_QUOTES, 'UTF-8') ?>
+                            </span>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </li>
             <li class="nav-item">
-                <a href="<?= BASE_URL ?>auth/logout.php" class="logout-btn" aria-label="ออกจากระบบ">
+                <a href="<?= BASE_URL ?>auth/logout.php" class="logout-btn" aria-label="ออกจากระบบ" title="ออกจากระบบ">
                     <i class="fas fa-sign-out-alt"></i>
-                    <span>ออกจากระบบ</span>
+                    <span class="sr-only">ออกจากระบบ</span>
                 </a>
             </li>
         <?php else: ?>
