@@ -39,10 +39,15 @@ if ($providerName === '') {
 
         <?php if ($isProviderLoggedIn): ?>
             <li class="nav-item">
-                <a href="<?= BASE_URL ?>auth/logout.php" class="login-btn" aria-label="ออกจากระบบ">
-                    <i class="fas fa-user-check"></i>
+                <div class="provider-user" aria-label="ผู้ใช้งานที่เข้าสู่ระบบ">
+                    <i class="fas fa-user-circle"></i>
                     <span><?= htmlspecialchars($providerName !== '' ? $providerName : 'Provider ID', ENT_QUOTES, 'UTF-8') ?></span>
-                    <i class="fas fa-sign-out-alt ml-1"></i>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a href="<?= BASE_URL ?>auth/logout.php" class="logout-btn" aria-label="ออกจากระบบ">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>ออกจากระบบ</span>
                 </a>
             </li>
         <?php else: ?>
