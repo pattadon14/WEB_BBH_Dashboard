@@ -94,9 +94,49 @@
         }
     }
 
+    function fixIndexSectionSpacing() {
+        /*
+         * หน้า Index ใช้ CSS order เพื่อย้ายสถานะเตียงขึ้นเหนือ Heatmap
+         * แต่ card ครอบเดิมของสถานะเตียงมีความสูงตาม service list ด้านขวา
+         * จึงเกิดพื้นที่สีขาวส่วนเกินด้านล่าง/ระหว่างเนื้อหา
+         * ตัด outer card ออกทาง visual layer โดยคง card ย่อยทั้งหมดไว้
+         */
+        if (!document.getElementById('heatmap-chart')) return;
+
+        var styleId = 'bbh-index-section-spacing-fix';
+        if (document.getElementById(styleId)) return;
+
+        var style = document.createElement('style');
+        style.id = styleId;
+        style.textContent = `
+            .content-wrapper .content > .container-fluid:has(#heatmap-chart) > .row:nth-child(4) > .col-12 > .card {
+                background: transparent !important;
+                border: 0 !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+            }
+
+            .content-wrapper .content > .container-fluid:has(#heatmap-chart) > .row:nth-child(4) > .col-12 > .card > .card-body {
+                padding: 0 !important;
+            }
+
+            .content-wrapper .content > .container-fluid:has(#heatmap-chart) > .row:nth-child(4) {
+                margin-top: 0 !important;
+                margin-bottom: 0 !important;
+            }
+
+            .content-wrapper .content > .container-fluid:has(#heatmap-chart) > .row:nth-child(2) {
+                margin-top: 1rem !important;
+            }
+        `;
+
+        document.head.appendChild(style);
+    }
+
     function init() {
         initHosxpLoginModal();
         applyProviderAccessUI();
+        fixIndexSectionSpacing();
     }
 
     if (document.readyState === 'loading') {
