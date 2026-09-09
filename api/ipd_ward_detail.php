@@ -19,23 +19,54 @@ try {
         exit;
     }
 
+    /*
+     * ดึงข้อมูลผู้ป่วยที่ยัง Admit อยู่ใน Ward
+     * - patient.sex       : ใช้แยกเพศเพื่อเลือก Icon
+     * - patient.birthday  : ใช้คำนวณอายุ และแยกเด็ก/ผู้ใหญ่
+     * - ipt.admdoctor     : แพทย์ผู้รับผิดชอบ/แพทย์เจ้าของไข้
+     */
     $sql = "SELECT
                 i.an,
                 i.hn,
                 concat_ws(' ', p.pname, p.fname, p.lname) AS patient_name,
+                p.sex,
+                p.birthday,
                 i.regdate,
+                i.bedno,
+                COALESCE(
+                    NULLIF(TRIM(d.name), ''),
+                    NULLIF(TRIM(concat_ws(' ', d.fname, d.lname)), ''),
+                    '-'
+                ) AS doctor_name,
                 w.name AS ward_name
             FROM ipt i
             LEFT JOIN patient p ON p.hn = i.hn
+            LEFT JOIN doctor d ON d.code = i.admdoctor
             LEFT JOIN ward w ON w.ward = i.ward
             WHERE i.ward = :ward
               AND i.dchdate IS NULL
-            ORDER BY i.an";
+            ORDER BY i.bedno NULLS LAST, i.an";
 
     $stmt = $conn->prepare($sql);
     $stmt->execute(['ward' => $ward]);
 
     $patients = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    /* คำนวณอายุ ณ วันที่เปิดหน้า */
+    foreach ($patients as &$patient) {
+        $patient['age'] = null;
+
+        if (!empty($patient['birthday'])) {
+            try {
+                $birthDate = new DateTime($patient['birthday']);
+                $today = new DateTime('today');
+                $patient['age'] = $birthDate->diff($today)->y;
+            } catch (Throwable $e) {
+                $patient['age'] = null;
+            }
+        }
+    }
+    unset($patient);
 
     echo json_encode([
         'ward' => $ward,
