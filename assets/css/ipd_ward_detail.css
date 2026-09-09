@@ -11,15 +11,15 @@
 }
 
 .ipd-ward-page .ward-overview-title {
-    font-size: 1.45rem !important;
+    font-size: 26px !important;
 }
 
 .ipd-ward-page .overview-label {
-    font-size: 20px !important;
+    font-size: 25px !important;
 }
 
 .ipd-ward-page .overview-help {
-    font-size: 16px !important;
+    font-size: 20px !important;
 }
 
 .ipd-ward-page .overview-value {
@@ -27,11 +27,11 @@
 }
 
 .ipd-ward-page .overview-unit {
-    font-size: 16px !important;
+    font-size: 25px !important;
 }
 
 .ipd-ward-page .patient-section-title {
-    font-size: 1.45rem !important;
+    font-size: 26px !important;
 }
 
 .ipd-ward-page .patient-count-badge {

@@ -235,9 +235,8 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 
 .ipd-ward-page .overview-unit {
     color: #69767e;
-    font-size: .92rem;
     font-weight: 600;
-    margin-left: 4px;
+    margin-left: 5px;
 }
 
 .ipd-ward-page .occupancy-bar {
