@@ -68,43 +68,37 @@ $isProviderLoggedIn = provider_is_logged_in();
                 </ul>
             </li>
 
-            <!-- ผู้ป่วยใน (IPD) : เมนูซ้อน Ward -->
-            <li class="bbh-sidebar-parent <?= $currentPage === 'ipd_detail.php' ? 'parent-active' : '' ?>">
+            <!-- ผู้ป่วยใน (IPD) : เมนู Ward อ้างอิง Ward จริงจาก Card หน้า Index -->
+            <li class="bbh-sidebar-parent <?= $currentPage === 'ipd_ward_detail.php' || $currentPage === 'ipd_detail.php' ? 'parent-active' : '' ?>">
                 <button type="button"
-                    class="bbh-sidebar-parent-toggle <?= $currentPage === 'ipd_detail.php' ? 'active' : '' ?>"
+                    class="bbh-sidebar-parent-toggle <?= $currentPage === 'ipd_ward_detail.php' || $currentPage === 'ipd_detail.php' ? 'active' : '' ?>"
                     data-sidebar-submenu="ipd-submenu"
-                    aria-expanded="<?= $currentPage === 'ipd_detail.php' ? 'true' : 'false' ?>">
+                    aria-expanded="<?= $currentPage === 'ipd_ward_detail.php' || $currentPage === 'ipd_detail.php' ? 'true' : 'false' ?>">
                     <span class="bbh-sidebar-parent-main">
                         <i class="fa-solid fa-bed-pulse"></i><span>ผู้ป่วยใน (IPD)</span>
                     </span>
                     <i class="fa-solid fa-chevron-down bbh-sidebar-arrow"></i>
                 </button>
 
-                <ul class="bbh-sidebar-submenu <?= $currentPage === 'ipd_detail.php' ? 'open' : '' ?>" id="ipd-submenu">
-                    <li><a href="<?= BASE_URL ?>pages/ipd_detail.php?ward=pediatric"
-                            class="<?= $currentWard === 'pediatric' ? 'active' : '' ?>"><i class="fa-solid fa-child"></i><span>ภาพรวมผู้ป่วยใน</span></a></li>
-                    <li><a href="<?= BASE_URL ?>pages/ipd_detail.php?ward=pediatric"
-                            class="<?= $currentWard === 'pediatric' ? 'active' : '' ?>"><i class="fa-solid fa-child"></i><span>ผู้ป่วยเด็ก</span></a></li>
-                    <li><a href="<?= BASE_URL ?>pages/ipd_detail.php?ward=medicine_female"
-                            class="<?= $currentWard === 'medicine_female' ? 'active' : '' ?>"><i class="fa-solid fa-person-dress"></i><span>อายุรกรรมหญิง</span></a></li>
-                    <li><a href="<?= BASE_URL ?>pages/ipd_detail.php?ward=medicine_male"
-                            class="<?= $currentWard === 'medicine_male' ? 'active' : '' ?>"><i class="fa-solid fa-person"></i><span>อายุรกรรมชาย</span></a></li>
-                    <li><a href="<?= BASE_URL ?>pages/ipd_detail.php?ward=surgery"
-                            class="<?= $currentWard === 'surgery' ? 'active' : '' ?>"><i class="fa-solid fa-user-doctor"></i><span>ศัลยกรรม</span></a></li>
-                    <li><a href="<?= BASE_URL ?>pages/ipd_detail.php?ward=private5"
-                            class="<?= $currentWard === 'private5' ? 'active' : '' ?>"><i class="fa-solid fa-door-open"></i><span>ผู้ป่วยห้องพิเศษ ชั้น 5</span></a></li>
-                    <li><a href="<?= BASE_URL ?>pages/ipd_detail.php?ward=stroke"
-                            class="<?= $currentWard === 'stroke' ? 'active' : '' ?>"><i class="fa-solid fa-brain"></i><span>STROKE UNIT (หลอดเลือดสมอง)</span></a></li>
-                    <li><a href="<?= BASE_URL ?>pages/ipd_detail.php?ward=lr"
-                            class="<?= $currentWard === 'lr' ? 'active' : '' ?>"><i class="fa-solid fa-person-pregnant"></i><span>LR (ห้องคลอด)</span></a></li>
-                    <li><a href="<?= BASE_URL ?>pages/ipd_detail.php?ward=icu"
-                            class="<?= $currentWard === 'icu' ? 'active' : '' ?>"><i class="fa-solid fa-heart-pulse"></i><span>ICU (ผู้ป่วยหนัก)</span></a></li>
-                    <li><a href="<?= BASE_URL ?>pages/ipd_detail.php?ward=snb"
-                            class="<?= $currentWard === 'snb' ? 'active' : '' ?>"><i class="fa-solid fa-baby"></i><span>SNB (ทารกแรกเกิดป่วย)</span></a></li>
-                    <li><a href="<?= BASE_URL ?>pages/ipd_detail.php?ward=pp"
-                            class="<?= $currentWard === 'pp' ? 'active' : '' ?>"><i class="fa-solid fa-person-breastfeeding"></i><span>PP (มารดาหลังคลอด)</span></a></li>
-                    <li><a href="<?= BASE_URL ?>pages/ipd_detail.php?ward=home"
-                            class="<?= $currentWard === 'home' ? 'active' : '' ?>"><i class="fa-solid fa-house-user"></i><span>Home Ward</span></a></li>
+                <ul class="bbh-sidebar-submenu <?= $currentPage === 'ipd_ward_detail.php' || $currentPage === 'ipd_detail.php' ? 'open' : '' ?>" id="ipd-submenu">
+                    <li>
+                        <a href="<?= BASE_URL ?>pages/ipd_detail.php"
+                            class="<?= $currentPage === 'ipd_detail.php' && $currentWard === '' ? 'active' : '' ?>">
+                            <i class="fa-solid fa-chart-pie"></i><span>ภาพรวมผู้ป่วยใน</span>
+                        </a>
+                    </li>
+
+                    <li><a href="#" data-ipd-ward-key="pediatric"><i class="fa-solid fa-child"></i><span>ผู้ป่วยเด็ก</span></a></li>
+                    <li><a href="#" data-ipd-ward-key="medicine_female"><i class="fa-solid fa-person-dress"></i><span>อายุรกรรมหญิง</span></a></li>
+                    <li><a href="#" data-ipd-ward-key="medicine_male"><i class="fa-solid fa-person"></i><span>อายุรกรรมชาย</span></a></li>
+                    <li><a href="#" data-ipd-ward-key="surgery"><i class="fa-solid fa-user-doctor"></i><span>ศัลยกรรม</span></a></li>
+                    <li><a href="#" data-ipd-ward-key="private5"><i class="fa-solid fa-door-open"></i><span>ผู้ป่วยห้องพิเศษ ชั้น 5</span></a></li>
+                    <li><a href="#" data-ipd-ward-key="stroke"><i class="fa-solid fa-brain"></i><span>STROKE UNIT (หลอดเลือดสมอง)</span></a></li>
+                    <li><a href="#" data-ipd-ward-key="lr"><i class="fa-solid fa-person-pregnant"></i><span>LR (ห้องคลอด)</span></a></li>
+                    <li><a href="#" data-ipd-ward-key="icu"><i class="fa-solid fa-heart-pulse"></i><span>ICU (ผู้ป่วยหนัก)</span></a></li>
+                    <li><a href="#" data-ipd-ward-key="snb"><i class="fa-solid fa-baby"></i><span>SNB (ทารกแรกเกิดป่วย)</span></a></li>
+                    <li><a href="#" data-ipd-ward-key="pp"><i class="fa-solid fa-person-breastfeeding"></i><span>PP (มารดาหลังคลอด)</span></a></li>
+                    <li><a href="#" data-ipd-ward-key="home"><i class="fa-solid fa-house-user"></i><span>Home Ward</span></a></li>
                 </ul>
             </li>
 
