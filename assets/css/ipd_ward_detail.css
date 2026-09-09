@@ -1,98 +1,105 @@
 /* =========================================================
-   IPD WARD DETAIL - LARGER TYPOGRAPHY
-   เพิ่มขนาดตัวอักษรเพื่อให้อ่านข้อมูลบน Dashboard ได้ง่ายขึ้น
+   IPD WARD DETAIL - STANDARD 16PX TYPOGRAPHY
+   ปรับข้อความทั่วไปให้อ่านง่าย โดยใช้ประมาณ 16px เป็นหลัก
 ========================================================= */
 .ipd-ward-page .ward-page-title {
-    font-size: 2.2rem;
+    font-size: 2.2rem !important;
 }
 
 .ipd-ward-page .ward-page-subtitle {
-    font-size: 1.1rem;
+    font-size: 16px !important;
 }
 
 .ipd-ward-page .ward-overview-title {
-    font-size: 1.45rem;
+    font-size: 1.45rem !important;
 }
 
 .ipd-ward-page .overview-label {
-    font-size: 1.2rem;
+    font-size: 16px !important;
 }
 
 .ipd-ward-page .overview-help {
-    font-size: .96rem;
+    font-size: 16px !important;
 }
 
 .ipd-ward-page .overview-value {
-    font-size: 2.85rem;
+    font-size: 2.85rem !important;
 }
 
 .ipd-ward-page .overview-unit {
-    font-size: 1rem;
+    font-size: 16px !important;
 }
 
 .ipd-ward-page .patient-section-title {
-    font-size: 1.45rem;
+    font-size: 1.45rem !important;
 }
 
 .ipd-ward-page .patient-count-badge {
-    font-size: 1rem;
+    font-size: 16px !important;
 }
 
 .ipd-ward-page .patient-name {
-    font-size: 1.24rem;
+    font-size: 16px !important;
 }
 
 .ipd-ward-page .patient-meta {
-    font-size: .98rem;
+    font-size: 16px !important;
 }
 
 .ipd-ward-page .patient-badge {
-    font-size: .88rem;
+    font-size: 16px !important;
 }
 
 .ipd-ward-page .patient-info {
-    font-size: .98rem;
+    font-size: 16px !important;
+}
+
+.ipd-ward-page .patient-info-label,
+.ipd-ward-page .patient-info .value,
+.ipd-ward-page .patient-info .admit-date,
+.ipd-ward-page .doctor-name {
+    font-size: 16px !important;
 }
 
 .ipd-ward-page .empty-state {
-    font-size: 1.05rem;
+    font-size: 16px !important;
 }
 
 @media (max-width: 767px) {
     .ipd-ward-page .ward-page-title {
-        font-size: 1.7rem;
+        font-size: 1.7rem !important;
     }
 
     .ipd-ward-page .ward-page-subtitle {
-        font-size: .92rem;
+        font-size: 16px !important;
     }
 
     .ipd-ward-page .ward-overview-title {
-        font-size: 1.25rem;
+        font-size: 1.25rem !important;
     }
 
-    .ipd-ward-page .overview-label {
-        font-size: 1.05rem;
-    }
-
-    .ipd-ward-page .overview-help {
-        font-size: .84rem;
+    .ipd-ward-page .overview-label,
+    .ipd-ward-page .overview-help,
+    .ipd-ward-page .overview-unit {
+        font-size: 16px !important;
     }
 
     .ipd-ward-page .overview-value {
-        font-size: 2.3rem;
+        font-size: 2.3rem !important;
     }
 
     .ipd-ward-page .patient-section-title {
-        font-size: 1.25rem;
+        font-size: 1.25rem !important;
     }
 
-    .ipd-ward-page .patient-name {
-        font-size: 1.1rem;
-    }
-
+    .ipd-ward-page .patient-name,
     .ipd-ward-page .patient-meta,
-    .ipd-ward-page .patient-info {
-        font-size: .94rem;
+    .ipd-ward-page .patient-badge,
+    .ipd-ward-page .patient-info,
+    .ipd-ward-page .patient-info-label,
+    .ipd-ward-page .patient-info .value,
+    .ipd-ward-page .patient-info .admit-date,
+    .ipd-ward-page .doctor-name {
+        font-size: 16px !important;
     }
 }
