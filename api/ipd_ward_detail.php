@@ -24,14 +24,13 @@ try {
                 i.hn,
                 concat_ws(' ', p.pname, p.fname, p.lname) AS patient_name,
                 i.regdate,
-                i.bedno,
                 w.name AS ward_name
             FROM ipt i
             LEFT JOIN patient p ON p.hn = i.hn
             LEFT JOIN ward w ON w.ward = i.ward
             WHERE i.ward = :ward
               AND i.dchdate IS NULL
-            ORDER BY i.bedno NULLS LAST, i.an";
+            ORDER BY i.an";
 
     $stmt = $conn->prepare($sql);
     $stmt->execute(['ward' => $ward]);
