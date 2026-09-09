@@ -362,7 +362,6 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 
 .ipd-ward-page .patient-name {
     color: #263238;
-    font-size: 1.12rem;
     line-height: 1.25;
     font-weight: 700;
     word-break: break-word;
@@ -370,8 +369,6 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 
 .ipd-ward-page .patient-meta {
     color: #8a969e;
-    font-size: .9rem;
-    margin-top: 4px;
 }
 
 .ipd-ward-page .patient-badges {
