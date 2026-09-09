@@ -21,15 +21,17 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     --ipd-text: #263238;
     --ipd-muted: #71808d;
     --ipd-border: #dfe7e3;
-    --ipd-bg: #f4f7f6;
 }
 
 .ipd-ward-page .content { padding-top: 1rem !important; }
+
 .ipd-ward-page .ward-page-header {
-    margin-bottom: 14px;
+    margin-bottom: 15px;
     padding: 2px 2px 0;
 }
+
 .ipd-ward-page .ward-title-wrap { min-width: 0; }
+
 .ipd-ward-page .ward-page-title {
     display: flex;
     align-items: center;
@@ -37,23 +39,25 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     color: var(--ipd-green);
     font-weight: 700;
     margin: 0;
-    font-size: 2rem;
+    font-size: 2.05rem;
     line-height: 1.2;
 }
-.ipd-ward-page .ward-page-title i { font-size: 1.8rem; }
+
+.ipd-ward-page .ward-page-title i { font-size: 1.85rem; }
+
 .ipd-ward-page .ward-page-subtitle {
     color: var(--ipd-muted);
     margin-top: 5px;
-    font-size: 1rem;
+    font-size: 1.02rem;
 }
+
 .ipd-ward-page .back-btn {
     border-radius: 8px;
     padding: 8px 14px;
     white-space: nowrap;
-    font-size: .92rem;
+    font-size: .94rem;
 }
 
-/* Main shell */
 .ipd-ward-page .ward-main-card {
     border: 1px solid var(--ipd-border);
     border-radius: 14px;
@@ -61,120 +65,158 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     background: #fff;
     overflow: hidden;
 }
-.ipd-ward-page .ward-main-card-body { padding: 18px; }
+
+.ipd-ward-page .ward-main-card-body { padding: 20px; }
 
 /* =========================================================
-   WARD OVERVIEW
+   WARD OVERVIEW - DISTINCT COLORED CARDS
 ========================================================= */
 .ipd-ward-page .ward-overview-title {
     display: flex;
     align-items: center;
     gap: 9px;
     color: var(--ipd-text);
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     font-weight: 700;
-    margin: 0 0 12px 2px;
+    margin: 0 0 14px 2px;
 }
+
 .ipd-ward-page .ward-overview-title i { color: var(--ipd-green); }
 
 .ipd-ward-page .ward-overview-grid {
     margin-left: -7px;
     margin-right: -7px;
-    margin-bottom: 21px;
+    margin-bottom: 25px;
 }
+
 .ipd-ward-page .overview-col {
     padding-left: 7px;
     padding-right: 7px;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
+
 .ipd-ward-page .overview-card {
     position: relative;
-    min-height: 118px;
+    min-height: 132px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    padding: 17px 20px;
-    background: #fff;
-    border: 1px solid var(--ipd-border);
-    border-top: 4px solid var(--ipd-green);
-    border-radius: 11px;
-    box-shadow: 0 3px 9px rgba(31,45,61,.07);
+    gap: 16px;
+    padding: 18px 22px;
+    border: 1px solid transparent;
+    border-left: 6px solid var(--ipd-green);
+    border-radius: 12px;
+    background: #eaf7f0;
+    box-shadow: 0 4px 10px rgba(31,45,61,.08);
     overflow: hidden;
 }
+
 .ipd-ward-page .overview-card::after {
     content: '';
     position: absolute;
-    width: 85px;
-    height: 85px;
-    right: -25px;
-    bottom: -35px;
+    width: 115px;
+    height: 115px;
+    right: -30px;
+    bottom: -55px;
     border-radius: 50%;
-    background: rgba(25,135,84,.055);
+    background: rgba(25,135,84,.08);
 }
-.ipd-ward-page .overview-card.blue { border-top-color: var(--ipd-blue); }
-.ipd-ward-page .overview-card.blue::after { background: rgba(22,131,197,.055); }
-.ipd-ward-page .overview-card.orange { border-top-color: var(--ipd-orange); }
-.ipd-ward-page .overview-card.orange::after { background: rgba(245,158,11,.06); }
-.ipd-ward-page .overview-card.red { border-top-color: var(--ipd-red); }
-.ipd-ward-page .overview-card.red::after { background: rgba(220,53,69,.055); }
+
+.ipd-ward-page .overview-card.blue {
+    border-left-color: var(--ipd-blue);
+    background: #edf7fc;
+}
+
+.ipd-ward-page .overview-card.blue::after { background: rgba(22,131,197,.09); }
+
+.ipd-ward-page .overview-card.orange {
+    border-left-color: var(--ipd-orange);
+    background: #fff7e6;
+}
+
+.ipd-ward-page .overview-card.orange::after { background: rgba(245,158,11,.09); }
+
+.ipd-ward-page .overview-card.red {
+    border-left-color: var(--ipd-red);
+    background: #fff0f2;
+}
+
+.ipd-ward-page .overview-card.red::after { background: rgba(220,53,69,.09); }
 
 .ipd-ward-page .overview-left {
     display: flex;
     align-items: center;
-    gap: 13px;
+    gap: 14px;
     min-width: 0;
+    position: relative;
+    z-index: 1;
 }
+
 .ipd-ward-page .overview-icon {
-    width: 50px;
-    height: 50px;
-    flex: 0 0 50px;
+    width: 58px;
+    height: 58px;
+    flex: 0 0 58px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 12px;
-    background: #e9f6ef;
+    border-radius: 14px;
+    background: rgba(255,255,255,.78);
     color: var(--ipd-green);
-    font-size: 1.45rem;
+    font-size: 1.7rem;
+    box-shadow: 0 2px 5px rgba(31,45,61,.06);
 }
-.ipd-ward-page .overview-card.blue .overview-icon { background:#edf7fc; color:var(--ipd-blue); }
-.ipd-ward-page .overview-card.orange .overview-icon { background:#fff8e8; color:var(--ipd-orange); }
-.ipd-ward-page .overview-card.red .overview-icon { background:#fff0f2; color:var(--ipd-red); }
+
+.ipd-ward-page .overview-card.blue .overview-icon { color: var(--ipd-blue); }
+.ipd-ward-page .overview-card.orange .overview-icon { color: var(--ipd-orange); }
+.ipd-ward-page .overview-card.red .overview-icon { color: var(--ipd-red); }
+
 .ipd-ward-page .overview-label {
-    color: #5d6972;
-    font-size: .96rem;
-    font-weight: 600;
+    color: #3f4c54;
+    font-size: 1.08rem;
+    font-weight: 700;
     line-height: 1.3;
 }
+
 .ipd-ward-page .overview-help {
-    color: #9aa4ab;
-    font-size: .76rem;
-    margin-top: 4px;
+    color: #71808d;
+    font-size: .88rem;
+    margin-top: 5px;
 }
-.ipd-ward-page .overview-value-wrap { text-align: right; white-space: nowrap; }
+
+.ipd-ward-page .overview-value-wrap {
+    text-align: right;
+    white-space: nowrap;
+    position: relative;
+    z-index: 1;
+}
+
 .ipd-ward-page .overview-value {
     color: var(--ipd-green);
-    font-size: 2.05rem;
+    font-size: 2.55rem;
     line-height: 1;
     font-weight: 800;
 }
+
 .ipd-ward-page .overview-card.blue .overview-value { color: var(--ipd-blue); }
 .ipd-ward-page .overview-card.orange .overview-value { color: var(--ipd-orange); }
 .ipd-ward-page .overview-card.red .overview-value { color: var(--ipd-red); }
+
 .ipd-ward-page .overview-unit {
-    color: #8b969d;
-    font-size: .8rem;
-    margin-left: 3px;
+    color: #69767e;
+    font-size: .92rem;
+    font-weight: 600;
+    margin-left: 4px;
 }
 
-/* occupancy indicator */
 .ipd-ward-page .occupancy-bar {
-    height: 5px;
-    background: #e9edef;
-    border-radius: 8px;
-    margin-top: 7px;
+    height: 7px;
+    min-width: 105px;
+    background: rgba(255,255,255,.75);
+    border-radius: 10px;
+    margin-top: 9px;
     overflow: hidden;
 }
+
 .ipd-ward-page .occupancy-fill {
     height: 100%;
     width: 0;
@@ -182,6 +224,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     border-radius: inherit;
     transition: width .35s ease;
 }
+
 .ipd-ward-page .overview-card.orange .occupancy-fill { background: var(--ipd-orange); }
 .ipd-ward-page .overview-card.red .occupancy-fill { background: var(--ipd-red); }
 
@@ -193,35 +236,41 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    margin: 0 2px 12px;
+    margin: 0 2px 14px;
 }
+
 .ipd-ward-page .patient-section-title {
     display: flex;
     align-items: center;
     gap: 9px;
     color: var(--ipd-text);
-    font-size: 1.2rem;
+    font-size: 1.32rem;
     font-weight: 700;
 }
+
 .ipd-ward-page .patient-section-title i { color: var(--ipd-green); }
+
 .ipd-ward-page .patient-count-badge {
     background: #e9f6ef;
     color: var(--ipd-green);
     border: 1px solid #cfe9da;
     border-radius: 20px;
-    padding: 5px 11px;
-    font-size: .82rem;
+    padding: 6px 13px;
+    font-size: .92rem;
     font-weight: 700;
 }
+
 .ipd-ward-page .patient-grid {
     margin-left: -7px;
     margin-right: -7px;
 }
+
 .ipd-ward-page .patient-col {
     padding-left: 7px;
     padding-right: 7px;
-    margin-bottom: 14px;
+    margin-bottom: 15px;
 }
+
 .ipd-ward-page .patient-card {
     position: relative;
     height: 100%;
@@ -234,17 +283,20 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     box-shadow: 0 3px 8px rgba(31,45,61,.075);
     transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
 }
+
 .ipd-ward-page .patient-card:hover {
     transform: translateY(-2px);
     border-color: #c9d9d1;
     box-shadow: 0 7px 18px rgba(31,45,61,.12);
 }
+
 .ipd-ward-page .patient-top {
     display: flex;
     align-items: center;
     gap: 11px;
     min-height: 53px;
 }
+
 .ipd-ward-page .patient-avatar {
     width: 49px;
     height: 49px;
@@ -257,22 +309,27 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     color: var(--ipd-green);
     font-size: 1.6rem;
 }
+
 .ipd-ward-page .patient-avatar.avatar-male,
 .ipd-ward-page .patient-avatar.avatar-child-male { color:#1683c5; background:#edf7fc; }
+
 .ipd-ward-page .patient-avatar.avatar-female,
 .ipd-ward-page .patient-avatar.avatar-child-female { color:#d45a88; background:#fff0f5; }
+
 .ipd-ward-page .patient-name {
     color: #263238;
-    font-size: 1.08rem;
+    font-size: 1.12rem;
     line-height: 1.25;
     font-weight: 700;
     word-break: break-word;
 }
+
 .ipd-ward-page .patient-meta {
     color: #8a969e;
-    font-size: .86rem;
+    font-size: .9rem;
     margin-top: 4px;
 }
+
 .ipd-ward-page .patient-badges {
     display: flex;
     justify-content: flex-end;
@@ -280,6 +337,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     gap: 5px;
     margin-top: 10px;
 }
+
 .ipd-ward-page .patient-badge {
     display: inline-flex;
     align-items: center;
@@ -287,24 +345,28 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     border-radius: 13px;
     background: var(--ipd-blue);
     color: #fff;
-    font-size: .78rem;
+    font-size: .8rem;
     font-weight: 700;
     line-height: 1.2;
 }
+
 .ipd-ward-page .patient-badge.bed-badge { background: var(--ipd-green); }
+
 .ipd-ward-page .patient-info {
     border-top: 1px solid #edf0f2;
     margin-top: 10px;
     padding-top: 9px;
-    font-size: .86rem;
+    font-size: .9rem;
     line-height: 1.75;
 }
+
 .ipd-ward-page .patient-info-row {
     display: flex;
     align-items: baseline;
     gap: 6px;
     min-width: 0;
 }
+
 .ipd-ward-page .patient-info-label { color:#66727b; font-weight:600; white-space:nowrap; }
 .ipd-ward-page .patient-info .value { color:#1683c5; font-weight:700; }
 .ipd-ward-page .patient-info .admit-date { color:#59636b; }
@@ -316,20 +378,24 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     padding: 60px 15px;
     color: #7b8794;
     text-align: center;
-    font-size: .95rem;
+    font-size: 1rem;
 }
+
 .ipd-ward-page .empty-state i { font-size:2.5rem; margin-bottom:10px; color:#adb5bd; }
 
 @media (min-width:1200px) {
     .ipd-ward-page .patient-col { flex:0 0 25%; max-width:25%; }
 }
+
 @media (max-width:1199px) and (min-width:768px) {
     .ipd-ward-page .patient-col { flex:0 0 33.333333%; max-width:33.333333%; }
 }
+
 @media (max-width:767px) {
-    .ipd-ward-page .patient-col { flex:0 0 50%; max-width:50%; }
+    .ipd-ward-page .patient-col,
     .ipd-ward-page .overview-col { flex:0 0 50%; max-width:50%; }
 }
+
 @media (max-width:575px) {
     .ipd-ward-page .ward-page-header { gap:10px; align-items:flex-start !important; }
     .ipd-ward-page .ward-page-title { font-size:1.5rem; }
@@ -339,8 +405,12 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     .ipd-ward-page .ward-main-card-body { padding:11px; }
     .ipd-ward-page .overview-col,
     .ipd-ward-page .patient-col { flex:0 0 100%; max-width:100%; }
-    .ipd-ward-page .overview-card { min-height:100px; }
-    .ipd-ward-page .overview-value { font-size:1.8rem; }
+    .ipd-ward-page .overview-card { min-height:112px; padding:14px 15px; }
+    .ipd-ward-page .overview-icon { width:46px; height:46px; flex-basis:46px; font-size:1.35rem; }
+    .ipd-ward-page .overview-label { font-size:.98rem; }
+    .ipd-ward-page .overview-help { font-size:.78rem; }
+    .ipd-ward-page .overview-value { font-size:2rem; }
+    .ipd-ward-page .patient-section-title { font-size:1.12rem; }
     .ipd-ward-page .patient-name { font-size:1rem; }
 }
 </style>
@@ -476,7 +546,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     function escapeHtml(value) {
         return String(value ?? '')
             .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+            .replace(/>/g, '&gt;').replace(/\"/g, '&quot;').replace(/'/g, '&#039;');
     }
 
     function parseDate(value) {
@@ -524,7 +594,11 @@ $ward = trim((string)($_GET['ward'] ?? ''));
         if (!response.ok) throw new Error('ไม่สามารถโหลดข้อมูลสรุป Ward ได้');
         const wards = await response.json();
         if (!Array.isArray(wards)) throw new Error('รูปแบบข้อมูล Ward ไม่ถูกต้อง');
-        const item = wards.find(function (row) { return String(row.ward) === String(ward); });
+
+        const item = wards.find(function (row) {
+            return String(row.ward) === String(ward);
+        });
+
         if (!item) return;
 
         const beds = Number(item.bedcount || 0);
@@ -541,7 +615,6 @@ $ward = trim((string)($_GET['ward'] ?? ''));
         occupancyCard.classList.remove('red','orange');
         if (rate >= 90) occupancyCard.classList.add('red');
         else if (rate >= 70) occupancyCard.classList.add('orange');
-        else occupancyCard.classList.add('');
 
         if (item.name) {
             titleEl.textContent = 'ข้อมูลผู้ป่วยใน ' + item.name;
@@ -572,7 +645,8 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 
         gridEl.innerHTML = patients.map(function (patient) {
             const gender = getGenderInfo(patient);
-            const age = patient.age !== null && patient.age !== undefined && patient.age !== '' ? Number(patient.age).toLocaleString() + ' ปี' : '-';
+            const age = patient.age !== null && patient.age !== undefined && patient.age !== ''
+                ? Number(patient.age).toLocaleString() + ' ปี' : '-';
             const stay = calculateStayDays(patient.regdate);
             const doctor = patient.doctor_name && patient.doctor_name !== '-' ? patient.doctor_name : 'ไม่ระบุ';
 
