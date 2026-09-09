@@ -1,0 +1,98 @@
+/* =========================================================
+   IPD WARD DETAIL - LARGER TYPOGRAPHY
+   เพิ่มขนาดตัวอักษรเพื่อให้อ่านข้อมูลบน Dashboard ได้ง่ายขึ้น
+========================================================= */
+.ipd-ward-page .ward-page-title {
+    font-size: 2.2rem;
+}
+
+.ipd-ward-page .ward-page-subtitle {
+    font-size: 1.1rem;
+}
+
+.ipd-ward-page .ward-overview-title {
+    font-size: 1.45rem;
+}
+
+.ipd-ward-page .overview-label {
+    font-size: 1.2rem;
+}
+
+.ipd-ward-page .overview-help {
+    font-size: .96rem;
+}
+
+.ipd-ward-page .overview-value {
+    font-size: 2.85rem;
+}
+
+.ipd-ward-page .overview-unit {
+    font-size: 1rem;
+}
+
+.ipd-ward-page .patient-section-title {
+    font-size: 1.45rem;
+}
+
+.ipd-ward-page .patient-count-badge {
+    font-size: 1rem;
+}
+
+.ipd-ward-page .patient-name {
+    font-size: 1.24rem;
+}
+
+.ipd-ward-page .patient-meta {
+    font-size: .98rem;
+}
+
+.ipd-ward-page .patient-badge {
+    font-size: .88rem;
+}
+
+.ipd-ward-page .patient-info {
+    font-size: .98rem;
+}
+
+.ipd-ward-page .empty-state {
+    font-size: 1.05rem;
+}
+
+@media (max-width: 767px) {
+    .ipd-ward-page .ward-page-title {
+        font-size: 1.7rem;
+    }
+
+    .ipd-ward-page .ward-page-subtitle {
+        font-size: .92rem;
+    }
+
+    .ipd-ward-page .ward-overview-title {
+        font-size: 1.25rem;
+    }
+
+    .ipd-ward-page .overview-label {
+        font-size: 1.05rem;
+    }
+
+    .ipd-ward-page .overview-help {
+        font-size: .84rem;
+    }
+
+    .ipd-ward-page .overview-value {
+        font-size: 2.3rem;
+    }
+
+    .ipd-ward-page .patient-section-title {
+        font-size: 1.25rem;
+    }
+
+    .ipd-ward-page .patient-name {
+        font-size: 1.1rem;
+    }
+
+    .ipd-ward-page .patient-meta,
+    .ipd-ward-page .patient-info {
+        font-size: .94rem;
+    }
+}
