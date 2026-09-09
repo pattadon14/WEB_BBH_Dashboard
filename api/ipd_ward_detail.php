@@ -20,7 +20,8 @@ try {
     }
 
     /*
-     * ดึงข้อมูลผู้ป่วยที่ยัง Admit อยู่ใน Ward
+     * HOSxP XE: เตียงของผู้ป่วยในไม่ได้อยู่ใน ipt.bedno
+     * ใช้ iptadm.bedno โดยเชื่อมด้วย AN แทน
      * - patient.sex       : ใช้แยกเพศเพื่อเลือก Icon
      * - patient.birthday  : ใช้คำนวณอายุ และแยกเด็ก/ผู้ใหญ่
      * - ipt.admdoctor     : แพทย์ผู้รับผิดชอบ/แพทย์เจ้าของไข้
@@ -32,7 +33,7 @@ try {
                 p.sex,
                 p.birthday,
                 i.regdate,
-                i.bedno,
+                ia.bedno,
                 COALESCE(
                     NULLIF(TRIM(d.name), ''),
                     NULLIF(TRIM(concat_ws(' ', d.fname, d.lname)), ''),
@@ -40,12 +41,13 @@ try {
                 ) AS doctor_name,
                 w.name AS ward_name
             FROM ipt i
+            LEFT JOIN iptadm ia ON ia.an = i.an
             LEFT JOIN patient p ON p.hn = i.hn
             LEFT JOIN doctor d ON d.code = i.admdoctor
             LEFT JOIN ward w ON w.ward = i.ward
             WHERE i.ward = :ward
               AND i.dchdate IS NULL
-            ORDER BY i.bedno NULLS LAST, i.an";
+            ORDER BY ia.bedno NULLS LAST, i.an";
 
     $stmt = $conn->prepare($sql);
     $stmt->execute(['ward' => $ward]);
