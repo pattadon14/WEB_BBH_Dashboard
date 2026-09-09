@@ -78,7 +78,7 @@
         /* navbar.php แสดง .login-btn เฉพาะเมื่อยังไม่ได้ Login Provider ID */
         var isGuest = !!document.querySelector('.custom-navbar .login-btn');
         var path = window.location.pathname;
-        var isRestrictedDetailPage = /\/pages\/(opd_detail|ipd_detail|ER_detail)\.php$/i.test(path);
+        var isRestrictedDetailPage = /\/pages\/(opd_detail|ipd_detail|ipd_ward_detail|ER_detail)\.php$/i.test(path);
 
         if (!isGuest) return;
 
@@ -91,6 +91,79 @@
         if (isRestrictedDetailPage) {
             var basePath = path.split('/pages/')[0];
             window.location.replace(basePath + '/index.php');
+        }
+    }
+
+    function initIpdWardCards() {
+        /*
+         * Ward Card ถูกสร้างแบบ dynamic จาก index.php
+         * จึงใช้ event delegation เพื่อให้คลิกได้ทันทีเมื่อ Card ถูกสร้าง
+         * และไม่ต้องแก้โครงสร้าง Card เดิม
+         */
+        if (!document.getElementById('ward-container')) return;
+
+        document.addEventListener('click', async function (event) {
+            var card = event.target.closest('.ward-card');
+            if (!card) return;
+
+            /* ป้องกันการกดซ้ำระหว่างกำลังหา Ward */
+            if (card.dataset.wardOpening === '1') return;
+            card.dataset.wardOpening = '1';
+
+            var path = window.location.pathname;
+            var basePath = path.indexOf('/pages/') !== -1
+                ? path.split('/pages/')[0]
+                : path.replace(/\/[^/]*$/, '');
+
+            var wardNameElement = card.querySelector('.ward-name');
+            var wardName = wardNameElement
+                ? wardNameElement.textContent.trim()
+                : '';
+
+            try {
+                var response = await fetch(
+                    basePath + '/api/index_ward_bed.php',
+                    { cache: 'no-store' }
+                );
+
+                var wards = await response.json();
+
+                var ward = wards.find(function (item) {
+                    return String(item.name || '').trim() === wardName;
+                });
+
+                if (!ward || !ward.ward) {
+                    console.error('ไม่พบรหัส Ward จาก Card:', wardName);
+                    return;
+                }
+
+                window.location.href =
+                    basePath + '/pages/ipd_ward_detail.php?ward=' +
+                    encodeURIComponent(ward.ward);
+
+            } catch (error) {
+                console.error('เปิดหน้า IPD Ward ไม่สำเร็จ:', error);
+            } finally {
+                card.dataset.wardOpening = '0';
+            }
+        });
+
+        var styleId = 'bbh-ipd-ward-card-click';
+        if (!document.getElementById(styleId)) {
+            var style = document.createElement('style');
+            style.id = styleId;
+            style.textContent = `
+                #ward-container .ward-card {
+                    cursor: pointer;
+                    transition: transform .15s ease, box-shadow .15s ease;
+                }
+
+                #ward-container .ward-card:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 8px 18px rgba(0,0,0,.14) !important;
+                }
+            `;
+            document.head.appendChild(style);
         }
     }
 
@@ -136,6 +209,7 @@
     function init() {
         initHosxpLoginModal();
         applyProviderAccessUI();
+        initIpdWardCards();
         fixIndexSectionSpacing();
     }
 
