@@ -13,12 +13,10 @@
         const isProviderLoggedIn = sidebar.getAttribute('data-provider-logged-in') === '1';
 
         function openSidebar() {
-            /* Guest เปิด Sidebar ได้ แต่เนื้อหาด้านในจะถูก Lock/Blur */
             sidebar.classList.add('open');
             overlay.classList.add('show');
             document.body.classList.add('bbh-sidebar-open');
             toggle.setAttribute('aria-expanded', 'true');
-
             sidebar.classList.toggle('guest-locked', !isProviderLoggedIn);
         }
 
@@ -107,7 +105,6 @@
             });
         });
 
-        /* ถ้าเปิดหน้า OPD จาก submenu ให้เลือก tab ตาม hash */
         const currentHash = window.location.hash;
         if (currentHash === '#opd-tab-general' || currentHash === '#opd-tab-special') {
             activateOpdTab(currentHash.replace('#opd-tab-', ''));
@@ -116,16 +113,21 @@
         /* =========================================================
            IPD Sidebar -> อ้างอิง Ward จริงจาก Card หน้า Index
 
-           ไม่ hard-code เลข Ward เพราะเลข Ward ใน HOSxP สามารถเปลี่ยนได้
-           จึงอ่านจาก api/index_ward_bed.php แล้วจับคู่จากชื่อ Ward
-           จากนั้นเปลี่ยน href เป็น ipd_ward_detail.php?ward=<ward_id>
+           อ่าน Ward จาก api/index_ward_bed.php แล้วจับคู่จากชื่อ Ward
+           จากนั้นสร้างลิงก์ไปยัง ipd_ward_detail.php?ward=<ward_id>
         ========================================================= */
         async function bindIpdWardLinks() {
             const links = sidebar.querySelectorAll('[data-ipd-ward-key]');
             if (!links.length || !isProviderLoggedIn) return;
 
             try {
-                const baseUrl = document.body.getAttribute('data-base-url') || '';
+                /* ใช้ href ของเมนูหน้าหลักเพื่อหา BASE_URL ที่ถูกต้อง
+                   รองรับทั้งหน้า index.php และหน้าใน /pages/ */
+                const homeLink = sidebar.querySelector('a[href]');
+                const baseUrl = homeLink
+                    ? new URL(homeLink.getAttribute('href'), window.location.href).href
+                    : '/';
+
                 const response = await fetch(baseUrl + 'api/index_ward_bed.php', {
                     cache: 'no-store'
                 });
