@@ -10,86 +10,141 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 
 <style>
 /* =========================================================
-   IPD WARD DETAIL
-   Patient Card + เพศ/ช่วงอายุ + แพทย์ผู้รับผิดชอบ
+   IPD WARD DETAIL - PROFESSIONAL UI
 ========================================================= */
 .ipd-ward-page {
     --ipd-green: #198754;
+    --ipd-green-dark: #147447;
     --ipd-blue: #1683c5;
-    --ipd-border: #e3e8ec;
+    --ipd-text: #263238;
     --ipd-muted: #7b8794;
+    --ipd-border: #e4e9ed;
+    --ipd-bg: #f5f7f8;
+}
+
+.ipd-ward-page .content {
+    padding-top: 1rem !important;
 }
 
 .ipd-ward-page .ward-page-header {
     margin-bottom: 14px;
+    padding: 2px 2px 0;
+}
+
+.ipd-ward-page .ward-title-wrap {
+    min-width: 0;
 }
 
 .ipd-ward-page .ward-page-title {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 11px;
     color: var(--ipd-green);
-    font-weight: bold;
+    font-weight: 700;
     margin: 0;
-    font-size: 2rem;
+    font-size: 1.85rem;
+    line-height: 1.2;
 }
 
 .ipd-ward-page .ward-page-title i {
-    font-size: 1.8rem;
+    font-size: 1.7rem;
 }
 
 .ipd-ward-page .ward-page-subtitle {
     color: var(--ipd-muted);
-    margin-top: 2px;
-    font-size: 1.05rem;
+    margin-top: 4px;
+    font-size: .95rem;
 }
 
 .ipd-ward-page .back-btn {
     border-radius: 7px;
     padding: 7px 13px;
     white-space: nowrap;
+    font-size: .9rem;
+    border-width: 1px;
 }
 
+/* Main content shell */
 .ipd-ward-page .ward-main-card {
-    border: 1px solid #dfe5e9;
+    border: 1px solid var(--ipd-border);
     border-radius: 12px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, .08);
+    box-shadow: 0 2px 8px rgba(31, 45, 61, .06);
     background: #fff;
     overflow: hidden;
 }
 
 .ipd-ward-page .ward-main-card-body {
-    padding: 14px;
+    padding: 18px;
 }
 
-/* Summary */
+/* =========================================================
+   SUMMARY BAR
+========================================================= */
 .ipd-ward-page .ward-summary {
-    width: 300px;
-    min-height: 115px;
+    width: 100%;
+    min-height: 86px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #dfe9e4;
     border-left: 5px solid var(--ipd-green);
-    border-radius: 14px;
-    background: #fff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, .13);
-    padding: 16px 22px;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #f7fbf9 0%, #ffffff 55%);
+    box-shadow: none;
+    padding: 13px 20px;
     margin-bottom: 18px;
 }
 
-.ipd-ward-page .ward-summary-title {
+.ipd-ward-page .ward-summary-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ipd-ward-page .ward-summary-icon {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    background: #e9f6ef;
     color: var(--ipd-green);
-    font-size: 1.2rem;
-    font-weight: bold;
+    font-size: 1.35rem;
+}
+
+.ipd-ward-page .ward-summary-title {
+    color: var(--ipd-text);
+    font-size: 1.02rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.ipd-ward-page .ward-summary-subtitle {
+    color: var(--ipd-muted);
+    font-size: .82rem;
+    margin-top: 3px;
 }
 
 .ipd-ward-page .ward-summary-number {
     color: var(--ipd-green);
-    font-size: 2.15rem;
-    line-height: 1.1;
-    font-weight: bold;
-    text-align: center;
-    margin-top: 7px;
+    font-size: 2rem;
+    line-height: 1;
+    font-weight: 700;
+    min-width: 70px;
+    text-align: right;
 }
 
-/* Patient cards */
+.ipd-ward-page .ward-summary-unit {
+    color: var(--ipd-muted);
+    font-size: .8rem;
+    font-weight: 400;
+    margin-left: 3px;
+}
+
+/* =========================================================
+   PATIENT GRID
+========================================================= */
 .ipd-ward-page .patient-grid {
     margin-left: -7px;
     margin-right: -7px;
@@ -104,73 +159,66 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 .ipd-ward-page .patient-card {
     position: relative;
     height: 100%;
-    min-height: 188px;
+    min-height: 194px;
     background: #fff;
     border: 1px solid var(--ipd-border);
     border-top: 3px solid var(--ipd-green);
-    border-radius: 5px;
-    padding: 9px 10px 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, .07);
-    transition: transform .15s ease, box-shadow .15s ease;
+    border-radius: 9px;
+    padding: 12px 13px 12px;
+    box-shadow: 0 2px 6px rgba(31, 45, 61, .07);
+    transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
 }
 
 .ipd-ward-page .patient-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 14px rgba(0, 0, 0, .13);
+    border-color: #cfdad5;
+    box-shadow: 0 7px 18px rgba(31, 45, 61, .12);
 }
 
 .ipd-ward-page .patient-top {
     display: flex;
-    align-items: flex-start;
-    gap: 9px;
-    min-height: 48px;
+    align-items: center;
+    gap: 10px;
+    min-height: 49px;
 }
 
 .ipd-ward-page .patient-avatar {
-    width: 44px;
-    height: 44px;
-    flex: 0 0 44px;
+    width: 43px;
+    height: 43px;
+    flex: 0 0 43px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background: #eef7f2;
+    background: #edf6f1;
     color: var(--ipd-green);
-    font-size: 1.65rem;
+    font-size: 1.45rem;
 }
 
-.ipd-ward-page .patient-avatar.avatar-male {
-    color: #1683c5;
-    background: #edf7fc;
-}
-
-.ipd-ward-page .patient-avatar.avatar-female {
-    color: #d85a8a;
-    background: #fff0f5;
-}
-
+.ipd-ward-page .patient-avatar.avatar-male,
 .ipd-ward-page .patient-avatar.avatar-child-male {
     color: #1683c5;
     background: #edf7fc;
 }
 
+.ipd-ward-page .patient-avatar.avatar-female,
 .ipd-ward-page .patient-avatar.avatar-child-female {
-    color: #d85a8a;
+    color: #d45a88;
     background: #fff0f5;
 }
 
 .ipd-ward-page .patient-name {
-    color: #34495e;
-    font-size: 1.05rem;
-    line-height: 1.15;
-    font-weight: bold;
-    padding-top: 2px;
+    color: #263238;
+    font-size: .98rem;
+    line-height: 1.2;
+    font-weight: 700;
+    word-break: break-word;
 }
 
 .ipd-ward-page .patient-meta {
-    color: #8a949d;
-    font-size: .91rem;
-    margin-top: 3px;
+    color: #89949d;
+    font-size: .78rem;
+    margin-top: 4px;
 }
 
 .ipd-ward-page .patient-badges {
@@ -178,18 +226,19 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     justify-content: flex-end;
     flex-wrap: wrap;
     gap: 4px;
-    margin-top: 5px;
+    margin-top: 9px;
 }
 
 .ipd-ward-page .patient-badge {
-    display: inline-block;
-    padding: 2px 7px;
-    border-radius: 10px;
-    background: var(--ipd-blue);
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 7px;
+    border-radius: 12px;
+    background: #1683c5;
     color: #fff;
-    font-size: .83rem;
-    font-weight: bold;
-    line-height: 1.35;
+    font-size: .72rem;
+    font-weight: 700;
+    line-height: 1.2;
 }
 
 .ipd-ward-page .patient-badge.bed-badge {
@@ -197,88 +246,148 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 }
 
 .ipd-ward-page .patient-info {
-    border-top: 1px solid #eef1f3;
-    margin-top: 7px;
-    padding-top: 6px;
-    font-size: .93rem;
-    line-height: 1.5;
+    border-top: 1px solid #edf0f2;
+    margin-top: 9px;
+    padding-top: 8px;
+    font-size: .78rem;
+    line-height: 1.65;
 }
 
-.ipd-ward-page .patient-info strong {
-    color: #333;
+.ipd-ward-page .patient-info-row {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    min-width: 0;
+}
+
+.ipd-ward-page .patient-info-label {
+    color: #66727b;
+    font-weight: 600;
+    white-space: nowrap;
 }
 
 .ipd-ward-page .patient-info .value {
-    color: var(--ipd-blue);
-    font-weight: bold;
+    color: #1683c5;
+    font-weight: 700;
 }
 
 .ipd-ward-page .patient-info .admit-date {
-    color: #777;
+    color: #59636b;
 }
 
 .ipd-ward-page .doctor-row {
-    margin-top: 4px;
-    white-space: normal;
+    margin-top: 2px;
+    min-width: 0;
 }
 
 .ipd-ward-page .doctor-row i {
     color: var(--ipd-green);
-    width: 17px;
+    width: 15px;
     text-align: center;
-    margin-right: 3px;
+    margin-right: 1px;
 }
 
 .ipd-ward-page .doctor-name {
     color: #1683c5;
-    font-weight: bold;
+    font-weight: 700;
+    word-break: break-word;
 }
 
 .ipd-ward-page .empty-state {
-    padding: 45px 15px;
+    padding: 55px 15px;
     color: #7b8794;
     text-align: center;
 }
 
 .ipd-ward-page .empty-state i {
-    font-size: 2.5rem;
+    font-size: 2.4rem;
     margin-bottom: 10px;
     color: #adb5bd;
 }
 
-@media (max-width: 991px) {
-    .ipd-ward-page .ward-summary {
-        width: 100%;
+@media (min-width: 1200px) {
+    .ipd-ward-page .patient-col {
+        flex: 0 0 25%;
+        max-width: 25%;
+    }
+}
+
+@media (max-width: 1199px) and (min-width: 768px) {
+    .ipd-ward-page .patient-col {
+        flex: 0 0 33.333333%;
+        max-width: 33.333333%;
+    }
+}
+
+@media (max-width: 767px) {
+    .ipd-ward-page .patient-col {
+        flex: 0 0 50%;
+        max-width: 50%;
     }
 }
 
 @media (max-width: 575px) {
-    .ipd-ward-page .ward-page-title {
-        font-size: 1.55rem;
+    .ipd-ward-page .ward-page-header {
+        gap: 10px;
+        align-items: flex-start !important;
     }
 
-    .ipd-ward-page .ward-page-header .d-flex {
-        align-items: flex-start !important;
-        gap: 10px;
+    .ipd-ward-page .ward-page-title {
+        font-size: 1.4rem;
+    }
+
+    .ipd-ward-page .ward-page-title i {
+        font-size: 1.3rem;
+    }
+
+    .ipd-ward-page .ward-page-subtitle {
+        font-size: .82rem;
     }
 
     .ipd-ward-page .back-btn {
+        font-size: .78rem;
+        padding: 6px 8px;
+    }
+
+    .ipd-ward-page .ward-main-card-body {
+        padding: 11px;
+    }
+
+    .ipd-ward-page .ward-summary {
+        padding: 11px 13px;
+        margin-bottom: 13px;
+    }
+
+    .ipd-ward-page .ward-summary-icon {
+        width: 38px;
+        height: 38px;
+        font-size: 1.1rem;
+    }
+
+    .ipd-ward-page .ward-summary-title {
         font-size: .9rem;
-        padding: 6px 9px;
+    }
+
+    .ipd-ward-page .ward-summary-number {
+        font-size: 1.6rem;
+    }
+
+    .ipd-ward-page .patient-col {
+        flex: 0 0 100%;
+        max-width: 100%;
     }
 }
 </style>
 
 <div class="content-wrapper ipd-ward-page">
 
-    <section class="content pt-3">
+    <section class="content">
 
         <div class="container-fluid">
 
             <!-- PAGE HEADER -->
             <div class="ward-page-header d-flex align-items-center justify-content-between">
-
-                <div>
+                <div class="ward-title-wrap">
                     <h2 class="ward-page-title">
                         <i class="fa-solid fa-bed-pulse"></i>
                         <span id="ward-title">ข้อมูลผู้ป่วยใน</span>
@@ -292,20 +401,27 @@ $ward = trim((string)($_GET['ward'] ?? ''));
                     <i class="fas fa-arrow-left mr-1"></i>
                     กลับหน้าหลัก
                 </a>
-
             </div>
 
             <div class="ward-main-card">
-
                 <div class="ward-main-card-body">
 
                     <!-- SUMMARY -->
                     <div class="ward-summary">
-                        <div class="ward-summary-title">
-                            <i class="fa-solid fa-hospital-user mr-1"></i>
-                            ผู้ป่วยที่ Admit อยู่
+                        <div class="ward-summary-left">
+                            <div class="ward-summary-icon">
+                                <i class="fa-solid fa-hospital-user"></i>
+                            </div>
+                            <div>
+                                <div class="ward-summary-title">ผู้ป่วยที่กำลัง Admit อยู่</div>
+                                <div class="ward-summary-subtitle">เฉพาะผู้ป่วยที่ยังไม่จำหน่ายออกจาก Ward</div>
+                            </div>
                         </div>
-                        <div class="ward-summary-number" id="ward-total">—</div>
+
+                        <div class="ward-summary-number">
+                            <span id="ward-total">—</span>
+                            <span class="ward-summary-unit">ราย</span>
+                        </div>
                     </div>
 
                     <!-- PATIENT CARDS -->
@@ -319,7 +435,6 @@ $ward = trim((string)($_GET['ward'] ?? ''));
                     </div>
 
                 </div>
-
             </div>
 
         </div>
@@ -526,21 +641,21 @@ $ward = trim((string)($_GET['ward'] ?? ''));
                             </div>
 
                             <div class="patient-info">
-                                <div>
-                                    <strong>HN :</strong>
+                                <div class="patient-info-row">
+                                    <span class="patient-info-label">HN :</span>
                                     <span class="value">${escapeHtml(patient.hn || '-')}</span>
                                 </div>
-                                <div>
-                                    <strong>วันนอน :</strong>
+                                <div class="patient-info-row">
+                                    <span class="patient-info-label">วันนอน :</span>
                                     <span class="value">${escapeHtml(stayText)}</span>
                                 </div>
-                                <div>
-                                    <strong>Admit :</strong>
+                                <div class="patient-info-row">
+                                    <span class="patient-info-label">Admit :</span>
                                     <span class="admit-date">${escapeHtml(formatDate(patient.regdate))}</span>
                                 </div>
-                                <div class="doctor-row">
+                                <div class="patient-info-row doctor-row">
                                     <i class="fas fa-user-doctor"></i>
-                                    <strong>แพทย์ :</strong>
+                                    <span class="patient-info-label">แพทย์ :</span>
                                     <span class="doctor-name">${escapeHtml(doctorName)}</span>
                                 </div>
                             </div>
