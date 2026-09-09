@@ -11,7 +11,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 <style>
 /* =========================================================
    IPD WARD DETAIL
-   รูปแบบ Card ผู้ป่วย ให้ใกล้เคียงหน้า IPD เดิมของโรงพยาบาล
+   Patient Card + เพศ/ช่วงอายุ + แพทย์ผู้รับผิดชอบ
 ========================================================= */
 .ipd-ward-page {
     --ipd-green: #198754;
@@ -104,7 +104,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 .ipd-ward-page .patient-card {
     position: relative;
     height: 100%;
-    min-height: 158px;
+    min-height: 188px;
     background: #fff;
     border: 1px solid var(--ipd-border);
     border-top: 3px solid var(--ipd-green);
@@ -123,20 +123,40 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     display: flex;
     align-items: flex-start;
     gap: 9px;
-    min-height: 40px;
+    min-height: 48px;
 }
 
 .ipd-ward-page .patient-avatar {
-    width: 40px;
-    height: 40px;
-    flex: 0 0 40px;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background: #f1f4f6;
+    background: #eef7f2;
     color: var(--ipd-green);
-    font-size: 1.45rem;
+    font-size: 1.65rem;
+}
+
+.ipd-ward-page .patient-avatar.avatar-male {
+    color: #1683c5;
+    background: #edf7fc;
+}
+
+.ipd-ward-page .patient-avatar.avatar-female {
+    color: #d85a8a;
+    background: #fff0f5;
+}
+
+.ipd-ward-page .patient-avatar.avatar-child-male {
+    color: #1683c5;
+    background: #edf7fc;
+}
+
+.ipd-ward-page .patient-avatar.avatar-child-female {
+    color: #d85a8a;
+    background: #fff0f5;
 }
 
 .ipd-ward-page .patient-name {
@@ -158,7 +178,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     justify-content: flex-end;
     flex-wrap: wrap;
     gap: 4px;
-    margin-top: -2px;
+    margin-top: 5px;
 }
 
 .ipd-ward-page .patient-badge {
@@ -170,6 +190,10 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     font-size: .83rem;
     font-weight: bold;
     line-height: 1.35;
+}
+
+.ipd-ward-page .patient-badge.bed-badge {
+    background: var(--ipd-green);
 }
 
 .ipd-ward-page .patient-info {
@@ -191,6 +215,23 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 
 .ipd-ward-page .patient-info .admit-date {
     color: #777;
+}
+
+.ipd-ward-page .doctor-row {
+    margin-top: 4px;
+    white-space: normal;
+}
+
+.ipd-ward-page .doctor-row i {
+    color: var(--ipd-green);
+    width: 17px;
+    text-align: center;
+    margin-right: 3px;
+}
+
+.ipd-ward-page .doctor-name {
+    color: #1683c5;
+    font-weight: bold;
 }
 
 .ipd-ward-page .empty-state {
@@ -339,6 +380,65 @@ $ward = trim((string)($_GET['ward'] ?? ''));
         return Math.max(days, 0);
     }
 
+    /*
+     * HOSxP patient.sex โดยทั่วไปใช้ 1 = ชาย, 2 = หญิง
+     * หากพบค่าอื่น จะใช้ชื่อคำนำหน้าเป็นตัวช่วยก่อน fallback
+     * เกณฑ์เด็ก: อายุน้อยกว่า 15 ปี
+     */
+    function getGenderInfo(patient) {
+        const sex = String(patient.sex ?? '').trim();
+        const age = Number(patient.age);
+        const pname = String(patient.pname ?? '').trim();
+
+        let gender = '';
+
+        if (sex === '1' || /ชาย|เด็กชาย|ด\.ช\./i.test(pname)) {
+            gender = 'male';
+        } else if (sex === '2' || /หญิง|เด็กหญิง|ด\.ญ\./i.test(pname)) {
+            gender = 'female';
+        }
+
+        const isChild = Number.isFinite(age) && age < 15;
+
+        if (isChild && gender === 'male') {
+            return {
+                icon: 'fa-child',
+                className: 'avatar-child-male',
+                label: 'เด็กชาย'
+            };
+        }
+
+        if (isChild && gender === 'female') {
+            return {
+                icon: 'fa-child-dress',
+                className: 'avatar-child-female',
+                label: 'เด็กหญิง'
+            };
+        }
+
+        if (gender === 'male') {
+            return {
+                icon: 'fa-person',
+                className: 'avatar-male',
+                label: 'ชาย'
+            };
+        }
+
+        if (gender === 'female') {
+            return {
+                icon: 'fa-person-dress',
+                className: 'avatar-female',
+                label: 'หญิง'
+            };
+        }
+
+        return {
+            icon: 'fa-user',
+            className: '',
+            label: ''
+        };
+    }
+
     function renderEmpty(message, icon) {
         gridEl.innerHTML = `
             <div class="col-12">
@@ -387,14 +487,21 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 
                 const stayDays = calculateStayDays(patient.regdate);
                 const stayText = stayDays === null ? '-' : stayDays + ' วัน';
+                const genderInfo = getGenderInfo(patient);
+                const ageText = patient.age !== null && patient.age !== '' && patient.age !== undefined
+                    ? Number(patient.age).toLocaleString() + ' ปี'
+                    : '-';
+                const doctorName = patient.doctor_name && patient.doctor_name !== '-'
+                    ? patient.doctor_name
+                    : 'ไม่ระบุ';
 
                 return `
                     <div class="col-xl-3 col-lg-4 col-md-6 col-12 patient-col">
                         <div class="patient-card">
 
                             <div class="patient-top">
-                                <div class="patient-avatar">
-                                    <i class="fas fa-user"></i>
+                                <div class="patient-avatar ${genderInfo.className}" title="${escapeHtml(genderInfo.label)}">
+                                    <i class="fas ${genderInfo.icon}"></i>
                                 </div>
 
                                 <div class="flex-grow-1 min-width-0">
@@ -402,7 +509,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
                                         ${escapeHtml(patient.patient_name || '-')}
                                     </div>
                                     <div class="patient-meta">
-                                        Admit ${escapeHtml(formatDate(patient.regdate))}
+                                        ${escapeHtml(genderInfo.label || 'ไม่ระบุเพศ')} · อายุ ${escapeHtml(ageText)}
                                     </div>
                                 </div>
                             </div>
@@ -412,7 +519,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
                                     AN ${escapeHtml(patient.an || '-')}
                                 </span>
                                 ${patient.bedno ? `
-                                    <span class="patient-badge">
+                                    <span class="patient-badge bed-badge">
                                         <i class="fas fa-bed mr-1"></i>
                                         เตียง ${escapeHtml(patient.bedno)}
                                     </span>` : ''}
@@ -426,6 +533,15 @@ $ward = trim((string)($_GET['ward'] ?? ''));
                                 <div>
                                     <strong>วันนอน :</strong>
                                     <span class="value">${escapeHtml(stayText)}</span>
+                                </div>
+                                <div>
+                                    <strong>Admit :</strong>
+                                    <span class="admit-date">${escapeHtml(formatDate(patient.regdate))}</span>
+                                </div>
+                                <div class="doctor-row">
+                                    <i class="fas fa-user-doctor"></i>
+                                    <strong>แพทย์ :</strong>
+                                    <span class="doctor-name">${escapeHtml(doctorName)}</span>
                                 </div>
                             </div>
 
