@@ -113,6 +113,95 @@
             activateOpdTab(currentHash.replace('#opd-tab-', ''));
         }
 
+        /* =========================================================
+           IPD Sidebar -> อ้างอิง Ward จริงจาก Card หน้า Index
+
+           ไม่ hard-code เลข Ward เพราะเลข Ward ใน HOSxP สามารถเปลี่ยนได้
+           จึงอ่านจาก api/index_ward_bed.php แล้วจับคู่จากชื่อ Ward
+           จากนั้นเปลี่ยน href เป็น ipd_ward_detail.php?ward=<ward_id>
+        ========================================================= */
+        async function bindIpdWardLinks() {
+            const links = sidebar.querySelectorAll('[data-ipd-ward-key]');
+            if (!links.length || !isProviderLoggedIn) return;
+
+            try {
+                const baseUrl = document.body.getAttribute('data-base-url') || '';
+                const response = await fetch(baseUrl + 'api/index_ward_bed.php', {
+                    cache: 'no-store'
+                });
+
+                if (!response.ok) throw new Error('ไม่สามารถโหลดข้อมูล Ward ได้');
+
+                const wards = await response.json();
+                if (!Array.isArray(wards)) throw new Error('รูปแบบข้อมูล Ward ไม่ถูกต้อง');
+
+                function normalize(value) {
+                    return String(value || '')
+                        .toLowerCase()
+                        .replace(/\s+/g, '')
+                        .replace(/[()\[\]{}]/g, '')
+                        .replace(/[._-]/g, '');
+                }
+
+                function findWard(key) {
+                    return wards.find(function (item) {
+                        const name = normalize(item.name);
+
+                        switch (key) {
+                            case 'pediatric':
+                                return name.includes('เด็ก');
+                            case 'medicine_female':
+                                return name.includes('medหญิง') || name.includes('อายุรกรรมหญิง');
+                            case 'medicine_male':
+                                return name.includes('medชาย') || name.includes('อายุรกรรมชาย');
+                            case 'surgery':
+                                return name.includes('ศัลยกรรม');
+                            case 'private5':
+                                return name.includes('พิเศษ') && name.includes('5');
+                            case 'stroke':
+                                return name.includes('stroke');
+                            case 'lr':
+                                return name === 'lr' || name.includes('ห้องคลอด');
+                            case 'icu':
+                                return name === 'icu' || name.includes('icu');
+                            case 'snb':
+                                return name.includes('snb') || name.includes('ทารกแรกเกิด');
+                            case 'pp':
+                                return name === 'pp' || name.includes('หลังคลอด');
+                            case 'home':
+                                return name.includes('homeward') || name.includes('home');
+                            default:
+                                return false;
+                        }
+                    });
+                }
+
+                links.forEach(function (link) {
+                    const key = link.getAttribute('data-ipd-ward-key');
+                    const ward = findWard(key);
+                    if (!ward || ward.ward === undefined || ward.ward === null) return;
+
+                    link.href = baseUrl + 'pages/ipd_ward_detail.php?ward=' +
+                        encodeURIComponent(ward.ward);
+                    link.setAttribute('data-ward-id', ward.ward);
+                    link.classList.add('ipd-ward-linked');
+
+                    const currentWard = new URLSearchParams(window.location.search).get('ward');
+                    const isWardDetailPage = window.location.pathname.endsWith('/pages/ipd_ward_detail.php') ||
+                        window.location.pathname.endsWith('ipd_ward_detail.php');
+
+                    if (isWardDetailPage && currentWard === String(ward.ward)) {
+                        link.classList.add('active');
+                    }
+                });
+
+            } catch (error) {
+                console.error('bindIpdWardLinks error:', error);
+            }
+        }
+
+        bindIpdWardLinks();
+
         /* ปิด Sidebar เมื่อเลือกเมนูปลายทาง */
         sidebar.querySelectorAll('a[href]').forEach(function (link) {
             link.addEventListener('click', function () {
