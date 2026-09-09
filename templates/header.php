@@ -22,6 +22,7 @@ require_once __DIR__ . '/../config/app.php';
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/AdminLTE/dist/css/adminlte.min.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/custom.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/sidebar.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/ipd_ward_detail.css">
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/AdminLTE/plugins/fontawesome-free/css/all.min.css">
