@@ -23,14 +23,18 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     --ipd-border: #dfe7e3;
 }
 
-.ipd-ward-page .content { padding-top: 1rem !important; }
+.ipd-ward-page .content {
+    padding-top: 1rem !important;
+}
 
 .ipd-ward-page .ward-page-header {
     margin-bottom: 15px;
     padding: 2px 2px 0;
 }
 
-.ipd-ward-page .ward-title-wrap { min-width: 0; }
+.ipd-ward-page .ward-title-wrap {
+    min-width: 0;
+}
 
 .ipd-ward-page .ward-page-title {
     display: flex;
@@ -43,7 +47,9 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     line-height: 1.2;
 }
 
-.ipd-ward-page .ward-page-title i { font-size: 1.85rem; }
+.ipd-ward-page .ward-page-title i {
+    font-size: 1.85rem;
+}
 
 .ipd-ward-page .ward-page-subtitle {
     color: var(--ipd-muted);
@@ -61,12 +67,14 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 .ipd-ward-page .ward-main-card {
     border: 1px solid var(--ipd-border);
     border-radius: 14px;
-    box-shadow: 0 3px 12px rgba(31,45,61,.07);
+    box-shadow: 0 3px 12px rgba(31, 45, 61, .07);
     background: #fff;
     overflow: hidden;
 }
 
-.ipd-ward-page .ward-main-card-body { padding: 20px; }
+.ipd-ward-page .ward-main-card-body {
+    padding: 20px;
+}
 
 /* =========================================================
    WARD OVERVIEW - DISTINCT COLORED CARDS
@@ -81,7 +89,9 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     margin: 0 0 14px 2px;
 }
 
-.ipd-ward-page .ward-overview-title i { color: var(--ipd-green); }
+.ipd-ward-page .ward-overview-title i {
+    color: var(--ipd-green);
+}
 
 .ipd-ward-page .ward-overview-grid {
     margin-left: -7px;
@@ -107,7 +117,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     border-left: 6px solid var(--ipd-green);
     border-radius: 12px;
     background: #eaf7f0;
-    box-shadow: 0 4px 10px rgba(31,45,61,.08);
+    box-shadow: 0 4px 10px rgba(31, 45, 61, .08);
     overflow: hidden;
 }
 
@@ -119,7 +129,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     right: -30px;
     bottom: -55px;
     border-radius: 50%;
-    background: rgba(25,135,84,.08);
+    background: rgba(25, 135, 84, .08);
 }
 
 .ipd-ward-page .overview-card.blue {
@@ -127,21 +137,27 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     background: #edf7fc;
 }
 
-.ipd-ward-page .overview-card.blue::after { background: rgba(22,131,197,.09); }
+.ipd-ward-page .overview-card.blue::after {
+    background: rgba(22, 131, 197, .09);
+}
 
 .ipd-ward-page .overview-card.orange {
     border-left-color: var(--ipd-orange);
     background: #fff7e6;
 }
 
-.ipd-ward-page .overview-card.orange::after { background: rgba(245,158,11,.09); }
+.ipd-ward-page .overview-card.orange::after {
+    background: rgba(245, 158, 11, .09);
+}
 
 .ipd-ward-page .overview-card.red {
     border-left-color: var(--ipd-red);
     background: #fff0f2;
 }
 
-.ipd-ward-page .overview-card.red::after { background: rgba(220,53,69,.09); }
+.ipd-ward-page .overview-card.red::after {
+    background: rgba(220, 53, 69, .09);
+}
 
 .ipd-ward-page .overview-left {
     display: flex;
@@ -160,15 +176,23 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     align-items: center;
     justify-content: center;
     border-radius: 14px;
-    background: rgba(255,255,255,.78);
+    background: rgba(255, 255, 255, .78);
     color: var(--ipd-green);
     font-size: 1.7rem;
-    box-shadow: 0 2px 5px rgba(31,45,61,.06);
+    box-shadow: 0 2px 5px rgba(31, 45, 61, .06);
 }
 
-.ipd-ward-page .overview-card.blue .overview-icon { color: var(--ipd-blue); }
-.ipd-ward-page .overview-card.orange .overview-icon { color: var(--ipd-orange); }
-.ipd-ward-page .overview-card.red .overview-icon { color: var(--ipd-red); }
+.ipd-ward-page .overview-card.blue .overview-icon {
+    color: var(--ipd-blue);
+}
+
+.ipd-ward-page .overview-card.orange .overview-icon {
+    color: var(--ipd-orange);
+}
+
+.ipd-ward-page .overview-card.red .overview-icon {
+    color: var(--ipd-red);
+}
 
 .ipd-ward-page .overview-label {
     color: #3f4c54;
@@ -197,9 +221,17 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     font-weight: 800;
 }
 
-.ipd-ward-page .overview-card.blue .overview-value { color: var(--ipd-blue); }
-.ipd-ward-page .overview-card.orange .overview-value { color: var(--ipd-orange); }
-.ipd-ward-page .overview-card.red .overview-value { color: var(--ipd-red); }
+.ipd-ward-page .overview-card.blue .overview-value {
+    color: var(--ipd-blue);
+}
+
+.ipd-ward-page .overview-card.orange .overview-value {
+    color: var(--ipd-orange);
+}
+
+.ipd-ward-page .overview-card.red .overview-value {
+    color: var(--ipd-red);
+}
 
 .ipd-ward-page .overview-unit {
     color: #69767e;
@@ -211,7 +243,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 .ipd-ward-page .occupancy-bar {
     height: 7px;
     min-width: 105px;
-    background: rgba(255,255,255,.75);
+    background: rgba(255, 255, 255, .75);
     border-radius: 10px;
     margin-top: 9px;
     overflow: hidden;
@@ -225,8 +257,13 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     transition: width .35s ease;
 }
 
-.ipd-ward-page .overview-card.orange .occupancy-fill { background: var(--ipd-orange); }
-.ipd-ward-page .overview-card.red .occupancy-fill { background: var(--ipd-red); }
+.ipd-ward-page .overview-card.orange .occupancy-fill {
+    background: var(--ipd-orange);
+}
+
+.ipd-ward-page .overview-card.red .occupancy-fill {
+    background: var(--ipd-red);
+}
 
 /* =========================================================
    PATIENT SECTION
@@ -248,7 +285,9 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     font-weight: 700;
 }
 
-.ipd-ward-page .patient-section-title i { color: var(--ipd-green); }
+.ipd-ward-page .patient-section-title i {
+    color: var(--ipd-green);
+}
 
 .ipd-ward-page .patient-count-badge {
     background: #e9f6ef;
@@ -280,14 +319,14 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     border-top: 4px solid var(--ipd-green);
     border-radius: 10px;
     padding: 14px 15px 13px;
-    box-shadow: 0 3px 8px rgba(31,45,61,.075);
+    box-shadow: 0 3px 8px rgba(31, 45, 61, .075);
     transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
 }
 
 .ipd-ward-page .patient-card:hover {
     transform: translateY(-2px);
     border-color: #c9d9d1;
-    box-shadow: 0 7px 18px rgba(31,45,61,.12);
+    box-shadow: 0 7px 18px rgba(31, 45, 61, .12);
 }
 
 .ipd-ward-page .patient-top {
@@ -311,10 +350,16 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 }
 
 .ipd-ward-page .patient-avatar.avatar-male,
-.ipd-ward-page .patient-avatar.avatar-child-male { color:#1683c5; background:#edf7fc; }
+.ipd-ward-page .patient-avatar.avatar-child-male {
+    color: #1683c5;
+    background: #edf7fc;
+}
 
 .ipd-ward-page .patient-avatar.avatar-female,
-.ipd-ward-page .patient-avatar.avatar-child-female { color:#d45a88; background:#fff0f5; }
+.ipd-ward-page .patient-avatar.avatar-child-female {
+    color: #d45a88;
+    background: #fff0f5;
+}
 
 .ipd-ward-page .patient-name {
     color: #263238;
@@ -348,9 +393,12 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     font-size: .8rem;
     font-weight: 700;
     line-height: 1.2;
+    gap: 5px;
 }
 
-.ipd-ward-page .patient-badge.bed-badge { background: var(--ipd-green); }
+.ipd-ward-page .patient-badge.bed-badge {
+    background: var(--ipd-green);
+}
 
 .ipd-ward-page .patient-info {
     border-top: 1px solid #edf0f2;
@@ -367,12 +415,37 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     min-width: 0;
 }
 
-.ipd-ward-page .patient-info-label { color:#66727b; font-weight:600; white-space:nowrap; }
-.ipd-ward-page .patient-info .value { color:#1683c5; font-weight:700; }
-.ipd-ward-page .patient-info .admit-date { color:#59636b; }
-.ipd-ward-page .doctor-row { margin-top:2px; min-width:0; }
-.ipd-ward-page .doctor-row i { color:var(--ipd-green); width:16px; text-align:center; }
-.ipd-ward-page .doctor-name { color:#1683c5; font-weight:700; word-break:break-word; }
+.ipd-ward-page .patient-info-label {
+    color: #66727b;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.ipd-ward-page .patient-info .value {
+    color: #1683c5;
+    font-weight: 700;
+}
+
+.ipd-ward-page .patient-info .admit-date {
+    color: #59636b;
+}
+
+.ipd-ward-page .doctor-row {
+    margin-top: 2px;
+    min-width: 0;
+}
+
+.ipd-ward-page .doctor-row i {
+    color: var(--ipd-green);
+    width: 16px;
+    text-align: center;
+}
+
+.ipd-ward-page .doctor-name {
+    color: #1683c5;
+    font-weight: 700;
+    word-break: break-word;
+}
 
 .ipd-ward-page .empty-state {
     padding: 60px 15px;
@@ -381,37 +454,99 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     font-size: 1rem;
 }
 
-.ipd-ward-page .empty-state i { font-size:2.5rem; margin-bottom:10px; color:#adb5bd; }
+.ipd-ward-page .empty-state i {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    color: #adb5bd;
+}
 
 @media (min-width:1200px) {
-    .ipd-ward-page .patient-col { flex:0 0 25%; max-width:25%; }
+    .ipd-ward-page .patient-col {
+        flex: 0 0 25%;
+        max-width: 25%;
+    }
 }
 
 @media (max-width:1199px) and (min-width:768px) {
-    .ipd-ward-page .patient-col { flex:0 0 33.333333%; max-width:33.333333%; }
+    .ipd-ward-page .patient-col {
+        flex: 0 0 33.333333%;
+        max-width: 33.333333%;
+    }
 }
 
 @media (max-width:767px) {
+
     .ipd-ward-page .patient-col,
-    .ipd-ward-page .overview-col { flex:0 0 50%; max-width:50%; }
+    .ipd-ward-page .overview-col {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
 }
 
 @media (max-width:575px) {
-    .ipd-ward-page .ward-page-header { gap:10px; align-items:flex-start !important; }
-    .ipd-ward-page .ward-page-title { font-size:1.5rem; }
-    .ipd-ward-page .ward-page-title i { font-size:1.35rem; }
-    .ipd-ward-page .ward-page-subtitle { font-size:.84rem; }
-    .ipd-ward-page .back-btn { font-size:.78rem; padding:6px 8px; }
-    .ipd-ward-page .ward-main-card-body { padding:11px; }
+    .ipd-ward-page .ward-page-header {
+        gap: 10px;
+        align-items: flex-start !important;
+    }
+
+    .ipd-ward-page .ward-page-title {
+        font-size: 1.5rem;
+    }
+
+    .ipd-ward-page .ward-page-title i {
+        font-size: 1.35rem;
+    }
+
+    .ipd-ward-page .ward-page-subtitle {
+        font-size: .84rem;
+    }
+
+    .ipd-ward-page .back-btn {
+        font-size: .78rem;
+        padding: 6px 8px;
+    }
+
+    .ipd-ward-page .ward-main-card-body {
+        padding: 11px;
+    }
+
     .ipd-ward-page .overview-col,
-    .ipd-ward-page .patient-col { flex:0 0 100%; max-width:100%; }
-    .ipd-ward-page .overview-card { min-height:112px; padding:14px 15px; }
-    .ipd-ward-page .overview-icon { width:46px; height:46px; flex-basis:46px; font-size:1.35rem; }
-    .ipd-ward-page .overview-label { font-size:.98rem; }
-    .ipd-ward-page .overview-help { font-size:.78rem; }
-    .ipd-ward-page .overview-value { font-size:2rem; }
-    .ipd-ward-page .patient-section-title { font-size:1.12rem; }
-    .ipd-ward-page .patient-name { font-size:1rem; }
+    .ipd-ward-page .patient-col {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    .ipd-ward-page .overview-card {
+        min-height: 112px;
+        padding: 14px 15px;
+    }
+
+    .ipd-ward-page .overview-icon {
+        width: 46px;
+        height: 46px;
+        flex-basis: 46px;
+        font-size: 1.35rem;
+    }
+
+    .ipd-ward-page .overview-label {
+        font-size: .98rem;
+    }
+
+    .ipd-ward-page .overview-help {
+        font-size: .78rem;
+    }
+
+    .ipd-ward-page .overview-value {
+        font-size: 2rem;
+    }
+
+    .ipd-ward-page .patient-section-title {
+        font-size: 1.12rem;
+    }
+
+    .ipd-ward-page .patient-name {
+        font-size: 1rem;
+    }
 }
 </style>
 
@@ -451,7 +586,8 @@ $ward = trim((string)($_GET['ward'] ?? ''));
                                     </div>
                                 </div>
                                 <div class="overview-value-wrap">
-                                    <span class="overview-value" id="total-beds">—</span><span class="overview-unit">เตียง</span>
+                                    <span class="overview-value" id="total-beds">—</span><span
+                                        class="overview-unit">เตียง</span>
                                 </div>
                             </div>
                         </div>
@@ -466,7 +602,8 @@ $ward = trim((string)($_GET['ward'] ?? ''));
                                     </div>
                                 </div>
                                 <div class="overview-value-wrap">
-                                    <span class="overview-value" id="admit-now">—</span><span class="overview-unit">ราย</span>
+                                    <span class="overview-value" id="admit-now">—</span><span
+                                        class="overview-unit">ราย</span>
                                 </div>
                             </div>
                         </div>
@@ -481,7 +618,8 @@ $ward = trim((string)($_GET['ward'] ?? ''));
                                     </div>
                                 </div>
                                 <div class="overview-value-wrap">
-                                    <span class="overview-value" id="available-beds">—</span><span class="overview-unit">เตียง</span>
+                                    <span class="overview-value" id="available-beds">—</span><span
+                                        class="overview-unit">เตียง</span>
                                 </div>
                             </div>
                         </div>
@@ -496,8 +634,11 @@ $ward = trim((string)($_GET['ward'] ?? ''));
                                     </div>
                                 </div>
                                 <div class="overview-value-wrap">
-                                    <span class="overview-value" id="occupancy-rate">—</span><span class="overview-unit">%</span>
-                                    <div class="occupancy-bar"><div class="occupancy-fill" id="occupancy-fill"></div></div>
+                                    <span class="overview-value" id="occupancy-rate">—</span><span
+                                        class="overview-unit">%</span>
+                                    <div class="occupancy-bar">
+                                        <div class="occupancy-fill" id="occupancy-fill"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -528,7 +669,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 </div>
 
 <script>
-(function () {
+(function() {
     const ward = <?= json_encode($ward, JSON_UNESCAPED_UNICODE) ?>;
     const baseUrl = <?= json_encode(BASE_URL, JSON_UNESCAPED_UNICODE) ?>;
 
@@ -558,15 +699,19 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     function formatDate(value) {
         const date = parseDate(value);
         if (!date) return '-';
-        return date.toLocaleDateString('th-TH', { year:'numeric', month:'2-digit', day:'2-digit' });
+        return date.toLocaleDateString('th-TH', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
     }
 
     function calculateStayDays(value) {
         const date = parseDate(value);
         if (!date) return null;
         const today = new Date();
-        today.setHours(0,0,0,0);
-        date.setHours(0,0,0,0);
+        today.setHours(0, 0, 0, 0);
+        date.setHours(0, 0, 0, 0);
         return Math.max(Math.floor((today - date) / 86400000), 0);
     }
 
@@ -578,24 +723,47 @@ $ward = trim((string)($_GET['ward'] ?? ''));
         if (sex === '1' || /ชาย|เด็กชาย|ด\.ช\./i.test(pname)) gender = 'male';
         else if (sex === '2' || /หญิง|เด็กหญิง|ด\.ญ\./i.test(pname)) gender = 'female';
         const child = Number.isFinite(age) && age < 15;
-        if (child && gender === 'male') return {icon:'fa-child', className:'avatar-child-male', label:'เด็กชาย'};
-        if (child && gender === 'female') return {icon:'fa-child-dress', className:'avatar-child-female', label:'เด็กหญิง'};
-        if (gender === 'male') return {icon:'fa-person', className:'avatar-male', label:'ชาย'};
-        if (gender === 'female') return {icon:'fa-person-dress', className:'avatar-female', label:'หญิง'};
-        return {icon:'fa-user', className:'', label:'ไม่ระบุเพศ'};
+        if (child && gender === 'male') return {
+            icon: 'fa-child',
+            className: 'avatar-child-male',
+            label: 'เด็กชาย'
+        };
+        if (child && gender === 'female') return {
+            icon: 'fa-child-dress',
+            className: 'avatar-child-female',
+            label: 'เด็กหญิง'
+        };
+        if (gender === 'male') return {
+            icon: 'fa-person',
+            className: 'avatar-male',
+            label: 'ชาย'
+        };
+        if (gender === 'female') return {
+            icon: 'fa-person-dress',
+            className: 'avatar-female',
+            label: 'หญิง'
+        };
+        return {
+            icon: 'fa-user',
+            className: '',
+            label: 'ไม่ระบุเพศ'
+        };
     }
 
     function renderEmpty(message, icon) {
-        gridEl.innerHTML = `<div class="col-12"><div class="empty-state"><i class="${icon} d-block"></i>${escapeHtml(message)}</div></div>`;
+        gridEl.innerHTML =
+            `<div class="col-12"><div class="empty-state"><i class="${icon} d-block"></i>${escapeHtml(message)}</div></div>`;
     }
 
     async function loadWardOverview() {
-        const response = await fetch(baseUrl + 'api/index_ward_bed.php', { cache:'no-store' });
+        const response = await fetch(baseUrl + 'api/index_ward_bed.php', {
+            cache: 'no-store'
+        });
         if (!response.ok) throw new Error('ไม่สามารถโหลดข้อมูลสรุป Ward ได้');
         const wards = await response.json();
         if (!Array.isArray(wards)) throw new Error('รูปแบบข้อมูล Ward ไม่ถูกต้อง');
 
-        const item = wards.find(function (row) {
+        const item = wards.find(function(row) {
             return String(row.ward) === String(ward);
         });
 
@@ -612,7 +780,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
         occupancyEl.textContent = rate.toFixed(2);
         occupancyFillEl.style.width = Math.min(Math.max(rate, 0), 100) + '%';
 
-        occupancyCard.classList.remove('red','orange');
+        occupancyCard.classList.remove('red', 'orange');
         if (rate >= 90) occupancyCard.classList.add('red');
         else if (rate >= 70) occupancyCard.classList.add('orange');
 
@@ -631,7 +799,9 @@ $ward = trim((string)($_GET['ward'] ?? ''));
             return;
         }
 
-        const response = await fetch(baseUrl + 'api/ipd_ward_detail.php?ward=' + encodeURIComponent(ward), { cache:'no-store' });
+        const response = await fetch(baseUrl + 'api/ipd_ward_detail.php?ward=' + encodeURIComponent(ward), {
+            cache: 'no-store'
+        });
         const data = await response.json();
         if (!response.ok || data.error) throw new Error(data.error || 'ไม่สามารถโหลดข้อมูลได้');
 
@@ -643,12 +813,13 @@ $ward = trim((string)($_GET['ward'] ?? ''));
             return;
         }
 
-        gridEl.innerHTML = patients.map(function (patient) {
+        gridEl.innerHTML = patients.map(function(patient) {
             const gender = getGenderInfo(patient);
-            const age = patient.age !== null && patient.age !== undefined && patient.age !== ''
-                ? Number(patient.age).toLocaleString() + ' ปี' : '-';
+            const age = patient.age !== null && patient.age !== undefined && patient.age !== '' ?
+                Number(patient.age).toLocaleString() + ' ปี' : '-';
             const stay = calculateStayDays(patient.regdate);
-            const doctor = patient.doctor_name && patient.doctor_name !== '-' ? patient.doctor_name : 'ไม่ระบุ';
+            const doctor = patient.doctor_name && patient.doctor_name !== '-' ? patient.doctor_name :
+                'ไม่ระบุ';
 
             return `<div class="col-xl-3 col-lg-4 col-md-6 col-12 patient-col">
                 <div class="patient-card">
