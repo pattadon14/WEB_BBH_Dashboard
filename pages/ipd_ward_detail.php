@@ -62,13 +62,12 @@ $ward = trim((string)($_GET['ward'] ?? ''));
                                     <th class="text-center" style="width:120px;">AN</th>
                                     <th class="text-center" style="width:120px;">HN</th>
                                     <th>ชื่อ - นามสกุล</th>
-                                    <th class="text-center" style="width:140px;">เตียง</th>
                                     <th class="text-center" style="width:160px;">วันที่ Admit</th>
                                 </tr>
                             </thead>
                             <tbody id="ward-patient-body">
                                 <tr>
-                                    <td colspan="6" class="text-center text-muted py-4">
+                                    <td colspan="5" class="text-center text-muted py-4">
                                         กำลังโหลดข้อมูล...
                                     </td>
                                 </tr>
@@ -128,7 +127,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
             totalEl.textContent = '0';
             bodyEl.innerHTML = `
                 <tr>
-                    <td colspan="6" class="text-center text-danger py-4">
+                    <td colspan="5" class="text-center text-danger py-4">
                         ไม่พบรหัส Ward ที่ถูกต้อง
                     </td>
                 </tr>`;
@@ -157,7 +156,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
             if (!data.patients || data.patients.length === 0) {
                 bodyEl.innerHTML = `
                     <tr>
-                        <td colspan="6" class="text-center text-muted py-4">
+                        <td colspan="5" class="text-center text-muted py-4">
                             ไม่พบผู้ป่วยที่กำลัง Admit อยู่ใน Ward นี้
                         </td>
                     </tr>`;
@@ -170,7 +169,6 @@ $ward = trim((string)($_GET['ward'] ?? ''));
                     <td class="text-center font-weight-bold">${escapeHtml(patient.an)}</td>
                     <td class="text-center">${escapeHtml(patient.hn)}</td>
                     <td>${escapeHtml(patient.patient_name || '-')}</td>
-                    <td class="text-center">${escapeHtml(patient.bedno || '-')}</td>
                     <td class="text-center">${escapeHtml(formatDate(patient.regdate))}</td>
                 </tr>
             `).join('');
@@ -181,7 +179,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 
             bodyEl.innerHTML = `
                 <tr>
-                    <td colspan="6" class="text-center text-danger py-4">
+                    <td colspan="5" class="text-center text-danger py-4">
                         ไม่สามารถโหลดข้อมูลผู้ป่วยได้
                         <br>
                         <small>${escapeHtml(error.message)}</small>
