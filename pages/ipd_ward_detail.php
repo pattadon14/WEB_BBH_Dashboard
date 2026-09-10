@@ -40,7 +40,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     display: flex;
     align-items: center;
     gap: 11px;
-    color: var(--ipd-green);
+    color: #ffffff;
     font-weight: 700;
     margin: 0;
     font-size: 2.05rem;
@@ -52,7 +52,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 }
 
 .ipd-ward-page .ward-page-subtitle {
-    color: var(--ipd-muted);
+    color: #ffffff;
     margin-top: 5px;
 }
 
@@ -60,7 +60,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     border-radius: 8px;
     padding: 8px 14px;
     white-space: nowrap;
-    font-size: .94rem;
+    margin-left: 20px;
 }
 
 .ipd-ward-page .ward-main-card {

@@ -14,7 +14,10 @@
     font-size: 26px !important;
 }
 
-.ipd-ward-page .overview-label,
+.ipd-ward-page .overview-label {
+    font-size: 24px !important;
+}
+
 .ipd-ward-page .overview-help,
 .ipd-ward-page .overview-unit {
     font-size: 20px !important;
@@ -56,13 +59,8 @@
 .ipd-ward-page .ward-page-header {
     position: relative;
     min-height: 96px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding: 8px 2px 12px;
-    border-top: 3px solid #198754;
-    border-bottom: 1px solid #dfe7e3;
-    background: #f8faf9;
+    background: #198754;
+    border-radius: 12px;
 }
 
 .ipd-ward-page .ward-title-wrap {
@@ -81,7 +79,6 @@
     font-size: 2rem !important;
     font-weight: 700;
     line-height: 1.25;
-    letter-spacing: .01em;
 }
 
 .ipd-ward-page .ward-page-title i {
@@ -106,10 +103,8 @@
     gap: 8px;
     min-width: 150px;
     min-height: 44px;
-    padding: 9px 18px;
     border: 1px solid #198754;
-    border-radius: 8px;
-    background: #198754;
+    background: #359b6c;
     color: #ffffff;
     font-size: 16px !important;
     font-weight: 600;
