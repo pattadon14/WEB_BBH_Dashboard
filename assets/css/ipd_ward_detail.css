@@ -1,6 +1,5 @@
 /* =========================================================
-   IPD WARD DETAIL - STANDARD 16PX TYPOGRAPHY
-   ปรับข้อความทั่วไปให้อ่านง่าย โดยใช้ประมาณ 16px เป็นหลัก
+   IPD WARD DETAIL - STANDARD TYPOGRAPHY
 ========================================================= */
 .ipd-ward-page .ward-page-title {
     font-size: 2rem !important;
@@ -11,24 +10,21 @@
 }
 
 .ipd-ward-page .ward-overview-title {
-    font-size: 26px !important;
+    font-size: 22px !important;
 }
 
-.ipd-ward-page .overview-label {
-    font-size: 24px !important;
-}
-
+.ipd-ward-page .overview-label,
 .ipd-ward-page .overview-help,
 .ipd-ward-page .overview-unit {
-    font-size: 20px !important;
+    font-size: 16px !important;
 }
 
 .ipd-ward-page .overview-value {
-    font-size: 2.85rem !important;
+    font-size: 2.55rem !important;
 }
 
 .ipd-ward-page .patient-section-title {
-    font-size: 26px !important;
+    font-size: 22px !important;
 }
 
 .ipd-ward-page .patient-name,
@@ -38,7 +34,7 @@
 .ipd-ward-page .patient-info .value,
 .ipd-ward-page .patient-info .admit-date,
 .ipd-ward-page .doctor-name {
-    font-size: 18px !important;
+    font-size: 16px !important;
 }
 
 .ipd-ward-page .patient-badge {
@@ -71,7 +67,7 @@
 .ipd-ward-page .ward-page-title {
     justify-content: center;
     gap: 12px;
-    color: #147447;
+    color: #ffffff !important;
     font-size: 2rem !important;
     font-weight: 700;
     line-height: 1.25;
@@ -82,9 +78,10 @@
 }
 
 .ipd-ward-page .ward-page-subtitle {
-    font-size: 18px !important;
+    font-size: 16px !important;
     font-weight: 500;
     line-height: 1.4;
+    color: #ffffff !important;
 }
 
 /* =========================================================
@@ -125,8 +122,62 @@
 }
 
 /* =========================================================
+   PATIENT SECTION
+   - ซ่อนจำนวนผู้ป่วยที่ซ้ำกับ Overview
+========================================================= */
+.ipd-ward-page .patient-count-badge {
+    display: none !important;
+}
+
+/* =========================================================
+   PATIENT CARD HEADER
+   - ชื่อผู้ป่วยอยู่ซ้าย
+   - AN + เตียงอยู่ขวาในแถวเดียวกัน
+========================================================= */
+.ipd-ward-page .patient-card {
+    position: relative;
+}
+
+.ipd-ward-page .patient-top {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-height: 53px;
+    padding-right: 150px;
+}
+
+.ipd-ward-page .patient-badges {
+    position: absolute !important;
+    top: 15px;
+    right: 15px;
+    z-index: 3;
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    gap: 5px;
+    margin-top: 0 !important;
+    max-width: calc(100% - 165px);
+}
+
+.ipd-ward-page .patient-badge {
+    white-space: nowrap;
+}
+
+/* =========================================================
    RESPONSIVE
 ========================================================= */
+@media (max-width: 1199px) {
+    .ipd-ward-page .patient-top {
+        padding-right: 145px;
+    }
+
+    .ipd-ward-page .patient-badges {
+        right: 14px;
+        max-width: calc(100% - 155px);
+    }
+}
+
 @media (max-width: 767px) {
     .ipd-ward-page .ward-page-header {
         min-height: auto;
@@ -186,6 +237,15 @@
     .ipd-ward-page .overview-value {
         font-size: 2.3rem !important;
     }
+
+    .ipd-ward-page .patient-top {
+        padding-right: 140px;
+    }
+
+    .ipd-ward-page .patient-badges {
+        right: 12px;
+        max-width: calc(100% - 150px);
+    }
 }
 
 @media (max-width: 575px) {
@@ -215,5 +275,37 @@
     .ipd-ward-page .back-btn {
         align-self: center;
         min-width: 140px;
+    }
+
+    /* มือถือ: ยังให้อยู่แถวเดียวกับชื่อเมื่อพื้นที่พอ
+       หากชื่อยาวมาก badge จะลดขนาดและชิดขวา */
+    .ipd-ward-page .patient-card {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .ipd-ward-page .patient-top {
+        min-height: 50px;
+        padding-right: 112px;
+        gap: 8px;
+    }
+
+    .ipd-ward-page .patient-avatar {
+        width: 44px;
+        height: 44px;
+        flex-basis: 44px;
+        font-size: 1.4rem;
+    }
+
+    .ipd-ward-page .patient-badges {
+        top: 13px;
+        right: 12px;
+        gap: 3px;
+        max-width: calc(100% - 122px);
+    }
+
+    .ipd-ward-page .patient-badge {
+        padding: 3px 6px;
+        font-size: 12px !important;
     }
 }
