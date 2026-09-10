@@ -28,11 +28,7 @@
 }
 
 .ipd-ward-page .patient-section-title {
-    font-size: 22px !important;
-}
-
-.ipd-ward-page .patient-count-badge {
-    font-size: 16px !important;
+    font-size: 26px !important;
 }
 
 .ipd-ward-page .patient-name,
@@ -42,7 +38,7 @@
 .ipd-ward-page .patient-info .value,
 .ipd-ward-page .patient-info .admit-date,
 .ipd-ward-page .doctor-name {
-    font-size: 16px !important;
+    font-size: 18px !important;
 }
 
 .ipd-ward-page .patient-badge {

@@ -285,16 +285,6 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     color: var(--ipd-green);
 }
 
-.ipd-ward-page .patient-count-badge {
-    background: #e9f6ef;
-    color: var(--ipd-green);
-    border: 1px solid #cfe9da;
-    border-radius: 20px;
-    padding: 6px 13px;
-    font-size: .92rem;
-    font-weight: 700;
-}
-
 .ipd-ward-page .patient-grid {
     margin-left: -7px;
     margin-right: -7px;
@@ -642,7 +632,6 @@ $ward = trim((string)($_GET['ward'] ?? ''));
                             <i class="fa-solid fa-users"></i>
                             ผู้ป่วยที่กำลัง Admit อยู่
                         </div>
-                        <div class="patient-count-badge"><span id="patient-count">—</span> ราย</div>
                     </div>
 
                     <div class="row patient-grid" id="patient-grid">
