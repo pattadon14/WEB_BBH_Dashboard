@@ -60,14 +60,13 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     border-radius: 8px;
     padding: 8px 14px;
     white-space: nowrap;
-    margin-left: 20px;
 }
 
 .ipd-ward-page .ward-main-card {
     border: 1px solid var(--ipd-border);
     border-radius: 14px;
     box-shadow: 0 3px 12px rgba(31, 45, 61, .07);
-    background: #fff;
+    background: #ffffff;
     overflow: hidden;
 }
 
@@ -283,6 +282,16 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 
 .ipd-ward-page .patient-section-title i {
     color: var(--ipd-green);
+}
+
+.ipd-ward-page .patient-count-badge {
+    background: #e9f6ef;
+    color: var(--ipd-green);
+    border: 1px solid #cfe9da;
+    border-radius: 20px;
+    padding: 6px 13px;
+    font-size: .92rem;
+    font-weight: 700;
 }
 
 .ipd-ward-page .patient-grid {
@@ -632,6 +641,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
                             <i class="fa-solid fa-users"></i>
                             ผู้ป่วยที่กำลัง Admit อยู่
                         </div>
+                        <div class="patient-count-badge"><span id="patient-count">—</span> ราย</div>
                     </div>
 
                     <div class="row patient-grid" id="patient-grid">
