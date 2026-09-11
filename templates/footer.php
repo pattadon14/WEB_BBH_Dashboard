@@ -12,6 +12,9 @@
 <!-- HOSxP Login Modal -->
 <script src="<?= BASE_URL ?>assets/js/login.js"></script>
 
+<!-- IPD Ward Patient Filter / Sort -->
+<script src="<?= BASE_URL ?>assets/js/ipd_ward_filter.js"></script>
+
 </body>
 
 </html>
