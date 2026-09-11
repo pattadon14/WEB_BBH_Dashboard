@@ -13,10 +13,12 @@
     font-size: 22px !important;
 }
 
-.ipd-ward-page .overview-label,
+.ipd-ward-page .overview-label {
+    font-size: 26px !important;
+}
 .ipd-ward-page .overview-help,
 .ipd-ward-page .overview-unit {
-    font-size: 16px !important;
+    font-size: 20px !important;
 }
 
 .ipd-ward-page .overview-value {
@@ -27,7 +29,6 @@
     font-size: 22px !important;
 }
 
-.ipd-ward-page .patient-name,
 .ipd-ward-page .patient-meta,
 .ipd-ward-page .patient-info,
 .ipd-ward-page .patient-info-label,
@@ -78,7 +79,7 @@
 }
 
 .ipd-ward-page .ward-page-subtitle {
-    font-size: 16px !important;
+    font-size: 18px !important;
     font-weight: 500;
     line-height: 1.4;
     color: #ffffff !important;
@@ -99,11 +100,12 @@
     border: 1px solid #198754;
     background: #359b6c;
     color: #ffffff;
-    font-size: 16px !important;
+    font-size: 18px !important;
     font-weight: 600;
     line-height: 1.2;
     box-shadow: 0 2px 7px rgba(25, 135, 84, .16);
     transition: all .18s ease;
+    margin-left: 30px;
 }
 
 .ipd-ward-page .back-btn:hover,
