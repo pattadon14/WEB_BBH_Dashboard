@@ -1,6 +1,6 @@
 /* =========================================================
    BBH DASHBOARD - IPD WARD HISTORICAL STATISTICS
-   กราฟสถิติย้อนหลังรายเดือนตามปีงบประมาณของ Ward ปัจจุบัน
+   Popup สถิติย้อนหลังรายเดือนตามปีงบประมาณของ Ward ปัจจุบัน
 ========================================================= */
 (function () {
     'use strict';
@@ -27,155 +27,243 @@
         var style = document.createElement('style');
         style.id = 'bbh-ipd-history-style';
         style.textContent = `
-            .ipd-ward-page .ipd-history-section {
-                margin-top: 30px;
-                padding-top: 8px;
-                border-top: 1px solid #e3e9e6;
+            .ipd-ward-page .ipd-history-trigger-wrap {
+                display:flex;
+                justify-content:flex-end;
+                align-items:center;
+                margin:-4px 0 10px;
             }
-            .ipd-ward-page .ipd-history-head {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 15px;
-                margin: 0 2px 8px;
-                flex-wrap: wrap;
+            .ipd-ward-page .ipd-history-trigger {
+                display:inline-flex;
+                align-items:center;
+                justify-content:center;
+                gap:8px;
+                min-width:150px;
+                min-height:42px;
+                padding:8px 16px;
+                border:1px solid #198754;
+                border-radius:8px;
+                background:#fff;
+                color:#198754;
+                font-size:16px;
+                font-weight:700;
+                box-shadow:0 2px 7px rgba(31,45,61,.08);
+                transition:all .18s ease;
+                cursor:pointer;
             }
-            .ipd-ward-page .ipd-history-title {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                margin: 0;
-                color: #59656c;
-                font-size: 1.42rem;
-                font-weight: 700;
+            .ipd-ward-page .ipd-history-trigger:hover,
+            .ipd-ward-page .ipd-history-trigger:focus {
+                background:#198754;
+                color:#fff;
+                box-shadow:0 4px 12px rgba(25,135,84,.22);
+                transform:translateY(-1px);
+                outline:none;
             }
-            .ipd-ward-page .ipd-history-title i { color: #198754; }
-            .ipd-ward-page .ipd-history-year-wrap {
-                display: flex;
-                align-items: center;
-                gap: 9px;
+            .bbh-history-modal-backdrop {
+                position:fixed;
+                inset:0;
+                z-index:1050;
+                display:none;
+                align-items:center;
+                justify-content:center;
+                padding:22px;
+                background:rgba(21,34,43,.48);
+                backdrop-filter:blur(3px);
+                -webkit-backdrop-filter:blur(3px);
             }
-            .ipd-ward-page .ipd-history-year-label {
-                color: #59656c;
-                font-size: 16px;
-                font-weight: 600;
+            .bbh-history-modal-backdrop.is-open { display:flex; }
+            .bbh-history-modal {
+                width:min(1180px,96vw);
+                max-height:92vh;
+                display:flex;
+                flex-direction:column;
+                overflow:hidden;
+                border:1px solid #dfe7e3;
+                border-radius:16px;
+                background:#fff;
+                box-shadow:0 18px 55px rgba(0,0,0,.22);
+                animation:bbhHistoryModalIn .18s ease-out;
             }
-            .ipd-ward-page .ipd-history-year {
-                min-width: 170px;
-                height: 42px;
-                padding: 6px 13px;
-                border: 1px solid #198754;
-                border-radius: 8px;
-                background: #fff;
-                color: #198754;
-                font-size: 16px;
-                font-weight: 700;
-                outline: none;
-                box-shadow: 0 1px 4px rgba(25,135,84,.06);
+            @keyframes bbhHistoryModalIn {
+                from { opacity:0; transform:translateY(10px) scale(.985); }
+                to { opacity:1; transform:translateY(0) scale(1); }
             }
-            .ipd-ward-page .ipd-history-date {
-                width: 100%;
-                margin-top: 0;
-                margin-bottom: 14px;
-                color: #71808d;
-                font-size: 15px;
+            .bbh-history-modal-head {
+                display:flex;
+                align-items:center;
+                justify-content:space-between;
+                gap:15px;
+                padding:16px 20px 13px;
+                border-bottom:1px solid #e7ece9;
+                background:#f8faf9;
             }
-            .ipd-ward-page .ipd-history-grid {
-                display: grid;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 20px;
+            .bbh-history-modal-title {
+                margin:0;
+                color:#147447;
+                font-size:21px;
+                font-weight:700;
             }
-            .ipd-ward-page .ipd-history-card {
-                min-width: 0;
-                border: 1px solid #d9e3de;
-                border-radius: 13px;
-                background: #fff;
-                box-shadow: 0 4px 14px rgba(31,45,61,.08);
-                overflow: hidden;
-                transition: box-shadow .18s ease, transform .18s ease;
+            .bbh-history-modal-subtitle {
+                margin:3px 0 0;
+                color:#71808d;
+                font-size:15px;
             }
-            .ipd-ward-page .ipd-history-card:hover {
-                box-shadow: 0 7px 20px rgba(31,45,61,.11);
+            .bbh-history-modal-close {
+                width:38px;
+                height:38px;
+                flex:0 0 38px;
+                border:1px solid #d9e1dd;
+                border-radius:8px;
+                background:#fff;
+                color:#68757d;
+                font-size:18px;
+                cursor:pointer;
+                transition:all .15s ease;
             }
-            .ipd-ward-page .ipd-history-card-head {
-                display: flex;
-                align-items: center;
-                gap: 9px;
-                min-height: 48px;
-                padding: 13px 18px 7px;
-                color: #3f4c54;
-                font-size: 17px;
-                font-weight: 700;
-                border-bottom: 1px solid #edf1ef;
-                background: #fbfcfc;
+            .bbh-history-modal-close:hover,
+            .bbh-history-modal-close:focus {
+                border-color:#dc3545;
+                background:#fff5f6;
+                color:#dc3545;
+                outline:none;
             }
-            .ipd-ward-page .ipd-history-card-head i { color: #198754; }
-            .ipd-ward-page .ipd-history-chart {
-                width: 100%;
-                height: 445px;
+            .bbh-history-toolbar {
+                display:flex;
+                align-items:center;
+                justify-content:flex-end;
+                gap:9px;
+                padding:12px 20px;
+                border-bottom:1px solid #edf1ef;
             }
-            .ipd-ward-page .ipd-history-loading,
-            .ipd-ward-page .ipd-history-error {
-                height: 445px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: #71808d;
-                font-size: 17px;
+            .bbh-history-year-label { color:#66727b; font-size:16px; font-weight:600; }
+            .bbh-history-year {
+                min-width:165px;
+                height:40px;
+                padding:6px 12px;
+                border:1px solid #198754;
+                border-radius:8px;
+                background:#fff;
+                color:#198754;
+                font-size:16px;
+                font-weight:700;
+                outline:none;
             }
-            .ipd-ward-page .ipd-history-error { color: #dc3545; }
-            @media (max-width: 991px) {
-                .ipd-ward-page .ipd-history-grid { grid-template-columns: 1fr; }
+            .bbh-history-tabs {
+                display:flex;
+                gap:4px;
+                padding:10px 20px 0;
+                border-bottom:1px solid #dfe7e3;
+                background:#fff;
             }
-            @media (max-width: 575px) {
-                .ipd-ward-page .ipd-history-head { align-items: stretch; flex-direction: column; }
-                .ipd-ward-page .ipd-history-year-wrap { width: 100%; }
-                .ipd-ward-page .ipd-history-year { flex: 1; min-width: 0; }
-                .ipd-ward-page .ipd-history-title { font-size: 1.25rem; }
-                .ipd-ward-page .ipd-history-year-label { font-size: 15px; }
-                .ipd-ward-page .ipd-history-card-head { font-size: 16px; }
-                .ipd-ward-page .ipd-history-chart,
-                .ipd-ward-page .ipd-history-loading,
-                .ipd-ward-page .ipd-history-error { height: 380px; }
+            .bbh-history-tab {
+                border:0;
+                border-bottom:3px solid transparent;
+                border-radius:7px 7px 0 0;
+                padding:10px 18px 9px;
+                background:transparent;
+                color:#66727b;
+                font-size:16px;
+                font-weight:700;
+                cursor:pointer;
+            }
+            .bbh-history-tab:hover { background:#f4f8f6; color:#198754; }
+            .bbh-history-tab.active { color:#198754; border-bottom-color:#198754; background:#f8faf9; }
+            .bbh-history-panel {
+                min-height:460px;
+                overflow:auto;
+                padding:10px 14px 14px;
+            }
+            .bbh-history-panel[hidden] { display:none; }
+            .bbh-history-chart { width:100%; height:440px; }
+            .bbh-history-loading,
+            .bbh-history-error {
+                height:440px;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                color:#71808d;
+                font-size:17px;
+            }
+            .bbh-history-error { color:#dc3545; }
+            body.bbh-history-modal-open { overflow:hidden; }
+            @media (max-width:767px) {
+                .bbh-history-modal-backdrop { padding:10px; }
+                .bbh-history-modal { width:100%; max-height:95vh; border-radius:12px; }
+                .bbh-history-modal-head { padding:13px 14px 11px; }
+                .bbh-history-modal-title { font-size:19px; }
+                .bbh-history-toolbar { justify-content:stretch; padding:10px 14px; }
+                .bbh-history-year { flex:1; min-width:0; }
+                .bbh-history-tabs { padding:8px 10px 0; }
+                .bbh-history-tab { flex:1; padding:9px 7px; font-size:14px; }
+                .bbh-history-panel { min-height:390px; padding:6px 5px 10px; }
+                .bbh-history-chart { height:390px; }
+                .bbh-history-loading,
+                .bbh-history-error { height:390px; }
+            }
+            @media (max-width:575px) {
+                .ipd-ward-page .ipd-history-trigger-wrap { margin-top:0; }
+                .ipd-ward-page .ipd-history-trigger { min-width:145px; font-size:15px; }
+                .bbh-history-year-label { font-size:15px; }
             }
         `;
         document.head.appendChild(style);
     }
 
-    function createSection() {
-        if (document.getElementById('ipd-history-section')) return document.getElementById('ipd-history-section');
+    function createModal() {
+        if (document.getElementById('bbh-history-modal-backdrop')) return;
         var mainCard = document.querySelector('.ipd-ward-page .ward-main-card');
-        if (!mainCard) return null;
+        if (!mainCard) return;
 
-        var section = document.createElement('section');
-        section.id = 'ipd-history-section';
-        section.className = 'ipd-history-section';
-        section.innerHTML = `
-            <div class="ipd-history-head">
-                <h3 class="ipd-history-title"><i class="fas fa-chart-column"></i>สถิติย้อนหลังของ Ward</h3>
-                <div class="ipd-history-year-wrap">
-                    <label class="ipd-history-year-label" for="ipd-history-year">ปีงบประมาณ</label>
-                    <select id="ipd-history-year" class="ipd-history-year" aria-label="เลือกปีงบประมาณ"></select>
+        var triggerWrap = document.createElement('div');
+        triggerWrap.className = 'ipd-history-trigger-wrap';
+        triggerWrap.innerHTML = '<button type="button" class="ipd-history-trigger" id="ipd-history-trigger"><i class="fas fa-chart-column"></i><span>แสดงกราฟสถิติย้อนหลัง</span></button>';
+        mainCard.parentNode.insertBefore(triggerWrap, mainCard);
+
+        var backdrop = document.createElement('div');
+        backdrop.id = 'bbh-history-modal-backdrop';
+        backdrop.className = 'bbh-history-modal-backdrop';
+        backdrop.setAttribute('aria-hidden', 'true');
+        backdrop.innerHTML = `
+            <div class="bbh-history-modal" role="dialog" aria-modal="true" aria-labelledby="bbh-history-modal-title">
+                <div class="bbh-history-modal-head">
+                    <div>
+                        <h3 class="bbh-history-modal-title" id="bbh-history-modal-title"><i class="fas fa-chart-column"></i> สถิติย้อนหลังของ Ward</h3>
+                        <div class="bbh-history-modal-subtitle" id="bbh-history-date"></div>
+                    </div>
+                    <button type="button" class="bbh-history-modal-close" id="bbh-history-close" aria-label="ปิด"><i class="fas fa-times"></i></button>
                 </div>
-            </div>
-            <div id="ipd-history-date" class="ipd-history-date"></div>
-            <div class="ipd-history-grid">
-                <div class="ipd-history-card">
-                    <div class="ipd-history-card-head"><i class="fas fa-user-injured"></i> จำนวนผู้ป่วย Admit รายเดือน</div>
-                    <div id="ipd-history-admit" class="ipd-history-chart"><div class="ipd-history-loading">กำลังโหลดข้อมูล...</div></div>
+                <div class="bbh-history-toolbar">
+                    <label class="bbh-history-year-label" for="bbh-history-year">ปีงบประมาณ</label>
+                    <select id="bbh-history-year" class="bbh-history-year" aria-label="เลือกปีงบประมาณ"></select>
                 </div>
-                <div class="ipd-history-card">
-                    <div class="ipd-history-card-head"><i class="fas fa-bed"></i> อัตราครองเตียงรายเดือน</div>
-                    <div id="ipd-history-occupancy" class="ipd-history-chart"><div class="ipd-history-loading">กำลังโหลดข้อมูล...</div></div>
+                <div class="bbh-history-tabs" role="tablist">
+                    <button type="button" class="bbh-history-tab active" id="bbh-tab-admit" role="tab" aria-selected="true" aria-controls="bbh-panel-admit">จำนวนผู้ป่วยรายเดือน</button>
+                    <button type="button" class="bbh-history-tab" id="bbh-tab-occupancy" role="tab" aria-selected="false" aria-controls="bbh-panel-occupancy">อัตราการครองเตียง</button>
+                </div>
+                <div class="bbh-history-panel" id="bbh-panel-admit" role="tabpanel" aria-labelledby="bbh-tab-admit">
+                    <div id="ipd-history-admit" class="bbh-history-chart"><div class="bbh-history-loading">กำลังโหลดข้อมูล...</div></div>
+                </div>
+                <div class="bbh-history-panel" id="bbh-panel-occupancy" role="tabpanel" aria-labelledby="bbh-tab-occupancy" hidden>
+                    <div id="ipd-history-occupancy" class="bbh-history-chart"><div class="bbh-history-loading">กำลังโหลดข้อมูล...</div></div>
                 </div>
             </div>
         `;
-        mainCard.insertAdjacentElement('afterend', section);
-        return section;
+        document.body.appendChild(backdrop);
+
+        document.getElementById('ipd-history-trigger').addEventListener('click', openModal);
+        document.getElementById('bbh-history-close').addEventListener('click', closeModal);
+        backdrop.addEventListener('click', function (event) {
+            if (event.target === backdrop) closeModal();
+        });
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && backdrop.classList.contains('is-open')) closeModal();
+        });
+        document.getElementById('bbh-tab-admit').addEventListener('click', function () { switchTab('admit'); });
+        document.getElementById('bbh-tab-occupancy').addEventListener('click', function () { switchTab('occupancy'); });
     }
 
     function populateYears() {
-        var select = document.getElementById('ipd-history-year');
+        var select = document.getElementById('bbh-history-year');
         if (!select || select.options.length) return;
         var current = currentFiscalYear();
         for (var year = current; year >= current - 5; year--) {
@@ -185,6 +273,7 @@
             select.appendChild(option);
         }
         select.value = current;
+        select.addEventListener('change', loadHistory);
     }
 
     function loadHighcharts(callback) {
@@ -199,10 +288,10 @@
         script.src = 'https://code.highcharts.com/highcharts.js';
         script.onload = callback;
         script.onerror = function () {
-            var a = document.getElementById('ipd-history-admit');
-            var b = document.getElementById('ipd-history-occupancy');
-            if (a) a.innerHTML = '<div class="ipd-history-error">ไม่สามารถโหลด Highcharts ได้</div>';
-            if (b) b.innerHTML = '<div class="ipd-history-error">ไม่สามารถโหลด Highcharts ได้</div>';
+            ['ipd-history-admit', 'ipd-history-occupancy'].forEach(function (id) {
+                var el = document.getElementById(id);
+                if (el) el.innerHTML = '<div class="bbh-history-error">ไม่สามารถโหลด Highcharts ได้</div>';
+            });
         };
         document.head.appendChild(script);
     }
@@ -217,56 +306,22 @@
         return 'ปีงบประมาณ ' + year + ' (1 ตุลาคม ' + (year - 1) + ' - 30 กันยายน ' + year + ')';
     }
 
-    function chartFont() {
-        return {
-            fontFamily: 'THSarabun',
-            fontSize: '15px'
-        };
-    }
+    function chartFont() { return { fontFamily: 'THSarabun', fontSize: '15px' }; }
 
     function renderAdmit(data, year) {
         var categories = data.map(function (r) { return r.month_name; });
         var values = data.map(function (r) { return Number(r.admit_count || 0); });
         var maxValue = Math.max.apply(null, values.concat([0]));
         var axisMax = Math.max(100, Math.ceil((maxValue * 1.12) / 20) * 20);
-
         Highcharts.chart('ipd-history-admit', {
-            chart: {
-                type: 'column',
-                backgroundColor: '#ffffff',
-                spacing: [12, 18, 18, 12],
-                style: chartFont()
-            },
-            title: { text: 'จำนวนผู้ป่วย Admit ปีงบประมาณ ' + year, style: { fontSize: '18px', fontWeight: '600' } },
-            xAxis: {
-                categories: categories,
-                labels: { style: { fontSize: '15px' } }
-            },
-            yAxis: {
-                min: 0,
-                max: axisMax,
-                tickInterval: 20,
-                title: { text: 'จำนวนผู้ป่วย', style: { fontSize: '15px' } },
-                labels: { style: { fontSize: '14px' } }
-            },
-            tooltip: { shared: true, valueSuffix: ' ราย', style: { fontSize: '15px' } },
-            plotOptions: {
-                column: {
-                    borderRadius: 4,
-                    pointPadding: 0.08,
-                    groupPadding: 0.12,
-                    dataLabels: {
-                        enabled: true,
-                        crop: false,
-                        overflow: 'allow',
-                        y: -4,
-                        style: { fontSize: '15px', fontWeight: 'bold', textOutline: 'none', color: '#333333' }
-                    }
-                }
-            },
-            credits: { enabled: false },
-            legend: { enabled: false },
-            series: [{ name: 'ผู้ป่วย Admit', data: values, color: '#4aafbd' }]
+            chart: { type:'column', backgroundColor:'#fff', spacing:[12,18,18,12], style:chartFont() },
+            title: { text:'จำนวนผู้ป่วย Admit ปีงบประมาณ ' + year, style:{ fontSize:'18px', fontWeight:'600' } },
+            xAxis: { categories:categories, labels:{ style:{ fontSize:'15px' } } },
+            yAxis: { min:0, max:axisMax, tickInterval:20, title:{ text:'จำนวนผู้ป่วย', style:{ fontSize:'15px' } }, labels:{ style:{ fontSize:'14px' } } },
+            tooltip: { shared:true, valueSuffix:' ราย', style:{ fontSize:'15px' } },
+            plotOptions: { column:{ borderRadius:4, pointPadding:.08, groupPadding:.12, dataLabels:{ enabled:true, crop:false, overflow:'allow', style:{ fontSize:'15px', fontWeight:'bold', textOutline:'none' } } } },
+            credits:{ enabled:false }, legend:{ enabled:false },
+            series:[{ name:'ผู้ป่วย Admit', data:values, color:'#4aafbd' }]
         });
     }
 
@@ -274,81 +329,43 @@
         var categories = data.map(function (r) { return r.month_name; });
         var values = data.map(function (r) { return Number(r.occupancy_rate || 0); });
         var maxValue = Math.max.apply(null, values.concat([0]));
-        /*
-         * ไม่ clamp ค่า Occupancy ที่เกิน 100% เพราะเป็นค่าจริงของ Ward
-         * ปรับเพดานแกน Y ตามค่าสูงสุด + headroom เพื่อไม่ให้แท่ง/label ถูกตัด
-         */
-        var axisMax = Math.max(110, Math.ceil((maxValue * 1.12) / 10) * 10);
-        var tickInterval = axisMax <= 160 ? 20 : 25;
-
+        var axisMax = maxValue <= 100 ? 100 : Math.ceil((maxValue * 1.12) / 10) * 10;
+        if (axisMax <= maxValue) axisMax += 10;
+        var tick = axisMax <= 100 ? 20 : (axisMax <= 150 ? 25 : 20);
         Highcharts.chart('ipd-history-occupancy', {
-            chart: {
-                zoomType: 'xy',
-                backgroundColor: '#ffffff',
-                spacing: [12, 18, 18, 12],
-                style: chartFont()
+            chart:{ zoomType:'xy', backgroundColor:'#fff', spacing:[12,18,18,12], style:chartFont() },
+            title:{ text:'อัตราการครองเตียง ปีงบประมาณ ' + year, style:{ fontSize:'18px', fontWeight:'600' } },
+            xAxis:{ categories:categories, labels:{ style:{ fontSize:'15px' } } },
+            yAxis:[
+                { min:0, max:axisMax, tickInterval:tick, title:{ text:'อัตราครองเตียง (%)', style:{ fontSize:'15px' } }, labels:{ format:'{value}%', style:{ fontSize:'14px' } } },
+                { min:0, max:axisMax, tickInterval:tick, title:{ text:null }, opposite:true, labels:{ format:'{value}%', style:{ fontSize:'14px' } } }
+            ],
+            tooltip:{ shared:true, valueSuffix:'%', style:{ fontSize:'15px' } },
+            plotOptions:{
+                column:{ borderRadius:4, pointPadding:.08, groupPadding:.12, dataLabels:{ enabled:true, format:'{y:.1f}%', crop:false, overflow:'allow', style:{ fontSize:'14px', fontWeight:'bold', textOutline:'none' } } },
+                spline:{ lineWidth:2.5, marker:{ enabled:true, radius:4 } }
             },
-            title: { text: 'อัตราการครองเตียง ปีงบประมาณ ' + year, style: { fontSize: '18px', fontWeight: '600' } },
-            xAxis: {
-                categories: categories,
-                labels: { style: { fontSize: '15px' } }
-            },
-            yAxis: [{
-                min: 0,
-                max: axisMax,
-                tickInterval: tickInterval,
-                title: { text: 'อัตราครองเตียง (%)', style: { fontSize: '15px' } },
-                labels: { format: '{value}%', style: { fontSize: '14px' } }
-            }, {
-                min: 0,
-                max: axisMax,
-                tickInterval: tickInterval,
-                title: { text: null },
-                opposite: true,
-                labels: { format: '{value}%', style: { fontSize: '14px' } }
-            }],
-            tooltip: { shared: true, valueSuffix: '%', style: { fontSize: '15px' } },
-            plotOptions: {
-                column: {
-                    borderRadius: 4,
-                    pointPadding: 0.08,
-                    groupPadding: 0.12,
-                    dataLabels: {
-                        enabled: true,
-                        crop: false,
-                        overflow: 'allow',
-                        y: -4,
-                        format: '{y:.1f}%',
-                        style: { fontSize: '15px', fontWeight: 'bold', textOutline: 'none', color: '#333333' }
-                    }
-                },
-                spline: {
-                    lineWidth: 2.5,
-                    marker: { enabled: true, radius: 4 }
-                }
-            },
-            credits: { enabled: false },
-            series: [
-                { type: 'column', name: 'อัตราครองเตียง', data: values, color: '#4aafbd' },
-                { type: 'spline', name: 'แนวโน้ม', data: values, yAxis: 1, color: '#dc3545' }
+            credits:{ enabled:false },
+            series:[
+                { type:'column', name:'อัตราครองเตียง', data:values, color:'#4aafbd' },
+                { type:'spline', name:'แนวโน้ม', data:values, yAxis:1, color:'#dc3545', marker:{ enabled:true, radius:4 } }
             ]
         });
     }
 
     async function loadHistory() {
         var ward = getWard();
-        var select = document.getElementById('ipd-history-year');
+        var select = document.getElementById('bbh-history-year');
         if (!ward || !select) return;
         var year = select.value;
-        var dateText = document.getElementById('ipd-history-date');
+        var dateText = document.getElementById('bbh-history-date');
         var admitEl = document.getElementById('ipd-history-admit');
         var occupancyEl = document.getElementById('ipd-history-occupancy');
         if (dateText) dateText.textContent = fiscalDateText(year);
-        if (admitEl) admitEl.innerHTML = '<div class="ipd-history-loading">กำลังโหลดข้อมูล...</div>';
-        if (occupancyEl) occupancyEl.innerHTML = '<div class="ipd-history-loading">กำลังโหลดข้อมูล...</div>';
-
+        if (admitEl) admitEl.innerHTML = '<div class="bbh-history-loading">กำลังโหลดข้อมูล...</div>';
+        if (occupancyEl) occupancyEl.innerHTML = '<div class="bbh-history-loading">กำลังโหลดข้อมูล...</div>';
         try {
-            var response = await fetch(getBasePath() + '/api/ipd_ward_history.php?ward=' + encodeURIComponent(ward) + '&fiscal_year=' + encodeURIComponent(year), { cache: 'no-store' });
+            var response = await fetch(getBasePath() + '/api/ipd_ward_history.php?ward=' + encodeURIComponent(ward) + '&fiscal_year=' + encodeURIComponent(year), { cache:'no-store' });
             if (!response.ok) throw new Error('HTTP ' + response.status);
             var json = await response.json();
             if (json.error) throw new Error(json.error);
@@ -358,20 +375,49 @@
             renderOccupancy(data, year);
         } catch (error) {
             console.error('IPD Ward History Error:', error);
-            var message = '<div class="ipd-history-error">ไม่สามารถโหลดข้อมูลสถิติย้อนหลังได้</div>';
+            var message = '<div class="bbh-history-error">ไม่สามารถโหลดข้อมูลสถิติย้อนหลังได้</div>';
             if (admitEl) admitEl.innerHTML = message;
             if (occupancyEl) occupancyEl.innerHTML = message;
         }
     }
 
+    function openModal() {
+        var backdrop = document.getElementById('bbh-history-modal-backdrop');
+        if (!backdrop) return;
+        backdrop.classList.add('is-open');
+        backdrop.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('bbh-history-modal-open');
+        loadHistory();
+    }
+
+    function closeModal() {
+        var backdrop = document.getElementById('bbh-history-modal-backdrop');
+        if (!backdrop) return;
+        backdrop.classList.remove('is-open');
+        backdrop.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('bbh-history-modal-open');
+    }
+
+    function switchTab(tab) {
+        var admitTab = document.getElementById('bbh-tab-admit');
+        var occupancyTab = document.getElementById('bbh-tab-occupancy');
+        var admitPanel = document.getElementById('bbh-panel-admit');
+        var occupancyPanel = document.getElementById('bbh-panel-occupancy');
+        var isAdmit = tab === 'admit';
+        admitTab.classList.toggle('active', isAdmit);
+        occupancyTab.classList.toggle('active', !isAdmit);
+        admitTab.setAttribute('aria-selected', isAdmit ? 'true' : 'false');
+        occupancyTab.setAttribute('aria-selected', isAdmit ? 'false' : 'true');
+        admitPanel.hidden = !isAdmit;
+        occupancyPanel.hidden = isAdmit;
+    }
+
     function init() {
         if (!document.querySelector('.ipd-ward-page .ward-main-card')) return;
         injectStyles();
-        createSection();
+        createModal();
         populateYears();
-        var select = document.getElementById('ipd-history-year');
-        if (select) select.addEventListener('change', loadHistory);
-        loadHighcharts(loadHistory);
+        loadHighcharts(function () {});
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
