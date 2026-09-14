@@ -15,6 +15,9 @@
 <!-- IPD Ward Patient Filter / Sort -->
 <script src="<?= BASE_URL ?>assets/js/ipd_ward_filter.js"></script>
 
+<!-- IPD Ward Historical Statistics -->
+<script src="<?= BASE_URL ?>assets/js/ipd_ward_history.js"></script>
+
 </body>
 
 </html>
