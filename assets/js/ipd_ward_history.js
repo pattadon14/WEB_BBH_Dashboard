@@ -28,91 +28,100 @@
         style.id = 'bbh-ipd-history-style';
         style.textContent = `
             .ipd-ward-page .ipd-history-section {
-                margin-top: 26px;
-                padding-top: 4px;
-                border-top: 1px solid #edf0f2;
+                margin-top: 30px;
+                padding-top: 8px;
+                border-top: 1px solid #e3e9e6;
             }
             .ipd-ward-page .ipd-history-head {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
                 gap: 15px;
-                margin: 0 2px 14px;
+                margin: 0 2px 8px;
                 flex-wrap: wrap;
             }
             .ipd-ward-page .ipd-history-title {
                 display: flex;
                 align-items: center;
-                gap: 9px;
+                gap: 10px;
                 margin: 0;
-                color: #6c6d75;
-                font-size: 1.32rem;
+                color: #59656c;
+                font-size: 1.42rem;
                 font-weight: 700;
             }
             .ipd-ward-page .ipd-history-title i { color: #198754; }
             .ipd-ward-page .ipd-history-year-wrap {
                 display: flex;
                 align-items: center;
-                gap: 8px;
+                gap: 9px;
             }
             .ipd-ward-page .ipd-history-year-label {
-                color: #66727b;
-                font-size: 14px;
+                color: #59656c;
+                font-size: 16px;
                 font-weight: 600;
             }
             .ipd-ward-page .ipd-history-year {
-                min-width: 150px;
-                height: 40px;
-                padding: 6px 12px;
+                min-width: 170px;
+                height: 42px;
+                padding: 6px 13px;
                 border: 1px solid #198754;
                 border-radius: 8px;
                 background: #fff;
                 color: #198754;
-                font-size: 15px;
+                font-size: 16px;
                 font-weight: 700;
                 outline: none;
+                box-shadow: 0 1px 4px rgba(25,135,84,.06);
             }
             .ipd-ward-page .ipd-history-date {
                 width: 100%;
-                margin-top: -7px;
-                margin-bottom: 13px;
+                margin-top: 0;
+                margin-bottom: 14px;
                 color: #71808d;
-                font-size: 14px;
+                font-size: 15px;
             }
             .ipd-ward-page .ipd-history-grid {
                 display: grid;
                 grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 18px;
+                gap: 20px;
             }
             .ipd-ward-page .ipd-history-card {
                 min-width: 0;
-                border: 1px solid #dfe7e3;
-                border-radius: 12px;
+                border: 1px solid #d9e3de;
+                border-radius: 13px;
                 background: #fff;
-                box-shadow: 0 3px 10px rgba(31,45,61,.08);
+                box-shadow: 0 4px 14px rgba(31,45,61,.08);
                 overflow: hidden;
+                transition: box-shadow .18s ease, transform .18s ease;
+            }
+            .ipd-ward-page .ipd-history-card:hover {
+                box-shadow: 0 7px 20px rgba(31,45,61,.11);
             }
             .ipd-ward-page .ipd-history-card-head {
                 display: flex;
                 align-items: center;
-                gap: 8px;
-                padding: 13px 16px 4px;
-                color: #198754;
-                font-size: 16px;
+                gap: 9px;
+                min-height: 48px;
+                padding: 13px 18px 7px;
+                color: #3f4c54;
+                font-size: 17px;
                 font-weight: 700;
+                border-bottom: 1px solid #edf1ef;
+                background: #fbfcfc;
             }
+            .ipd-ward-page .ipd-history-card-head i { color: #198754; }
             .ipd-ward-page .ipd-history-chart {
                 width: 100%;
-                height: 430px;
+                height: 445px;
             }
             .ipd-ward-page .ipd-history-loading,
             .ipd-ward-page .ipd-history-error {
-                height: 430px;
+                height: 445px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 color: #71808d;
-                font-size: 16px;
+                font-size: 17px;
             }
             .ipd-ward-page .ipd-history-error { color: #dc3545; }
             @media (max-width: 991px) {
@@ -122,9 +131,12 @@
                 .ipd-ward-page .ipd-history-head { align-items: stretch; flex-direction: column; }
                 .ipd-ward-page .ipd-history-year-wrap { width: 100%; }
                 .ipd-ward-page .ipd-history-year { flex: 1; min-width: 0; }
+                .ipd-ward-page .ipd-history-title { font-size: 1.25rem; }
+                .ipd-ward-page .ipd-history-year-label { font-size: 15px; }
+                .ipd-ward-page .ipd-history-card-head { font-size: 16px; }
                 .ipd-ward-page .ipd-history-chart,
                 .ipd-ward-page .ipd-history-loading,
-                .ipd-ward-page .ipd-history-error { height: 360px; }
+                .ipd-ward-page .ipd-history-error { height: 380px; }
             }
         `;
         document.head.appendChild(style);
@@ -205,16 +217,53 @@
         return 'ปีงบประมาณ ' + year + ' (1 ตุลาคม ' + (year - 1) + ' - 30 กันยายน ' + year + ')';
     }
 
+    function chartFont() {
+        return {
+            fontFamily: 'THSarabun',
+            fontSize: '15px'
+        };
+    }
+
     function renderAdmit(data, year) {
         var categories = data.map(function (r) { return r.month_name; });
         var values = data.map(function (r) { return Number(r.admit_count || 0); });
+        var maxValue = Math.max.apply(null, values.concat([0]));
+        var axisMax = Math.max(100, Math.ceil((maxValue * 1.12) / 20) * 20);
+
         Highcharts.chart('ipd-history-admit', {
-            chart: { type: 'column', backgroundColor: '#ffffff', style: { fontFamily: 'THSarabun' } },
-            title: { text: 'จำนวนผู้ป่วย Admit ปีงบประมาณ ' + year, style: { fontSize: '16px', fontWeight: '600' } },
-            xAxis: { categories: categories, title: { text: null } },
-            yAxis: { min: 0, title: { text: 'จำนวนผู้ป่วย' } },
-            tooltip: { shared: true, valueSuffix: ' ราย' },
-            plotOptions: { column: { borderRadius: 3, dataLabels: { enabled: true, style: { fontSize: '14px', fontWeight: 'bold', textOutline: 'none' } } } },
+            chart: {
+                type: 'column',
+                backgroundColor: '#ffffff',
+                spacing: [12, 18, 18, 12],
+                style: chartFont()
+            },
+            title: { text: 'จำนวนผู้ป่วย Admit ปีงบประมาณ ' + year, style: { fontSize: '18px', fontWeight: '600' } },
+            xAxis: {
+                categories: categories,
+                labels: { style: { fontSize: '15px' } }
+            },
+            yAxis: {
+                min: 0,
+                max: axisMax,
+                tickInterval: 20,
+                title: { text: 'จำนวนผู้ป่วย', style: { fontSize: '15px' } },
+                labels: { style: { fontSize: '14px' } }
+            },
+            tooltip: { shared: true, valueSuffix: ' ราย', style: { fontSize: '15px' } },
+            plotOptions: {
+                column: {
+                    borderRadius: 4,
+                    pointPadding: 0.08,
+                    groupPadding: 0.12,
+                    dataLabels: {
+                        enabled: true,
+                        crop: false,
+                        overflow: 'allow',
+                        y: -4,
+                        style: { fontSize: '15px', fontWeight: 'bold', textOutline: 'none', color: '#333333' }
+                    }
+                }
+            },
             credits: { enabled: false },
             legend: { enabled: false },
             series: [{ name: 'ผู้ป่วย Admit', data: values, color: '#4aafbd' }]
@@ -224,17 +273,64 @@
     function renderOccupancy(data, year) {
         var categories = data.map(function (r) { return r.month_name; });
         var values = data.map(function (r) { return Number(r.occupancy_rate || 0); });
+        var maxValue = Math.max.apply(null, values.concat([0]));
+        /*
+         * ไม่ clamp ค่า Occupancy ที่เกิน 100% เพราะเป็นค่าจริงของ Ward
+         * ปรับเพดานแกน Y ตามค่าสูงสุด + headroom เพื่อไม่ให้แท่ง/label ถูกตัด
+         */
+        var axisMax = Math.max(110, Math.ceil((maxValue * 1.12) / 10) * 10);
+        var tickInterval = axisMax <= 160 ? 20 : 25;
+
         Highcharts.chart('ipd-history-occupancy', {
-            chart: { zoomType: 'xy', backgroundColor: '#ffffff', style: { fontFamily: 'THSarabun' } },
-            title: { text: 'อัตราการครองเตียง ปีงบประมาณ ' + year, style: { fontSize: '16px', fontWeight: '600' } },
-            xAxis: { categories: categories },
-            yAxis: [{ min: 0, max: 100, tickInterval: 20, title: { text: 'อัตราครองเตียง (%)' }, labels: { format: '{value}%' } }, { min: 0, max: 100, tickInterval: 20, title: { text: null }, opposite: true, labels: { format: '{value}%' } }],
-            tooltip: { shared: true, valueSuffix: '%' },
-            plotOptions: { column: { borderRadius: 3, dataLabels: { enabled: true, format: '{y:.1f}%', style: { fontSize: '13px', fontWeight: 'bold', textOutline: 'none' } } } },
+            chart: {
+                zoomType: 'xy',
+                backgroundColor: '#ffffff',
+                spacing: [12, 18, 18, 12],
+                style: chartFont()
+            },
+            title: { text: 'อัตราการครองเตียง ปีงบประมาณ ' + year, style: { fontSize: '18px', fontWeight: '600' } },
+            xAxis: {
+                categories: categories,
+                labels: { style: { fontSize: '15px' } }
+            },
+            yAxis: [{
+                min: 0,
+                max: axisMax,
+                tickInterval: tickInterval,
+                title: { text: 'อัตราครองเตียง (%)', style: { fontSize: '15px' } },
+                labels: { format: '{value}%', style: { fontSize: '14px' } }
+            }, {
+                min: 0,
+                max: axisMax,
+                tickInterval: tickInterval,
+                title: { text: null },
+                opposite: true,
+                labels: { format: '{value}%', style: { fontSize: '14px' } }
+            }],
+            tooltip: { shared: true, valueSuffix: '%', style: { fontSize: '15px' } },
+            plotOptions: {
+                column: {
+                    borderRadius: 4,
+                    pointPadding: 0.08,
+                    groupPadding: 0.12,
+                    dataLabels: {
+                        enabled: true,
+                        crop: false,
+                        overflow: 'allow',
+                        y: -4,
+                        format: '{y:.1f}%',
+                        style: { fontSize: '15px', fontWeight: 'bold', textOutline: 'none', color: '#333333' }
+                    }
+                },
+                spline: {
+                    lineWidth: 2.5,
+                    marker: { enabled: true, radius: 4 }
+                }
+            },
             credits: { enabled: false },
             series: [
                 { type: 'column', name: 'อัตราครองเตียง', data: values, color: '#4aafbd' },
-                { type: 'spline', name: 'แนวโน้ม', data: values, yAxis: 1, color: '#dc3545', marker: { enabled: true, radius: 4 } }
+                { type: 'spline', name: 'แนวโน้ม', data: values, yAxis: 1, color: '#dc3545' }
             ]
         });
     }
