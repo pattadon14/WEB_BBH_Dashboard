@@ -74,6 +74,218 @@
         });
     }
 
+    function initGuestAccessPopup() {
+        var isGuest = !!document.querySelector('.custom-navbar .login-btn');
+        if (!isGuest) return;
+
+        var popup = null;
+
+        function injectStyles() {
+            if (document.getElementById('bbh-guest-access-popup-style')) return;
+
+            var style = document.createElement('style');
+            style.id = 'bbh-guest-access-popup-style';
+            style.textContent = `
+                .bbh-guest-access-backdrop {
+                    position: fixed;
+                    inset: 0;
+                    z-index: 1100;
+                    display: none;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 20px;
+                    background: rgba(20, 35, 29, .46);
+                    backdrop-filter: blur(3px);
+                    -webkit-backdrop-filter: blur(3px);
+                }
+
+                .bbh-guest-access-backdrop.is-open {
+                    display: flex;
+                }
+
+                .bbh-guest-access-popup {
+                    width: min(430px, 94vw);
+                    border: 1px solid #dce8e2;
+                    border-radius: 16px;
+                    background: #fff;
+                    box-shadow: 0 16px 45px rgba(0, 0, 0, .22);
+                    overflow: hidden;
+                    animation: bbhGuestPopupIn .18s ease-out;
+                }
+
+                @keyframes bbhGuestPopupIn {
+                    from { opacity: 0; transform: translateY(10px) scale(.98); }
+                    to { opacity: 1; transform: translateY(0) scale(1); }
+                }
+
+                .bbh-guest-access-icon {
+                    width: 68px;
+                    height: 68px;
+                    margin: 24px auto 13px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 50%;
+                    background: #eaf7f0;
+                    color: #198754;
+                    font-size: 30px;
+                }
+
+                .bbh-guest-access-body {
+                    padding: 0 28px 24px;
+                    text-align: center;
+                }
+
+                .bbh-guest-access-title {
+                    margin: 0 0 8px;
+                    color: #147447;
+                    font-size: 21px;
+                    font-weight: 700;
+                }
+
+                .bbh-guest-access-message {
+                    margin: 0;
+                    color: #66727b;
+                    font-size: 16px;
+                    line-height: 1.65;
+                }
+
+                .bbh-guest-access-actions {
+                    display: flex;
+                    justify-content: center;
+                    gap: 10px;
+                    margin-top: 20px;
+                }
+
+                .bbh-guest-access-btn {
+                    min-width: 125px;
+                    min-height: 42px;
+                    padding: 8px 16px;
+                    border-radius: 8px;
+                    font-size: 16px;
+                    font-weight: 700;
+                    cursor: pointer;
+                    transition: all .16s ease;
+                }
+
+                .bbh-guest-access-login {
+                    border: 1px solid #198754;
+                    background: #198754;
+                    color: #fff;
+                }
+
+                .bbh-guest-access-login:hover {
+                    border-color: #147447;
+                    background: #147447;
+                    transform: translateY(-1px);
+                }
+
+                .bbh-guest-access-cancel {
+                    border: 1px solid #d8e0dc;
+                    background: #fff;
+                    color: #68757d;
+                }
+
+                .bbh-guest-access-cancel:hover {
+                    background: #f5f7f6;
+                    color: #3f4a50;
+                }
+
+                body.bbh-guest-popup-open {
+                    overflow: hidden;
+                }
+
+                @media (max-width: 575px) {
+                    .bbh-guest-access-body {
+                        padding-left: 20px;
+                        padding-right: 20px;
+                    }
+
+                    .bbh-guest-access-actions {
+                        flex-direction: column-reverse;
+                    }
+
+                    .bbh-guest-access-btn {
+                        width: 100%;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        function createPopup() {
+            if (popup) return;
+
+            popup = document.createElement('div');
+            popup.className = 'bbh-guest-access-backdrop';
+            popup.setAttribute('aria-hidden', 'true');
+            popup.innerHTML = `
+                <div class="bbh-guest-access-popup" role="dialog" aria-modal="true" aria-labelledby="bbh-guest-access-title">
+                    <div class="bbh-guest-access-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <div class="bbh-guest-access-body">
+                        <h3 class="bbh-guest-access-title" id="bbh-guest-access-title">กรุณาเข้าสู่ระบบก่อน</h3>
+                        <p class="bbh-guest-access-message">ข้อมูลส่วนนี้สำหรับผู้ใช้งานที่เข้าสู่ระบบ Provider ID เท่านั้น<br>กรุณาเข้าสู่ระบบเพื่อดูรายละเอียดเพิ่มเติม</p>
+                        <div class="bbh-guest-access-actions">
+                            <button type="button" class="bbh-guest-access-btn bbh-guest-access-cancel">ยกเลิก</button>
+                            <button type="button" class="bbh-guest-access-btn bbh-guest-access-login"><i class="fas fa-sign-in-alt"></i> เข้าสู่ระบบ</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(popup);
+
+            popup.addEventListener('click', function (event) {
+                if (event.target === popup || event.target.closest('.bbh-guest-access-cancel')) {
+                    closePopup();
+                }
+
+                if (event.target.closest('.bbh-guest-access-login')) {
+                    closePopup();
+                    var loginButton = document.getElementById('hosxp-login-btn');
+                    if (loginButton) loginButton.click();
+                }
+            });
+        }
+
+        function openPopup() {
+            createPopup();
+            popup.classList.add('is-open');
+            popup.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('bbh-guest-popup-open');
+        }
+
+        function closePopup() {
+            if (!popup) return;
+            popup.classList.remove('is-open');
+            popup.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('bbh-guest-popup-open');
+        }
+
+        injectStyles();
+
+        /*
+         * ดักการคลิก Card ที่นำไปดูข้อมูลรายละเอียด
+         * เฉพาะ Guest เท่านั้น ส่วนผู้ที่ Login แล้วทำงานตามปกติ
+         */
+        document.addEventListener('click', function (event) {
+            var card = event.target.closest('.small-box, .ward-card');
+            if (!card) return;
+
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            openPopup();
+        }, true);
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && popup && popup.classList.contains('is-open')) {
+                closePopup();
+            }
+        });
+    }
+
     function applyProviderAccessUI() {
         /* navbar.php แสดง .login-btn เฉพาะเมื่อยังไม่ได้ Login Provider ID */
         var isGuest = !!document.querySelector('.custom-navbar .login-btn');
@@ -209,6 +421,7 @@
     function init() {
         initHosxpLoginModal();
         applyProviderAccessUI();
+        initGuestAccessPopup();
         initIpdWardCards();
         fixIndexSectionSpacing();
     }
