@@ -21,8 +21,6 @@ foreach (($_SESSION['provider_auth']['organization'] ?? []) as $organization) {
 ?>
 
 <nav class="main-header navbar navbar-expand navbar-light custom-navbar">
-
-    <!-- Left -->
     <ul class="navbar-nav">
         <li class="nav-item">
             <button type="button" class="bbh-menu-toggle" id="bbh-menu-toggle"
@@ -32,12 +30,10 @@ foreach (($_SESSION['provider_auth']['organization'] ?? []) as $organization) {
         </li>
     </ul>
 
-    <!-- Title -->
     <a href="<?= BASE_URL ?>" class="navbar-brand fw-bold">
         BBH DASHBOARD (โรงพยาบาลบ้านบึง)
     </a>
 
-    <!-- Right -->
     <ul class="navbar-nav ms-auto align-items-center">
         <li class="nav-item mr-3">
             <a href="https://docs.google.com/forms/d/e/1FAIpQLScKGR0_xvvq1uHqdwm3Npj0y6tEAZq0o5KEp9tQaufokUWzwg/viewform?usp=dialog" target="_blank" class="feedback-btn">
@@ -74,8 +70,9 @@ foreach (($_SESSION['provider_auth']['organization'] ?? []) as $organization) {
                     <i class="fas fa-id-card"></i>
                     <span>เข้าสู่ระบบ</span>
                 </a>
+                <!-- ปุ่มสำรองสำหรับ Guest Access Popup ให้ไปหน้า Login Provider ID โดยตรง -->
+                <a href="<?= BASE_URL ?>auth/provider_login.php" id="hosxp-login-btn" class="d-none" aria-hidden="true" tabindex="-1"></a>
             </li>
         <?php endif; ?>
     </ul>
-
 </nav>
