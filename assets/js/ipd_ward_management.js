@@ -334,6 +334,24 @@
         observer.observe(backdrop,{childList:true,subtree:true});
     }
 
+    /* อัปเดต Insight จากข้อมูลชุดเดียวกับกราฟ เพื่อให้เปลี่ยนตามปีงบประมาณที่เลือก */
+    window.bbhUpdateHistoryInsight = function(data) {
+        if (!Array.isArray(data) || !data.length) return;
+
+        var admits=data.map(function(x){return Number(x.admit_count)||0;});
+        var occ=data.map(function(x){return Number(x.occupancy_rate)||0;});
+        var total=admits.reduce(function(a,b){return a+b;},0), avg=total/data.length;
+        var max=Math.max.apply(null,admits), min=Math.min.apply(null,admits);
+        var maxRow=data[admits.indexOf(max)], minRow=data[admits.indexOf(min)];
+
+        setText('ins-admit',total.toLocaleString('th-TH')+' ราย');
+        setText('ins-avg',avg.toFixed(1)+' ราย');
+        setText('ins-occ',(occ.reduce(function(a,b){return a+b;},0)/occ.length).toFixed(2)+'%');
+        setText('ins-max',(maxRow?.month_name||'-')+' · '+max+' ราย');
+        setText('ins-min',(minRow?.month_name||'-')+' · '+min+' ราย');
+    };
+
+    /* สำรองกรณีเปิด Modal ก่อน history script โหลดข้อมูล */
     async function loadInsight(){
         var select=document.getElementById('bbh-history-year');
         if(!select||!ward)return;
@@ -341,17 +359,7 @@
             var res=await fetch(apiUrl('ipd_ward_history.php', { ward: ward, fiscal_year: select.value }), {cache:'no-store'});
             if(!res.ok) throw new Error('HTTP '+res.status);
             var j=await res.json(), data=Array.isArray(j.data)?j.data:[];
-            if(!data.length) return;
-            var admits=data.map(function(x){return Number(x.admit_count)||0;});
-            var occ=data.map(function(x){return Number(x.occupancy_rate)||0;});
-            var total=admits.reduce(function(a,b){return a+b;},0), avg=total/data.length;
-            var max=Math.max.apply(null,admits), min=Math.min.apply(null,admits);
-            var maxRow=data[admits.indexOf(max)], minRow=data[admits.indexOf(min)];
-            setText('ins-admit',total.toLocaleString('th-TH')+' ราย');
-            setText('ins-avg',avg.toFixed(1)+' ราย');
-            setText('ins-occ',(occ.reduce(function(a,b){return a+b;},0)/occ.length).toFixed(2)+'%');
-            setText('ins-max',(maxRow?.month_name||'-')+' · '+max+' ราย');
-            setText('ins-min',(minRow?.month_name||'-')+' · '+min+' ราย');
+            window.bbhUpdateHistoryInsight(data);
         }catch(e){console.error('IPD history insight:',e);}
     }
 
