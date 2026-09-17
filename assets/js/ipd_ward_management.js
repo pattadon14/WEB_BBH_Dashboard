@@ -9,6 +9,16 @@
     var today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    function getBasePath() {
+        var path = window.location.pathname;
+        return path.indexOf('/pages/') !== -1 ? path.split('/pages/')[0] : path.replace(/\/[^/]*$/, '');
+    }
+
+    function apiUrl(file, params) {
+        var query = new URLSearchParams(params || {}).toString();
+        return getBasePath() + '/api/' + file + (query ? '?' + query : '');
+    }
+
     function injectStyles() {
         if (document.getElementById('bbh-ipd-management-style')) return;
         var style = document.createElement('style');
@@ -22,41 +32,20 @@
                 overflow: hidden;
             }
             .ipd-ward-page .ipd-management-top {
-                display:flex;
-                align-items:center;
-                justify-content:space-between;
-                gap:14px;
-                padding:12px 15px;
-                border-bottom:1px solid #e5ece8;
+                display:flex; align-items:center; justify-content:space-between; gap:14px;
+                padding:12px 15px; border-bottom:1px solid #e5ece8;
             }
-            .ipd-ward-page .ipd-management-title {
-                margin:0;
-                color:#3f4c54;
-                font-size:17px;
-                font-weight:700;
-            }
+            .ipd-ward-page .ipd-management-title { margin:0; color:#3f4c54; font-size:17px; font-weight:700; }
             .ipd-ward-page .ipd-ward-status {
-                display:inline-flex;
-                align-items:center;
-                gap:7px;
-                padding:6px 11px;
-                border-radius:18px;
-                font-size:15px;
-                font-weight:700;
+                display:inline-flex; align-items:center; gap:7px; padding:6px 11px;
+                border-radius:18px; font-size:15px; font-weight:700;
             }
             .ipd-ward-page .ipd-ward-status.normal { background:#eaf7f0; color:#198754; }
             .ipd-ward-page .ipd-ward-status.watch { background:#fff7e6; color:#b77900; }
             .ipd-ward-page .ipd-ward-status.over { background:#fff0f2; color:#dc3545; }
-            .ipd-ward-page .ipd-flow-grid {
-                display:grid;
-                grid-template-columns:repeat(4,1fr);
-                gap:0;
-                background:#fff;
-            }
-            .ipd-ward-page .ipd-flow-item {
-                padding:12px 15px;
-                border-right:1px solid #e7ece9;
-            }
+            .ipd-ward-page .ipd-ward-status.error { background:#fff0f2; color:#dc3545; }
+            .ipd-ward-page .ipd-flow-grid { display:grid; grid-template-columns:repeat(4,1fr); background:#fff; }
+            .ipd-ward-page .ipd-flow-item { padding:12px 15px; border-right:1px solid #e7ece9; }
             .ipd-ward-page .ipd-flow-item:last-child { border-right:0; }
             .ipd-ward-page .ipd-flow-label { color:#71808d; font-size:14px; }
             .ipd-ward-page .ipd-flow-value { margin-top:2px; color:#198754; font-size:23px; font-weight:800; line-height:1.2; }
@@ -64,62 +53,59 @@
             .ipd-ward-page .ipd-flow-value.red { color:#dc3545; }
             .ipd-ward-page .ipd-flow-value.orange { color:#f59e0b; }
             .ipd-ward-page .ipd-quick-actions {
-                display:flex;
-                align-items:center;
-                gap:7px;
-                flex-wrap:wrap;
-                padding:10px 15px;
-                border-top:1px solid #e7ece9;
-                background:#fbfcfc;
+                display:flex; align-items:center; gap:7px; flex-wrap:wrap;
+                padding:10px 15px; border-top:1px solid #e7ece9; background:#fbfcfc;
             }
             .ipd-ward-page .ipd-quick-label { color:#66727b; font-size:14px; font-weight:700; margin-right:2px; }
             .ipd-ward-page .ipd-quick-btn {
-                border:1px solid #cfe1d7;
-                border-radius:18px;
-                padding:6px 11px;
-                background:#fff;
-                color:#198754;
-                font-size:14px;
-                font-weight:700;
-                cursor:pointer;
+                border:1px solid #cfe1d7; border-radius:18px; padding:6px 11px;
+                background:#fff; color:#198754; font-size:14px; font-weight:700; cursor:pointer;
                 transition:all .15s ease;
             }
             .ipd-ward-page .ipd-quick-btn:hover,
             .ipd-ward-page .ipd-quick-btn.active { background:#198754; border-color:#198754; color:#fff; }
             .ipd-ward-page .ipd-quick-btn.export { margin-left:auto; color:#1683c5; border-color:#cfe0ec; }
             .ipd-ward-page .ipd-quick-btn.export:hover { background:#1683c5; border-color:#1683c5; color:#fff; }
-
             .ipd-ward-page .ipd-filter-extra-group { display:flex; align-items:center; gap:6px; }
             .ipd-ward-page .ipd-filter-extra-select {
-                height:38px; min-width:175px; padding:6px 10px;
-                border:1px solid #cfdad5; border-radius:7px; background:#fff;
-                color:#344047; font-size:14px; outline:none;
+                height:38px; min-width:175px; padding:6px 10px; border:1px solid #cfdad5;
+                border-radius:7px; background:#fff; color:#344047; font-size:14px; outline:none;
             }
             .ipd-ward-page .ipd-management-hidden { display:none !important; }
-            .ipd-ward-page .ipd-insight-summary {
-                display:grid; grid-template-columns:repeat(5,1fr); gap:9px;
-                margin:0 0 18px;
+
+            /* History insight is inside the body element, not inside .ipd-ward-page. */
+            .ipd-history-insight,
+            #ipd-history-insight {
+                display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:9px;
+                margin:12px 20px 16px;
             }
-            .ipd-ward-page .ipd-insight-item {
-                padding:10px 12px; border:1px solid #e0e8e4; border-radius:9px; background:#fff;
+            .ipd-history-insight .ipd-insight-item,
+            #ipd-history-insight .ipd-insight-item {
+                min-width:0; padding:11px 12px; border:1px solid #e0e8e4;
+                border-radius:9px; background:#f8faf9;
             }
-            .ipd-ward-page .ipd-insight-label { color:#71808d; font-size:13px; }
-            .ipd-ward-page .ipd-insight-value { color:#198754; font-size:19px; font-weight:800; margin-top:2px; }
-            .ipd-ward-page .ipd-insight-value.red { color:#dc3545; }
-            .ipd-ward-page .ipd-insight-value.blue { color:#1683c5; }
+            .ipd-history-insight .ipd-insight-label,
+            #ipd-history-insight .ipd-insight-label { color:#71808d; font-size:13px; }
+            .ipd-history-insight .ipd-insight-value,
+            #ipd-history-insight .ipd-insight-value { color:#198754; font-size:19px; font-weight:800; margin-top:2px; line-height:1.25; }
+            .ipd-history-insight .ipd-insight-value.red,
+            #ipd-history-insight .ipd-insight-value.red { color:#dc3545; }
+            .ipd-history-insight .ipd-insight-value.blue,
+            #ipd-history-insight .ipd-insight-value.blue { color:#1683c5; }
+
             @media (max-width:991px) {
                 .ipd-ward-page .ipd-flow-grid { grid-template-columns:repeat(2,1fr); }
                 .ipd-ward-page .ipd-flow-item:nth-child(2) { border-right:0; }
-                .ipd-ward-page .ipd-insight-summary { grid-template-columns:repeat(3,1fr); }
+                .ipd-history-insight, #ipd-history-insight { grid-template-columns:repeat(3,1fr); }
             }
             @media (max-width:575px) {
                 .ipd-ward-page .ipd-management-top { align-items:flex-start; flex-direction:column; }
                 .ipd-ward-page .ipd-flow-grid { grid-template-columns:repeat(2,1fr); }
                 .ipd-ward-page .ipd-flow-item { border-right:0; border-bottom:1px solid #e7ece9; }
-                .ipd-ward-page .ipd-insight-summary { grid-template-columns:repeat(2,1fr); }
                 .ipd-ward-page .ipd-quick-btn.export { margin-left:0; }
                 .ipd-ward-page .ipd-filter-extra-group { width:100%; flex-direction:column; align-items:stretch; }
                 .ipd-ward-page .ipd-filter-extra-select { width:100%; }
+                .ipd-history-insight, #ipd-history-insight { grid-template-columns:repeat(2,1fr); margin-left:10px; margin-right:10px; }
             }
         `;
         document.head.appendChild(style);
@@ -186,7 +172,6 @@
             </div>
         `;
         overviewGrid.insertAdjacentElement('afterend', box);
-
         loadFlow();
         bindQuickActions();
     }
@@ -194,16 +179,19 @@
     async function loadFlow() {
         if (!ward) return;
         try {
-            var res = await fetch((window.BASE_URL || '') + 'api/ipd_ward_daily.php?ward=' + encodeURIComponent(ward), {cache:'no-store'});
+            var res = await fetch(apiUrl('ipd_ward_daily.php', { ward: ward }), { cache:'no-store' });
             if (!res.ok) throw new Error('HTTP ' + res.status);
             var d = await res.json();
             if (d.error) throw new Error(d.error);
-            setText('ipd-flow-current', Number(d.current_admit).toLocaleString('th-TH') + ' ราย');
-            setText('ipd-flow-admit', Number(d.admit_today).toLocaleString('th-TH') + ' ราย');
-            setText('ipd-flow-discharge', Number(d.discharge_today).toLocaleString('th-TH') + ' ราย');
-            var net = Number(d.net_today);
+            setText('ipd-flow-current', Number(d.current_admit || 0).toLocaleString('th-TH') + ' ราย');
+            setText('ipd-flow-admit', Number(d.admit_today || 0).toLocaleString('th-TH') + ' ราย');
+            setText('ipd-flow-discharge', Number(d.discharge_today || 0).toLocaleString('th-TH') + ' ราย');
+            var net = Number(d.net_today || 0);
             var netEl = document.getElementById('ipd-flow-net');
-            if (netEl) { netEl.textContent = (net > 0 ? '+' : '') + net.toLocaleString('th-TH') + ' ราย'; netEl.className = 'ipd-flow-value ' + (net > 0 ? 'red' : net < 0 ? 'blue' : ''); }
+            if (netEl) {
+                netEl.textContent = (net > 0 ? '+' : '') + net.toLocaleString('th-TH') + ' ราย';
+                netEl.className = 'ipd-flow-value ' + (net > 0 ? 'red' : net < 0 ? 'blue' : '');
+            }
             var status = document.getElementById('ipd-ward-status');
             if (!status) return;
             var occ = Number(d.occupancy_rate || 0);
@@ -213,6 +201,11 @@
             status.innerHTML = '<i class="fas fa-circle"></i> ' + text;
         } catch (e) {
             console.error('IPD Ward Daily:', e);
+            var status = document.getElementById('ipd-ward-status');
+            if (status) {
+                status.className = 'ipd-ward-status error';
+                status.innerHTML = '<i class="fas fa-triangle-exclamation"></i> โหลดข้อมูลไม่สำเร็จ';
+            }
         }
     }
 
@@ -222,6 +215,7 @@
         var tools = document.getElementById('ipd-patient-tools');
         if (!tools || document.getElementById('ipd-management-status')) return;
         var result = document.getElementById('ipd-filter-result');
+
         var status = document.createElement('div');
         status.className = 'ipd-filter-extra-group';
         status.innerHTML = '<label class="ipd-filter-label" for="ipd-management-status">สถานะ</label><select id="ipd-management-status" class="ipd-filter-extra-select"><option value="all">ทั้งหมด</option><option value="admit-today">Admit วันนี้</option><option value="stay7">นอนเกิน 7 วัน</option><option value="stay14">นอนเกิน 14 วัน</option></select>';
@@ -232,21 +226,30 @@
         doctors.innerHTML = '<label class="ipd-filter-label" for="ipd-management-doctor">แพทย์</label><select id="ipd-management-doctor" class="ipd-filter-extra-select"><option value="all">ทั้งหมด</option></select>';
         tools.insertBefore(doctors, result || null);
 
-        populateDoctors();
-        document.getElementById('ipd-management-status').addEventListener('change', function () { applyManagementFilter(); });
-        document.getElementById('ipd-management-doctor').addEventListener('change', function () { applyManagementFilter(); });
+        populateDoctors(true);
+        document.getElementById('ipd-management-status').addEventListener('change', applyManagementFilter);
+        document.getElementById('ipd-management-doctor').addEventListener('change', applyManagementFilter);
         ['ipd-patient-search','ipd-patient-gender','ipd-patient-stay','ipd-patient-sort'].forEach(function(id){
-            var el=document.getElementById(id); if(el) el.addEventListener(el.tagName==='INPUT'?'input':'change', function(){setTimeout(applyManagementFilter,30);});
+            var el=document.getElementById(id);
+            if(el) el.addEventListener(el.tagName==='INPUT'?'input':'change', function(){setTimeout(applyManagementFilter,30);});
         });
     }
 
-    function populateDoctors() {
+    function populateDoctors(resetOptions) {
         var select = document.getElementById('ipd-management-doctor');
         if (!select) return;
-        var values = getCards().map(function(c){ return cardMeta(c).doctor; }).filter(Boolean).filter(function(v){return v !== '-';});
-        Array.from(new Set(values)).sort(function(a,b){return a.localeCompare(b,'th');}).forEach(function(name){
+        var selected = select.value || 'all';
+        var values = getCards().map(function(c){ return cardMeta(c).doctor; })
+            .filter(Boolean).filter(function(v){ return v !== '-'; });
+        values = Array.from(new Set(values)).sort(function(a,b){ return a.localeCompare(b,'th'); });
+
+        /* สร้าง Options ใหม่ทุกครั้ง แทนการ append ซ้ำ */
+        select.innerHTML = '<option value="all">ทั้งหมด</option>';
+        values.forEach(function(name){
             var opt=document.createElement('option'); opt.value=name; opt.textContent=name; select.appendChild(opt);
         });
+        select.value = values.indexOf(selected) !== -1 ? selected : 'all';
+        if (resetOptions && selected !== 'all' && values.indexOf(selected) === -1) select.value = 'all';
     }
 
     function applyManagementFilter() {
@@ -296,7 +299,7 @@
             var badges=Array.from(card.querySelectorAll('.patient-badge')).map(function(x){return x.textContent.trim();});
             var an=(badges.find(function(x){return /^AN/.test(x);})||'').replace(/^AN\s*/,'');
             var bed=(badges.find(function(x){return /เตียง/.test(x);})||'').replace(/^.*?เตียง\s*/,'');
-            rows.push([meta.name,sexAge,(card.textContent.match(/HN\s*:\s*([0-9]+)/)||[])[1]||'',an,bed,meta.stay,info[2]?.textContent.replace(/วันที่?\s*[:：]?/,'').trim()||'',meta.doctor]);
+            rows.push([meta.name,sexAge,(card.textContent.match(/HN\s*:\s*([0-9]+)/)||[])[1]||'',an,bed,meta.stay,info[2]?.textContent.trim()||'',meta.doctor]);
         });
         var csv='\ufeff'+rows.map(function(row){return row.map(csvCell).join(',');}).join('\r\n');
         var blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
@@ -310,35 +313,62 @@
         var backdrop = document.getElementById('bbh-history-modal-backdrop');
         if (!backdrop || backdrop.dataset.insightBound === '1') return;
         backdrop.dataset.insightBound='1';
-        var observer=new MutationObserver(function(){
-            var admit=document.getElementById('ipd-history-admit');
-            var occ=document.getElementById('ipd-history-occupancy');
-            if(!admit || !occ || document.getElementById('ipd-history-insight')) return;
-            var box=document.createElement('div'); box.id='ipd-history-insight'; box.className='ipd-insight-summary';
-            box.innerHTML='<div class="ipd-insight-item"><div class="ipd-insight-label">Admit รวม</div><div id="ins-admit" class="ipd-insight-value">-</div></div><div class="ipd-insight-item"><div class="ipd-insight-label">เฉลี่ย / เดือน</div><div id="ins-avg" class="ipd-insight-value">-</div></div><div class="ipd-insight-item"><div class="ipd-insight-label">ครองเตียงเฉลี่ย</div><div id="ins-occ" class="ipd-insight-value">-</div></div><div class="ipd-insight-item"><div class="ipd-insight-label">สูงสุด</div><div id="ins-max" class="ipd-insight-value red">-</div></div><div class="ipd-insight-item"><div class="ipd-insight-label">ต่ำสุด</div><div id="ins-min" class="ipd-insight-value blue">-</div></div>';
-            var modal=backdrop.querySelector('.bbh-history-modal');
-            var tabs=backdrop.querySelector('.bbh-history-tabs');
-            if(modal && tabs) modal.insertBefore(box,tabs.nextElementSibling);
+
+        function createInsight() {
+            var tabs = backdrop.querySelector('.bbh-history-tabs');
+            if (!tabs || document.getElementById('ipd-history-insight')) return;
+            var box=document.createElement('div');
+            box.id='ipd-history-insight';
+            box.className='ipd-history-insight';
+            box.innerHTML='<div class="ipd-insight-item"><div class="ipd-insight-label">Admit รวม</div><div id="ins-admit" class="ipd-insight-value">-</div></div>' +
+                '<div class="ipd-insight-item"><div class="ipd-insight-label">เฉลี่ย / เดือน</div><div id="ins-avg" class="ipd-insight-value">-</div></div>' +
+                '<div class="ipd-insight-item"><div class="ipd-insight-label">ครองเตียงเฉลี่ย</div><div id="ins-occ" class="ipd-insight-value">-</div></div>' +
+                '<div class="ipd-insight-item"><div class="ipd-insight-label">สูงสุด</div><div id="ins-max" class="ipd-insight-value red">-</div></div>' +
+                '<div class="ipd-insight-item"><div class="ipd-insight-label">ต่ำสุด</div><div id="ins-min" class="ipd-insight-value blue">-</div></div>';
+            tabs.insertAdjacentElement('afterend', box);
             loadInsight();
-        });
+        }
+
+        createInsight();
+        var observer=new MutationObserver(createInsight);
         observer.observe(backdrop,{childList:true,subtree:true});
     }
 
     async function loadInsight(){
-        var select=document.getElementById('bbh-history-year'); if(!select||!ward)return;
+        var select=document.getElementById('bbh-history-year');
+        if(!select||!ward)return;
         try{
-            var res=await fetch((window.BASE_URL||'')+'api/ipd_ward_history.php?ward='+encodeURIComponent(ward)+'&fiscal_year='+encodeURIComponent(select.value),{cache:'no-store'});
-            var j=await res.json(), data=j.data||[]; if(!data.length)return;
-            var admits=data.map(function(x){return Number(x.admit_count)||0;}), occ=data.map(function(x){return Number(x.occupancy_rate)||0;});
+            var res=await fetch(apiUrl('ipd_ward_history.php', { ward: ward, fiscal_year: select.value }), {cache:'no-store'});
+            if(!res.ok) throw new Error('HTTP '+res.status);
+            var j=await res.json(), data=Array.isArray(j.data)?j.data:[];
+            if(!data.length) return;
+            var admits=data.map(function(x){return Number(x.admit_count)||0;});
+            var occ=data.map(function(x){return Number(x.occupancy_rate)||0;});
             var total=admits.reduce(function(a,b){return a+b;},0), avg=total/data.length;
             var max=Math.max.apply(null,admits), min=Math.min.apply(null,admits);
             var maxRow=data[admits.indexOf(max)], minRow=data[admits.indexOf(min)];
             setText('ins-admit',total.toLocaleString('th-TH')+' ราย');
             setText('ins-avg',avg.toFixed(1)+' ราย');
             setText('ins-occ',(occ.reduce(function(a,b){return a+b;},0)/occ.length).toFixed(2)+'%');
-            setText('ins-max',maxRow.month_name+' · '+max+' ราย');
-            setText('ins-min',minRow.month_name+' · '+min+' ราย');
+            setText('ins-max',(maxRow?.month_name||'-')+' · '+max+' ราย');
+            setText('ins-min',(minRow?.month_name||'-')+' · '+min+' ราย');
         }catch(e){console.error('IPD history insight:',e);}
+    }
+
+    function bindBaseReset() {
+        var reset = document.getElementById('ipd-patient-reset');
+        if (!reset || reset.dataset.managementBound === '1') return;
+        reset.dataset.managementBound='1';
+        reset.addEventListener('click', function(){
+            var status=document.getElementById('ipd-management-status');
+            var doctor=document.getElementById('ipd-management-doctor');
+            if(status) status.value='all';
+            if(doctor) doctor.value='all';
+            document.querySelectorAll('[data-management-status]').forEach(function(b){
+                b.classList.toggle('active', b.getAttribute('data-management-status')==='all');
+            });
+            setTimeout(function(){ populateDoctors(false); applyManagementFilter(); }, 40);
+        });
     }
 
     function init(){
@@ -346,13 +376,19 @@
         injectStyles();
         addQuickActions();
         ensureExtraFilters();
+        bindBaseReset();
         addHistoryInsight();
         var observer=new MutationObserver(function(){
             ensureExtraFilters();
+            bindBaseReset();
             var grid=document.getElementById('patient-grid');
-            if(grid && grid.querySelector('.patient-card')) { populateDoctors(); applyManagementFilter(); }
+            if(grid && grid.querySelector('.patient-card')) {
+                populateDoctors(false);
+                applyManagementFilter();
+            }
         });
-        var grid=document.getElementById('patient-grid'); if(grid) observer.observe(grid,{childList:true});
+        var grid=document.getElementById('patient-grid');
+        if(grid) observer.observe(grid,{childList:true});
     }
     if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
 })();
