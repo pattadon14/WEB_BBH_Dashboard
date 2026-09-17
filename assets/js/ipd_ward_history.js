@@ -5,7 +5,8 @@
 (function () {
     'use strict';
 
-    var MONTHS = ['ต.ค.', 'พ.ย.', 'ธ.ค.', 'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.'];
+    var historyData = [];
+    var historyYear = '';
 
     function getBasePath() {
         var path = window.location.pathname;
@@ -28,161 +29,70 @@
         style.id = 'bbh-ipd-history-style';
         style.textContent = `
             .ipd-ward-page .ipd-history-trigger-wrap {
-                display:flex;
-                justify-content:flex-end;
-                align-items:center;
-                margin:-4px 0 10px;
+                display:flex; justify-content:flex-end; align-items:center; margin:-4px 0 10px;
             }
             .ipd-ward-page .ipd-history-trigger {
-                display:inline-flex;
-                align-items:center;
-                justify-content:center;
-                gap:8px;
-                min-width:150px;
-                min-height:42px;
-                padding:8px 16px;
-                border:1px solid #198754;
-                border-radius:8px;
-                background:#fff;
-                color:#198754;
-                font-size:16px;
-                font-weight:700;
-                box-shadow:0 2px 7px rgba(31,45,61,.08);
-                transition:all .18s ease;
-                cursor:pointer;
+                display:inline-flex; align-items:center; justify-content:center; gap:8px;
+                min-width:150px; min-height:42px; padding:8px 16px;
+                border:1px solid #198754; border-radius:8px; background:#fff; color:#198754;
+                font-size:16px; font-weight:700; box-shadow:0 2px 7px rgba(31,45,61,.08);
+                transition:all .18s ease; cursor:pointer;
             }
             .ipd-ward-page .ipd-history-trigger:hover,
             .ipd-ward-page .ipd-history-trigger:focus {
-                background:#198754;
-                color:#fff;
-                box-shadow:0 4px 12px rgba(25,135,84,.22);
-                transform:translateY(-1px);
-                outline:none;
+                background:#198754; color:#fff; box-shadow:0 4px 12px rgba(25,135,84,.22);
+                transform:translateY(-1px); outline:none;
             }
             .bbh-history-modal-backdrop {
-                position:fixed;
-                inset:0;
-                z-index:1050;
-                display:none;
-                align-items:center;
-                justify-content:center;
-                padding:22px;
-                background:rgba(21,34,43,.48);
-                backdrop-filter:blur(3px);
-                -webkit-backdrop-filter:blur(3px);
+                position:fixed; inset:0; z-index:1050; display:none; align-items:center; justify-content:center;
+                padding:22px; background:rgba(21,34,43,.48); backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px);
             }
             .bbh-history-modal-backdrop.is-open { display:flex; }
             .bbh-history-modal {
-                width:min(1180px,96vw);
-                max-height:92vh;
-                display:flex;
-                flex-direction:column;
-                overflow:hidden;
-                border:1px solid #dfe7e3;
-                border-radius:16px;
-                background:#fff;
-                box-shadow:0 18px 55px rgba(0,0,0,.22);
-                animation:bbhHistoryModalIn .18s ease-out;
+                width:min(1180px,96vw); max-height:92vh; display:flex; flex-direction:column; overflow:hidden;
+                border:1px solid #dfe7e3; border-radius:16px; background:#fff;
+                box-shadow:0 18px 55px rgba(0,0,0,.22); animation:bbhHistoryModalIn .18s ease-out;
             }
             @keyframes bbhHistoryModalIn {
                 from { opacity:0; transform:translateY(10px) scale(.985); }
                 to { opacity:1; transform:translateY(0) scale(1); }
             }
             .bbh-history-modal-head {
-                display:flex;
-                align-items:center;
-                justify-content:space-between;
-                gap:15px;
-                padding:16px 20px 13px;
-                border-bottom:1px solid #e7ece9;
-                background:#f8faf9;
+                display:flex; align-items:center; justify-content:space-between; gap:15px;
+                padding:16px 20px 13px; border-bottom:1px solid #e7ece9; background:#f8faf9;
             }
-            .bbh-history-modal-title {
-                margin:0;
-                color:#147447;
-                font-size:21px;
-                font-weight:700;
-            }
-            .bbh-history-modal-subtitle {
-                margin:3px 0 0;
-                color:#71808d;
-                font-size:15px;
-            }
+            .bbh-history-modal-title { margin:0; color:#147447; font-size:21px; font-weight:700; }
+            .bbh-history-modal-subtitle { margin:3px 0 0; color:#71808d; font-size:15px; }
             .bbh-history-modal-close {
-                width:38px;
-                height:38px;
-                flex:0 0 38px;
-                border:1px solid #d9e1dd;
-                border-radius:8px;
-                background:#fff;
-                color:#68757d;
-                font-size:18px;
-                cursor:pointer;
-                transition:all .15s ease;
+                width:38px; height:38px; flex:0 0 38px; border:1px solid #d9e1dd; border-radius:8px;
+                background:#fff; color:#68757d; font-size:18px; cursor:pointer; transition:all .15s ease;
             }
             .bbh-history-modal-close:hover,
-            .bbh-history-modal-close:focus {
-                border-color:#dc3545;
-                background:#fff5f6;
-                color:#dc3545;
-                outline:none;
-            }
+            .bbh-history-modal-close:focus { border-color:#dc3545; background:#fff5f6; color:#dc3545; outline:none; }
             .bbh-history-toolbar {
-                display:flex;
-                align-items:center;
-                justify-content:flex-end;
-                gap:9px;
-                padding:12px 20px;
-                border-bottom:1px solid #edf1ef;
+                display:flex; align-items:center; justify-content:flex-end; gap:9px;
+                padding:12px 20px; border-bottom:1px solid #edf1ef;
             }
             .bbh-history-year-label { color:#66727b; font-size:16px; font-weight:600; }
             .bbh-history-year {
-                min-width:165px;
-                height:40px;
-                padding:6px 12px;
-                border:1px solid #198754;
-                border-radius:8px;
-                background:#fff;
-                color:#198754;
-                font-size:16px;
-                font-weight:700;
-                outline:none;
+                min-width:165px; height:40px; padding:6px 12px; border:1px solid #198754; border-radius:8px;
+                background:#fff; color:#198754; font-size:16px; font-weight:700; outline:none;
             }
             .bbh-history-tabs {
-                display:flex;
-                gap:4px;
-                padding:10px 20px 0;
-                border-bottom:1px solid #dfe7e3;
-                background:#fff;
+                display:flex; gap:4px; padding:10px 20px 0; border-bottom:1px solid #dfe7e3; background:#fff;
             }
             .bbh-history-tab {
-                border:0;
-                border-bottom:3px solid transparent;
-                border-radius:7px 7px 0 0;
-                padding:10px 18px 9px;
-                background:transparent;
-                color:#66727b;
-                font-size:16px;
-                font-weight:700;
-                cursor:pointer;
+                border:0; border-bottom:3px solid transparent; border-radius:7px 7px 0 0;
+                padding:10px 18px 9px; background:transparent; color:#66727b; font-size:16px; font-weight:700; cursor:pointer;
             }
             .bbh-history-tab:hover { background:#f4f8f6; color:#198754; }
             .bbh-history-tab.active { color:#198754; border-bottom-color:#198754; background:#f8faf9; }
-            .bbh-history-panel {
-                min-height:460px;
-                overflow:auto;
-                padding:10px 14px 14px;
-            }
+            .bbh-history-panel { min-height:460px; overflow:auto; padding:10px 14px 14px; }
             .bbh-history-panel[hidden] { display:none; }
             .bbh-history-chart { width:100%; height:440px; }
             .bbh-history-loading,
             .bbh-history-error {
-                height:440px;
-                display:flex;
-                align-items:center;
-                justify-content:center;
-                color:#71808d;
-                font-size:17px;
+                height:440px; display:flex; align-items:center; justify-content:center; color:#71808d; font-size:17px;
             }
             .bbh-history-error { color:#dc3545; }
             body.bbh-history-modal-open { overflow:hidden; }
@@ -197,8 +107,7 @@
                 .bbh-history-tab { flex:1; padding:9px 7px; font-size:14px; }
                 .bbh-history-panel { min-height:390px; padding:6px 5px 10px; }
                 .bbh-history-chart { height:390px; }
-                .bbh-history-loading,
-                .bbh-history-error { height:390px; }
+                .bbh-history-loading, .bbh-history-error { height:390px; }
             }
             @media (max-width:575px) {
                 .ipd-ward-page .ipd-history-trigger-wrap { margin-top:0; }
@@ -252,9 +161,7 @@
 
         document.getElementById('ipd-history-trigger').addEventListener('click', openModal);
         document.getElementById('bbh-history-close').addEventListener('click', closeModal);
-        backdrop.addEventListener('click', function (event) {
-            if (event.target === backdrop) closeModal();
-        });
+        backdrop.addEventListener('click', function (event) { if (event.target === backdrop) closeModal(); });
         document.addEventListener('keydown', function (event) {
             if (event.key === 'Escape' && backdrop.classList.contains('is-open')) closeModal();
         });
@@ -279,10 +186,7 @@
     function loadHighcharts(callback) {
         if (window.Highcharts) { callback(); return; }
         var existing = document.getElementById('bbh-highcharts-loader');
-        if (existing) {
-            existing.addEventListener('load', callback, { once: true });
-            return;
-        }
+        if (existing) { existing.addEventListener('load', callback, { once: true }); return; }
         var script = document.createElement('script');
         script.id = 'bbh-highcharts-loader';
         script.src = 'https://code.highcharts.com/highcharts.js';
@@ -308,49 +212,64 @@
 
     function chartFont() { return { fontFamily: 'THSarabun', fontSize: '15px' }; }
 
+    function calculateAxis(values, targetTicks) {
+        var maxValue = Math.max.apply(null, values.concat([0]));
+        if (maxValue <= 0) return { max: 5, tick: 1 };
+        var rough = maxValue * 1.15;
+        var step = Math.ceil(rough / targetTicks);
+        if (step <= 2) step = 2;
+        else if (step <= 5) step = 5;
+        else if (step <= 10) step = 10;
+        else if (step <= 20) step = 20;
+        else step = Math.ceil(step / 10) * 10;
+        var axisMax = step * targetTicks;
+        while (axisMax < maxValue) axisMax += step;
+        return { max: axisMax, tick: step };
+    }
+
     function renderAdmit(data, year) {
         var categories = data.map(function (r) { return r.month_name; });
         var values = data.map(function (r) { return Number(r.admit_count || 0); });
-        var maxValue = Math.max.apply(null, values.concat([0]));
-        var axisMax = Math.max(100, Math.ceil((maxValue * 1.12) / 20) * 20);
+        var axis = calculateAxis(values, 5);
         Highcharts.chart('ipd-history-admit', {
-            chart: { type:'column', backgroundColor:'#fff', spacing:[12,18,18,12], style:chartFont() },
-            title: { text:'จำนวนผู้ป่วย Admit ปีงบประมาณ ' + year, style:{ fontSize:'18px', fontWeight:'600' } },
-            xAxis: { categories:categories, labels:{ style:{ fontSize:'15px' } } },
-            yAxis: { min:0, max:axisMax, tickInterval:20, title:{ text:'จำนวนผู้ป่วย', style:{ fontSize:'15px' } }, labels:{ style:{ fontSize:'14px' } } },
-            tooltip: { shared:true, valueSuffix:' ราย', style:{ fontSize:'15px' } },
-            plotOptions: { column:{ borderRadius:4, pointPadding:.08, groupPadding:.12, dataLabels:{ enabled:true, crop:false, overflow:'allow', style:{ fontSize:'15px', fontWeight:'bold', textOutline:'none' } } } },
+            chart: { type:'column', backgroundColor:'#fff', spacing:[14,18,18,12], style:chartFont() },
+            title: { text:'จำนวนผู้ป่วย Admit รายเดือน', style:{ fontSize:'18px', fontWeight:'600' } },
+            subtitle: { text:'ปีงบประมาณ ' + year, style:{ fontSize:'14px', color:'#71808d' } },
+            xAxis: { categories:categories, labels:{ style:{ fontSize:'14px' } }, lineColor:'#dfe7e3' },
+            yAxis: { min:0, max:axis.max, tickInterval:axis.tick, allowDecimals:false, title:{ text:'จำนวนผู้ป่วย (ราย)', style:{ fontSize:'14px' } }, labels:{ style:{ fontSize:'13px' } }, gridLineColor:'#edf1ef' },
+            tooltip: { shared:false, valueSuffix:' ราย', style:{ fontSize:'14px' } },
+            plotOptions: { column:{ borderRadius:4, pointPadding:.08, groupPadding:.10, dataLabels:{ enabled:true, crop:false, overflow:'allow', formatter:function(){ return this.y > 0 ? Highcharts.numberFormat(this.y,0) : null; }, style:{ fontSize:'13px', fontWeight:'bold', textOutline:'none' } } } },
             credits:{ enabled:false }, legend:{ enabled:false },
-            series:[{ name:'ผู้ป่วย Admit', data:values, color:'#4aafbd' }]
+            series:[{ name:'ผู้ป่วย Admit', data:values }]
         });
     }
 
     function renderOccupancy(data, year) {
         var categories = data.map(function (r) { return r.month_name; });
         var values = data.map(function (r) { return Number(r.occupancy_rate || 0); });
-        var maxValue = Math.max.apply(null, values.concat([0]));
-        var axisMax = maxValue <= 100 ? 100 : Math.ceil((maxValue * 1.12) / 10) * 10;
-        if (axisMax <= maxValue) axisMax += 10;
-        var tick = axisMax <= 100 ? 20 : (axisMax <= 150 ? 25 : 20);
+        var axis = calculateAxis(values, 5);
+        if (axis.max < 100 && Math.max.apply(null, values) > 0) { axis.max = 100; axis.tick = 20; }
         Highcharts.chart('ipd-history-occupancy', {
-            chart:{ zoomType:'xy', backgroundColor:'#fff', spacing:[12,18,18,12], style:chartFont() },
-            title:{ text:'อัตราการครองเตียง ปีงบประมาณ ' + year, style:{ fontSize:'18px', fontWeight:'600' } },
-            xAxis:{ categories:categories, labels:{ style:{ fontSize:'15px' } } },
-            yAxis:[
-                { min:0, max:axisMax, tickInterval:tick, title:{ text:'อัตราครองเตียง (%)', style:{ fontSize:'15px' } }, labels:{ format:'{value}%', style:{ fontSize:'14px' } } },
-                { min:0, max:axisMax, tickInterval:tick, title:{ text:null }, opposite:true, labels:{ format:'{value}%', style:{ fontSize:'14px' } } }
-            ],
-            tooltip:{ shared:true, valueSuffix:'%', style:{ fontSize:'15px' } },
-            plotOptions:{
-                column:{ borderRadius:4, pointPadding:.08, groupPadding:.12, dataLabels:{ enabled:true, format:'{y:.1f}%', crop:false, overflow:'allow', style:{ fontSize:'14px', fontWeight:'bold', textOutline:'none' } } },
-                spline:{ lineWidth:2.5, marker:{ enabled:true, radius:4 } }
-            },
-            credits:{ enabled:false },
-            series:[
-                { type:'column', name:'อัตราครองเตียง', data:values, color:'#4aafbd' },
-                { type:'spline', name:'แนวโน้ม', data:values, yAxis:1, color:'#dc3545', marker:{ enabled:true, radius:4 } }
-            ]
+            chart:{ type:'line', backgroundColor:'#fff', spacing:[14,18,18,12], style:chartFont() },
+            title:{ text:'อัตราการครองเตียงรายเดือน', style:{ fontSize:'18px', fontWeight:'600' } },
+            subtitle:{ text:'ปีงบประมาณ ' + year, style:{ fontSize:'14px', color:'#71808d' } },
+            xAxis:{ categories:categories, labels:{ style:{ fontSize:'14px' } }, lineColor:'#dfe7e3' },
+            yAxis:{ min:0, max:axis.max, tickInterval:axis.tick, title:{ text:'อัตราครองเตียง (%)', style:{ fontSize:'14px' } }, labels:{ format:'{value}%', style:{ fontSize:'13px' } }, gridLineColor:'#edf1ef' },
+            tooltip:{ shared:false, valueDecimals:2, valueSuffix:'%', style:{ fontSize:'14px' } },
+            plotOptions:{ line:{ lineWidth:3, marker:{ enabled:true, radius:4 }, dataLabels:{ enabled:true, formatter:function(){ return Highcharts.numberFormat(this.y,1)+'%'; }, style:{ fontSize:'12px', fontWeight:'bold', textOutline:'none' } } } },
+            credits:{ enabled:false }, legend:{ enabled:false },
+            series:[{ name:'อัตราการครองเตียง', data:values }]
         });
+    }
+
+    function renderActiveChart() {
+        if (!historyData.length) return;
+        if (document.getElementById('bbh-panel-admit')?.hidden === false) {
+            renderAdmit(historyData, historyYear);
+        }
+        if (document.getElementById('bbh-panel-occupancy')?.hidden === false) {
+            renderOccupancy(historyData, historyYear);
+        }
     }
 
     async function loadHistory() {
@@ -364,6 +283,8 @@
         if (dateText) dateText.textContent = fiscalDateText(year);
         if (admitEl) admitEl.innerHTML = '<div class="bbh-history-loading">กำลังโหลดข้อมูล...</div>';
         if (occupancyEl) occupancyEl.innerHTML = '<div class="bbh-history-loading">กำลังโหลดข้อมูล...</div>';
+        historyData = [];
+        historyYear = year;
         try {
             var response = await fetch(getBasePath() + '/api/ipd_ward_history.php?ward=' + encodeURIComponent(ward) + '&fiscal_year=' + encodeURIComponent(year), { cache:'no-store' });
             if (!response.ok) throw new Error('HTTP ' + response.status);
@@ -371,8 +292,11 @@
             if (json.error) throw new Error(json.error);
             var data = Array.isArray(json.data) ? json.data : [];
             if (data.length !== 12) throw new Error('ข้อมูลย้อนหลังไม่ครบ 12 เดือน');
+            historyData = data;
             renderAdmit(data, year);
-            renderOccupancy(data, year);
+            if (document.getElementById('bbh-panel-occupancy')?.hidden === false) renderOccupancy(data, year);
+
+            if (typeof window.bbhUpdateHistoryInsight === 'function') window.bbhUpdateHistoryInsight(data);
         } catch (error) {
             console.error('IPD Ward History Error:', error);
             var message = '<div class="bbh-history-error">ไม่สามารถโหลดข้อมูลสถิติย้อนหลังได้</div>';
@@ -410,6 +334,12 @@
         occupancyTab.setAttribute('aria-selected', isAdmit ? 'false' : 'true');
         admitPanel.hidden = !isAdmit;
         occupancyPanel.hidden = isAdmit;
+        setTimeout(function(){
+            if (historyData.length) {
+                if (isAdmit) renderAdmit(historyData, historyYear);
+                else renderOccupancy(historyData, historyYear);
+            }
+        }, 20);
     }
 
     function init() {
