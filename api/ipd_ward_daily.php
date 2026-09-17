@@ -15,30 +15,24 @@ try {
         exit;
     }
 
+    /* ใช้เงื่อนไขแบบเดียวกับ API ภาพรวม Ward เพื่อให้ตัวเลขสอดคล้องกัน */
     $sql = "SELECT
                 w.ward,
                 w.name AS ward_name,
                 COALESCE(w.bedcount, 0) AS bedcount,
-                (
-                    SELECT COUNT(DISTINCT i.an)
-                    FROM ipt i
-                    WHERE i.ward = w.ward
-                      AND i.dchdate IS NULL
-                ) AS current_admit,
-                (
-                    SELECT COUNT(DISTINCT i.an)
-                    FROM ipt i
-                    WHERE i.ward = w.ward
-                      AND i.regdate::date = CURRENT_DATE
+                COUNT(i.an) FILTER (WHERE i.dchdate IS NULL) AS current_admit,
+                COUNT(i.an) FILTER (
+                    WHERE i.regdate >= CURRENT_DATE
+                      AND i.regdate < CURRENT_DATE + INTERVAL '1 day'
                 ) AS admit_today,
-                (
-                    SELECT COUNT(DISTINCT i.an)
-                    FROM ipt i
-                    WHERE i.ward = w.ward
-                      AND i.dchdate::date = CURRENT_DATE
+                COUNT(i.an) FILTER (
+                    WHERE i.dchdate >= CURRENT_DATE
+                      AND i.dchdate < CURRENT_DATE + INTERVAL '1 day'
                 ) AS discharge_today
             FROM ward w
-            WHERE w.ward = :ward
+            LEFT JOIN ipt i ON i.ward::text = w.ward::text
+            WHERE w.ward::text = :ward
+            GROUP BY w.ward, w.name, w.bedcount
             LIMIT 1";
 
     $stmt = $conn->prepare($sql);
@@ -55,7 +49,6 @@ try {
     $currentAdmit = (int)$row['current_admit'];
     $admitToday = (int)$row['admit_today'];
     $dischargeToday = (int)$row['discharge_today'];
-
     $occupancy = $bedcount > 0 ? round(($currentAdmit / $bedcount) * 100, 2) : 0;
 
     echo json_encode([
@@ -72,5 +65,8 @@ try {
 
 } catch (Throwable $e) {
     http_response_code(500);
-    echo json_encode(['error' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
+    echo json_encode([
+        'error' => 'เกิดข้อผิดพลาดในการโหลดข้อมูล Ward วันนี้',
+        'detail' => $e->getMessage()
+    ], JSON_UNESCAPED_UNICODE);
 }
