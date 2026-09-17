@@ -21,33 +21,36 @@ try {
         $fiscalYear = (int)date('n') >= 10 ? $currentThaiYear + 1 : $currentThaiYear;
     }
 
-    /*
-     * ปีงบประมาณไทย 2569 = 1 ต.ค. 2568 ถึง 30 ก.ย. 2569
-     * จึงแปลงปีงบประมาณเป็น ค.ศ. ด้วย fiscal_year - 544
-     */
+    /* ปีงบประมาณไทย 2569 = 1 ต.ค. 2568 ถึง 30 ก.ย. 2569 */
     $startYear = $fiscalYear - 544;
     $endYear = $startYear + 1;
 
-    $sql = "WITH months AS (
+    $sql = "WITH params AS (
+                SELECT :ward AS ward_code,
+                       :start_year::int AS start_year,
+                       :end_year::int AS end_year
+            ),
+            months AS (
                 SELECT generate_series(
-                    make_date(:start_year, 10, 1),
-                    make_date(:end_year, 9, 1),
+                    make_date(p.start_year, 10, 1),
+                    make_date(p.end_year, 9, 1),
                     interval '1 month'
                 )::date AS month_start
+                FROM params p
             ),
             ward_info AS (
                 SELECT w.ward, w.name AS ward_name, COALESCE(w.bedcount, 0) AS bedcount
                 FROM ward w
-                WHERE w.ward::text = :ward
+                INNER JOIN params p ON w.ward::text = p.ward_code
                 LIMIT 1
             ),
             monthly_admit AS (
                 SELECT date_trunc('month', i.regdate)::date AS month_start,
                        COUNT(i.an) AS admit_count
                 FROM ipt i
-                WHERE i.ward::text = :ward
-                  AND i.regdate >= make_date(:start_year_2, 10, 1)
-                  AND i.regdate < make_date(:end_year_2, 10, 1)
+                INNER JOIN params p ON i.ward::text = p.ward_code
+                WHERE i.regdate >= make_date(p.start_year, 10, 1)
+                  AND i.regdate < make_date(p.end_year, 10, 1)
                 GROUP BY 1
             ),
             monthly_patient_days AS (
@@ -62,8 +65,9 @@ try {
                            )
                        ) AS patient_days
                 FROM months m
+                INNER JOIN params p ON TRUE
                 INNER JOIN ipt i
-                    ON i.ward::text = :ward_2
+                    ON i.ward::text = p.ward_code
                    AND i.regdate::date < (m.month_start + INTERVAL '1 month')::date
                    AND (i.dchdate IS NULL OR i.dchdate::date > m.month_start)
                 GROUP BY m.month_start
@@ -72,7 +76,7 @@ try {
                 TO_CHAR(m.month_start, 'MM/YYYY') AS month,
                 CASE
                     WHEN EXTRACT(MONTH FROM m.month_start) >= 10
-                    THEN EXTRACT(YEAR FROM m.month_start)::int + 543 + 1
+                    THEN EXTRACT(YEAR FROM m.month_start)::int + 544
                     ELSE EXTRACT(YEAR FROM m.month_start)::int + 543
                 END AS fiscal_year,
                 CASE EXTRACT(MONTH FROM m.month_start)::int
@@ -99,12 +103,9 @@ try {
 
     $stmt = $conn->prepare($sql);
     $stmt->execute([
-        'start_year' => $startYear,
-        'end_year' => $endYear,
         'ward' => $ward,
-        'start_year_2' => $startYear,
-        'end_year_2' => $endYear,
-        'ward_2' => $ward
+        'start_year' => $startYear,
+        'end_year' => $endYear
     ]);
 
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
