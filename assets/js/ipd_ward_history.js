@@ -238,9 +238,9 @@
             xAxis: { categories:categories, labels:{ style:{ fontSize:'14px' } }, lineColor:'#dfe7e3' },
             yAxis: { min:0, max:axis.max, tickInterval:axis.tick, allowDecimals:false, title:{ text:'จำนวนผู้ป่วย (ราย)', style:{ fontSize:'14px' } }, labels:{ style:{ fontSize:'13px' } }, gridLineColor:'#edf1ef' },
             tooltip: { shared:false, valueSuffix:' ราย', style:{ fontSize:'14px' } },
-            plotOptions: { column:{ borderRadius:4, pointPadding:.08, groupPadding:.10, dataLabels:{ enabled:true, crop:false, overflow:'allow', formatter:function(){ return this.y > 0 ? Highcharts.numberFormat(this.y,0) : null; }, style:{ fontSize:'13px', fontWeight:'bold', textOutline:'none' } } } },
+            plotOptions: { column:{ borderRadius:4, pointPadding:.08, groupPadding:.10, color:'#198754', borderColor:'#147447', dataLabels:{ enabled:true, crop:false, overflow:'allow', formatter:function(){ return this.y > 0 ? Highcharts.numberFormat(this.y,0) : null; }, style:{ fontSize:'13px', fontWeight:'bold', textOutline:'none' } } } },
             credits:{ enabled:false }, legend:{ enabled:false },
-            series:[{ name:'ผู้ป่วย Admit', data:values }]
+            series:[{ name:'ผู้ป่วย Admit', color:'#198754', data:values }]
         });
     }
 
@@ -256,9 +256,9 @@
             xAxis:{ categories:categories, labels:{ style:{ fontSize:'14px' } }, lineColor:'#dfe7e3' },
             yAxis:{ min:0, max:axis.max, tickInterval:axis.tick, title:{ text:'อัตราครองเตียง (%)', style:{ fontSize:'14px' } }, labels:{ format:'{value}%', style:{ fontSize:'13px' } }, gridLineColor:'#edf1ef' },
             tooltip:{ shared:false, valueDecimals:2, valueSuffix:'%', style:{ fontSize:'14px' } },
-            plotOptions:{ line:{ lineWidth:3, marker:{ enabled:true, radius:4 }, dataLabels:{ enabled:true, formatter:function(){ return Highcharts.numberFormat(this.y,1)+'%'; }, style:{ fontSize:'12px', fontWeight:'bold', textOutline:'none' } } } },
+            plotOptions:{ line:{ lineWidth:3, color:'#198754', marker:{ enabled:true, radius:4, fillColor:'#198754', lineColor:'#147447', lineWidth:1 }, dataLabels:{ enabled:true, formatter:function(){ return Highcharts.numberFormat(this.y,1)+'%'; }, style:{ fontSize:'12px', fontWeight:'bold', textOutline:'none' } } } },
             credits:{ enabled:false }, legend:{ enabled:false },
-            series:[{ name:'อัตราการครองเตียง', data:values }]
+            series:[{ name:'อัตราการครองเตียง', color:'#198754', data:values }]
         });
     }
 
