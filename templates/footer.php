@@ -18,6 +18,9 @@
 <!-- IPD Ward Historical Statistics -->
 <script src="<?= BASE_URL ?>assets/js/ipd_ward_history.js"></script>
 
+<!-- IPD Ward Management / Patient Flow / Export -->
+<script src="<?= BASE_URL ?>assets/js/ipd_ward_management.js"></script>
+
 </body>
 
 </html>
