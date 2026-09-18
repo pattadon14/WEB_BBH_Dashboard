@@ -6,6 +6,8 @@ include 'templates/sidebar.php';
 
 ?>
 
+<link rel="stylesheet" href="assets/css/index_ward_overview.css">
+
 <div class="content-wrapper">
 
     <section class="content pt-3">
@@ -176,8 +178,24 @@ include 'templates/sidebar.php';
 
             </div>
 
+            <!-- SECTION 2: สถานการณ์ที่ควรให้ความสนใจ -->
+            <div class="row mt-2">
+                <div class="col-12 mb-2">
+                    <h5 class="text-success mb-0" style="font-weight:bold;"><i class="fa-solid fa-triangle-exclamation"></i> สถานการณ์ที่ควรให้ความสนใจ</h5>
+                </div>
+                <div class="col-12 mb-2">
+                    <div class="ward-attention-panel">
+                        <div class="ward-attention-head">
+                            <div><div class="ward-attention-title">ภาพรวม Ward ที่ควรติดตาม</div><div class="ward-attention-sub">คัดกรองจากอัตราครองเตียง ผู้ป่วยนอนนาน และจำนวนผู้ป่วยรับเข้าในวันนี้</div></div>
+                            <div id="ward-attention-count" class="ward-attention-count">กำลังประเมิน...</div>
+                        </div>
+                        <div id="ward-attention-container" class="ward-attention-grid"><div class="ward-attention-loading">กำลังโหลดข้อมูล...</div></div>
+                    </div>
+                </div>
+            </div>
+
             <!-- ============================================
-                 SECTION 2: Heatmap ภาระงานแต่ละแผนก
+                 SECTION 4: Heatmap ภาระงานแต่ละแผนก
                  ============================================ -->
             <div class="row mt-1">
 
@@ -654,7 +672,7 @@ async function loadWardBed() {
 
         const response =
             await fetch(
-                'api/index_ward_bed.php'
+                'api/index_ward_overview.php'
             );
 
         const data =
@@ -735,9 +753,12 @@ async function loadWardBed() {
                     </div>
 
                     <div class="ward-percent">
-
                         ครองเตียง ${rate}%
-
+                    </div>
+                    <div class="ward-extra-info">
+                        <span><i class="fas fa-arrow-right-to-bracket"></i> Admit วันนี้ ${ward.admit_today || 0} ราย</span>
+                        <span><i class="fas fa-arrow-right-from-bracket"></i> Discharge วันนี้ ${ward.discharge_today || 0} ราย</span>
+                        ${(parseInt(ward.long_stay_14 || 0) > 0) ? '<span class="ward-long-stay"><i class="fas fa-clock"></i> นอน &gt;14 วัน ' + ward.long_stay_14 + ' ราย</span>' : ''}
                     </div>
 
                     <div class="progress ward-progress">
@@ -830,6 +851,52 @@ setInterval(
     loadBedSummary,
     60000
 );
+
+async function loadWardAttention() {
+    try {
+        const response = await fetch('api/index_ward_overview.php', { cache: 'no-store' });
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        const data = await response.json();
+        if (!Array.isArray(data)) throw new Error('รูปแบบข้อมูลไม่ถูกต้อง');
+        const attention = data.filter(ward => parseFloat(ward.occupancy_rate || 0) >= 90 || parseInt(ward.long_stay_14 || 0) > 0);
+        const countEl = document.getElementById('ward-attention-count');
+        const container = document.getElementById('ward-attention-container');
+        if (countEl) countEl.textContent = attention.length ? attention.length.toLocaleString('th-TH') + ' Ward ที่ควรติดตาม' : 'ไม่พบ Ward ที่ต้องติดตาม';
+        if (!container) return;
+        if (!attention.length) {
+            container.innerHTML = '<div class="ward-attention-empty"><i class="fas fa-circle-check"></i><div><strong>สถานการณ์โดยรวมปกติ</strong><span>ยังไม่พบ Ward ที่เข้าเกณฑ์ต้องติดตามเป็นพิเศษ</span></div></div>';
+            return;
+        }
+        container.innerHTML = attention.map(ward => {
+            const rate = parseFloat(ward.occupancy_rate || 0), current = parseInt(ward.current_admit || 0), beds = parseInt(ward.bedcount || 0);
+            const available = parseInt(ward.available_bed || 0), admit = parseInt(ward.admit_today || 0), discharge = parseInt(ward.discharge_today || 0), stay14 = parseInt(ward.long_stay_14 || 0);
+            const level = rate >= 100 ? 'danger' : rate >= 90 ? 'watch' : 'long';
+            const levelText = rate >= 100 ? 'เตียงเต็ม' : rate >= 90 ? 'เตียงใกล้เต็ม' : 'มีผู้ป่วยนอนนาน';
+            const reasons = [];
+            if (rate >= 90) reasons.push('ครองเตียง ' + rate.toFixed(2) + '%');
+            if (stay14 > 0) reasons.push('นอน >14 วัน ' + stay14 + ' ราย');
+            return '<div class="ward-attention-card ' + level + '">' +
+                '<div class="ward-attention-card-head"><div class="ward-attention-name">' + ward.name + '</div><span class="ward-attention-status">' + levelText + '</span></div>' +
+                '<div class="ward-attention-bed"><strong>' + current.toLocaleString('th-TH') + '</strong> / ' + beds.toLocaleString('th-TH') + ' เตียง <span>ว่าง ' + available.toLocaleString('th-TH') + '</span></div>' +
+                '<div class="ward-attention-progress"><div style="width:' + Math.min(rate, 100) + '%"></div></div>' +
+                '<div class="ward-attention-reasons">' + reasons.map(reason => '<span><i class="fas fa-circle"></i>' + reason + '</span>').join('') + '</div>' +
+                '<div class="ward-attention-flow"><span><i class="fas fa-arrow-right-to-bracket"></i> Admit ' + admit + '</span><span><i class="fas fa-arrow-right-from-bracket"></i> Discharge ' + discharge + '</span></div>' +
+                '<button type="button" class="ward-attention-detail" data-ward="' + ward.ward + '">ดูรายละเอียด Ward <i class="fas fa-arrow-right"></i></button>' +
+            '</div>';
+        }).join('');
+        container.querySelectorAll('.ward-attention-detail').forEach(button => button.addEventListener('click', function () {
+            window.location.href = 'pages/ipd_ward_detail.php?ward=' + encodeURIComponent(this.dataset.ward);
+        }));
+    } catch (error) {
+        console.error('Ward Attention:', error);
+        const countEl = document.getElementById('ward-attention-count'), container = document.getElementById('ward-attention-container');
+        if (countEl) countEl.textContent = 'โหลดข้อมูลไม่สำเร็จ';
+        if (container) container.innerHTML = '<div class="ward-attention-error"><i class="fas fa-triangle-exclamation"></i> ไม่สามารถโหลดข้อมูลสถานการณ์ Ward ได้</div>';
+    }
+}
+loadWardAttention();
+setInterval(loadWardAttention, 60000);
+
 
 async function loadServiceSummary() {
 
