@@ -1,0 +1,146 @@
+/* BBH Dashboard - Index Ward Overview */
+.ward-attention-panel {
+    border: 1px solid #dfe7e3;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 3px 12px rgba(31,45,61,.08);
+    overflow: hidden;
+}
+.ward-attention-head {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    padding:15px 18px;
+    background:#f8faf9;
+    border-bottom:1px solid #e7ece9;
+}
+.ward-attention-title { color:#198754; font-size:18px; font-weight:700; }
+.ward-attention-sub { margin-top:3px; color:#71808d; font-size:13px; }
+.ward-attention-count {
+    flex:0 0 auto;
+    padding:7px 12px;
+    border-radius:18px;
+    background:#eaf7f0;
+    color:#198754;
+    font-size:14px;
+    font-weight:700;
+}
+.ward-attention-grid {
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:12px;
+    padding:14px;
+}
+.ward-attention-card {
+    position:relative;
+    padding:14px;
+    border:1px solid #e2e8e5;
+    border-left:5px solid #f59e0b;
+    border-radius:10px;
+    background:#fff;
+    box-shadow:0 2px 7px rgba(31,45,61,.06);
+}
+.ward-attention-card.danger { border-left-color:#dc3545; background:#fffafb; }
+.ward-attention-card.watch { border-left-color:#f59e0b; background:#fffdf8; }
+.ward-attention-card.long { border-left-color:#198754; background:#fbfefc; }
+.ward-attention-card-head { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
+.ward-attention-name { color:#344047; font-size:17px; font-weight:700; line-height:1.3; }
+.ward-attention-status {
+    flex:0 0 auto;
+    padding:4px 8px;
+    border-radius:14px;
+    background:#fff0f2;
+    color:#dc3545;
+    font-size:12px;
+    font-weight:700;
+}
+.watch .ward-attention-status { background:#fff7e6; color:#b77900; }
+.long .ward-attention-status { background:#eaf7f0; color:#198754; }
+.ward-attention-bed {
+    display:flex;
+    align-items:baseline;
+    gap:5px;
+    margin-top:10px;
+    color:#71808d;
+    font-size:14px;
+}
+.ward-attention-bed strong { color:#198754; font-size:24px; }
+.ward-attention-bed span { margin-left:auto; color:#1683c5; font-weight:700; }
+.ward-attention-progress { height:7px; margin-top:8px; border-radius:8px; background:#e9eeeb; overflow:hidden; }
+.ward-attention-progress div { height:100%; border-radius:8px; background:#198754; }
+.danger .ward-attention-progress div { background:#dc3545; }
+.watch .ward-attention-progress div { background:#f59e0b; }
+.ward-attention-reasons {
+    display:flex;
+    flex-direction:column;
+    gap:3px;
+    margin-top:9px;
+    min-height:35px;
+}
+.ward-attention-reasons span { color:#59666e; font-size:13px; }
+.ward-attention-reasons i { margin-right:6px; font-size:6px; color:#198754; vertical-align:middle; }
+.danger .ward-attention-reasons i { color:#dc3545; }
+.watch .ward-attention-reasons i { color:#f59e0b; }
+.ward-attention-flow {
+    display:flex;
+    gap:12px;
+    margin-top:9px;
+    padding-top:8px;
+    border-top:1px solid #edf1ef;
+    color:#68757d;
+    font-size:12px;
+}
+.ward-attention-detail {
+    width:100%;
+    margin-top:10px;
+    padding:7px 10px;
+    border:1px solid #198754;
+    border-radius:7px;
+    background:#fff;
+    color:#198754;
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+    transition:.15s ease;
+}
+.ward-attention-detail:hover { background:#198754; color:#fff; }
+.ward-attention-loading,
+.ward-attention-error,
+.ward-attention-empty {
+    grid-column:1/-1;
+    min-height:100px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    color:#71808d;
+    font-size:14px;
+}
+.ward-attention-empty i { color:#198754; font-size:24px; }
+.ward-attention-empty div { display:flex; flex-direction:column; gap:2px; }
+.ward-attention-empty strong { color:#198754; font-size:16px; }
+.ward-attention-error { color:#dc3545; }
+
+.ward-extra-info {
+    display:flex;
+    flex-wrap:wrap;
+    gap:4px 12px;
+    margin-top:7px;
+    padding-top:6px;
+    border-top:1px solid #edf1ef;
+    color:#71808d;
+    font-size:12px;
+}
+.ward-extra-info i { margin-right:3px; color:#198754; }
+.ward-extra-info .ward-long-stay { color:#dc3545; font-weight:700; }
+.ward-extra-info .ward-long-stay i { color:#dc3545; }
+
+@media (max-width:1199px) {
+    .ward-attention-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (max-width:767px) {
+    .ward-attention-head { align-items:flex-start; flex-direction:column; }
+    .ward-attention-count { align-self:flex-start; }
+    .ward-attention-grid { grid-template-columns:1fr; padding:10px; }
+}
