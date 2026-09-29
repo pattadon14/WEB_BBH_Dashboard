@@ -1,0 +1,156 @@
+/* =========================================
+   IPD KPI SUMMARY
+   ========================================= */
+
+.ipd-kpi-summary {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.ipd-kpi-card {
+    position: relative;
+    min-height: 128px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 13px;
+    border: 1px solid #dfe7e3;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 3px 10px rgba(31, 45, 61, .08);
+    overflow: hidden;
+}
+
+.ipd-kpi-card::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: #198754;
+}
+
+.ipd-kpi-icon {
+    width: 52px;
+    height: 52px;
+    flex: 0 0 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #eaf7f0;
+    color: #198754;
+    font-size: 25px;
+}
+
+.ipd-kpi-content {
+    min-width: 0;
+}
+
+.ipd-kpi-label {
+    color: #4f5d66;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.ipd-kpi-value {
+    margin-top: 3px;
+    color: #198754;
+    font-size: 31px;
+    font-weight: 700;
+    line-height: 1.05;
+    white-space: nowrap;
+}
+
+.ipd-kpi-unit {
+    margin-top: 3px;
+    color: #7a8790;
+    font-size: 12px;
+    line-height: 1.2;
+}
+
+/* KPI color accents */
+.ipd-kpi-card.kpi-admit::before {
+    background: #198754;
+}
+
+.ipd-kpi-card.kpi-discharge::before {
+    background: #dc3545;
+}
+
+.ipd-kpi-card.kpi-beds::before {
+    background: #0d6efd;
+}
+
+.ipd-kpi-card.kpi-occupancy::before {
+    background: #198754;
+}
+
+.ipd-kpi-card.kpi-los::before {
+    background: #f59e0b;
+}
+
+.ipd-kpi-card.kpi-readmission::before {
+    background: #6f42c1;
+}
+
+.kpi-discharge .ipd-kpi-icon {
+    background: #fff0f2;
+    color: #dc3545;
+}
+
+.kpi-beds .ipd-kpi-icon {
+    background: #edf5ff;
+    color: #0d6efd;
+}
+
+.kpi-los .ipd-kpi-icon {
+    background: #fff7e6;
+    color: #d88900;
+}
+
+.kpi-readmission .ipd-kpi-icon {
+    background: #f3effb;
+    color: #6f42c1;
+}
+
+.kpi-discharge .ipd-kpi-value {
+    color: #dc3545;
+}
+
+.kpi-beds .ipd-kpi-value {
+    color: #0d6efd;
+}
+
+.kpi-los .ipd-kpi-value {
+    color: #d88900;
+}
+
+.kpi-readmission .ipd-kpi-value {
+    color: #6f42c1;
+}
+
+@media (max-width: 1399px) {
+    .ipd-kpi-summary {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 991px) {
+    .ipd-kpi-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 575px) {
+    .ipd-kpi-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .ipd-kpi-card {
+        min-height: 105px;
+    }
+}
