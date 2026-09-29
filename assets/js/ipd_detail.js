@@ -1,3 +1,95 @@
+
+async function loadKpiSummary() {
+
+    const year =
+        document.getElementById('budget-year').value;
+
+    try {
+
+        const response =
+            await fetch(
+                '../api/ipd_kpi_summary.php?year=' + encodeURIComponent(year),
+                { cache: 'no-store' }
+            );
+
+        if (!response.ok) {
+            throw new Error('HTTP ' + response.status);
+        }
+
+        const data =
+            await response.json();
+
+        if (data.error) {
+            throw new Error(data.error);
+        }
+
+        const numberFormat = new Intl.NumberFormat('th-TH');
+
+        document.getElementById('kpi-current-inpatients').textContent =
+            numberFormat.format(data.current_inpatients);
+
+        document.getElementById('kpi-admissions').textContent =
+            numberFormat.format(data.admissions);
+
+        document.getElementById('kpi-discharges').textContent =
+            numberFormat.format(data.discharges);
+
+        document.getElementById('kpi-total-beds').textContent =
+            numberFormat.format(data.total_beds);
+
+        document.getElementById('kpi-occupancy-rate').textContent =
+            Number(data.occupancy_rate || 0).toLocaleString('th-TH', {
+                minimumFractionDigits: 1,
+                maximumFractionDigits: 1
+            }) + '%';
+
+        document.getElementById('kpi-avg-los').textContent =
+            Number(data.avg_los || 0).toLocaleString('th-TH', {
+                minimumFractionDigits: 1,
+                maximumFractionDigits: 1
+            });
+
+        document.getElementById('kpi-readmission-rate').textContent =
+            Number(data.readmission_rate || 0).toLocaleString('th-TH', {
+                minimumFractionDigits: 1,
+                maximumFractionDigits: 1
+            }) + '%';
+
+        document.getElementById('kpi-readmission-cases').textContent =
+            numberFormat.format(data.readmission_cases) + ' ราย';
+
+    } catch (error) {
+
+        console.error('IPD KPI Summary Error:', error);
+
+        [
+            'kpi-current-inpatients',
+            'kpi-admissions',
+            'kpi-discharges',
+            'kpi-total-beds',
+            'kpi-occupancy-rate',
+            'kpi-avg-los',
+            'kpi-readmission-rate'
+        ].forEach(id => {
+
+            const element =
+                document.getElementById(id);
+
+            if (element) {
+                element.textContent = '-';
+            }
+
+        });
+
+        const cases =
+            document.getElementById('kpi-readmission-cases');
+
+        if (cases) {
+            cases.textContent = 'โหลดข้อมูลไม่สำเร็จ';
+        }
+    }
+}
+
 async function loadChart() {
 
     const year =
@@ -376,6 +468,8 @@ async function loadChart() {
 
 }
 async function reloadAll() {
+
+    await loadKpiSummary();
 
     await loadChart();
 
