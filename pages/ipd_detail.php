@@ -76,6 +76,72 @@ include '../templates/sidebar.php';
 
                 </div>
 
+                <!-- IPD KPI SUMMARY -->
+                <div class="ipd-kpi-summary mb-3">
+                    <div class="ipd-kpi-card kpi-current">
+                        <div class="ipd-kpi-icon"><i class="fa-solid fa-hospital-user"></i></div>
+                        <div class="ipd-kpi-content">
+                            <div class="ipd-kpi-label">ผู้ป่วยในปัจจุบัน</div>
+                            <div id="kpi-current-inpatients" class="ipd-kpi-value">-</div>
+                            <div class="ipd-kpi-unit">ราย</div>
+                        </div>
+                    </div>
+
+                    <div class="ipd-kpi-card kpi-admit">
+                        <div class="ipd-kpi-icon"><i class="fa-solid fa-bed"></i></div>
+                        <div class="ipd-kpi-content">
+                            <div class="ipd-kpi-label">รับใหม่ (Admissions)</div>
+                            <div id="kpi-admissions" class="ipd-kpi-value">-</div>
+                            <div class="ipd-kpi-unit">ราย</div>
+                        </div>
+                    </div>
+
+                    <div class="ipd-kpi-card kpi-discharge">
+                        <div class="ipd-kpi-icon"><i class="fa-solid fa-person-walking-arrow-right"></i></div>
+                        <div class="ipd-kpi-content">
+                            <div class="ipd-kpi-label">จำหน่าย (Discharges)</div>
+                            <div id="kpi-discharges" class="ipd-kpi-value">-</div>
+                            <div class="ipd-kpi-unit">ราย</div>
+                        </div>
+                    </div>
+
+                    <div class="ipd-kpi-card kpi-beds">
+                        <div class="ipd-kpi-icon"><i class="fa-solid fa-bed"></i></div>
+                        <div class="ipd-kpi-content">
+                            <div class="ipd-kpi-label">เตียงทั้งหมด</div>
+                            <div id="kpi-total-beds" class="ipd-kpi-value">-</div>
+                            <div class="ipd-kpi-unit">เตียง</div>
+                        </div>
+                    </div>
+
+                    <div class="ipd-kpi-card kpi-occupancy">
+                        <div class="ipd-kpi-icon"><i class="fa-solid fa-percent"></i></div>
+                        <div class="ipd-kpi-content">
+                            <div class="ipd-kpi-label">อัตราครองเตียง</div>
+                            <div id="kpi-occupancy-rate" class="ipd-kpi-value">-</div>
+                            <div class="ipd-kpi-unit">จากเตียงทั้งหมด</div>
+                        </div>
+                    </div>
+
+                    <div class="ipd-kpi-card kpi-los">
+                        <div class="ipd-kpi-icon"><i class="fa-solid fa-hourglass-half"></i></div>
+                        <div class="ipd-kpi-content">
+                            <div class="ipd-kpi-label">ระยะเวลานอนเฉลี่ย</div>
+                            <div id="kpi-avg-los" class="ipd-kpi-value">-</div>
+                            <div class="ipd-kpi-unit">วัน</div>
+                        </div>
+                    </div>
+
+                    <div class="ipd-kpi-card kpi-readmission">
+                        <div class="ipd-kpi-icon"><i class="fa-solid fa-arrows-rotate"></i></div>
+                        <div class="ipd-kpi-content">
+                            <div class="ipd-kpi-label">Readmission 30 วัน</div>
+                            <div id="kpi-readmission-rate" class="ipd-kpi-value">-</div>
+                            <div id="kpi-readmission-cases" class="ipd-kpi-unit">- ราย</div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- GRAPH -->
                 <div class="card shadow-sm">
 
@@ -175,6 +241,7 @@ include '../templates/sidebar.php';
 </div>
 
 <!-- HIGHCHART -->
+<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/ipd_detail.css">
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="<?= BASE_URL ?>assets/js/ipd_detail.js"></script>
 
