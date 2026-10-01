@@ -37,11 +37,48 @@ async function loadKpiSummary() {
         document.getElementById('kpi-total-beds').textContent =
             numberFormat.format(data.total_beds);
 
+        const occupancyRate = Number(data.occupancy_rate || 0);
+
         document.getElementById('kpi-occupancy-rate').textContent =
-            Number(data.occupancy_rate || 0).toLocaleString('th-TH', {
+            occupancyRate.toLocaleString('th-TH', {
                 minimumFractionDigits: 1,
                 maximumFractionDigits: 1
             }) + '%';
+
+        const occupancyCard =
+            document.querySelector('.ipd-kpi-card.kpi-occupancy');
+
+        const occupancyStatus =
+            document.getElementById('kpi-occupancy-status');
+
+        if (occupancyCard && occupancyStatus) {
+
+            occupancyCard.classList.remove(
+                'kpi-status-normal',
+                'kpi-status-warning',
+                'kpi-status-danger'
+            );
+
+            if (occupancyRate > 100) {
+
+                occupancyCard.classList.add('kpi-status-danger');
+                occupancyStatus.innerHTML =
+                    '<i class="fa-solid fa-triangle-exclamation"></i> เกิน 100% — เตียงเต็มเกินศักยภาพ';
+
+            } else if (occupancyRate >= 90) {
+
+                occupancyCard.classList.add('kpi-status-warning');
+                occupancyStatus.innerHTML =
+                    '<i class="fa-solid fa-circle-exclamation"></i> 90–100% — ใกล้เต็ม';
+
+            } else {
+
+                occupancyCard.classList.add('kpi-status-normal');
+                occupancyStatus.innerHTML =
+                    '<i class="fa-solid fa-circle-check"></i> ต่ำกว่า 90%';
+
+            }
+        }
 
         document.getElementById('kpi-avg-los').textContent =
             Number(data.avg_los || 0).toLocaleString('th-TH', {
@@ -49,14 +86,51 @@ async function loadKpiSummary() {
                 maximumFractionDigits: 1
             });
 
+        const readmissionRate = Number(data.readmission_rate || 0);
+
         document.getElementById('kpi-readmission-rate').textContent =
-            Number(data.readmission_rate || 0).toLocaleString('th-TH', {
+            readmissionRate.toLocaleString('th-TH', {
                 minimumFractionDigits: 1,
                 maximumFractionDigits: 1
             }) + '%';
 
         document.getElementById('kpi-readmission-cases').textContent =
             numberFormat.format(data.readmission_cases) + ' ราย';
+
+        const readmissionCard =
+            document.querySelector('.ipd-kpi-card.kpi-readmission');
+
+        const readmissionStatus =
+            document.getElementById('kpi-readmission-status');
+
+        if (readmissionCard && readmissionStatus) {
+
+            readmissionCard.classList.remove(
+                'kpi-status-normal',
+                'kpi-status-warning',
+                'kpi-status-danger'
+            );
+
+            if (readmissionRate > 10) {
+
+                readmissionCard.classList.add('kpi-status-danger');
+                readmissionStatus.innerHTML =
+                    '<i class="fa-solid fa-triangle-exclamation"></i> สูงกว่า 10%';
+
+            } else if (readmissionRate >= 8) {
+
+                readmissionCard.classList.add('kpi-status-warning');
+                readmissionStatus.innerHTML =
+                    '<i class="fa-solid fa-circle-exclamation"></i> ช่วงเฝ้าระวัง 8–10%';
+
+            } else {
+
+                readmissionCard.classList.add('kpi-status-normal');
+                readmissionStatus.innerHTML =
+                    '<i class="fa-solid fa-circle-check"></i> ต่ำกว่า 8%';
+
+            }
+        }
 
     } catch (error) {
 
@@ -86,6 +160,20 @@ async function loadKpiSummary() {
 
         if (cases) {
             cases.textContent = 'โหลดข้อมูลไม่สำเร็จ';
+        }
+
+        const occupancyStatus =
+            document.getElementById('kpi-occupancy-status');
+
+        if (occupancyStatus) {
+            occupancyStatus.textContent = 'ไม่สามารถประเมินได้';
+        }
+
+        const readmissionStatus =
+            document.getElementById('kpi-readmission-status');
+
+        if (readmissionStatus) {
+            readmissionStatus.textContent = 'ไม่สามารถประเมินได้';
         }
     }
 }
