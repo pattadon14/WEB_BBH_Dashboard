@@ -218,7 +218,7 @@ include '../templates/sidebar.php';
                                         <div class="budget-select-wrapper">
                                             <select id="budget-year" class="form-control budget-select">
                                                 <?php
-                                                $currentYear = date('Y') + 543;
+                                                $currentYear = date('Y') + 543 + (date('n') >= 10 ? 1 : 0);
                                                 for ($y = $currentYear; $y >= 2565; $y--) {
                                                     echo "<option value='$y'>ปีงบประมาณ $y</option>";
                                                 }
