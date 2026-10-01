@@ -195,7 +195,7 @@ async function loadChart() {
         `1 ตุลาคม ${year - 1}`;
 
     const currentThaiYear =
-        new Date().getFullYear() + 543;
+        new Date().getFullYear() + 543 + (new Date().getMonth() + 1 >= 10 ? 1 : 0);
 
     let endDateText;
 
