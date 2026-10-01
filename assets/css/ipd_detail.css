@@ -154,3 +154,75 @@
         min-height: 105px;
     }
 }
+
+
+/* =========================================
+   KPI ALERT INDICATORS
+   ========================================= */
+
+.ipd-kpi-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    width: fit-content;
+    margin-top: 5px;
+    padding: 3px 8px;
+    border-radius: 10px;
+    background: #eaf7f0;
+    color: #198754;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.kpi-status-warning {
+    border-color: #f0b429;
+    background: #fffaf0;
+}
+
+.kpi-status-warning .ipd-kpi-value {
+    color: #d88900;
+}
+
+.kpi-status-warning .ipd-kpi-icon {
+    background: #fff7e6;
+    color: #d88900;
+}
+
+.kpi-status-warning .ipd-kpi-status {
+    background: #fff3cd;
+    color: #9a6700;
+}
+
+.kpi-status-danger {
+    border-color: #dc3545;
+    background: #fff5f6;
+    box-shadow: 0 4px 14px rgba(220, 53, 69, .18);
+}
+
+.kpi-status-danger::before {
+    background: #dc3545 !important;
+}
+
+.kpi-status-danger .ipd-kpi-value {
+    color: #dc3545 !important;
+}
+
+.kpi-status-danger .ipd-kpi-icon {
+    background: #ffe5e8;
+    color: #dc3545;
+}
+
+.kpi-status-danger .ipd-kpi-status {
+    background: #dc3545;
+    color: #ffffff;
+}
+
+.kpi-status-normal .ipd-kpi-status {
+    background: #eaf7f0;
+    color: #198754;
+}
+
+.kpi-status-normal {
+    border-color: #cfe9db;
+}
