@@ -4,10 +4,12 @@ header('Content-Type: application/json');
 
 require_once '../config/database.php';
 
-$budgetYear = $_GET['year'] ?? 2569;
+$budgetYear = isset($_GET['year'])
+    ? (int)$_GET['year']
+    : (date('Y') + 543 + (date('n') >= 10 ? 1 : 0));
 
 /*
-งบ 2569
+ปีงบประมาณปัจจุบัน
 = 2025-10-01 ถึง 2026-09-30
 */
 
