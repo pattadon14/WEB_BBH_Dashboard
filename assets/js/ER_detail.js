@@ -9,8 +9,9 @@ async function loadChart() {
 const year =
     document.getElementById('budget-year').value;
 
+const now = new Date();
 const currentThaiYear =
-    new Date().getFullYear() + 543;
+    now.getFullYear() + 543 + (now.getMonth() + 1 >= 10 ? 1 : 0);
 
 /*
 ==========================
