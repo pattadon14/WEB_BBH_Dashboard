@@ -43,7 +43,7 @@ include '../templates/sidebar.php';
                                     <?php
 
                                     $currentYear =
-                                        date('Y') + 543;
+                                        date('Y') + 543 + (date('n') >= 10 ? 1 : 0);
 
                                     for (
                                         $y = $currentYear;
