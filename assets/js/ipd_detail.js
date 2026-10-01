@@ -127,7 +127,7 @@ async function loadKpiSummary() {
 
                 readmissionCard.classList.add('kpi-status-normal');
                 readmissionStatus.innerHTML =
-                    '<i class="fa-solid fa-circle-check"></i> ต่ำกว่า 8%';
+                    '<i class="fa-solid fa-circle-check"></i> เป้าหมาย < 8%';
 
             }
         }
