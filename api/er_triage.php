@@ -8,7 +8,7 @@ try {
 
     $year = isset($_GET['year'])
         ? (int)$_GET['year']
-        : date('Y') + 543;
+        : date('Y') + 543 + (date('n') >= 10 ? 1 : 0);
 
     /*
     ==========================
