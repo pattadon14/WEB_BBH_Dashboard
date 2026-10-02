@@ -199,6 +199,27 @@
         document.head.appendChild(script);
     }
 
+
+    function filterAvailableMonths(data, year) {
+        var current = currentFiscalYear();
+        if (Number(year) !== current) return data;
+
+        var now = new Date();
+        var currentMonth = now.getMonth() + 1;
+        var currentCalendarYear = now.getFullYear();
+
+        return data.filter(function (row) {
+            var parts = String(row.month || '').split('/');
+            if (parts.length !== 2) return true;
+
+            var month = Number(parts[0]);
+            var calendarYear = Number(parts[1]);
+
+            return calendarYear < currentCalendarYear ||
+                (calendarYear === currentCalendarYear && month <= currentMonth);
+        });
+    }
+
     function fiscalDateText(year) {
         var current = currentFiscalYear();
         if (Number(year) === current) {
@@ -289,8 +310,13 @@
             if (!response.ok) throw new Error('HTTP ' + response.status);
             var json = await response.json();
             if (json.error) throw new Error(json.error);
-            var data = Array.isArray(json.data) ? json.data : [];
-            if (data.length !== 12) throw new Error('ข้อมูลย้อนหลังไม่ครบ 12 เดือน');
+            var rawData = Array.isArray(json.data) ? json.data : [];
+            if (!rawData.length) throw new Error('ไม่พบข้อมูลย้อนหลัง');
+
+            var data = filterAvailableMonths(rawData, year);
+
+            if (!data.length) throw new Error('ยังไม่มีข้อมูลในปีงบประมาณที่เลือก');
+
             historyData = data;
             renderAdmit(data, year);
             if (document.getElementById('bbh-panel-occupancy')?.hidden === false) renderOccupancy(data, year);
