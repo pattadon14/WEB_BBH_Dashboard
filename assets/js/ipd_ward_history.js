@@ -19,8 +19,7 @@
 
     function currentFiscalYear() {
         var now = new Date();
-        var thaiYear = now.getFullYear() + 543 + (now.getMonth() + 1 >= 10 ? 1 : 0);
-        return now.getMonth() + 1 >= 10 ? thaiYear + 1 : thaiYear;
+        return now.getFullYear() + 543 + (now.getMonth() + 1 >= 10 ? 1 : 0);
     }
 
     function injectStyles() {
