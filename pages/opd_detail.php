@@ -430,6 +430,7 @@ include '../templates/sidebar.php';
 </div>
 
 <script src="https://code.highcharts.com/highcharts.js"></script>
+<script>window.BBH_CURRENT_FISCAL_YEAR = <?= $currentYear ?>;</script>
 <script src="<?= BASE_URL ?>assets/js/opd_detail.js"></script>
 
 <script>
