@@ -21,7 +21,8 @@ async function loadChart() {
 
     const now = new Date();
     const currentThaiYear =
-        now.getFullYear() + 543 + (now.getMonth() + 1 >= 10 ? 1 : 0);
+        Number(window.BBH_CURRENT_FISCAL_YEAR) ||
+        (now.getFullYear() + 543 + (now.getMonth() + 1 >= 10 ? 1 : 0));
 
     let endDateText;
 
