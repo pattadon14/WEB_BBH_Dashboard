@@ -1,5 +1,7 @@
 </div>
 
+<script>window.BBH_CURRENT_FISCAL_YEAR = <?= date('Y') + 543 + (date('n') >= 10 ? 1 : 0) ?>;</script>
+
 <script src="<?= BASE_URL ?>assets/AdminLTE/plugins/jquery/jquery.min.js"></script>
 
 <script src="<?= BASE_URL ?>assets/AdminLTE/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
