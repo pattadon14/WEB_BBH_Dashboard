@@ -19,7 +19,8 @@
 
     function currentFiscalYear() {
         var now = new Date();
-        return now.getFullYear() + 543 + (now.getMonth() + 1 >= 10 ? 1 : 0);
+        return Number(window.BBH_CURRENT_FISCAL_YEAR) ||
+            (now.getFullYear() + 543 + (now.getMonth() + 1 >= 10 ? 1 : 0));
     }
 
     function injectStyles() {
