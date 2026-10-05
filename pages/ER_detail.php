@@ -195,6 +195,7 @@ include '../templates/sidebar.php';
 
 <!-- HIGHCHART -->
 <script src="https://code.highcharts.com/highcharts.js"></script>
+<script>window.BBH_CURRENT_FISCAL_YEAR = <?= $currentYear ?>;</script>
 <script src="<?= BASE_URL ?>assets/js/ER_detail.js"></script>
 
 <?php include '../templates/footer.php'; ?>
