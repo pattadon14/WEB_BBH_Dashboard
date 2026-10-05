@@ -10,9 +10,12 @@ const year =
     document.getElementById('budget-year').value;
 
 const now = new Date();
+const serverFiscalYear = Number(window.BBH_CURRENT_FISCAL_YEAR);
 const currentThaiYear =
-    Number(window.BBH_CURRENT_FISCAL_YEAR) ||
+    serverFiscalYear ||
     (now.getFullYear() + 543 + (now.getMonth() + 1 >= 10 ? 1 : 0));
+const isCurrentFiscalYear =
+    Number(year) === currentThaiYear;
 
 /*
 ==========================
@@ -24,7 +27,7 @@ const startDateText = `1 ตุลาคม ${year - 1}`;
 
 let endDateText;
 
-if (parseInt(year) === currentThaiYear) {
+if (isCurrentFiscalYear) {
 
     const today = new Date();
 
