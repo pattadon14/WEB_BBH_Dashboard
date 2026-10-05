@@ -244,6 +244,7 @@ include '../templates/sidebar.php';
 <!-- HIGHCHART -->
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/ipd_detail.css">
 <script src="https://code.highcharts.com/highcharts.js"></script>
+<script>window.BBH_CURRENT_FISCAL_YEAR = <?= $currentYear ?>;</script>
 <script src="<?= BASE_URL ?>assets/js/ipd_detail.js"></script>
 
 <?php
