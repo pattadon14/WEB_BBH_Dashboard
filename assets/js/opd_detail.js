@@ -1,3 +1,21 @@
+function formatThaiDate(dateString) {
+    const parts = dateString.split('-').map(Number);
+    if (parts.length !== 3) return dateString;
+
+    const thaiMonths = [
+        'มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
+        'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'
+    ];
+
+    const d = new Date(parts[0], parts[1] - 1, parts[2]);
+    return `${d.getDate()} ${thaiMonths[d.getMonth()]} ${d.getFullYear() + 543}`;
+}
+
+function getSelectedServiceDate() {
+    const input = document.getElementById('opd-service-date');
+    return input ? input.value : '';
+}
+
 async function loadChart() {
 
     const year =
@@ -361,7 +379,7 @@ async function loadOpdTodaySummary() {
 
         const response =
             await fetch(
-                '../api/opd_visit_today.php'
+                '../api/opd_visit_today.php?date=' + encodeURIComponent(getSelectedServiceDate())
             );
 
         const data =
@@ -535,6 +553,49 @@ setInterval(
     loadOpdTodaySummary,
     60000
 );
+
+function initOpdServiceDateFilter() {
+    const input = document.getElementById('opd-service-date');
+    const todayBtn = document.getElementById('opd-service-date-today');
+    const title = document.getElementById('opd-selected-date-title');
+
+    if (!input) return;
+
+    const today = new Date();
+    const todayString =
+        today.getFullYear() + '-' +
+        String(today.getMonth() + 1).padStart(2, '0') + '-' +
+        String(today.getDate()).padStart(2, '0');
+
+    input.max = todayString;
+    input.value = todayString;
+
+    function refreshDateSummary() {
+        const selected = input.value || todayString;
+
+        if (title) {
+            title.textContent =
+                'ผู้มารับบริการตรวจโรคทั่วไป วันที่ ' +
+                formatThaiDate(selected);
+        }
+
+        loadOpdTodaySummary();
+        loadPttypeChart();
+    }
+
+    input.addEventListener('change', refreshDateSummary);
+
+    if (todayBtn) {
+        todayBtn.addEventListener('click', function () {
+            input.value = todayString;
+            refreshDateSummary();
+        });
+    }
+
+    refreshDateSummary();
+}
+
+initOpdServiceDateFilter();
 
 document.getElementById(
     'budget-year'
