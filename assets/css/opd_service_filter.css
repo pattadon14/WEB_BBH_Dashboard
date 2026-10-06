@@ -1,0 +1,42 @@
+/* OPD daily service date filter */
+.opd-summary-date-filter {
+    min-width: 270px;
+    margin-left: auto;
+    margin-bottom: 12px;
+    padding: 9px 12px;
+    border: 1px solid #d9e7df;
+    border-radius: 10px;
+    background: #f8fbf9;
+}
+.opd-summary-date-filter label {
+    display: block;
+    margin-bottom: 5px;
+    color: #198754;
+    font-size: 14px;
+    font-weight: 600;
+}
+.opd-summary-date-controls {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+.opd-summary-date-controls input {
+    min-width: 0;
+    height: 38px;
+    border-color: #b9d9c8;
+}
+.opd-summary-date-controls button {
+    height: 38px;
+    white-space: nowrap;
+    font-weight: 600;
+}
+@media (max-width: 767px) {
+    .opd-summary-date-filter {
+        width: 100%;
+        min-width: 0;
+        margin-left: 0;
+    }
+    .opd-summary-date-controls {
+        flex-wrap: wrap;
+    }
+}
