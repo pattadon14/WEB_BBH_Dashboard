@@ -6,6 +6,12 @@ require_once '../config/database.php';
 
 try {
 
+    $targetDate = $_GET['date'] ?? date('Y-m-d');
+    $dateObj = DateTime::createFromFormat('Y-m-d', $targetDate);
+    if (!$dateObj || $dateObj->format('Y-m-d') !== $targetDate) {
+        throw new Exception('วันที่ไม่ถูกต้อง');
+    }
+
     $sql = "
 
     SELECT
@@ -18,7 +24,7 @@ try {
     LEFT JOIN pttype pt
         ON pt.pttype = ov.pttype
 
-    WHERE ov.vstdate = CURRENT_DATE
+    WHERE ov.vstdate = :targetDate
 
     GROUP BY
         ov.pttype,
@@ -28,7 +34,8 @@ try {
 
     ";
 
-    $stmt = $conn->query($sql);
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([':targetDate' => $targetDate]);
 
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
