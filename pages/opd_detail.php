@@ -42,7 +42,7 @@ include '../templates/sidebar.php';
                                     </div>
 
                                     <div class="opd-summary-main-info">
-                                        <div class="opd-summary-title">
+                                        <div class="opd-summary-title" id="opd-selected-date-title">
                                             ผู้มารับบริการตรวจโรคทั่วไปวันนี้
                                         </div>
                                         <div class="opd-summary-total-label">
@@ -50,7 +50,20 @@ include '../templates/sidebar.php';
                                         </div>
                                     </div>
 
-                                    <div class="opd-summary-main-number">
+                                    <div class="opd-summary-date-filter">
+                                    <label for="opd-service-date">
+                                        <i class="fa-solid fa-calendar-day"></i>
+                                        เลือกวันที่
+                                    </label>
+                                    <div class="opd-summary-date-controls">
+                                        <input type="date" id="opd-service-date" class="form-control">
+                                        <button type="button" id="opd-service-date-today" class="btn btn-outline-success">
+                                            วันนี้
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="opd-summary-main-number">
                                         <span id="opd_total_today">—</span>
                                         <small>คน</small>
                                     </div>
