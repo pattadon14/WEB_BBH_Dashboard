@@ -6,6 +6,13 @@ require_once '../config/database.php';
 
 try {
 
+    $targetDate = $_GET['date'] ?? date('Y-m-d');
+
+    $dateObj = DateTime::createFromFormat('Y-m-d', $targetDate);
+    if (!$dateObj || $dateObj->format('Y-m-d') !== $targetDate) {
+        throw new Exception('วันที่ไม่ถูกต้อง');
+    }
+
     /*
     =========================
     OPD Summary Query หลัก
@@ -39,7 +46,7 @@ try {
                 FROM oapp oa
                 LEFT JOIN clinic cl ON cl.clinic = oa.clinic
                 LEFT JOIN patient p  ON p.hn      = oa.hn
-                WHERE oa.nextdate       = CURRENT_DATE
+                WHERE oa.nextdate       = :targetDate
                   AND cl.active_status  = 'Y'
                   AND (p.death = 'N' OR p.death IS NULL)
                   AND oa.clinic IN (
@@ -66,7 +73,7 @@ try {
                         THEN 1
                     END) AS evening
                 FROM ovst
-                WHERE vstdate = CURRENT_DATE
+                WHERE vstdate = :targetDate
                   AND main_dep IN (
                         '002','009','010','021','023','029','036','076','080','088','096','108','109',
 						'110','111','115','121','125','126','127','128','129','130','131','134','144',
@@ -77,7 +84,8 @@ try {
             ) opd
     ";
 
-    $stmt  = $conn->query($sql_summary);
+    $stmt  = $conn->prepare($sql_summary);
+    $stmt->execute([':targetDate' => $targetDate]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$result) {
@@ -104,7 +112,7 @@ try {
     FROM
         opd_qs_slot o1 
     WHERE
-        o1.schedule_date = CURRENT_DATE 
+        o1.schedule_date = :targetDate 
         AND o1.opd_queue_slot_type_id IN ( 1, 2, 3 ) 
         AND o1.call_status = 'N'
         AND (
@@ -117,7 +125,8 @@ try {
         );
     ";
 
-    $stmt       = $conn->query($sql_wait_triage);
+    $stmt       = $conn->prepare($sql_wait_triage);
+    $stmt->execute([':targetDate' => $targetDate]);
     $wait_row   = $stmt->fetch(PDO::FETCH_ASSOC);
     $wait_triage = $wait_row['wait_triage'] ?? 0;
 
@@ -133,11 +142,12 @@ try {
                 '009','010','036','058','086',
                 '108','109','111','125','126','162'
             )
-          AND o2.vstdate  = CURRENT_DATE
+          AND o2.vstdate  = :targetDate
           AND o2.cur_dep != '999'
     ";
 
-    $stmt      = $conn->query($sql_wait_exam);
+    $stmt      = $conn->prepare($sql_wait_exam);
+    $stmt->execute([':targetDate' => $targetDate]);
     $exam_row  = $stmt->fetch(PDO::FETCH_ASSOC);
     $wait_exam = $exam_row['wait_exam'] ?? 0;
 
@@ -149,7 +159,7 @@ try {
 
     $sql_finish_exam = "SELECT COUNT(*) AS finish_exam
         FROM ovst o
-        WHERE o.vstdate  = CURRENT_DATE
+        WHERE o.vstdate  = :targetDate
           AND o.main_dep IN (
                       '002','009','010','021','023','029','036','058',
                       '061','076','086','088','108','109','110','111',
@@ -159,7 +169,8 @@ try {
           AND o.cur_dep = '999'
     ";
 
-    $stmt        = $conn->query($sql_finish_exam);
+    $stmt        = $conn->prepare($sql_finish_exam);
+    $stmt->execute([':targetDate' => $targetDate]);
     $finish_row  = $stmt->fetch(PDO::FETCH_ASSOC);
     $finish_exam = $finish_row['finish_exam'] ?? 0;
 
