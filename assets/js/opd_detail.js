@@ -13,7 +13,12 @@ function formatThaiDate(dateString) {
 
 function getSelectedServiceDate() {
     const input = document.getElementById('opd-service-date');
-    return input ? input.value : '';
+    if (input && input.value) return input.value;
+
+    const today = new Date();
+    return today.getFullYear() + '-' +
+        String(today.getMonth() + 1).padStart(2, '0') + '-' +
+        String(today.getDate()).padStart(2, '0');
 }
 
 async function loadChart() {
