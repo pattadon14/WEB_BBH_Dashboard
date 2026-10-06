@@ -5,6 +5,7 @@ include '../templates/sidebar.php';
 ?>
 
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_tabs.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_service_filter.css">
 
 <div class="content-wrapper">
     <section class="content pt-3">
