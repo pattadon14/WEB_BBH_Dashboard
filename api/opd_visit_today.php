@@ -107,22 +107,10 @@ try {
     ==========================
     */
 
-    $sql_wait_triage = "SELECT COUNT
-        ( DISTINCT vn ) AS wait_triage 
-    FROM
-        opd_qs_slot o1 
-    WHERE
-        o1.schedule_date = :targetDate 
-        AND o1.opd_queue_slot_type_id IN ( 1, 2, 3 ) 
-        AND o1.call_status = 'N'
-        AND (
-            (
-                doctor_code IN ( '106', '125', '004', '083', '118', '049', '011' ) 
-                AND COALESCE ( opd_qs_schedule_tmpl_type_id, 2 ) = 2 
-                AND slot_register = 'Y' 
-            ) 
-        OR ( doctor_code IN ( '0798', '0785', '0784', '0735', '0804' ) AND COALESCE ( opd_qs_schedule_tmpl_type_id, 1 ) = 1 AND slot_register = 'Y' ) 
-        );
+    $sql_wait_triage = "SELECT COUNT(*) AS wait_triage
+        FROM ovst
+        WHERE vstdate = :targetDate
+        AND cur_dep = '207'
     ";
 
     $stmt       = $conn->prepare($sql_wait_triage);
