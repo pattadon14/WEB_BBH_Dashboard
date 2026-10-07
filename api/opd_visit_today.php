@@ -124,15 +124,15 @@ try {
     ==========================
     */
 
-    $sql_wait_exam = "SELECT COUNT(*) AS wait_exam
-        FROM ovst o2
-        WHERE o2.cur_dep IN (
-                '009','010','036','058','086',
-                '108','109','111','125','126','162'
-            )
-          AND o2.vstdate  = :targetDate
-          AND o2.cur_dep != '999'
-    ";
+    $sql_wait_exam = "SELECT
+        COUNT(*) AS wait_exam
+    FROM ovst o2
+    WHERE o2.cur_dep IN (
+        '009', '010', '036', '058', '086',
+        '108', '109', '111', '125', '126', '162', '223'
+    )
+    AND o2.vstdate = :targetDate
+";
 
     $stmt      = $conn->prepare($sql_wait_exam);
     $stmt->execute([':targetDate' => $targetDate]);
