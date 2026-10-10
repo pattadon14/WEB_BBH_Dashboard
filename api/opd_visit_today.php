@@ -108,10 +108,13 @@ try {
     */
 
     $sql_wait_triage = "SELECT COUNT(*) AS wait_triage
-        FROM ovst
-        WHERE vstdate = :targetDate
-        AND cur_dep = '207'
-    ";
+    FROM ovst ov
+    LEFT JOIN ipt ip ON ip.vn = ov.vn
+    WHERE ov.vstdate = :targetDate
+      AND ov.cur_dep IN ('002', '021', '023', '061', '088', '110', '130', '134', '144', '201', '207', '224')
+      AND ov.main_dep IN ('002', '021', '023', '061', '088', '110', '130', '134', '144', '201', '207', '224')
+      AND ov.an IS NULL
+";
 
     $stmt       = $conn->prepare($sql_wait_triage);
     $stmt->execute([':targetDate' => $targetDate]);
