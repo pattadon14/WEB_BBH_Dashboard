@@ -127,14 +127,33 @@ try {
     ==========================
     */
 
-    $sql_wait_exam = "SELECT
-        COUNT(*) AS wait_exam
-    FROM ovst o2
-    WHERE o2.cur_dep IN (
-        '009', '010', '036', '058', '086',
-        '108', '109', '111', '125', '126', '162', '223'
-    )
-    AND o2.vstdate = :targetDate
+    $sql_wait_exam = "SELECT COUNT(*) AS wait_exam
+    --     ov.vn,
+    --     ov.hn,
+    --     ov.an,
+    --     ov.vstdate,
+    --     ov.vsttime,
+    --     ov.ovstost,
+    --     ot.name,
+    --     ov.spclty,
+    --     ov.cur_dep,
+    --     ksk_cur.department AS cur_dep_name,
+    --     ov.main_dep,
+    --     ksk_main.department AS main_dep_name
+    FROM ovst ov
+    LEFT JOIN kskdepartment ksk_cur
+        ON ksk_cur.depcode = ov.cur_dep
+    LEFT JOIN kskdepartment ksk_main
+        ON ksk_main.depcode = ov.main_dep
+    LEFT JOIN ovstost ot
+        ON ot.ovstost = ov.ovstost
+    WHERE
+        ov.cur_dep IN (
+            '009', '010', '036', '058', '086',
+            '108', '109', '111', '125', '126',
+            '162', '223'
+        )
+        AND ov.vstdate = :targetDate
 ";
 
     $stmt      = $conn->prepare($sql_wait_exam);
