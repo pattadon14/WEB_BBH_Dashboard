@@ -6,6 +6,8 @@ include 'templates/sidebar.php';
 
 ?>
 
+<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_monitor.css">
+
 <div class="content-wrapper">
 
     <section class="content pt-3">
@@ -59,11 +61,13 @@ include 'templates/sidebar.php';
 
                         </div>
 
-                        <div class="icon">
-
-                            <i class="fas fa-stethoscope"></i>
-
-                        </div>
+                        <a href="pages/opd_monitor.php"
+                           class="opd-monitor-launch"
+                           title="เปิด OPD Real-time 3D Monitor"
+                           aria-label="เปิด OPD Real-time 3D Monitor">
+                            <i class="fa-solid fa-display"></i>
+                            <span class="sr-only">เปิด OPD Real-time 3D Monitor</span>
+                        </a>
 
                         <a href="pages/opd_detail.php" class="small-box-footer">
 
