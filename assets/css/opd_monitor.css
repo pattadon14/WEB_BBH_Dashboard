@@ -28,7 +28,7 @@
     transform: translateY(-2px);
     box-shadow: 0 8px 18px rgba(25,135,84,.28);
 }
-.small-box .inner { padding-right: 90px; }
+.opd-monitor-card .inner { padding-right: 90px; }
 .opd-monitor-page { background: #f2f6f5; min-height: calc(100vh - 70px); color: #243c34; }
 .opd-monitor-page .content { padding-bottom: 24px; }
 .monitor-page-header {
