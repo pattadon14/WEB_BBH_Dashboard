@@ -28,7 +28,7 @@ include 'templates/sidebar.php';
 
                 <div class="col-lg-4 col-md-6 col-12 mb-2">
 
-                    <div class="small-box elevation-3">
+                    <div class="small-box elevation-3 opd-monitor-card">
 
                         <div class="inner">
 
