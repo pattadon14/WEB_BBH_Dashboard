@@ -30,15 +30,32 @@
 
     function renderMarkers() {
         const group = $('monitor-map-markers');
+        const filter = $('monitor-status-filter').value;
         group.innerHTML = services.map((item) => {
             const state = stateFor(item);
             const [x,y] = item.marker;
-            return `<g class="map-marker" data-service="${item.id}" tabindex="0" role="button" aria-label="${item.name}: รอ ${item.waiting} คน" style="color:${stateColor(state)}">
+            const hidden = filter !== 'all' && state !== filter;
+            return `<g class="map-marker ${hidden ? 'is-filtered-out' : ''} ${selectedId === item.id ? 'is-selected' : ''}" data-service="${item.id}" tabindex="0" role="button" aria-label="${item.name}: รอ ${item.waiting} คน" style="color:${stateColor(state)}">
                 <circle class="marker-halo" cx="${x}" cy="${y}" r="17"></circle>
                 <circle class="marker-core" cx="${x}" cy="${y}" r="9"></circle>
                 <text x="${x+13}" y="${y-11}">${item.waiting} คน</text>
             </g>`;
         }).join('');
+
+        document.querySelectorAll('.map-room[data-service]').forEach((room) => {
+            const item = getService(room.dataset.service);
+            if (!item) return;
+            const state = stateFor(item);
+            const roomHidden = filter !== 'all' && state !== filter;
+            room.classList.toggle('is-filtered-out', roomHidden);
+            room.classList.toggle('is-selected', selectedId === item.id);
+            const floor = room.querySelector('.room-floor');
+            if (floor) {
+                const fills = {green:'#dff3e7', amber:'#fff0cc', red:'#ffe1e4'};
+                floor.setAttribute('fill', fills[state]);
+                floor.setAttribute('stroke', stateColor(state));
+            }
+        });
     }
 
     function renderServiceList() {
@@ -153,7 +170,10 @@
             selectService(event.target.dataset.service);
         }
     });
-    $('monitor-status-filter').addEventListener('change', renderServiceList);
+    $('monitor-status-filter').addEventListener('change', function () {
+        renderMarkers();
+        renderServiceList();
+    });
     $('monitor-refresh').addEventListener('click', refreshMockData);
     window.setInterval(updateClock, 1000);
     updateClock();
