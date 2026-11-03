@@ -7,8 +7,9 @@ include 'templates/sidebar.php';
 ?>
 
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_monitor.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/index.css">
 
-<div class="content-wrapper">
+<div class="content-wrapper home-dash">
 
     <section class="content pt-3">
 
@@ -19,11 +20,16 @@ include 'templates/sidebar.php';
                  ============================================ -->
             <div class="row mt-2">
 
-                <div class="col-12 mb-2">
+                <div class="col-12 mb-2 d-flex align-items-center flex-wrap">
                     <h5 class="text-success mb-0" style="font-weight:bold;">
                         <i class="fa-solid fa-gauge-high"></i>
                         ภาพรวมวันนี้
                     </h5>
+                    <div class="live-status" role="status" aria-live="polite">
+                        <span class="live-dot" aria-hidden="true"></span>
+                        <span class="live-label">LIVE</span>
+                        <span id="last-updated">กำลังโหลดข้อมูล...</span>
+                    </div>
                 </div>
 
                 <div class="col-lg-4 col-md-6 col-12 mb-2">
@@ -652,6 +658,20 @@ include 'templates/sidebar.php';
 <script src="https://code.highcharts.com/modules/heatmap.js"></script>
 <script src="assets/js/dashboard.js"></script>
 <script>
+// เรียกหลังโหลดข้อมูลสำเร็จเท่านั้น ถ้า API ล่ม เวลาจะค้างไว้ที่ครั้งล่าสุดที่ได้ข้อมูลจริง
+function markUpdated() {
+
+    const now = new Date();
+
+    document.getElementById('last-updated').textContent =
+        'ข้อมูล ณ วันที่ ' +
+        now.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) +
+        ' เวลา ' +
+        now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) +
+        ' น.';
+
+}
+
 async function loadWardBed() {
 
     try {
@@ -766,6 +786,8 @@ async function loadWardBed() {
             'ward-container'
         ).innerHTML = html;
 
+        markUpdated();
+
     } catch (error) {
 
         console.error(error);
@@ -826,6 +848,8 @@ async function loadBedSummary() {
     document.getElementById('occupancy').innerHTML =
         data.occupancy + '%';
 
+    markUpdated();
+
 }
 
 loadBedSummary();
@@ -878,6 +902,8 @@ async function loadServiceSummary() {
 
     document.getElementById('ct_total').innerHTML =
         data.ct_total + ' ราย';
+
+    markUpdated();
 
 }
 

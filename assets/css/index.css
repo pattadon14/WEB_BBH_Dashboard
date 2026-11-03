@@ -1,0 +1,361 @@
+/* =========================================================
+   HOME (index.php) — modern refresh, BBH green theme
+   ทุก selector อยู่ใต้ .home-dash เพื่อไม่กระทบหน้าอื่นที่ใช้ custom.css
+========================================================= */
+.home-dash {
+    --bbh-green: #198754;
+    --bbh-green-dark: #146c43;
+    --bbh-green-soft: #e8f5ee;
+    --bbh-text: #24433a;
+    --bbh-muted: #6b7f78;
+    --bbh-shadow: 0 1px 2px rgba(16, 60, 40, .06), 0 6px 18px rgba(16, 60, 40, .08);
+    --bbh-shadow-hover: 0 4px 10px rgba(16, 60, 40, .10), 0 16px 32px rgba(16, 60, 40, .14);
+    background: linear-gradient(180deg, #eef6f2 0, #f4f6f9 320px);
+}
+
+/* ---------- Section headings ---------- */
+.home-dash .col-12 > h5.text-success {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.55rem;
+    color: var(--bbh-text) !important;
+}
+
+.home-dash .col-12 > h5.text-success i {
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bbh-green);
+    color: #fff;
+    font-size: 1.05rem;
+    box-shadow: 0 4px 10px rgba(25, 135, 84, .25);
+}
+
+.home-dash .col-12.d-flex > h5.text-success {
+    flex: 1;
+}
+
+/* ---------- Live status ---------- */
+.home-dash .live-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 12px;
+    padding: 4px 14px 4px 12px;
+    border-radius: 999px;
+    background: #fff;
+    border: 1px solid rgba(25, 135, 84, .18);
+    box-shadow: var(--bbh-shadow);
+    font-size: 1.4rem;
+    color: var(--bbh-muted);
+    white-space: nowrap;
+}
+
+.home-dash .live-dot {
+    position: relative;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #22c55e;
+}
+
+.home-dash .live-dot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: #22c55e;
+    animation: bbh-live-pulse 1.6s ease-out infinite;
+}
+
+.home-dash .live-label {
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: var(--bbh-green);
+}
+
+@keyframes bbh-live-pulse {
+    from { transform: scale(1); opacity: .7; }
+    to   { transform: scale(2.8); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .home-dash .live-dot::after {
+        animation: none;
+    }
+}
+
+.home-dash .col-12 > h5.text-success::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    margin-left: 6px;
+    background: linear-gradient(90deg, rgba(25, 135, 84, .35), transparent);
+}
+
+/* ---------- KPI cards (OPD / Admit / ER) ---------- */
+.home-dash .small-box {
+    border-radius: 18px;
+    border: 1px solid rgba(25, 135, 84, .10);
+    box-shadow: var(--bbh-shadow);
+    min-height: 0;
+}
+
+.home-dash .small-box::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 5px;
+    background: linear-gradient(90deg, var(--bbh-green), #3cc48a);
+    z-index: 3;
+}
+
+.home-dash .small-box:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--bbh-shadow-hover);
+}
+
+.home-dash .small-box .inner {
+    padding: 22px 96px 14px 22px;
+}
+
+.home-dash .small-box h3 {
+    font-size: 4.2rem !important;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -.5px;
+}
+
+.home-dash .small-box .kpi-title {
+    font-size: 1.9rem !important;
+    color: var(--bbh-text) !important;
+}
+
+.home-dash .small-box .kpi-sub {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 2px 12px;
+    border-radius: 999px;
+    background: var(--bbh-green-soft);
+    font-size: 1.6rem !important;
+    color: var(--bbh-green) !important;
+}
+
+/* ไอคอนมุมขวาบนให้เป็นกล่องเดียวกับปุ่มเปิด 3D Monitor */
+.home-dash .small-box .icon {
+    top: 18px;
+    right: 18px;
+    width: 62px;
+    height: 62px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bbh-green-soft);
+}
+
+.home-dash .small-box .icon i {
+    position: static;
+    font-size: 1.9rem;
+    color: var(--bbh-green);
+}
+
+.home-dash .small-box:hover .icon i {
+    font-size: 1.9rem;
+}
+
+.home-dash .opd-monitor-launch {
+    top: 18px;
+    right: 18px;
+    background: var(--bbh-green-soft);
+}
+
+.home-dash .small-box-footer {
+    background: linear-gradient(90deg, var(--bbh-green), #1e9e64) !important;
+    font-size: 1.35rem;
+    padding: 8px;
+}
+
+.home-dash .small-box-footer i {
+    transition: transform .2s ease;
+}
+
+.home-dash .small-box-footer:hover i {
+    transform: translateX(4px);
+}
+
+/* ---------- Heatmap card ---------- */
+.home-dash .card.shadow-sm {
+    border-radius: 18px;
+    border: 1px solid rgba(25, 135, 84, .10);
+    box-shadow: var(--bbh-shadow) !important;
+}
+
+.home-dash .card.shadow-sm .summary-card {
+    border-radius: 14px;
+    box-shadow: none;
+    background: #fafcfb;
+    padding: 16px 20px;
+}
+
+/* ---------- Bed/service wrapper: ให้การ์ดลอยบนพื้นหลังแทนการ์ดซ้อนการ์ด ---------- */
+.home-dash .card.shadow-lg {
+    background: transparent;
+    border: 0;
+    box-shadow: none !important;
+}
+
+.home-dash .card.shadow-lg > .card-body {
+    padding: 0;
+}
+
+/* ---------- Bed summary (left) ---------- */
+.home-dash .bed-summary-card {
+    border-radius: 18px;
+    background: linear-gradient(135deg, var(--bbh-green) 0%, #1f9d6a 100%);
+    box-shadow: var(--bbh-shadow);
+}
+
+.home-dash .summary-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    font-size: 1.9rem;
+    background: rgba(255, 255, 255, .18);
+    border: 1px solid rgba(255, 255, 255, .25);
+}
+
+.home-dash .summary-item {
+    padding: 10px 20px;
+    border-bottom-color: #eef2f0;
+    transition: background .15s ease;
+}
+
+.home-dash .summary-item:hover {
+    background: #f6fbf8;
+}
+
+.home-dash .summary-item .badge {
+    min-width: 84px;
+    font-weight: 600;
+}
+
+/* ---------- Ward cards (center) ---------- */
+.home-dash .ward-card {
+    border-radius: 16px;
+    border-left: 6px solid;
+    padding: 14px 16px;
+    box-shadow: var(--bbh-shadow);
+}
+
+.home-dash .ward-card:hover {
+    box-shadow: var(--bbh-shadow-hover);
+}
+
+.home-dash .ward-icon {
+    top: 14px;
+    right: 14px;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+}
+
+/* พื้นหลังจาง ๆ ตามสีสถานะ (ใช้ currentColor จาก text-*) */
+.home-dash .ward-icon::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: currentColor;
+    opacity: .12;
+}
+
+.home-dash .ward-name {
+    padding-right: 60px;
+    line-height: 1.15;
+}
+
+.home-dash .ward-detail {
+    font-size: 19px;
+    color: var(--bbh-muted);
+}
+
+.home-dash .ward-percent {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--bbh-text);
+    margin-bottom: 4px;
+}
+
+.home-dash .ward-progress {
+    height: 8px;
+    background: #edf1ef;
+}
+
+/* ---------- Other services (right) ---------- */
+.home-dash .service-summary-card {
+    border-radius: 18px;
+    box-shadow: var(--bbh-shadow);
+}
+
+.home-dash .service-header {
+    font-size: 1.6rem;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--bbh-green-soft);
+}
+
+.home-dash .service-item {
+    padding: 8px 10px;
+    border-bottom: 0;
+    border-radius: 12px;
+    transition: background .15s ease;
+}
+
+.home-dash .service-item:hover {
+    background: #f3faf6;
+}
+
+.home-dash .service-name i {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bbh-green-soft);
+    font-size: 1.05rem;
+}
+
+.home-dash .service-total {
+    background: var(--bbh-green-soft);
+    color: var(--bbh-green);
+    font-size: 1.3rem;
+    font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 576px) {
+    .home-dash .small-box h3 {
+        font-size: 3.4rem !important;
+    }
+
+    .home-dash .small-box .kpi-title {
+        font-size: 1.6rem !important;
+    }
+
+    .home-dash .small-box .kpi-sub {
+        font-size: 1.3rem !important;
+        border-radius: 12px;
+    }
+
+    .home-dash .live-status {
+        margin: 8px 0 0;
+        white-space: normal;
+    }
+}
