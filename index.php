@@ -1,5 +1,8 @@
 <?php
 
+// navbar.php แสดงป้าย LIVE เฉพาะหน้าที่ตั้งค่านี้ (เวลาอัปเดตโดย markUpdated() ด้านล่าง)
+$showLiveStatus = true;
+
 include 'templates/header.php';
 include 'templates/navbar.php';
 include 'templates/sidebar.php';
@@ -20,16 +23,11 @@ include 'templates/sidebar.php';
                  ============================================ -->
             <div class="row mt-2">
 
-                <div class="col-12 mb-2 d-flex align-items-center flex-wrap">
+                <div class="col-12 mb-2">
                     <h5 class="text-success mb-0" style="font-weight:bold;">
                         <i class="fa-solid fa-gauge-high"></i>
                         ภาพรวมวันนี้
                     </h5>
-                    <div class="live-status" role="status" aria-live="polite">
-                        <span class="live-dot" aria-hidden="true"></span>
-                        <span class="live-label">LIVE</span>
-                        <span id="last-updated">กำลังโหลดข้อมูล...</span>
-                    </div>
                 </div>
 
                 <div class="col-lg-4 col-md-6 col-12 mb-2">
@@ -67,12 +65,18 @@ include 'templates/sidebar.php';
 
                         </div>
 
+                        <div class="icon">
+
+                            <i class="fa-solid fa-stethoscope"></i>
+
+                        </div>
+
                         <a href="pages/opd_monitor.php"
                            class="opd-monitor-launch"
                            title="เปิด OPD Real-time 3D Monitor"
                            aria-label="เปิด OPD Real-time 3D Monitor">
-                            <i class="fa-solid fa-display"></i>
-                            <span class="sr-only">เปิด OPD Real-time 3D Monitor</span>
+                            <i class="fa-solid fa-cube"></i>
+                            <span>3D Monitor</span>
                         </a>
 
                         <a href="pages/opd_detail.php" class="small-box-footer">
@@ -121,7 +125,7 @@ include 'templates/sidebar.php';
 
                         <div class="icon">
 
-                            <i class="fas fa-bed"></i>
+                            <i class="fa-solid fa-hospital-user"></i>
 
                         </div>
                         <a href="pages/ipd_detail.php" class="small-box-footer">
@@ -170,7 +174,7 @@ include 'templates/sidebar.php';
 
                         <div class="icon">
 
-                            <i class="fas fa-ambulance"></i>
+                            <i class="fa-solid fa-truck-medical"></i>
 
                         </div>
                         <a href="pages/ER_detail.php" class="small-box-footer">
@@ -273,7 +277,7 @@ include 'templates/sidebar.php';
 
                                             <div class="summary-icon">
 
-                                                <i class="fa-solid fa-square-poll-vertical"></i>
+                                                <i class="fa-solid fa-chart-simple"></i>
 
                                             </div>
 
@@ -419,7 +423,7 @@ include 'templates/sidebar.php';
 
                                                 <div class="service-name">
 
-                                                    <i class="fa-solid fa-microscope"></i>
+                                                    <i class="fa-solid fa-video"></i>
                                                     ห้องส่องกล้อง
 
                                                 </div>
@@ -436,7 +440,7 @@ include 'templates/sidebar.php';
 
                                                 <div class="service-name">
 
-                                                    <i class="fa-solid fa-user-doctor"></i>
+                                                    <i class="fa-solid fa-mask-face"></i>
                                                     ห้องผ่าตัด
 
                                                 </div>
@@ -453,7 +457,7 @@ include 'templates/sidebar.php';
 
                                                 <div class="service-name">
 
-                                                    <i class="fa-solid fa-dumbbell"></i>
+                                                    <i class="fa-solid fa-person-walking"></i>
                                                     กายภาพบำบัด
 
                                                 </div>
@@ -470,7 +474,7 @@ include 'templates/sidebar.php';
 
                                                 <div class="service-name">
 
-                                                    <i class="fa-solid fa-leaf"></i>
+                                                    <i class="fa-solid fa-mortar-pestle"></i>
                                                     แพทย์แผนไทย
 
                                                 </div>
@@ -520,7 +524,7 @@ include 'templates/sidebar.php';
 
                                                 <div class="service-name">
 
-                                                    <i class="fa-solid fa-bandage"></i>
+                                                    <i class="fa-solid fa-syringe"></i>
                                                     ห้องทำแผล-ฉีดยา
 
                                                 </div>
@@ -553,7 +557,7 @@ include 'templates/sidebar.php';
 
                                                 <div class="service-name">
 
-                                                    <i class="fa-solid fa-bed-pulse"></i>
+                                                    <i class="fa-solid fa-user-clock"></i>
                                                     Observe ER
 
                                                 </div>
@@ -587,7 +591,7 @@ include 'templates/sidebar.php';
 
                                                 <div class="service-name">
 
-                                                    <i class="fa-solid fa-baby"></i>
+                                                    <i class="fa-solid fa-person-pregnant"></i>
                                                     LR
 
                                                 </div>
@@ -670,6 +674,33 @@ function markUpdated() {
         now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) +
         ' น.';
 
+    // จอเล็กซ่อนข้อความยาว ให้ดูเวลาได้จาก tooltip
+    document.getElementById('live-status').title =
+        document.getElementById('last-updated').textContent;
+
+}
+
+// ไอคอนตามชื่อ Ward ชุดเดียวกับเมนู IPD ใน templates/sidebar.php (ลำดับสำคัญ: "หลังคลอด" ต้องมาก่อน "คลอด")
+const WARD_ICONS = [
+    [/พิเศษ/, 'fa-door-open'],
+    [/หลังคลอด|^pp/i, 'fa-person-breastfeeding'],
+    [/ทารก|snb/i, 'fa-baby'],
+    [/เด็ก/, 'fa-child'],
+    [/stroke/i, 'fa-brain'],
+    [/icu/i, 'fa-heart-pulse'],
+    [/ศัลย/, 'fa-user-doctor'],
+    [/หญิง/, 'fa-person-dress'],
+    [/ชาย/, 'fa-person'],
+    [/คลอด|^lr/i, 'fa-person-pregnant'],
+    [/home/i, 'fa-house-user']
+];
+
+function wardIcon(name) {
+
+    const hit = WARD_ICONS.find(([re]) => re.test(String(name || '').trim()));
+
+    return hit ? hit[1] : 'fa-bed';
+
 }
 
 async function loadWardBed() {
@@ -739,7 +770,7 @@ async function loadWardBed() {
 
                     <div class="ward-icon text-${colorClass}">
 
-                        <i class="fas fa-bed"></i>
+                        <i class="fa-solid ${wardIcon(ward.name)}"></i>
 
                     </div>
 

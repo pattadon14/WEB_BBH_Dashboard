@@ -13,7 +13,12 @@
 body {
     font-family: 'THSarabun', sans-serif;
     font-size: 24px;
-    background-color: #f4f6f9;
+    background-color: #f3f7f5;
+}
+
+/* พื้นหลังทุกหน้า: เขียวอ่อนจาง ๆ ด้านบน ไล่ลงเป็นเทาอ่อน */
+.content-wrapper {
+    background: linear-gradient(180deg, #eaf5ef 0, #f3f7f5 360px) !important;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -150,20 +155,116 @@ h1, h2, h3, h4, h5, h6 {
     background-color: #c0c0c0 !important;
 }
 
-/* Navbar หลัก */
+/* Navbar หลัก: ขาวโปร่งแสง + เส้นไล่สีเขียวบาง ๆ ด้านล่าง */
 .custom-navbar {
-    background-color: #ffffff !important;
-    border-bottom: 4px solid #198754;
+    background-color: rgba(255, 255, 255, .92) !important;
+    backdrop-filter: saturate(160%) blur(8px);
+    -webkit-backdrop-filter: saturate(160%) blur(8px);
+    border-bottom: 0;
+    box-shadow: 0 1px 0 rgba(25, 135, 84, .12), 0 6px 20px rgba(16, 60, 40, .06);
     min-height: 65px;
     padding: 0.5rem 1rem;
 }
 
+.custom-navbar::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #198754, #3cc48a 60%, rgba(60, 196, 138, 0));
+}
+
 /* ชื่อระบบ */
 .custom-navbar .navbar-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
     color: #198754 !important;
     font-size: 2rem;
     font-weight: bold;
     margin-left: 8px;
+}
+
+.custom-navbar .brand-mark {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #198754, #3cc48a);
+    color: #fff;
+    font-size: 1rem;
+    box-shadow: 0 4px 10px rgba(25, 135, 84, .25);
+}
+
+/* ป้าย LIVE ใน navbar (แสดงเมื่อหน้านั้นตั้ง $showLiveStatus) */
+.custom-navbar .live-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 6px;
+    padding: 4px 14px 4px 12px;
+    border-radius: 999px;
+    background: #f2fbf5;
+    border: 1px solid rgba(25, 135, 84, .18);
+    font-size: 1.15rem;
+    color: #6b7f78;
+    white-space: nowrap;
+}
+
+.custom-navbar .live-dot {
+    position: relative;
+    flex: 0 0 auto;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #22c55e;
+}
+
+.custom-navbar .live-dot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: #22c55e;
+    animation: bbh-live-pulse 1.6s ease-out infinite;
+}
+
+.custom-navbar .live-label {
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: #198754;
+}
+
+@keyframes bbh-live-pulse {
+    from { transform: scale(1); opacity: .7; }
+    to   { transform: scale(2.8); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .custom-navbar .live-dot::after {
+        animation: none;
+    }
+}
+
+@media (max-width: 1199px) {
+    .custom-navbar #last-updated {
+        display: none;
+    }
+}
+
+@media (max-width: 767px) {
+    .custom-navbar .brand-mark,
+    .custom-navbar .live-label {
+        display: none;
+    }
+
+    .custom-navbar .live-status {
+        padding: 8px;
+    }
 }
 
 /* ปุ่มเมนู */
@@ -276,8 +377,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .card {
-    border: 1px solid #dfe6e9;
-    border-radius: 12px;
+    border: 1px solid rgba(25, 135, 84, .10);
+    border-radius: 16px;
 }
 
 /* =========================

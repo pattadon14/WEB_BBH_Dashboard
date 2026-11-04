@@ -31,8 +31,17 @@ foreach (($_SESSION['provider_auth']['organization'] ?? []) as $organization) {
     </ul>
 
     <a href="<?= BASE_URL ?>" class="navbar-brand fw-bold">
+        <span class="brand-mark" aria-hidden="true"><i class="fa-solid fa-heart-pulse"></i></span>
         BBH DASHBOARD (โรงพยาบาลบ้านบึง)
     </a>
+
+    <?php if (!empty($showLiveStatus)): ?>
+        <div class="live-status" id="live-status" role="status" aria-live="polite">
+            <span class="live-dot" aria-hidden="true"></span>
+            <span class="live-label">LIVE</span>
+            <span id="last-updated">กำลังโหลดข้อมูล...</span>
+        </div>
+    <?php endif; ?>
 
     <ul class="navbar-nav ms-auto align-items-center">
         <li class="nav-item mr-3">

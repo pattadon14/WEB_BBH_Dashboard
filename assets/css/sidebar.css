@@ -41,7 +41,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: #198754;
+    background: linear-gradient(135deg, #198754 0%, #23a26b 100%);
     color: #fff;
     box-shadow: 0 2px 8px rgba(25, 135, 84, .15);
     position: relative;
@@ -167,7 +167,7 @@
 .bbh-sidebar-menu a:hover i { color: #157347; }
 
 .bbh-sidebar-menu a.active {
-    background: #198754;
+    background: linear-gradient(135deg, #198754, #23a26b);
     color: #fff;
     border-color: #198754;
     box-shadow: 0 3px 9px rgba(25, 135, 84, .18);
