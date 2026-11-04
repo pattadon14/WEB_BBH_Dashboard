@@ -6,6 +6,7 @@
 require_once __DIR__ . '/../auth/provider.php';
 require_once __DIR__ . '/../config/app.php';
 
+date_default_timezone_set('Asia/Bangkok');   // เซิร์ฟเวอร์เป็น UTC
 $today = date('Y-m-d');
 $d = $_GET['d'] ?? $today;
 if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $d) || $d > $today) {

@@ -38,8 +38,18 @@ check('classify dent', $deps['DEN']['group'], 'DENT');
 // OPD ทั่วไป: ลงทะเบียน → ซักประวัติ → รอหน้าห้องตรวจ → ห้องตรวจ 3 → ห้องยา → ส่งกลับบ้าน
 [$s, $e] = flow_segments(row(['reg' => 480.0, 's4' => 490.0, 's11' => 500.0, 's5' => 530.0, 'd5' => 'R03',
     's12' => 540.0, 's16' => 560.0, 'home' => 565.0, 'md' => 'OPD']), $deps, $idx, null);
-check('opd segments', $s, [[480.0, 'REG'], [490.0, 'SCR'], [500.0, 'DRW'], [530.0, 'R3'], [540.0, 'RX']]);
+check('opd segments', $s, [[480.0, 'REG'], [483.0, 'SCR'], [500.0, 'DRW'], [530.0, 'R3'], [540.0, 'RX']]);
 check('opd exit = send-home time', $e, 565.0);
+
+// แบบบ้านบึง: ไม่มีเวลาส่งตรวจ/คัดกรองเสร็จ/ตรวจเสร็จ → ประมาณขั้นที่ขาด แล้วอยู่ห้องตรวจจนถึงห้องยา
+[$s, $e] = flow_segments(row(['reg' => 480.0, 's4' => 500.0, 's5' => 560.0, 's6' => 585.0, 's7' => 580.0,
+    's16' => 600.0, 'md' => 'OPD']), $deps, $idx, null);
+check('banbung estimated steps', $s, [[480.0, 'REG'], [483.0, 'SCR'], [505.0, 'DRW'], [560.0, 'R2'], [580.0, 'RX']]);
+check('banbung exit after dispense', $e, 602.0);
+
+// ไปรษณีย์ / PCU = ไม่ได้มา รพ.
+check('classify remote post', flow_classify('ส่งเวชภัณฑ์ทางไปรษณีย์'), 'REMOTE');
+check('classify remote pcu', flow_classify('PCU การเงิน'), 'REMOTE');
 
 // ER: ลงทะเบียนที่ ER, อยู่ 20 นาทีหลังเข้า ER แล้วออก
 [$s, $e] = flow_segments(row(['reg' => 600.0, 'er_in' => 605.0, 'er_out' => 625.0, 'md' => 'EMR']), $deps, $idx, null);

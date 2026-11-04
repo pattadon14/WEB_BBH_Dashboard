@@ -9,7 +9,14 @@
  * ไฟล์นี้ไม่ต่อฐานข้อมูลเอง (endpoint require config/database.php) จึงทดสอบ flow_segments() แยกได้
  */
 
+// เซิร์ฟเวอร์ตั้งเป็น UTC — วันที่/นาทีปัจจุบันต้องเป็นเวลาไทยให้ตรงกับเวลาใน HOSxP
+date_default_timezone_set('Asia/Bangkok');
+
 const FLOW_MAX_TOTAL = 600;     // นาที — เวลาที่บันทึกเกินลงทะเบียน + 10 ชม. = กดผิดวัน ไม่นับ
+// บ้านบึงไม่บันทึก "ส่งไปจุดซักประวัติ" และ "คัดกรองเสร็จ → ส่งพบแพทย์" จึงประมาณ (นาที):
+// ส่งไปซักประวัติ = ลงทะเบียน + 3 · คัดกรองเสร็จ = เริ่มคัดกรอง + 5 (ไม่งั้นคนรอคัดกรองไปนั่งที่เวชระเบียน)
+const FLOW_EST_SEND = 3;
+const FLOW_EST_SCREEN = 5;
 
 // (รหัส, ชื่อที่แสดง, เป้าหมายนาที) — เป้าหมายใช้ระบายสี: ≤ เป้า เขียว · เกิน ส้ม · ≥ 1.5 เท่า แดง
 const FLOW_AREAS = [
@@ -49,6 +56,7 @@ const FLOW_OPEN_AHEAD = 5;
 
 // กลุ่มแผนกจากชื่อใน kskdepartment (ตัวแรกที่ตรงชนะ) — รหัสแผนกแต่ละ รพ. ไม่เหมือนกัน
 const FLOW_DEP_RULES = [
+    ['REMOTE', '/ไปรษณีย์|^pcu\b/iu'],     // ผู้ป่วยไม่ได้มา รพ. (ส่งยาทางไปรษณีย์, PCU)
     ['ADMIN', '/เวชระเบียน/u'],
     ['RX', '/จ่ายยา|เภสัช|^ห้องยา/iu'],
     ['CASH', '/เก็บเงิน|การเงิน|ชำระเงิน/u'],
@@ -69,9 +77,16 @@ const FLOW_DEP_RULES = [
 // กลุ่มที่ผังของบ้านบึงรวมไว้จุดเดียวกัน
 const FLOW_GROUP_AREA = ['NCD' => 'SCR', 'ARI' => 'SCR', 'CASH' => 'RX', 'SPEC' => 'DRW', 'MH' => 'DRW', 'TELE' => 'DRW'];
 
-// คอลัมน์มาตรฐานของ service_time (ความหมายตามแบบ รพ.วังน้ำเขียว) — แก้ทับได้ด้วย .env FLOW_ST_MAP
-// เช่น FLOW_ST_MAP=service4:service1,service11:service2,service20:none
+// คอลัมน์มาตรฐานของ service_time (ความหมายตามแบบ รพ.วังน้ำเขียว):
+// service3 ส่งตรวจ · service4 เริ่มคัดกรอง · service11 คัดกรองเสร็จ · service5 แพทย์เริ่มตรวจ · service12 แพทย์ตรวจเสร็จ
+// service6 ใบสั่งยาถึงห้องยา · service7 ชำระเงิน · service16 จ่ายยาเสร็จ · service20 จบบริการหน่วยเฉพาะ
 const FLOW_ST_STD = ['service3', 'service4', 'service11', 'service5', 'service12', 'service6', 'service7', 'service16', 'service20'];
+// บ้านบึงกดเวลาคนละคอลัมน์ — ตรวจจาก api/opd_flow_check.php (7 วัน ถึง 4 พ.ย. 2569, 7,865 visit):
+// service1 คัดกรอง +22 น. · service2 ห้องตรวจแพทย์ +88 · service5 ห้องจ่ายยา +111 · service6 การเงิน +104
+// service7 ห้องจ่ายยา +131 · service9 ทันตกรรม/กายภาพ +118 · service3 = คัดกรอง ER (ใช้ er_regist แทน)
+// แก้ทับได้ด้วย .env FLOW_ST_MAP รูปแบบเดียวกัน
+const FLOW_ST_MAP_DEFAULT = 'service3:none,service4:service1,service11:none,service5:service2,service12:none,'
+    . 'service6:service5,service7:service6,service16:service7,service20:service9';
 
 function flow_env(string $key, string $default = ''): string
 {
@@ -123,7 +138,7 @@ function flow_group(array $deps, ?string $dep): ?string
 function flow_st_table(): string
 {
     $map = [];
-    foreach (explode(',', flow_env('FLOW_ST_MAP')) as $part) {
+    foreach (explode(',', flow_env('FLOW_ST_MAP') ?: FLOW_ST_MAP_DEFAULT) as $part) {
         if (strpos($part, ':') === false) {
             continue;
         }
@@ -207,6 +222,13 @@ function flow_segments(array $r, array $deps, array $idx, ?float $now): array
 {
     $reg = $r['reg'];
     $md = $r['md'];
+    // ขั้นที่บ้านบึงไม่บันทึก — ประมาณ (FLOW_EST_*) เฉพาะเมื่อมีเวลาขั้นถัดไปจริง
+    if ($r['s3'] === null && $r['s4'] !== null && $r['s4'] > $reg + FLOW_EST_SEND && flow_group($deps, $md) !== 'ER') {
+        $r['s3'] = $reg + FLOW_EST_SEND;
+    }
+    if ($r['s11'] === null && $r['s4'] !== null && $r['s5'] !== null && $r['s5'] > $r['s4'] + FLOW_EST_SCREEN) {
+        $r['s11'] = $r['s4'] + FLOW_EST_SCREEN;
+    }
     $scr = flow_unit($deps, $idx, $r['d4'] ?: $md, 'SCR');
     $exam = flow_unit($deps, $idx, $r['d5'] ?: ($r['d12'] ?: $md), 'DRW');
     if (in_array($exam, ['RX', 'LAB', 'XRAY', 'REG'], true)) {

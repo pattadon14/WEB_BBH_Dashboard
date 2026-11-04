@@ -67,7 +67,7 @@ try {
     // Telemed (ผู้ป่วยอยู่นอก รพ.) · FLOW_REMOTE_DEPS=none = วาดทุกคน
     $remoteEnv = flow_env('FLOW_REMOTE_DEPS', '-');
     $remoteDeps = $remoteEnv === '-'
-        ? array_keys(array_filter($deps, fn($x) => $x['group'] === 'TELE'))
+        ? array_keys(array_filter($deps, fn($x) => in_array($x['group'], ['TELE', 'REMOTE'], true)))
         : (strtolower(trim($remoteEnv)) === 'none' ? [] : array_map('trim', explode(',', $remoteEnv)));
 
     $now = $isToday ? (int) date('G') * 60 + (int) date('i') : null;
