@@ -24,7 +24,8 @@ $loggedIn = provider_is_logged_in();
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_monitor.css">
+    <!-- ?v= เวลาแก้ไฟล์ — กันเบราว์เซอร์ใช้ไฟล์เก่าจากแคช -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_monitor.css?v=<?= filemtime(__DIR__ . '/../assets/css/opd_monitor.css') ?>">
 </head>
 <body>
 <canvas id="map" aria-label="ผังผู้ป่วยนอกแบบ 3 มิติ"></canvas>
@@ -130,6 +131,6 @@ window.FLOW = {
     loggedIn: <?= $loggedIn ? 'true' : 'false' ?>
 };
 </script>
-<script src="<?= BASE_URL ?>assets/js/opd_monitor.js"></script>
+<script src="<?= BASE_URL ?>assets/js/opd_monitor.js?v=<?= filemtime(__DIR__ . '/../assets/js/opd_monitor.js') ?>"></script>
 </body>
 </html>
