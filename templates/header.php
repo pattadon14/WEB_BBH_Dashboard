@@ -24,8 +24,7 @@ require_once __DIR__ . '/../config/app.php';
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/sidebar.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/ipd_ward_detail.css">
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="<?= BASE_URL ?>assets/AdminLTE/plugins/fontawesome-free/css/all.min.css">
+    <!-- Font Awesome 6 (รองรับ class แบบ fas/far ของ v5 ด้วย) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <!-- OPD page styles -->

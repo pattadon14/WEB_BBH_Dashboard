@@ -2,10 +2,7 @@
 
 <script>window.BBH_CURRENT_FISCAL_YEAR = <?= date('Y') + 543 + (date('n') >= 10 ? 1 : 0) ?>;</script>
 
-<script src="<?= BASE_URL ?>assets/AdminLTE/plugins/jquery/jquery.min.js"></script>
-
-<script src="<?= BASE_URL ?>assets/AdminLTE/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-
+<!-- AdminLTE 4 เป็น vanilla JS ไม่ต้องใช้ jQuery และโค้ดของเว็บไม่ได้ใช้ Bootstrap JS (modal/sidebar เขียนเอง) -->
 <script src="<?= BASE_URL ?>assets/AdminLTE/dist/js/adminlte.min.js"></script>
 
 <!-- BBH Sidebar -->
