@@ -20,11 +20,11 @@
   // wait = จุดรอหน้าห้องของห้องตรวจนี้, door = ทางเข้าเฉพาะ (ไม่ใช้ประตูอาคาร)
   // cap = ที่นั่งรอจริงของบ้านบึง (แจ้งโดยหน่วยงาน 4 พ.ย. 2569) · queue = ยืนต่อแถว ไม่มีเก้าอี้ ไม่คิดความหนาแน่น
   var BLD = {
-    OPD: { name: 'อาคารผู้ป่วยนอก', r: [0, 34, 72, 44], door: [65, 34], sign: [14, 82] },
-    ERB: { name: 'อาคารอุบัติเหตุ', r: [30, 0, 70, 30], door: [50, 30], sign: [96, -7] },
-    ARI: { name: 'อาคาร ARI', r: [78, 36, 22, 14], door: [100, 43], sign: [115, 43] },
-    TTM: { name: 'อาคารแพทย์แผนไทย', r: [78, 53, 22, 13], door: [100, 59.5], sign: [115, 59.5] },
-    PT:  { name: 'อาคารกายภาพบำบัด', r: [78, 69, 22, 13], door: [100, 75.5], sign: [115, 75.5] }
+    OPD: { name: 'อาคารผู้ป่วยนอก', r: [0, 34, 72, 44], door: [65, 34], sign: [30, 80] },
+    ERB: { name: 'อาคารอุบัติเหตุ', r: [30, 0, 70, 30], door: [50, 30], sign: [101, 7.5] },
+    ARI: { name: 'อาคาร ARI', r: [78, 36, 22, 14], door: [100, 43], sign: [101, 39.5] },
+    TTM: { name: 'อาคารแพทย์แผนไทย', r: [78, 53, 22, 13], door: [100, 59.5], sign: [101, 56] },
+    PT:  { name: 'อาคารกายภาพบำบัด', r: [78, 69, 22, 13], door: [100, 75.5], sign: [101, 72] }
   };
   var LAYOUT = {
     // อาคารผู้ป่วยนอก: บริการร่วมชิดทางเข้า · ฝั่ง walk-in (บน) · ฝั่งผู้ป่วยนัด (ล่าง)
@@ -346,26 +346,52 @@
   var statics = [];
   function buildStatics() {
     statics = [];
-    var WH = 1.25;
-    function wallX(x0, x1, y) {
+    // ผนังกั้นห้องในอาคาร (โปร่งแสง เตี้ย) — ผนังนอกอาคารใช้ฟังก์ชันเดียวกันแต่สูง/หนากว่า และเว้นช่องประตู
+    var WH = 1.1;
+    var IN = { h: WH, t: 0.12, face: 'rgba(255,255,255,.82)', side: 'rgba(236,241,247,.88)', cap: '#d3dbe6' };
+    function nearDoor(doors, mx, my) {
+      return doors && doors.some(function (d) { return Math.abs(d[0] - mx) < 1.7 && Math.abs(d[1] - my) < 1.7; });
+    }
+    function wallX(x0, x1, y, st, doors) {
+      st = st || IN;
       for (var x = x0; x < x1 - 0.001; x += 1) {
         (function (xa, xb) {
+          if (nearDoor(doors, (xa + xb) / 2, y)) return;
           statics.push({ k: (xa + xb) / 2 + y - 0.05, draw: function () {
-            poly([[xa, y, 0], [xb, y, 0], [xb, y, WH], [xa, y, WH]], 'rgba(255,255,255,.9)', null);
-            poly([[xa, y - 0.15, WH], [xb, y - 0.15, WH], [xb, y, WH], [xa, y, WH]], '#c9d3e1');
+            poly([[xa, y, 0], [xb, y, 0], [xb, y, st.h], [xa, y, st.h]], st.face, null);
+            poly([[xa, y - st.t, st.h], [xb, y - st.t, st.h], [xb, y, st.h], [xa, y, st.h]], st.cap);
           } });
         })(x, Math.min(x + 1, x1));
       }
     }
-    function wallY(y0, y1, x) {
+    function wallY(y0, y1, x, st, doors) {
+      st = st || IN;
       for (var y = y0; y < y1 - 0.001; y += 1) {
         (function (ya, yb) {
+          if (nearDoor(doors, x, (ya + yb) / 2)) return;
           statics.push({ k: x + (ya + yb) / 2 - 0.05, draw: function () {
-            poly([[x, ya, 0], [x, yb, 0], [x, yb, WH], [x, ya, WH]], 'rgba(238,242,248,.92)', null);
-            poly([[x - 0.15, ya, WH], [x, ya, WH], [x, yb, WH], [x - 0.15, yb, WH]], '#c9d3e1');
+            poly([[x, ya, 0], [x, yb, 0], [x, yb, st.h], [x, ya, st.h]], st.side, null);
+            poly([[x - st.t, ya, st.h], [x, ya, st.h], [x, yb, st.h], [x - st.t, yb, st.h]], st.cap);
           } });
         })(y, Math.min(y + 1, y1));
       }
+    }
+    // ผนังนอกอาคาร: ด้านหลัง/ซ้ายสูง (เห็นเป็นตัวตึก) · ด้านหน้า/ขวาเป็นขอบเตี้ย (ตัดให้มองเห็นข้างใน)
+    var BACK = { h: 2.6, t: 0.35, face: '#f7f9fa', side: '#e8edf1', cap: WALL_TOP };
+    var FRONT = { h: 0.45, t: 0.3, face: '#e3e9ee', side: '#d5dde4', cap: WALL_TOP };
+    Object.keys(BLD).forEach(function (id) {
+      var r = BLD[id].r, doors = [BLD[id].door];
+      areas.forEach(function (a) { if (a.L.b === id && a.L.door) doors.push(a.L.door); });
+      wallX(r[0], r[0] + r[2], r[1], BACK, doors);
+      wallY(r[1], r[1] + r[3], r[0], BACK, doors);
+      wallX(r[0], r[0] + r[2], r[1] + r[3], FRONT, doors);
+      wallY(r[1], r[1] + r[3], r[0] + r[2], FRONT, doors);
+      var sg = BLD[id].sign;
+      statics.push({ k: sg[0] + sg[1] + 0.5, draw: function () { drawSign(BLD[id].name, sg[0], sg[1]); } });
+    });
+    function onEdge(a) {   // ผนังห้องที่ทับผนังนอกอาคาร ไม่ต้องวาดซ้ำ
+      var r = (BLD[a.L.b] || {}).r || [-1, -1];
+      return { x: Math.abs(a.y - r[1]) < 0.01, y: Math.abs(a.x - r[0]) < 0.01 };
     }
     function counter(x, y, w) {
       var cw = Math.min(w - 2, 7), cx2 = x + (w - cw) / 2;
@@ -382,8 +408,9 @@
     });
     areas.forEach(function (a) {
       if (!a.L.open) {
-        wallX(a.x, a.x + a.w, a.y);
-        wallY(a.y, a.y + a.d, a.x);
+        var e = onEdge(a);
+        if (!e.x) wallX(a.x, a.x + a.w, a.y);
+        if (!e.y) wallY(a.y, a.y + a.d, a.x);
       }
       if (a.L.counter) counter(a.x, a.y, a.w);
       if (a.L.room) {
@@ -397,14 +424,9 @@
         } });
       }
       a.chairs.forEach(function (c) {
-        statics.push({ k: c[0] + c[1] - 0.2, draw: function () {
-          var x = c[0] - 0.28, y = c[1] - 0.25;
-          box(x, y, 0, 0.56, 0.5, 0.42, '#38bdf8', '#0e8fcc', '#0b7fb8');
-          box(x, y - 0.12, 0.42, 0.56, 0.12, 0.42, '#5ccbfa', '#0e8fcc', '#0b7fb8');
-        } });
+        statics.push({ k: c[0] + c[1] - 0.2, draw: function () { drawChair(c[0], c[1]); } });
       });
     });
-    // ผนังด้านหน้าอาคาร (ขอบสีเขียวตามธีม) วาดเป็นเส้นบนพื้น ไม่บังหุ่น
     TREES.forEach(function (t) {
       statics.push({ k: t[0] + t[1], draw: function () {
         var b = P(t[0], t[1], 0);
@@ -418,6 +440,33 @@
         ctx.beginPath(); ctx.arc(c[0], c[1], 1.05 * cam.k, 0, 7); ctx.fill();
       } });
     });
+  }
+
+  // เก้าอี้รอตรวจ: ขาโลหะ + เบาะ + พนักพิง (โทนฟ้าอ่อน ไม่แย่งสายตาจากหุ่น)
+  function drawChair(cx, cy) {
+    var x = cx - 0.26, y = cy - 0.22;
+    var b = P(cx, cy + 0.1, 0);
+    ctx.fillStyle = 'rgba(15,42,92,.07)';
+    ctx.beginPath(); ctx.ellipse(b[0], b[1], 0.42 * cam.k, 0.2 * cam.k, 0, 0, 7); ctx.fill();
+    box(x + 0.05, y + 0.36, 0, 0.05, 0.05, 0.3, '#a8b4c4', '#8291a5', '#6b7a8f');
+    box(x + 0.42, y + 0.36, 0, 0.05, 0.05, 0.3, '#a8b4c4', '#8291a5', '#6b7a8f');
+    box(x, y, 0.3, 0.52, 0.44, 0.08, '#9bd0f2', '#5ba3d6', '#4b92c6');
+    box(x + 0.02, y - 0.04, 0.38, 0.48, 0.08, 0.4, '#7fbfea', '#5ba3d6', '#4b92c6');
+    box(x + 0.02, y - 0.04, 0.78, 0.48, 0.08, 0.02, '#b9e0f8', '#7fbfea', '#7fbfea');
+  }
+  // ป้ายชื่ออาคารบนเสา หน้าทางเข้า
+  function drawSign(text, x, y) {
+    var t = P(x, y, 2.4), g = P(x, y, 0);
+    ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = Math.max(1.5, cam.k * 0.07);
+    ctx.beginPath(); ctx.moveTo(g[0], g[1]); ctx.lineTo(t[0], t[1]); ctx.stroke();
+    var f = Math.round(Math.max(10, Math.min(13, cam.k * 0.75)));
+    ctx.font = '500 ' + f + 'px Kanit, sans-serif';
+    var w = ctx.measureText(text).width + 14, h = f + 9;
+    ctx.fillStyle = 'rgba(15,42,92,.12)'; roundRect(t[0] - w / 2 + 1, t[1] - h + 2, w, h, 5); ctx.fill();
+    ctx.fillStyle = 'rgba(31,157,106,.92)'; roundRect(t[0] - w / 2, t[1] - h, w, h, 5); ctx.fill();
+    ctx.fillStyle = '#ffffff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(text, t[0], t[1] - h / 2 + 1);
+    ctx.textAlign = 'left';
   }
 
   function drawPerson(p) {
@@ -516,17 +565,15 @@
     });
     ZONES.forEach(function (z) {
       var r = z.r, c = [P(r[0], r[1], 0.005), P(r[0] + r[2], r[1], 0.005), P(r[0] + r[2], r[1] + r[3], 0.005), P(r[0], r[1] + r[3], 0.005)];
-      ctx.fillStyle = z.c + '12'; ctx.strokeStyle = z.c; ctx.lineWidth = Math.max(1.5, cam.k * 0.12);
-      ctx.setLineDash([cam.k * 0.6, cam.k * 0.4]);
+      ctx.fillStyle = z.c + '10';
       ctx.beginPath(); ctx.moveTo(c[0][0], c[0][1]); for (var zi = 1; zi < 4; zi++) ctx.lineTo(c[zi][0], c[zi][1]);
-      ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.setLineDash([]);
+      ctx.closePath(); ctx.fill();
     });
     DECOR.forEach(function (o) { rect(o.r[0], o.r[1], o.r[2], o.r[3], 0.002, FLOOR[o.kind], 'rgba(15,42,92,.10)'); });
     areas.forEach(function (a) {
       rect(a.x, a.y, a.w, a.d, 0.002, FLOOR[a.L.kind] || '#f4f7f8', 'rgba(15,42,92,.10)');
       var t = tint(a);
       if (t) rect(a.x, a.y, a.w, a.d, 0.003, t);
-      if (a.n && !a.L.room) rect(a.x, a.y + a.d - 0.3, a.w, 0.3, 0.004, COL[a.lv]);
     });
 
     var items = statics.slice();
@@ -537,35 +584,23 @@
       var it = items[i];
       if (it.p) drawPerson(it.p); else if (it.doc) drawDoctor(it.doc); else it.draw();
     }
-    // ขอบอาคารสีเขียวธีม (ทับบนสุด อ่านผังง่ายเหมือนภาพตัวอย่าง)
-    BUILDINGS.forEach(function (b) {
-      ctx.lineWidth = Math.max(2, cam.k * 0.28); ctx.strokeStyle = WALL_TOP; ctx.lineJoin = 'round';
-      var c = [P(b[0], b[1] + b[3], 0.02), P(b[0], b[1], 1.3), P(b[0] + b[2], b[1], 1.3), P(b[0] + b[2], b[1] + b[3], 0.02)];
-      ctx.beginPath(); ctx.moveTo(c[0][0], c[0][1]); for (var j = 1; j < 4; j++) ctx.lineTo(c[j][0], c[j][1]);
-      ctx.closePath(); ctx.stroke();
-    });
-
-    var fs = Math.round(Math.max(12, Math.min(17, cam.k * 1.1)));
-    // ชื่ออาคารและชื่อโซน
+    // ป้ายข้อความเล็กและโปร่ง ให้เห็นผังชัด
+    var fs = Math.round(Math.max(11, Math.min(14, cam.k * 0.85)));
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
-    Object.keys(BLD).forEach(function (id) {
-      var p = P(BLD[id].sign[0], BLD[id].sign[1], 0);   // ป้ายวางนอกตัวอาคาร ไม่ทับป้ายจุดบริการ
-      ctx.font = '600 ' + (fs + 1) + 'px Kanit, sans-serif';
-      ctx.lineWidth = 4; ctx.strokeStyle = '#ffffff'; ctx.strokeText(BLD[id].name, p[0], p[1]);
-      ctx.fillStyle = WALL_TOP; ctx.fillText(BLD[id].name, p[0], p[1]);
-    });
     if (cam.k >= 6) ZONES.forEach(function (z) {
       var p = P(z.r[0] + 1.2, z.r[1] + z.r[3] / 2, 0.01);
-      ctx.font = '600 ' + (fs - 1) + 'px Kanit, sans-serif';
-      ctx.lineWidth = 4; ctx.strokeStyle = '#ffffff'; ctx.strokeText(z.name, p[0], p[1]);
+      ctx.font = '500 ' + (fs - 1) + 'px Kanit, sans-serif';
+      ctx.globalAlpha = 0.7;
+      ctx.lineWidth = 3; ctx.strokeStyle = '#ffffff'; ctx.strokeText(z.name, p[0], p[1]);
       ctx.fillStyle = z.c; ctx.fillText(z.name, p[0], p[1]);
+      ctx.globalAlpha = 1;
     });
     ctx.textAlign = 'left';
     if (cam.k >= 9) DECOR.forEach(function (o) {
       var p = P(o.r[0] + o.r[2] * 0.5, o.r[1] + o.r[3] * 0.5, 0.2);
       ctx.font = '500 ' + (fs - 1) + 'px Kanit, sans-serif';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillStyle = 'rgba(71,85,105,.7)'; ctx.fillText(o.name, p[0], p[1]);
+      ctx.fillStyle = 'rgba(71,85,105,.45)'; ctx.fillText(o.name, p[0], p[1]);
       ctx.textAlign = 'left';
     });
     drawLabels(fs);
@@ -609,7 +644,7 @@
       placed.push(b);
     });
     placed.forEach(function (b) {
-      ctx.strokeStyle = 'rgba(15,42,92,.28)'; ctx.lineWidth = 1.2;
+      ctx.strokeStyle = 'rgba(15,42,92,.16)'; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(b.ax, b.y + b.h); ctx.lineTo(b.ax, b.ay); ctx.stroke();
       renderLabel(b, fs);
     });
@@ -623,25 +658,25 @@
     var cnt = n + ' คน';
     ctx.font = '500 ' + fs + 'px Kanit, sans-serif';
     var nw = ctx.measureText(name).width;
-    ctx.font = '600 ' + (fs - 3) + 'px Kanit, sans-serif';
-    var cw = ctx.measureText(cnt).width + 14;
-    var pad = 10, h = fs + 14;
-    return { name: name, cnt: cnt, n: n, nw: nw, cw: cw, pad: pad, h: h, w: nw + pad * 2 + cw + 6 };
+    ctx.font = '600 ' + (fs - 2) + 'px Kanit, sans-serif';
+    var cw = ctx.measureText(cnt).width + 12;
+    var pad = 8, h = fs + 10;
+    return { name: name, cnt: cnt, n: n, nw: nw, cw: cw, pad: pad, h: h, w: nw + pad * 2 + cw + 5 };
   }
   function renderLabel(b, fs) {
     var x0 = b.x, y0 = b.y, h = b.h, w = b.w;
-    ctx.fillStyle = 'rgba(15,42,92,.10)'; roundRect(x0 + 1, y0 + 2, w, h, 9); ctx.fill();
-    ctx.fillStyle = '#ffffff'; roundRect(x0, y0, w, h, 9); ctx.fill();
+    ctx.fillStyle = 'rgba(15,42,92,.06)'; roundRect(x0 + 1, y0 + 2, w, h, 7); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.8)'; roundRect(x0, y0, w, h, 7); ctx.fill();
     ctx.textBaseline = 'middle';
-    ctx.font = '500 ' + fs + 'px Kanit, sans-serif';
-    ctx.fillStyle = '#1f2937'; ctx.fillText(b.name, x0 + b.pad, y0 + h / 2 + 1);
-    var bx = x0 + b.pad + b.nw + 6;
+    ctx.font = '400 ' + fs + 'px Kanit, sans-serif';
+    ctx.fillStyle = '#475467'; ctx.fillText(b.name, x0 + b.pad, y0 + h / 2 + 1);
+    var bx = x0 + b.pad + b.nw + 5;
     var lv = b.a.nowait || !b.n ? 'ok' : b.a.lv;
     ctx.fillStyle = b.n ? (lv === 'ok' ? '#dcf5e7' : lv === 'mid' ? '#fdefd3' : '#fde1e1') : '#e9f6ef';
-    roundRect(bx, y0 + 5, b.cw, h - 10, (h - 10) / 2); ctx.fill();
-    ctx.font = '600 ' + (fs - 3) + 'px Kanit, sans-serif';
+    roundRect(bx, y0 + 4, b.cw, h - 8, (h - 8) / 2); ctx.fill();
+    ctx.font = '600 ' + (fs - 2) + 'px Kanit, sans-serif';
     ctx.fillStyle = lv === 'ok' ? '#15803d' : lv === 'mid' ? '#b45309' : '#b42318';
-    ctx.fillText(b.cnt, bx + 7, y0 + h / 2 + 1);
+    ctx.fillText(b.cnt, bx + 6, y0 + h / 2 + 1);
   }
   // ห้องตรวจที่ใช้จุดรอ w (หน้าห้องตรวจ walk-in / ผู้ป่วยนัด / คลินิกเด็ก)
   function roomsServed(w) { var s = 0; areas.forEach(function (a) { if (a.L.wait === w.id) s += a.served; }); return s; }
@@ -755,7 +790,7 @@
   // ------------------------------------------------------------------ กล้อง
   function bounds() {
     var xs = [], ys = [];
-    BUILDINGS.concat([ROAD, [104, -8, 14, 92]]).forEach(function (b) {   // + ป้ายชื่ออาคารริมถนน
+    BUILDINGS.concat([ROAD]).forEach(function (b) {
       [[b[0], b[1]], [b[0] + b[2], b[1]], [b[0], b[1] + b[3]], [b[0] + b[2], b[1] + b[3]]].forEach(function (c) {
         xs.push((c[0] - c[1]) * C30); ys.push((c[0] + c[1]) * S30);
       });
