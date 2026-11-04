@@ -49,7 +49,9 @@ check('banbung exit after dispense', $e, 602.0);
 
 // ไปรษณีย์ / PCU = ไม่ได้มา รพ.
 check('classify remote post', flow_classify('ส่งเวชภัณฑ์ทางไปรษณีย์'), 'REMOTE');
-check('classify remote pcu', flow_classify('PCU การเงิน'), 'REMOTE');
+check('classify remote pcu', flow_classify('234 PCU การเงิน'), 'REMOTE');
+check('classify remote post with code', flow_classify('143 ส่งเวชภัณฑ์ทางไปรษณีย์'), 'REMOTE');
+check('classify tele with code', flow_classify('178 Telemedicine'), 'TELE');
 
 // ER: ลงทะเบียนที่ ER, อยู่ 20 นาทีหลังเข้า ER แล้วออก
 [$s, $e] = flow_segments(row(['reg' => 600.0, 'er_in' => 605.0, 'er_out' => 625.0, 'md' => 'EMR']), $deps, $idx, null);
