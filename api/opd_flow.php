@@ -6,6 +6,7 @@
  * "ช่วงเวลาไหน อยู่จุดบริการไหน" ให้หน้าเว็บขยับหุ่นตามเวลา (พอร์ตจาก flow.py ของ opd-dashboard-wnk, MIT)
  *
  * นิยาม (ดูปุ่ม "วิธีคำนวณ" บนหน้าเว็บด้วย):
+ *  - ฝั่งผู้ป่วยนัด = มี oapp.visit_vn = vn (มาตามนัด) · ไม่งั้นฝั่ง walk-in
  *  - นับเป็น visit (ovst.vn) ของวันที่เลือก · ไม่รวม visit ที่ admit (ovst.an) และ Telemed/PCU (pt_subtype ≠ 0)
  *  - ตำแหน่งอนุมานจากขั้นล่าสุดที่บันทึกเวลาแล้ว · เวลาที่เกินลงทะเบียน + 10 ชม. หรือก่อนลงทะเบียน ไม่นับ
  *
@@ -19,7 +20,7 @@ $d = flow_date();
 $today = date('Y-m-d');
 $isToday = $d === $today;
 
-$cacheFile = __DIR__ . '/../storage/cache/opd_flow_' . $d . '.json';
+$cacheFile = __DIR__ . '/../storage/cache/opd_flow_v2_' . $d . '.json';
 $ttl = $isToday ? 45 : 3600;
 if (is_file($cacheFile) && time() - filemtime($cacheFile) < $ttl) {
     header('Content-Type: application/json; charset=utf-8');
@@ -37,9 +38,20 @@ try {
     $deps = flow_deps($conn);
     $st = flow_st_table();
     $m = fn($col) => "EXTRACT(EPOCH FROM $col)/60.0";
-    $xray = flow_has_column($conn, 'xray_report', 'request_time')
-        ? "(SELECT {$m('MIN(x.request_time)')} FROM xray_report x WHERE x.vn = o.vn AND x.request_date = o.vstdate)"
-        : 'NULL';
+    // X-Ray กับ Ultrasound อยู่ใน xray_report เดียวกัน — แยกด้วยชื่อรายการ (xray_items) ถ้าตารางมีคอลัมน์ให้
+    $xr = 'NULL';
+    $us = 'NULL';
+    if (flow_has_column($conn, 'xray_report', 'request_time')) {
+        $base = "FROM xray_report x WHERE x.vn = o.vn AND x.request_date = o.vstdate";
+        if (flow_has_column($conn, 'xray_report', 'xray_items_code') && flow_has_column($conn, 'xray_items', 'xray_items_name')) {
+            $isUs = "EXISTS (SELECT 1 FROM xray_items i WHERE i.xray_items_code = x.xray_items_code
+                AND i.xray_items_name ~* '(ultra|u/s|อัลตร)')";
+            $xr = "(SELECT {$m('MIN(x.request_time)')} $base AND NOT $isUs)";
+            $us = "(SELECT {$m('MIN(x.request_time)')} $base AND $isUs)";
+        } else {
+            $xr = "(SELECT {$m('MIN(x.request_time)')} $base)";
+        }
+    }
 
     $sql = "
         SELECT o.vn, {$m('COALESCE(s.vsttime, o.vsttime)')} reg,
@@ -56,7 +68,8 @@ try {
           (SELECT MAX(e.er_emergency_level_id) FROM er_regist e WHERE e.vn = o.vn) erl,
           (SELECT {$m('MIN(l.order_time)')} FROM lab_head l WHERE l.vn = o.vn AND l.order_date = o.vstdate) lo,
           (SELECT {$m('MIN(l.receive_time)')} FROM lab_head l WHERE l.vn = o.vn AND l.receive_date = o.vstdate) lr,
-          $xray xr
+          $xr xr, $us us,
+          EXISTS (SELECT 1 FROM oapp a WHERE a.visit_vn = o.vn) ap
         FROM ovst o
           LEFT JOIN $st s ON s.vn = o.vn
           LEFT JOIN patient p ON p.hn = o.hn
@@ -120,6 +133,7 @@ try {
             'dr' => $drIdx,
             // บันทึกเวลาครบคู่ = มีทั้งเวลาคัดกรอง (service4) และแพทย์เริ่มตรวจ (service5)
             'q' => ($r['s4'] !== null && $r['s5'] !== null) ? 1 : 0,
+            'a' => $r['ap'] ? 1 : 0,     // ผู้ป่วยนัด
         ];
     }
     usort($visits, fn($a, $b) => strcmp($a['i'], $b['i']));     // เรียงตามรหัสสุ่ม โยงกลับลำดับ vn ไม่ได้

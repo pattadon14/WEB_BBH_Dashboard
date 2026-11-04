@@ -86,6 +86,16 @@ $loggedIn = provider_is_logged_in();
     <div class="remote" id="remote"></div>
 </aside>
 
+<aside class="track card" id="track" hidden aria-live="polite">
+    <header>
+        <span class="tr-icon"><i class="fa-solid fa-location-crosshairs"></i></span>
+        <span class="tr-who"><b id="trName"></b><small id="trHn"></small></span>
+        <button type="button" id="trClose" aria-label="เลิกติดตาม"><i class="fa-solid fa-xmark"></i></button>
+    </header>
+    <div id="trBody"></div>
+    <button type="button" class="trfollow" id="trFollow" hidden><i class="fa-solid fa-video"></i> กล้องติดตามผู้ป่วย</button>
+</aside>
+
 <footer class="legend card">
     <b>ภาพรวมความหนาแน่นของโรงพยาบาล</b>
     <p>สีพื้นบอกระดับความแออัด เขียว ว่าง · เหลือง ปานกลาง · แดง แน่น (คนในจุด ÷ ที่นั่ง)</p>
@@ -126,6 +136,7 @@ $loggedIn = provider_is_logged_in();
 window.FLOW = {
     api: '<?= BASE_URL ?>api/opd_flow.php',
     find: '<?= BASE_URL ?>api/opd_flow_find.php',
+    people: '<?= BASE_URL ?>api/opd_flow_people.php',
     date: '<?= htmlspecialchars($d) ?>',
     today: '<?= $today ?>',
     loggedIn: <?= $loggedIn ? 'true' : 'false' ?>

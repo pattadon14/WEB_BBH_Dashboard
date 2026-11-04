@@ -14,50 +14,70 @@
   var CFG = window.FLOW;
   var $ = function (id) { return document.getElementById(id); };
 
-  // ------------------------------------------------------------------ ผังอาคาร (หน่วย ≈ เมตร)
+  // ------------------------------------------------------------------ ผังโรงพยาบาล (หน่วย ≈ เมตร)
   // x = ไปทางขวาล่างของจอ, y = ไปทางซ้ายล่างของจอ · ผังย่อส่วน ไม่ใช่แบบแปลนจริง
-  // kind = สีพื้น, counter = เคาน์เตอร์ชิดผนังด้านหลัง, cap = ที่นั่งที่ใช้คิดความหนาแน่น,
-  // room = ห้องตรวจ (โต๊ะแพทย์ + เตียง), open = ไม่มีผนังกั้น, door = ทางเข้า
+  // b = อาคาร, kind = สีพื้น, counter = เคาน์เตอร์ชิดผนังด้านหลัง, room = ห้องตรวจ (โต๊ะแพทย์ + เตียง),
+  // wait = จุดรอหน้าห้องของห้องตรวจนี้, door = ทางเข้าเฉพาะ (ไม่ใช้ประตูอาคาร)
   // cap = ที่นั่งรอจริงของบ้านบึง (แจ้งโดยหน่วยงาน 4 พ.ย. 2569) · queue = ยืนต่อแถว ไม่มีเก้าอี้ ไม่คิดความหนาแน่น
-  var LAYOUT = {
-    REG:  { r: [0, 0, 14, 13],   kind: 'hall', counter: true, queue: true },
-    SCR:  { r: [14, 0, 18, 13],  kind: 'hall', counter: true, cap: 100 },   // walk-in 64 + ผู้ป่วยนัด 36
-    LAB:  { r: [32, 0, 14, 13],  kind: 'lab',  counter: true, cap: 20 },
-    XRAY: { r: [46, 0, 12, 13],  kind: 'xray', counter: true, cap: 8 },     // X-Ray 4 + Ultrasound 4
-    RX:   { r: [58, 0, 22, 13],  kind: 'rx',   counter: true, cap: 42 },    // ห้องยา OPD + การเงิน OPD
-    ARI:  { r: [80, 0, 12, 13],  kind: 'er',   counter: true, cap: 38 },    // รอซักประวัติ 12 + รอแพทย์/การเงิน/ยา 26
-    // หน้าห้องตรวจ: ห้อง 1–5 และ 7–10 ห้องละ 3 + ห้อง 6 (เด็ก) 20
-    DRW:  { r: [0, 16, 34, 8],   kind: 'hall', cap: 47 },
-    R1:   { r: [0, 24, 6.8, 6],    kind: 'room', room: true, short: 'ห้อง 1' },
-    R2:   { r: [6.8, 24, 6.8, 6],  kind: 'room', room: true, short: 'ห้อง 2' },
-    R3:   { r: [13.6, 24, 6.8, 6], kind: 'room', room: true, short: 'ห้อง 3' },
-    R4:   { r: [20.4, 24, 6.8, 6], kind: 'room', room: true, short: 'ห้อง 4' },
-    R5:   { r: [27.2, 24, 6.8, 6], kind: 'room', room: true, short: 'ห้อง 5' },
-    R6:   { r: [0, 30, 6.8, 6],    kind: 'room', room: true, short: 'ห้อง 6 เด็ก' },
-    R7:   { r: [6.8, 30, 6.8, 6],  kind: 'room', room: true, short: 'ห้อง 7' },
-    R8:   { r: [13.6, 30, 6.8, 6], kind: 'room', room: true, short: 'ห้อง 8' },
-    R9:   { r: [20.4, 30, 6.8, 6], kind: 'room', room: true, short: 'ห้อง 9' },
-    R10:  { r: [27.2, 30, 6.8, 6], kind: 'room', room: true, short: 'ห้อง 10' },
-    DENT: { r: [34, 16, 16, 20], kind: 'room2', counter: true, cap: 40 },
-    TTM:  { r: [50, 16, 12, 20], kind: 'ttm',  counter: true, cap: 4 },
-    PT:   { r: [62, 16, 12, 20], kind: 'room2', counter: true, cap: 6 },
-    // คัดกรอง 8 + รอแพทย์ 4 + เตียงรอแพทย์ ~7 + Observe 4
-    ER:   { r: [74, 16, 18, 20], kind: 'er',   door: 'er', cap: 23 }
+  var BLD = {
+    OPD: { name: 'อาคารผู้ป่วยนอก', r: [0, 34, 72, 44], door: [65, 34], sign: [14, 82] },
+    ERB: { name: 'อาคารอุบัติเหตุ', r: [30, 0, 70, 30], door: [50, 30], sign: [96, -7] },
+    ARI: { name: 'อาคาร ARI', r: [78, 36, 22, 14], door: [100, 43], sign: [115, 43] },
+    TTM: { name: 'อาคารแพทย์แผนไทย', r: [78, 53, 22, 13], door: [100, 59.5], sign: [115, 59.5] },
+    PT:  { name: 'อาคารกายภาพบำบัด', r: [78, 69, 22, 13], door: [100, 75.5], sign: [115, 75.5] }
   };
-  var DECOR = [];
-  var BUILDINGS = [[0, 0, 92, 36]];
-  var WALKS = [[92, 13.2, 4, 2.6], [92, 24.7, 4, 2.6]];
-  var ROAD = [96, -8, 4, 60];
-  var ROAD_X = 98, SPAWN_Y = 52;
-  var DOORS = { main: { p: [92, 14.5] }, er: { p: [92, 26] } };
-  var TREES = [];
-  for (var tx = 3; tx <= 90; tx += 8) { TREES.push([tx, -4.5]); TREES.push([tx + 3, 40.5]); }
-  for (var ty = 4; ty <= 34; ty += 9) TREES.push([-4.5, ty]);
-  for (var ty2 = -2; ty2 <= 50; ty2 += 8) TREES.push([103.5, ty2]);
-
+  var LAYOUT = {
+    // อาคารผู้ป่วยนอก: บริการร่วมชิดทางเข้า · ฝั่ง walk-in (บน) · ฝั่งผู้ป่วยนัด (ล่าง)
+    REG:  { b: 'OPD', r: [58, 34, 14, 12], kind: 'hall', counter: true, queue: true },
+    CASH: { b: 'OPD', r: [58, 48, 14, 12], kind: 'rx', counter: true, cap: 21 },    // ห้องยา + การเงิน OPD รวม 42
+    RX:   { b: 'OPD', r: [58, 62, 14, 16], kind: 'rx', counter: true, cap: 21 },
+    SCRW: { b: 'OPD', r: [38, 34, 18, 14], kind: 'walk', counter: true, cap: 64 },
+    DRWW: { b: 'OPD', r: [0, 34, 36, 8], kind: 'walk', cap: 15 },                    // ห้อง 1–5 ห้องละ 3
+    R1:   { b: 'OPD', r: [0, 42, 7.2, 6],    kind: 'room', room: true, wait: 'DRWW', short: 'ห้อง 1' },
+    R2:   { b: 'OPD', r: [7.2, 42, 7.2, 6],  kind: 'room', room: true, wait: 'DRWW', short: 'ห้อง 2' },
+    R3:   { b: 'OPD', r: [14.4, 42, 7.2, 6], kind: 'room', room: true, wait: 'DRWW', short: 'ห้อง 3' },
+    R4:   { b: 'OPD', r: [21.6, 42, 7.2, 6], kind: 'room', room: true, wait: 'DRWW', short: 'ห้อง 4' },
+    R5:   { b: 'OPD', r: [28.8, 42, 7.2, 6], kind: 'room', room: true, wait: 'DRWW', short: 'ห้อง 5' },
+    PED:  { b: 'OPD', r: [0, 50, 26, 10], kind: 'ped', counter: true, cap: 20 },    // ซักประวัติ + รอพบแพทย์เด็ก
+    R6:   { b: 'OPD', r: [26, 50, 10, 10], kind: 'room', room: true, wait: 'PED', short: 'ห้อง 6 เด็ก' },
+    SCRA: { b: 'OPD', r: [38, 62, 18, 14], kind: 'appt', counter: true, cap: 36 },
+    DRWA: { b: 'OPD', r: [0, 62, 36, 8], kind: 'appt', cap: 12 },                    // ห้อง 7–10 ห้องละ 3
+    R7:   { b: 'OPD', r: [0, 70, 9, 6],  kind: 'roomA', room: true, wait: 'DRWA', short: 'ห้อง 7' },
+    R8:   { b: 'OPD', r: [9, 70, 9, 6],  kind: 'roomA', room: true, wait: 'DRWA', short: 'ห้อง 8' },
+    R9:   { b: 'OPD', r: [18, 70, 9, 6], kind: 'roomA', room: true, wait: 'DRWA', short: 'ห้อง 9' },
+    R10:  { b: 'OPD', r: [27, 70, 9, 6], kind: 'roomA', room: true, wait: 'DRWA', short: 'ห้อง 10' },
+    // อาคารอุบัติเหตุ
+    DENT: { b: 'ERB', r: [30, 0, 26, 30], kind: 'room2', counter: true, cap: 40 },
+    LAB:  { b: 'ERB', r: [56, 0, 20, 13], kind: 'lab', counter: true, cap: 20 },
+    XRAY: { b: 'ERB', r: [56, 16, 10, 14], kind: 'xray', counter: true, cap: 4 },
+    US:   { b: 'ERB', r: [66, 16, 10, 14], kind: 'xray', counter: true, cap: 4 },
+    // คัดกรอง 8 + รอแพทย์ 4 + เตียงรอแพทย์ ~7 + Observe 4
+    ER:   { b: 'ERB', r: [76, 0, 24, 30], kind: 'er', door: [100, 12], cap: 23 },
+    // อาคารแยก
+    ARI:  { b: 'ARI', r: [78, 36, 22, 14], kind: 'er', counter: true, cap: 38 },     // รอซักประวัติ 12 + รอแพทย์/การเงิน/ยา 26
+    TTM:  { b: 'TTM', r: [78, 53, 22, 13], kind: 'ttm', counter: true, cap: 4 },
+    PT:   { b: 'PT',  r: [78, 69, 22, 13], kind: 'room2', counter: true, cap: 6 }
+  };
+  // โซนในอาคารผู้ป่วยนอก (เส้นประ + ป้ายบนพื้น)
+  var ZONES = [
+    { name: 'ฝั่ง Walk-in', r: [0, 34, 57, 26], c: '#1f9d6a' },
+    { name: 'ฝั่งผู้ป่วยนัด', r: [0, 60.5, 57, 17], c: '#2563eb' }
+  ];
+  var DECOR = [{ name: 'ห้องเจ้าหน้าที่', r: [38, 50, 18, 10], kind: 'decor' }];
+  var STREET_Y = 32, SIDE_X = 102;           // ทางเดินระหว่างอาคาร · ทางเท้าริมถนน
+  var WALKS = [[30, 30.4, 74, 3.2], [100, -8, 4, 100]];
+  var ROAD = [104, -8, 4, 100];
+  var ROAD_X = 106, SPAWN_Y = 90;
+  var BUILDINGS = Object.keys(BLD).map(function (k) { return BLD[k].r; });
+  var TREES = [[6, 6], [16, 14], [6, 24], [20, 3], [22, 24]];
+  for (var tx = 34; tx <= 98; tx += 8) TREES.push([tx, -4.5]);
+  for (var ty = 38; ty <= 76; ty += 8) TREES.push([-4.5, ty]);
+  for (var fx = 3; fx <= 70; fx += 8) TREES.push([fx, 81.5]);
+  for (var ty2 = -2; ty2 <= 88; ty2 += 8) TREES.push([110.5, ty2]);
   var FLOOR = {
     hall: '#fbfcfd', lab: '#f3f0fb', room: '#eef4fc', rx: '#eef8f2', xray: '#eef2f7',
-    er: '#fdf0ef', room2: '#eef7f9', ttm: '#f7f3e8', decor: '#f1f4f7'
+    er: '#fdf0ef', room2: '#eef7f9', ttm: '#f7f3e8', decor: '#f1f4f7',
+    walk: '#f2faf5', appt: '#eef4fd', ped: '#fdf6ec', roomA: '#e8f0fd'
   };
   var WALL_TOP = '#1f9d6a';
 
@@ -94,7 +114,7 @@
   var data = null, areas = [], people = new Map(), occ = null;
   var state = {
     date: CFG.date, live: CFG.date === CFG.today, playing: true, speed: 60,
-    T: 6 * 60, lastT: null, dep: '', find: null, findAt: 0
+    T: 6 * 60, lastT: null, dep: '', find: null, findAt: 0, track: null, follow: false, followAt: 0
   };
 
   var cam = { k: 12, ox: 0, oy: 0 };
@@ -107,7 +127,7 @@
   // ------------------------------------------------------------------ เรขาคณิต
   var spare = 0;
   function spareSpot(id) {   // จุดที่ไม่มีในผัง — เรียงใต้อาคาร
-    var L = { r: [spare++ * 7, 38, 6, 6], kind: 'hall', spare: true };
+    var L = { r: [spare++ * 7, 84, 6, 6], kind: 'hall', spare: true };
     LAYOUT[id] = L;
     return L;
   }
@@ -117,6 +137,7 @@
     areas = data.areas.map(function (a) {
       var L = LAYOUT[a.id] || spareSpot(a.id);
       var r = L.r, x = r[0], y = r[1], w = r[2], d = r[3];
+      var door = L.door || (BLD[L.b] || BLD.OPD).door;
       var seats = [];
       if (L.room) {
         seats = [[x + w / 2, y + d - 3.2], [x + w - 1.0, y + 1.3], [x + w - 1.0, y + 2.6],
@@ -143,7 +164,7 @@
         id: a.id, name: a.name, target: a.target, nowait: !!a.nowait, L: L,
         x: x, y: y, w: w, d: d, cx: x + w / 2, cy: y + d / 2,
         chairs: L.queue ? [] : seats, spots: seats.concat(stand), used: [],
-        door: (DOORS[L.door] || DOORS.main).p, n: 0, avg: 0, max: 0
+        door: door, out: door[0] >= SIDE_X - 2 ? [SIDE_X, door[1]] : [door[0], STREET_Y], n: 0, avg: 0, max: 0
       };
     });
   }
@@ -172,6 +193,12 @@
     return [a.x + 0.6 + f * (a.w - 1.2), a.y + 0.6 + e * (a.d - 1.2)];
   }
 
+  // ทางเดินนอกอาคารจากประตูจุด a ไปประตูจุด b (ทางเดินระหว่างอาคาร y = STREET_Y, ทางเท้าริมถนน x = SIDE_X)
+  function link(a, b) {
+    var mid = a.out[1] === b.out[1] ? [] : [[SIDE_X, a.out[1]], [SIDE_X, b.out[1]]];
+    return [a.door, a.out].concat(mid, [b.out, b.door]);
+  }
+
   function step(dt) {
     var T = state.T;
     // กระโดดเวลา (ลากไทม์ไลน์/เปลี่ยนวัน/เปลี่ยนแผนก) → วางหุ่นใหม่ทันที ไม่ต้องเดิน
@@ -192,7 +219,7 @@
         p = { id: v.i, area: -1, spot: -1, x: 0, y: 0, vis: false, a: 0, enter: 0, sit: false };
         people.set(v.i, p);
       }
-      p.seen = true; p.u = v.u; p.g = v.g; p.dr = v.dr;
+      p.seen = true; p.u = v.u; p.g = v.g; p.dr = v.dr; p.ap = v.a;
       if (T >= v.s[0][0]) { arrived++; qual += v.q; }
       if (T >= v.e) left++;
       var seg = whereAt(v, T);
@@ -210,17 +237,18 @@
         p.area = to; p.spot = -1;
         if (to >= 0) {
           arrivals.push(p);
+          var ta = areas[to];
           if (from < 0 && !p.vis) {
-            var dr = areas[to].door;
-            p.x = ROAD_X; p.y = SPAWN_Y;
-            p.vis = true; p.a = jump ? 1 : 0; p.path = jump ? null : [[ROAD_X, dr[1]], [dr[0], dr[1]]];
+            p.x = SIDE_X; p.y = SPAWN_Y;
+            p.vis = true; p.a = jump ? 1 : 0; p.path = jump ? null : [[SIDE_X, ta.out[1]], ta.out, ta.door];
+          } else if (from >= 0 && !jump && p.vis && areas[from].L.b !== ta.L.b) {
+            p.path = link(areas[from], ta);    // ย้ายอาคาร: ออกประตู → ทางเดิน → เข้าประตูอาคารใหม่
           }
         } else if (p.vis) {
           var src = from >= 0 ? areas[from] : areas[0];
           if (jump) { p.vis = false; }
           else {
-            var sd = src.door;
-            p.path = [[sd[0], sd[1]], [ROAD_X, sd[1]], [ROAD_X, SPAWN_Y]]; p.leaving = true;
+            p.path = [src.door, src.out, [SIDE_X, src.out[1]], [SIDE_X, SPAWN_Y]]; p.leaving = true;
           }
         }
       }
@@ -486,6 +514,13 @@
       box(b[0], b[1], -0.6, b[2], b[3], 0.6, '#ffffff', '#cfd8df', '#bcc7d0');
       rect(b[0], b[1], b[2], b[3], 0.001, '#f4f7f6');
     });
+    ZONES.forEach(function (z) {
+      var r = z.r, c = [P(r[0], r[1], 0.005), P(r[0] + r[2], r[1], 0.005), P(r[0] + r[2], r[1] + r[3], 0.005), P(r[0], r[1] + r[3], 0.005)];
+      ctx.fillStyle = z.c + '12'; ctx.strokeStyle = z.c; ctx.lineWidth = Math.max(1.5, cam.k * 0.12);
+      ctx.setLineDash([cam.k * 0.6, cam.k * 0.4]);
+      ctx.beginPath(); ctx.moveTo(c[0][0], c[0][1]); for (var zi = 1; zi < 4; zi++) ctx.lineTo(c[zi][0], c[zi][1]);
+      ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.setLineDash([]);
+    });
     DECOR.forEach(function (o) { rect(o.r[0], o.r[1], o.r[2], o.r[3], 0.002, FLOOR[o.kind], 'rgba(15,42,92,.10)'); });
     areas.forEach(function (a) {
       rect(a.x, a.y, a.w, a.d, 0.002, FLOOR[a.L.kind] || '#f4f7f8', 'rgba(15,42,92,.10)');
@@ -511,6 +546,21 @@
     });
 
     var fs = Math.round(Math.max(12, Math.min(17, cam.k * 1.1)));
+    // ชื่ออาคารและชื่อโซน
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+    Object.keys(BLD).forEach(function (id) {
+      var p = P(BLD[id].sign[0], BLD[id].sign[1], 0);   // ป้ายวางนอกตัวอาคาร ไม่ทับป้ายจุดบริการ
+      ctx.font = '600 ' + (fs + 1) + 'px Kanit, sans-serif';
+      ctx.lineWidth = 4; ctx.strokeStyle = '#ffffff'; ctx.strokeText(BLD[id].name, p[0], p[1]);
+      ctx.fillStyle = WALL_TOP; ctx.fillText(BLD[id].name, p[0], p[1]);
+    });
+    if (cam.k >= 6) ZONES.forEach(function (z) {
+      var p = P(z.r[0] + 1.2, z.r[1] + z.r[3] / 2, 0.01);
+      ctx.font = '600 ' + (fs - 1) + 'px Kanit, sans-serif';
+      ctx.lineWidth = 4; ctx.strokeStyle = '#ffffff'; ctx.strokeText(z.name, p[0], p[1]);
+      ctx.fillStyle = z.c; ctx.fillText(z.name, p[0], p[1]);
+    });
+    ctx.textAlign = 'left';
     if (cam.k >= 9) DECOR.forEach(function (o) {
       var p = P(o.r[0] + o.r[2] * 0.5, o.r[1] + o.r[3] * 0.5, 0.2);
       ctx.font = '500 ' + (fs - 1) + 'px Kanit, sans-serif';
@@ -520,6 +570,10 @@
     });
     drawLabels(fs);
     if (hover) drawRing(hover, '#0f2a5c');
+    if (state.track) {
+      var tp = people.get(state.track);
+      if (tp && tp.vis) drawRing(tp, '#f59e0b', 1.3 + 0.2 * Math.sin(performance.now() / 300));
+    }
     if (state.find) {
       var pulse = (performance.now() - state.findAt) / 600;
       people.forEach(function (p) {
@@ -563,9 +617,9 @@
 
   function labelName(a) { return a.L.short && cam.k < 24 ? a.L.short : a.name; }
   function measureLabel(a, fs) {
-    var served = a.id === 'DRW' ? roomsServed() : 0;
+    var served = roomsServed(a);
     var name = labelName(a) + (served ? ' · ตรวจแล้ว ' + served : '');
-    var n = a.id === 'DRW' ? a.n + roomsIn() : a.n;
+    var n = a.n + roomsIn(a);
     var cnt = n + ' คน';
     ctx.font = '500 ' + fs + 'px Kanit, sans-serif';
     var nw = ctx.measureText(name).width;
@@ -589,8 +643,9 @@
     ctx.fillStyle = lv === 'ok' ? '#15803d' : lv === 'mid' ? '#b45309' : '#b42318';
     ctx.fillText(b.cnt, bx + 7, y0 + h / 2 + 1);
   }
-  function roomsServed() { var s = 0; areas.forEach(function (a) { if (a.L.room) s += a.served; }); return s; }
-  function roomsIn() { var s = 0; areas.forEach(function (a) { if (a.L.room) s += a.n; }); return s; }
+  // ห้องตรวจที่ใช้จุดรอ w (หน้าห้องตรวจ walk-in / ผู้ป่วยนัด / คลินิกเด็ก)
+  function roomsServed(w) { var s = 0; areas.forEach(function (a) { if (a.L.wait === w.id) s += a.served; }); return s; }
+  function roomsIn(w) { var s = 0; areas.forEach(function (a) { if (a.L.wait === w.id) s += a.n; }); return s; }
 
   // ------------------------------------------------------------------ ชี้ดูเวลารอรายคน (ไม่มีข้อมูลระบุตัวตน)
   function figureCenter(p) {
@@ -627,14 +682,15 @@
     if (!p.vis || p.area < 0) { tip.hidden = true; hover = null; return; }
     var a = areas[p.area], w = state.T - p.enter, tot = state.T - p.total, lv = level(w, a.target);
     var found = state.find && state.find.indexOf(p.id) >= 0 ? '<div class="found">ผู้ป่วยที่ค้นหา</div>' : '';
-    tip.innerHTML = found + '<b>' + a.name + '</b>' +
+    tip.innerHTML = found + whoHtml(p.id) + '<b>' + a.name + '</b>' +
       (a.nowait ? '<div>อยู่ห้องฉุกเฉิน · ไม่คิดเวลารอคิว</div>'
         : a.L.room ? '<div>กำลังพบแพทย์ ' + mins(w) + '</div>'
         : '<div class="w ' + lv + '">' + (MOOD[lv] ? MOOD[lv] + ' ' : '') + 'รอที่จุดนี้ ' + mins(w) + '</div>' +
           '<div>เป้าหมาย ≤ ' + a.target + ' นาที</div>') +
       '<div>อยู่ใน รพ. ' + mins(tot) + '</div>' +
       '<div class="u"><i style="background:' + (SHIRT[p.u] || SHIRT[5]) + '"></i>' + (URG_NAME[p.u] || 'ทั่วไป') +
-      ' · ' + (p.g === 1 ? 'ชาย' : p.g === 2 ? 'หญิง' : 'ไม่ระบุเพศ') + '</div>';
+      ' · ' + (p.g === 1 ? 'ชาย' : p.g === 2 ? 'หญิง' : 'ไม่ระบุเพศ') + ' · ' + (p.ap ? 'ผู้ป่วยนัด' : 'Walk-in') + '</div>' +
+      '<div class="muted">คลิกเพื่อติดตามผู้ป่วยคนนี้</div>';
     var cx = +tip.dataset.x, cy = +tip.dataset.y, tw = tip.offsetWidth, th = tip.offsetHeight;
     var x = cx + 16, y = cy + 16;
     if (x + tw > W - 8) x = cx - tw - 12;
@@ -642,10 +698,64 @@
     tip.style.left = Math.max(8, x) + 'px'; tip.style.top = Math.max(8, y) + 'px';
   }
 
+  // ------------------------------------------------------------------ ชื่อผู้ป่วย (ต้อง login) และติดตามรายคน
+  var names = null, namesAt = 0, visitById = {};
+  function loadNames() {
+    namesAt = Date.now();
+    if (!CFG.loggedIn || !CFG.people) return;
+    var d = state.date;
+    fetch(CFG.people + '?d=' + encodeURIComponent(d), { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) { if (j && j.people && d === state.date) names = j.people; })
+      .catch(function () {});
+  }
+  function whoHtml(id) {
+    var n = names && names[id];
+    return n ? '<div class="who"><b>' + esc(n[1] || '-') + '</b> <span>HN ' + esc(n[0]) + '</span></div>' : '';
+  }
+  function startTrack(id) {
+    state.track = id; state.follow = true;
+    var p = people.get(id);
+    if (p && p.vis && cam.k < 18) { focusXY(p.x, p.y, 22); state.followAt = performance.now() + 500; }
+    renderTrack();
+  }
+  function stopTrack() { state.track = null; $('track').hidden = true; }
+  function followCam(dt) {
+    if (!state.track || !state.follow || performance.now() < state.followAt) return;
+    var p = people.get(state.track);
+    if (!p || !p.vis) return;
+    // จอเล็ก: การ์ดติดตามอยู่ครึ่งล่าง — ให้ผู้ป่วยอยู่ช่วงบนของจอ
+    var cx = W < 900 ? W / 2 : (W - 400) / 2 + 40, cy = W < 900 ? H * 0.32 : H / 2 + 20, f = Math.min(1, dt * 4);
+    cam.ox += (cx - (p.x - p.y) * C30 * cam.k - cam.ox) * f;
+    cam.oy += (cy - (p.x + p.y) * S30 * cam.k - cam.oy) * f;
+  }
+  function renderTrack() {
+    var v = state.track && visitById[state.track];
+    if (!v) { $('track').hidden = true; return; }
+    var T = state.T, seg = whereAt(v, T), n = names && names[v.i];
+    $('trName').textContent = n ? n[1] : 'ผู้ป่วยที่เลือก';
+    $('trHn').textContent = n ? 'HN ' + n[0] : (CFG.loggedIn ? '' : 'เข้าสู่ระบบเพื่อดูชื่อ / HN');
+    var st = T < v.s[0][0] ? 'ยังไม่มาถึง (มา ' + hhmm(v.s[0][0]) + ' น.)'
+      : T >= v.e ? 'ออกจาก รพ. แล้ว ' + hhmm(v.e) + ' น.'
+      : 'อยู่ที่ <b>' + esc(areas[seg[1]].name) + '</b> ' + mins(T - seg[0]);
+    var rows = v.s.map(function (s, i) {
+      var cls = s[0] > T ? 'next' : s === seg ? 'now' : 'done';
+      var to = i + 1 < v.s.length ? v.s[i + 1][0] : v.e;
+      return '<li class="' + cls + '"><time>' + hhmm(s[0]) + '</time>' + esc(areas[s[1]].name) +
+        (cls === 'done' ? ' <small>' + Math.round(to - s[0]) + ' น.</small>' : '') + '</li>';
+    }).join('') + (T >= v.e ? '<li class="done"><time>' + hhmm(v.e) + '</time>ออกจาก รพ.</li>' : '');
+    $('trBody').innerHTML = '<div class="trst">' + st + '</div><div class="muted">' + (v.a ? 'ผู้ป่วยนัด' : 'Walk-in') +
+      ' · ' + (URG_NAME[v.u] || 'ทั่วไป') + '</div><ol class="route">' + rows + '</ol>';
+    $('trFollow').hidden = state.follow;
+    $('track').hidden = false;
+  }
+  $('trClose').onclick = stopTrack;
+  $('trFollow').onclick = function () { state.follow = true; state.followAt = 0; renderTrack(); };
+
   // ------------------------------------------------------------------ กล้อง
   function bounds() {
     var xs = [], ys = [];
-    BUILDINGS.concat([ROAD]).forEach(function (b) {
+    BUILDINGS.concat([ROAD, [104, -8, 14, 92]]).forEach(function (b) {   // + ป้ายชื่ออาคารริมถนน
       [[b[0], b[1]], [b[0] + b[2], b[1]], [b[0], b[1] + b[3]], [b[0] + b[2], b[1] + b[3]]].forEach(function (c) {
         xs.push((c[0] - c[1]) * C30); ys.push((c[0] + c[1]) * S30);
       });
@@ -713,12 +823,15 @@
       pinch = dd;
       return;
     }
+    if (downAt && Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 6) state.follow = false;   // ลากผังเอง = หยุดกล้องตาม
     cam.ox += e.clientX - prev[0]; cam.oy += e.clientY - prev[1];
   });
   function up(e) {
     if (downAt && e.type === 'pointerup' && ptrs.size === 1 &&
         Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) < 6) {
-      showTip(pick(e.clientX, e.clientY), e.clientX, e.clientY);
+      var hit = pick(e.clientX, e.clientY);
+      showTip(hit, e.clientX, e.clientY);
+      if (hit) startTrack(hit.id);
     }
     downAt = null;
     ptrs.delete(e.pointerId); pinch = null;
@@ -843,6 +956,7 @@
   function setDate(v) {
     if (!v || v > CFG.today) return;
     state.date = v; state.dep = ''; state.find = null;
+    stopTrack();
     $('date').value = v;
     try { history.replaceState(null, '', '?d=' + v); } catch (e) {}
     load(true);
@@ -854,8 +968,15 @@
   function buildPanel() {
     var box = $('rows'); box.innerHTML = '';
     rowEls = [];
+    var lastB = null;
     areas.forEach(function (a) {
-      if (a.L.room) return;           // ห้องตรวจรวมอยู่ในแถว "ห้องตรวจแพทย์"
+      if (a.L.room) return;           // ห้องตรวจรวมอยู่ในแถวหน้าห้องตรวจของฝั่งนั้น
+      if (a.L.b !== lastB && BLD[a.L.b]) {
+        var h = document.createElement('div');
+        h.className = 'bhead'; h.textContent = BLD[a.L.b].name;
+        box.appendChild(h);
+        lastB = a.L.b;
+      }
       var el = document.createElement('button');
       el.type = 'button';
       el.className = 'arow';
@@ -873,7 +994,7 @@
       if (a.nowait) v = a.n + '/' + a.cap + ' ตรวจตามความเร่งด่วน · วันนี้ ' + servedAt(a, state.T) + ' ราย';
       else {
         v = (a.L.queue ? 'ยืนต่อแถว ' + a.n + ' คน' : a.n + '/' + a.cap) + ' รอ ~' + Math.round(a.avg) + ' น.';
-        if (a.id === 'DRW') v += ' · พบแพทย์ ' + roomsIn() + ' · ตรวจแล้ว ' + roomsServed();
+        if (areas.some(function (x) { return x.L.wait === a.id; })) v += ' · พบแพทย์ ' + roomsIn(a) + ' · ตรวจแล้ว ' + roomsServed(a);
       }
       el.querySelector('.v').textContent = v;
       el.querySelector('.v').style.color = a.n && !a.nowait && a.lv !== 'ok' ? COL[a.lv] : '';
@@ -899,8 +1020,9 @@
     $('kQual').textContent = s.arrived ? Math.round(s.qual * 100 / s.arrived) + '%' : '–';
     $('kQualSub').textContent = s.arrived ? s.qual + ' จาก ' + s.arrived + ' ราย' : '';
     $('chipDr').textContent = 'แพทย์ ' + (s.drNow || 0) + ' คน (ทั้งวัน ' + (data.doctors || 0) + ')';
-    var rx = areas.filter(function (a) { return a.id === 'RX'; })[0];
-    $('chipRx').textContent = 'ห้องยา การเงิน: รอ ' + (rx ? rx.n : 0) + ' คน';
+    var nRx = 0;
+    areas.forEach(function (a) { if (a.id === 'RX' || a.id === 'CASH') nRx += a.n; });
+    $('chipRx').textContent = 'ห้องยา/การเงิน: รอ ' + nRx + ' คน';
     $('tlTime').textContent = hhmm(state.T) + ' น. / ' + hhmm(maxT()) + ' น.';
   }
 
@@ -925,7 +1047,8 @@
         } else toast('พบผู้ป่วย — วงแดงบนผัง');
         setTimeout(function () {
           var p = people.get(v.i);
-          if (p && p.vis) { focusXY(p.x, p.y, 24); showTip(p, W / 2, H / 2); }
+          startTrack(v.i);
+          if (p && p.vis) showTip(p, W / 2, H / 2);
         }, 120);
       })
       .catch(function (err) { toast('ค้นหาไม่สำเร็จ: ' + err.message); });
@@ -946,6 +1069,7 @@
     state.lastT = null;
     people.clear();
     buildOcc();
+    if (state.track && !visible(visitById[state.track] || {})) stopTrack();
   }
 
   // ------------------------------------------------------------------ เมนูรายงาน (คำนวณจากข้อมูลในหน้า)
@@ -956,7 +1080,10 @@
   }
   $('modalClose').onclick = function () { $('modal').hidden = true; };
   $('modal').onclick = function (e) { if (e.target === this) this.hidden = true; };
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') $('modal').hidden = true; });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    if (!$('modal').hidden) $('modal').hidden = true; else stopTrack();
+  });
 
   function shownVisits() { return data.visits.filter(visible); }
   // ระยะเวลาที่อยู่แต่ละจุด (เฉพาะช่วงที่จบก่อนเวลาจำลอง T)
@@ -1098,7 +1225,8 @@
       '<li><b>สีป้าย/หน้าหุ่น</b> = รอเกินเป้าหมายของจุด (ส้ม) หรือเกิน 1.5 เท่า (แดง) · ❤️ = ออกจากจุดรอภายในเป้า</li>' +
       '<li><b>ห้องฉุกเฉิน</b> ไม่คิดเวลารอ (ตรวจตามความเร่งด่วน) อยู่ 20 นาทีนับจากเข้า ER หรือ 180 นาทีถ้าสังเกตอาการ</li>' +
       '<li><b>บันทึกเวลาครบคู่</b> = มีทั้งเวลาเริ่มคัดกรอง (service1) และแพทย์เริ่มตรวจ (service2)</li>' +
-      '<li>ไม่มีชื่อ/HN/VN ในข้อมูลผัง · การค้นหา HN ต้องเข้าสู่ระบบ และส่งกลับเฉพาะรหัสสุ่มของ visit</li>' +
+      '<li><b>ฝั่ง Walk-in / ผู้ป่วยนัด</b> = มีนัดที่มาตามนัดใน visit นี้ (oapp.visit_vn) · ห้องตรวจ 1–5 walk-in, 6 เด็ก, 7–10 ผู้ป่วยนัด · ถ้า HOSxP ไม่บอกห้อง แพทย์แต่ละคนถูกจัดไว้ห้องเดิมทั้งวันตามรหัสแพทย์ (ประมาณ)</li>' +
+      '<li><b>ชื่อ-สกุล / HN</b> แสดงเฉพาะผู้ที่เข้าสู่ระบบ (โหลดแยกจากข้อมูลผัง ไม่เก็บแคช) · คลิกหุ่นเพื่อติดตาม · Esc เลิกติดตาม</li>' +
       '</ul><p class="muted">เอนจินผังพอร์ตจาก opd-dashboard-wnk (MIT) © 2569 นายเผด็จชัย สิงหล รพ.วังน้ำเขียว</p>');
   };
 
@@ -1113,6 +1241,9 @@
       .then(function (j) {
         var first = !data;
         data = j; lastFetch = Date.now();
+        visitById = {};
+        j.visits.forEach(function (v) { visitById[v.i] = v; });
+        if (first || reset || Date.now() - namesAt > 300000) loadNames();
         if (first || reset) {
           buildAreas(); buildStatics(); buildPanel();
           people.clear();
@@ -1153,8 +1284,9 @@
         }
       }
       step(dt);
+      followCam(dt);
       draw();
-      if (now - panelAt > 250) { updatePanel(); drawTimeline(); updateTip(); panelAt = now; }
+      if (now - panelAt > 250) { updatePanel(); drawTimeline(); updateTip(); renderTrack(); panelAt = now; }
       $('clock').textContent = hhmm(state.T);
       $('mode').textContent = state.live ? 'LIVE' : 'REPLAY · ×' + state.speed;
     } else if (!W) {

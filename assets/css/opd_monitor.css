@@ -265,6 +265,46 @@ button { cursor: pointer; }
 .arow .trk i { display: block; height: 100%; width: 0; border-radius: 4px; transition: width .4s ease; }
 .remote { color: var(--muted); font-size: .76rem; margin-top: 4px; }
 
+.panel .bhead { margin: 8px 4px 2px; padding-bottom: 2px; border-bottom: 1px solid var(--line); color: var(--g); font-size: .74rem; font-weight: 600; }
+.panel .bhead:first-child { margin-top: 0; }
+
+/* ---------- ติดตามผู้ป่วยรายคน ---------- */
+.track {
+    position: fixed;
+    left: 64px;
+    bottom: 250px;
+    z-index: 6;
+    width: 320px;
+    max-height: calc(100vh - 520px);
+    min-height: 140px;
+    overflow: auto;
+    padding: 12px 14px;
+    font-size: .82rem;
+    border: 2px solid #f59e0b;
+}
+.track[hidden] { display: none; }
+.track header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.tr-icon { flex: 0 0 auto; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px; background: #fef3c7; color: #b45309; }
+.tr-who { flex: 1; min-width: 0; }
+.tr-who b { display: block; overflow: hidden; font-size: .98rem; font-weight: 600; white-space: nowrap; text-overflow: ellipsis; }
+.tr-who small { color: var(--muted); }
+.track header button { border: 0; background: transparent; color: var(--muted); font-size: 1.1rem; }
+.route { list-style: none; margin: 8px 0 4px; padding: 0 0 0 12px; border-left: 2px solid var(--line); }
+.route li { position: relative; padding: 3px 0 3px 8px; }
+.route li::before { content: ""; position: absolute; left: -18px; top: 9px; width: 10px; height: 10px; border-radius: 50%; background: #cbd5e1; }
+.route li.done::before { background: var(--g); }
+.route li.now { font-weight: 600; }
+.route li.now::before { background: #f59e0b; box-shadow: 0 0 0 4px rgba(245, 158, 11, .25); }
+.route li.next { color: #98a2b3; }
+.route time { display: inline-block; width: 46px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.route small { color: var(--muted); }
+.trfollow { margin-top: 4px; padding: 4px 12px; border: 1px solid var(--line); border-radius: 999px; background: #fff; font-size: .78rem; }
+.trfollow[hidden] { display: none; }
+.tip .who { margin-bottom: 4px; padding-bottom: 4px; border-bottom: 1px solid var(--line); }
+.tip .who b { font-size: .92rem; }
+.tip .who span { color: var(--muted); }
+.tip .muted { margin-top: 2px; font-size: .74rem; }
+
 /* ---------- คำอธิบายสี ---------- */
 .legend {
     position: fixed;
@@ -408,6 +448,7 @@ button { cursor: pointer; }
     .zoom { display: none; }
     .menu { top: 186px; }
     .panel { display: none; }
+    .track { left: 12px; right: 12px; bottom: 150px; width: auto; max-height: 40vh; }
     .player { padding: 8px 10px; gap: 10px; }
     .play { width: 44px; height: 44px; }
     .chips, .note { display: none; }
