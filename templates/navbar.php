@@ -32,7 +32,7 @@ foreach (($_SESSION['provider_auth']['organization'] ?? []) as $organization) {
 
     <a href="<?= BASE_URL ?>" class="navbar-brand fw-bold">
         <span class="brand-mark" aria-hidden="true"><i class="fa-solid fa-heart-pulse"></i></span>
-        BBH DASHBOARD (โรงพยาบาลบ้านบึง)
+        <span class="brand-text-main">BBH DASHBOARD <span class="brand-sub">(โรงพยาบาลบ้านบึง)</span></span>
     </a>
 
     <?php if (!empty($showLiveStatus)): ?>
@@ -47,13 +47,14 @@ foreach (($_SESSION['provider_auth']['organization'] ?? []) as $organization) {
         <li class="nav-item mr-3">
             <a href="https://docs.google.com/forms/d/e/1FAIpQLScKGR0_xvvq1uHqdwm3Npj0y6tEAZq0o5KEp9tQaufokUWzwg/viewform?usp=dialog" target="_blank" class="feedback-btn">
                 <i class="fas fa-comment-dots"></i>
-                <span>เสนอความคิดเห็น</span>
+                <span class="btn-label">เสนอความคิดเห็น</span>
             </a>
         </li>
 
         <?php if ($isProviderLoggedIn): ?>
             <li class="nav-item">
-                <div class="provider-user" aria-label="ผู้ใช้งานที่เข้าสู่ระบบ">
+                <div class="provider-user" aria-label="ผู้ใช้งานที่เข้าสู่ระบบ"
+                    title="<?= htmlspecialchars($providerName !== '' ? $providerName : 'Provider ID', ENT_QUOTES, 'UTF-8') ?>">
                     <i class="fas fa-user-circle provider-user-icon"></i>
                     <div class="provider-user-info">
                         <span class="provider-user-name">
@@ -77,7 +78,7 @@ foreach (($_SESSION['provider_auth']['organization'] ?? []) as $organization) {
             <li class="nav-item">
                 <a href="<?= BASE_URL ?>auth/provider_login.php" class="login-btn" id="provider-login-btn" aria-label="เข้าสู่ระบบด้วย MOPH Provider ID">
                     <i class="fas fa-id-card"></i>
-                    <span>เข้าสู่ระบบ</span>
+                    <span class="btn-label">เข้าสู่ระบบ</span>
                 </a>
                 <!-- ปุ่มสำรองสำหรับ Guest Access Popup ให้ไปหน้า Login Provider ID โดยตรง -->
                 <a href="<?= BASE_URL ?>auth/provider_login.php" id="hosxp-login-btn" class="d-none" aria-hidden="true" tabindex="-1"></a>
