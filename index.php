@@ -9,7 +9,6 @@ include 'templates/sidebar.php';
 
 ?>
 
-<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_monitor.css">
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/index.css">
 
 <div class="content-wrapper home-dash">

@@ -112,7 +112,32 @@
     font-size: 1.9rem;
 }
 
-/* ปุ่มเปิด 3D Monitor เป็น pill ใต้ไอคอน OPD */
+/* ปุ่มเปิด 3D Monitor เป็น pill ใต้ไอคอน OPD (ย้ายมาจาก opd_monitor.css ซึ่งตอนนี้ใช้เฉพาะหน้า monitor) */
+.home-dash .opd-monitor-card .inner {
+    padding-right: 96px;
+}
+
+.home-dash .opd-monitor-launch {
+    position: absolute;
+    z-index: 5;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(25, 135, 84, .16);
+    color: #198754 !important;
+    text-decoration: none !important;
+    box-shadow: 0 5px 14px rgba(17, 83, 54, .12);
+    transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+.home-dash .opd-monitor-launch:hover,
+.home-dash .opd-monitor-launch:focus {
+    color: #fff !important;
+    background: #198754;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(25, 135, 84, .28);
+}
+
 .home-dash .opd-monitor-launch {
     top: 90px;
     right: 18px;
