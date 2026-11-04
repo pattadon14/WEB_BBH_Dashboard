@@ -18,24 +18,33 @@
   // x = ไปทางขวาล่างของจอ, y = ไปทางซ้ายล่างของจอ · ผังย่อส่วน ไม่ใช่แบบแปลนจริง
   // kind = สีพื้น, counter = เคาน์เตอร์ชิดผนังด้านหลัง, cap = ที่นั่งที่ใช้คิดความหนาแน่น,
   // room = ห้องตรวจ (โต๊ะแพทย์ + เตียง), open = ไม่มีผนังกั้น, door = ทางเข้า
+  // cap = ที่นั่งรอจริงของบ้านบึง (แจ้งโดยหน่วยงาน 4 พ.ย. 2569) · queue = ยืนต่อแถว ไม่มีเก้าอี้ ไม่คิดความหนาแน่น
   var LAYOUT = {
-    REG:  { r: [0, 0, 14, 13],   kind: 'hall', counter: true, cap: 20 },
-    SCR:  { r: [14, 0, 18, 13],  kind: 'hall', counter: true, cap: 30 },
+    REG:  { r: [0, 0, 14, 13],   kind: 'hall', counter: true, queue: true },
+    SCR:  { r: [14, 0, 18, 13],  kind: 'hall', counter: true, cap: 100 },   // walk-in 64 + ผู้ป่วยนัด 36
     LAB:  { r: [32, 0, 14, 13],  kind: 'lab',  counter: true, cap: 20 },
-    XRAY: { r: [46, 0, 12, 13],  kind: 'xray', counter: true, cap: 10 },
-    RX:   { r: [58, 0, 22, 13],  kind: 'rx',   counter: true, cap: 40 },
-    DRW:  { r: [0, 16, 34, 12],  kind: 'hall', cap: 40 },
-    R1:   { r: [0, 28, 6.8, 8],    kind: 'room', room: true, short: 'ห้อง 1' },
-    R2:   { r: [6.8, 28, 6.8, 8],  kind: 'room', room: true, short: 'ห้อง 2' },
-    R3:   { r: [13.6, 28, 6.8, 8], kind: 'room', room: true, short: 'ห้อง 3' },
-    R4:   { r: [20.4, 28, 6.8, 8], kind: 'room', room: true, short: 'ห้อง 4' },
-    R5:   { r: [27.2, 28, 6.8, 8], kind: 'room', room: true, short: 'ห้อง 5' },
-    DENT: { r: [34, 16, 16, 20], kind: 'room2', counter: true, cap: 15 },
-    TTM:  { r: [50, 16, 12, 20], kind: 'ttm',  counter: true, cap: 10 },
-    PT:   { r: [62, 16, 12, 20], kind: 'room2', counter: true, cap: 10 },
-    ER:   { r: [74, 16, 18, 20], kind: 'er',   door: 'er', cap: 12 }
+    XRAY: { r: [46, 0, 12, 13],  kind: 'xray', counter: true, cap: 8 },     // X-Ray 4 + Ultrasound 4
+    RX:   { r: [58, 0, 22, 13],  kind: 'rx',   counter: true, cap: 42 },    // ห้องยา OPD + การเงิน OPD
+    ARI:  { r: [80, 0, 12, 13],  kind: 'er',   counter: true, cap: 38 },    // รอซักประวัติ 12 + รอแพทย์/การเงิน/ยา 26
+    // หน้าห้องตรวจ: ห้อง 1–5 และ 7–10 ห้องละ 3 + ห้อง 6 (เด็ก) 20
+    DRW:  { r: [0, 16, 34, 8],   kind: 'hall', cap: 47 },
+    R1:   { r: [0, 24, 6.8, 6],    kind: 'room', room: true, short: 'ห้อง 1' },
+    R2:   { r: [6.8, 24, 6.8, 6],  kind: 'room', room: true, short: 'ห้อง 2' },
+    R3:   { r: [13.6, 24, 6.8, 6], kind: 'room', room: true, short: 'ห้อง 3' },
+    R4:   { r: [20.4, 24, 6.8, 6], kind: 'room', room: true, short: 'ห้อง 4' },
+    R5:   { r: [27.2, 24, 6.8, 6], kind: 'room', room: true, short: 'ห้อง 5' },
+    R6:   { r: [0, 30, 6.8, 6],    kind: 'room', room: true, short: 'ห้อง 6 เด็ก' },
+    R7:   { r: [6.8, 30, 6.8, 6],  kind: 'room', room: true, short: 'ห้อง 7' },
+    R8:   { r: [13.6, 30, 6.8, 6], kind: 'room', room: true, short: 'ห้อง 8' },
+    R9:   { r: [20.4, 30, 6.8, 6], kind: 'room', room: true, short: 'ห้อง 9' },
+    R10:  { r: [27.2, 30, 6.8, 6], kind: 'room', room: true, short: 'ห้อง 10' },
+    DENT: { r: [34, 16, 16, 20], kind: 'room2', counter: true, cap: 40 },
+    TTM:  { r: [50, 16, 12, 20], kind: 'ttm',  counter: true, cap: 4 },
+    PT:   { r: [62, 16, 12, 20], kind: 'room2', counter: true, cap: 6 },
+    // คัดกรอง 8 + รอแพทย์ 4 + เตียงรอแพทย์ ~7 + Observe 4
+    ER:   { r: [74, 16, 18, 20], kind: 'er',   door: 'er', cap: 23 }
   };
-  var DECOR = [{ name: 'ห้องเจ้าหน้าที่', r: [80, 0, 12, 13], kind: 'decor' }];
+  var DECOR = [];
   var BUILDINGS = [[0, 0, 92, 36]];
   var WALKS = [[92, 13.2, 4, 2.6], [92, 24.7, 4, 2.6]];
   var ROAD = [96, -8, 4, 60];
@@ -121,6 +130,7 @@
           }
         }
       }
+      if (L.cap && !L.room) seats = seats.slice(0, L.cap);   // วาดเก้าอี้ไม่เกินจำนวนจริง (ห้องเล็กวาดได้น้อยกว่า)
       var stand = [];
       for (var k = 0; k < 4; k++) {
         var off = [[0.6, 0.85], [0, 0.85], [0.6, 0.0], [0.3, 0.42]][k];
@@ -132,7 +142,7 @@
       return {
         id: a.id, name: a.name, target: a.target, nowait: !!a.nowait, L: L,
         x: x, y: y, w: w, d: d, cx: x + w / 2, cy: y + d / 2,
-        chairs: seats, spots: seats.concat(stand), used: [],
+        chairs: L.queue ? [] : seats, spots: seats.concat(stand), used: [],
         door: (DOORS[L.door] || DOORS.main).p, n: 0, avg: 0, max: 0
       };
     });
@@ -267,10 +277,10 @@
       a.served = a.L.room ? servedAt(a, T) : 0;
       a.avg = median(a.waits);
       a.lv = a.waits.length ? level(a.avg, a.target) : 'ok';
-      a.cap = Math.max(1, a.L.cap || a.chairs.length);
-      a.dens = a.n / a.cap;
+      a.cap = a.L.queue ? 0 : Math.max(1, a.L.cap || a.chairs.length);
+      a.dens = a.cap ? a.n / a.cap : 0;
       a.dl = densLevel(a.dens);
-      if (!a.nowait && !a.L.room) { inSum += a.n; capSum += a.cap; }
+      if (isWait(a) && a.cap) { inSum += a.n; capSum += a.cap; }
     });
     state.stats = {
       arrived: arrived, inside: inside, left: left, worst: worst, qual: qual,
@@ -459,7 +469,7 @@
 
   // พื้นแต่ละจุดผสมสีความหนาแน่น (เขียว/เหลือง/แดง) ให้เห็นความแออัดจากระยะไกล
   function tint(a) {
-    if (!a.n || a.nowait || a.L.room) return null;
+    if (!a.n || a.nowait || a.L.room || a.L.queue) return null;
     var c = DENS[a.dl].c;
     return c + (a.dl === 'low' ? '22' : a.dl === 'mid' ? '38' : '48');
   }
@@ -862,7 +872,7 @@
       var v;
       if (a.nowait) v = a.n + '/' + a.cap + ' ตรวจตามความเร่งด่วน · วันนี้ ' + servedAt(a, state.T) + ' ราย';
       else {
-        v = a.n + '/' + a.cap + ' รอ ~' + Math.round(a.avg) + ' น.';
+        v = (a.L.queue ? 'ยืนต่อแถว ' + a.n + ' คน' : a.n + '/' + a.cap) + ' รอ ~' + Math.round(a.avg) + ' น.';
         if (a.id === 'DRW') v += ' · พบแพทย์ ' + roomsIn() + ' · ตรวจแล้ว ' + roomsServed();
       }
       el.querySelector('.v').textContent = v;
@@ -870,7 +880,7 @@
       var bar = el.querySelector('i');
       bar.style.width = Math.min(100, a.dens * 100) + '%';
       bar.style.background = a.nowait ? '#94a3b8' : DENS[a.dl].c;
-      el.title = a.nowait ? 'ห้องฉุกเฉิน — ไม่คิดเวลารอ' :
+      el.title = a.nowait ? 'ห้องฉุกเฉิน — ไม่คิดเวลารอ' : a.L.queue ? 'ยืนต่อแถว ไม่มีที่นั่ง — คลิกเพื่อซูม' :
         'ความหนาแน่น ' + Math.round(a.dens * 100) + '% (' + DENS[a.dl].t + ') · รอค่ากลาง ' + Math.round(a.avg) +
         ' นาที (เป้าหมาย ≤ ' + a.target + ') — คลิกเพื่อซูม';
     });

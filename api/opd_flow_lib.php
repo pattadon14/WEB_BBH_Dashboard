@@ -31,17 +31,25 @@ const FLOW_AREAS = [
     ['R3', 'ห้องตรวจ 3', 15],
     ['R4', 'ห้องตรวจ 4', 15],
     ['R5', 'ห้องตรวจ 5', 15],
+    ['R6', 'ห้องตรวจ 6 (เด็ก)', 15],
+    ['R7', 'ห้องตรวจ 7', 15],
+    ['R8', 'ห้องตรวจ 8', 15],
+    ['R9', 'ห้องตรวจ 9', 15],
+    ['R10', 'ห้องตรวจ 10', 15],
     ['DENT', 'ห้องฟัน', 60],
     ['TTM', 'แพทย์แผนไทย', 60],
     ['PT', 'กายภาพบำบัด', 60],
+    ['ARI', 'คลินิก ARI', 60],
     ['ER', 'ห้องฉุกเฉิน', 60],
 ];
-const FLOW_ROOMS = ['R1', 'R2', 'R3', 'R4', 'R5'];
+// บ้านบึง: ห้อง 1–5 walk-in · 6 ห้องตรวจเด็ก · 7–10 ผู้ป่วยนัด
+const FLOW_ROOMS = ['R1', 'R2', 'R3', 'R4', 'R5', 'R6', 'R7', 'R8', 'R9', 'R10'];
 // คลินิกที่ตรวจ/ทำหัตถการเอง มักกด "ตรวจเสร็จ" ตั้งแต่รับเข้าคิว จึงให้อยู่ในคลินิกต่อจนขั้นถัดไป
-const FLOW_CLINICS = ['DENT', 'TTM', 'PT'];
+const FLOW_CLINICS = ['DENT', 'TTM', 'PT', 'ARI'];
 // ขั้นสุดท้ายไม่ใช่ "จบ" ให้ค้างที่จุดนั้นได้นานสุดกี่นาที (กันลืมกดเวลาแล้วค้างทั้งวัน)
 const FLOW_LINGER = ['REG' => 15, 'SCR' => 60, 'LAB' => 60, 'XRAY' => 30, 'DRW' => 120, 'R1' => 20, 'R2' => 20,
-    'R3' => 20, 'R4' => 20, 'R5' => 20, 'ER' => 180, 'DENT' => 60, 'TTM' => 60, 'PT' => 60, 'RX' => 60];
+    'R3' => 20, 'R4' => 20, 'R5' => 20, 'R6' => 20, 'R7' => 20, 'R8' => 20, 'R9' => 20, 'R10' => 20,
+    'ER' => 180, 'DENT' => 60, 'TTM' => 60, 'PT' => 60, 'ARI' => 60, 'RX' => 60];
 const FLOW_WALK_OUT = 2;
 // ลำดับเมื่อเวลาเท่ากัน
 const FLOW_ORDER = ['reg', 's3', 'er_in', 's4', 'lo', 'lr', 'xr', 's11', 's5', 'er_out', 's12', 's6', 's7', 's16', 's20'];
@@ -74,8 +82,8 @@ const FLOW_DEP_RULES = [
     ['ROOM', '/ห้องตรวจ(?:โรค)?\s*(\d+)/u'],
     ['SCR', '/ซักประวัติ|คัดกรอง|หน้าห้องตรวจ/u'],
 ];
-// กลุ่มที่ผังของบ้านบึงรวมไว้จุดเดียวกัน
-const FLOW_GROUP_AREA = ['NCD' => 'SCR', 'ARI' => 'SCR', 'CASH' => 'RX', 'SPEC' => 'DRW', 'MH' => 'DRW', 'TELE' => 'DRW'];
+// กลุ่มที่ผังของบ้านบึงรวมไว้จุดเดียวกัน (ARI มีจุดของตัวเอง: ซักประวัติ + ตรวจ + การเงิน + ยา)
+const FLOW_GROUP_AREA = ['NCD' => 'SCR', 'CASH' => 'RX', 'SPEC' => 'DRW', 'MH' => 'DRW', 'TELE' => 'DRW'];
 
 // คอลัมน์มาตรฐานของ service_time (ความหมายตามแบบ รพ.วังน้ำเขียว):
 // service3 ส่งตรวจ · service4 เริ่มคัดกรอง · service11 คัดกรองเสร็จ · service5 แพทย์เริ่มตรวจ · service12 แพทย์ตรวจเสร็จ
@@ -102,7 +110,7 @@ function flow_classify(?string $name): ?string
             continue;
         }
         if ($group === 'ROOM') {
-            return 'R' . min(max((int) $m[1], 1), 5);   // ห้องเลขเกิน 5 รวมไว้ห้อง 5
+            return 'R' . min(max((int) $m[1], 1), 10);  // ห้องเลขเกิน 10 รวมไว้ห้อง 10
         }
         return $group;
     }
@@ -237,7 +245,9 @@ function flow_segments(array $r, array $deps, array $idx, ?float $now): array
     if (in_array($scr, FLOW_ROOMS, true) || in_array($scr, ['RX', 'LAB', 'XRAY', 'REG', 'DRW'], true)) {
         $scr = 'SCR';
     }
-    $s7 = flow_unit($deps, $idx, $r['d7'], 'RX');
+    // คลินิก ARI รับยาและชำระเงินในคลินิกเอง
+    $rx = $exam === 'ARI' ? 'ARI' : 'RX';
+    $s7 = flow_unit($deps, $idx, $r['d7'], $rx);
     $area = [
         'reg' => flow_group($deps, $md) === 'ER' ? 'ER' : 'REG',
         's3' => $scr, 's4' => $scr,
@@ -246,7 +256,7 @@ function flow_segments(array $r, array $deps, array $idx, ?float $now): array
         's11' => (in_array($exam, FLOW_ROOMS, true) || in_array($exam, ['SCR', 'DRW'], true)) ? 'DRW' : $exam,
         // ไม่รู้ห้องตรวจ (ไม่มีรหัสแผนกห้องตรวจ) → ห้องตรวจ 2 ไว้ก่อน
         's5' => in_array($exam, ['DRW', 'SCR'], true) ? 'R2' : $exam,
-        's12' => null, 's6' => 'RX', 's7' => $s7, 's16' => null, 's20' => null,
+        's12' => null, 's6' => $rx, 's7' => $s7, 's16' => null, 's20' => null,
         'er_in' => 'ER', 'er_out' => null,
     ];
 
@@ -285,7 +295,7 @@ function flow_segments(array $r, array $deps, array $idx, ?float $now): array
                 $later[$e[2]] = true;
             }
         }
-        $area['s12'] = (isset($later['s6']) || isset($later['s16'])) ? 'RX'
+        $area['s12'] = (isset($later['s6']) || isset($later['s16'])) ? $rx
             : (in_array($exam, FLOW_CLINICS, true) ? $exam : (isset($later['s7']) ? $area['s7'] : null));
     }
 
