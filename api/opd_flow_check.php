@@ -55,7 +55,8 @@ try {
     $md = $conn->prepare('SELECT main_dep, COUNT(*) n FROM ovst WHERE vstdate >= :f AND an IS NULL GROUP BY main_dep ORDER BY n DESC');
     $md->execute([':f' => $from]);
     $mainDeps = array_map(fn($t) => [
-        'code' => $t['main_dep'], 'name' => $deps[$t['main_dep']]['name'] ?? null, 'group' => $deps[$t['main_dep']]['group'] ?? null, 'n' => (int) $t['n'],
+        'code' => $t['main_dep'], 'name' => $deps[(string) $t['main_dep']]['name'] ?? null,
+        'group' => $deps[(string) $t['main_dep']]['group'] ?? null, 'n' => (int) $t['n'],
     ], $md->fetchAll(PDO::FETCH_ASSOC));
 
     flow_json([

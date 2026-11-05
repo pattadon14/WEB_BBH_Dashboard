@@ -17,6 +17,8 @@ const FLOW_MAX_TOTAL = 600;     // นาที — เวลาที่บั�
 // ส่งไปซักประวัติ = ลงทะเบียน + 3 · คัดกรองเสร็จ = เริ่มคัดกรอง + 5 (ไม่งั้นคนรอคัดกรองไปนั่งที่เวชระเบียน)
 const FLOW_EST_SEND = 3;
 const FLOW_EST_SCREEN = 5;
+// และไม่บันทึก "แพทย์ตรวจเสร็จ" — ตรวจเสร็จ = เริ่มตรวจ + 10 (ไม่งั้นผู้ป่วย 20 คนนั่งค้างในห้องตรวจห้องเดียวจนถึงห้องยา)
+const FLOW_EST_EXAM = 10;
 
 // (รหัส, ชื่อที่แสดง, เป้าหมายนาที) — เป้าหมายใช้ระบายสี: ≤ เป้า เขียว · เกิน ส้ม · ≥ 1.5 เท่า แดง
 const FLOW_AREAS = [
@@ -272,6 +274,11 @@ function flow_segments(array $r, array $deps, array $idx, ?float $now): array
     if (!in_array($exam, array_merge(FLOW_ROOMS, FLOW_CLINICS, ['PED', 'ER']), true)) {
         $exam = $scr === 'PED' ? 'PED' : flow_room_for($r['dr'] ?? null, $appt);
     }
+    // คลินิกเฉพาะ (กายภาพ แผนไทย ฯลฯ) มักกดแค่เวลาจบบริการ — ให้เดินไปคลินิกหลังลงทะเบียน ไม่งั้นไม่เห็นผู้ป่วยบนผัง
+    if (in_array($exam, FLOW_CLINICS, true) && $r['s4'] === null) {
+        $r['s4'] = $reg + FLOW_EST_SEND;
+        $scr = $exam;
+    }
     // รอพบแพทย์: ห้อง 1–5 หน้าห้องฝั่ง walk-in · 7–10 ฝั่งผู้ป่วยนัด · ห้อง 6 (เด็ก) รอในคลินิกเด็ก · คลินิกเฉพาะรอในคลินิก
     if ($exam === 'PED' || $exam === 'R6') {
         [$wait, $room] = ['PED', 'R6'];
@@ -285,12 +292,24 @@ function flow_segments(array $r, array $deps, array $idx, ?float $now): array
     } elseif (!in_array($scr, array_merge(FLOW_CLINICS, ['ER']), true)) {
         $scr = $appt ? 'SCRA' : 'SCRW';
     }
+    if ($r['s12'] === null && $r['s5'] !== null && in_array($room, FLOW_ROOMS, true)) {
+        $next = null;
+        foreach (FLOW_ORDER as $k) {
+            if ($k !== 's5' && $r[$k] !== null && $r[$k] > $r['s5']) {
+                $next = min($next ?? $r[$k], $r[$k]);
+            }
+        }
+        if ($next === null || $next > $r['s5'] + FLOW_EST_EXAM) {
+            $r['s12'] = $r['s5'] + FLOW_EST_EXAM;
+            $examEst = $next === null;    // ตรวจเป็นขั้นสุดท้าย — ออกหลังตรวจ ไม่รอเวลาส่งกลับบ้าน
+        }
+    }
     // คลินิก ARI ชำระเงินและรับยาในคลินิกเอง
     $rx = $exam === 'ARI' ? 'ARI' : 'RX';
     $area = [
         'reg' => flow_group($deps, $md) === 'ER' ? 'ER' : 'REG',
         's3' => $scr, 's4' => $scr,
-        'lo' => 'LAB', 'lr' => 'LAB', 'xr' => 'XRAY', 'us' => 'US',
+        'lo' => 'LAB', 'lr' => $wait, 'xr' => 'XRAY', 'us' => 'US',    // lr ปรับด้านล่างตามขั้นถัดไป
         's11' => $wait, 's5' => $room,
         's12' => null, 's6' => $rx, 's7' => $exam === 'ARI' ? 'ARI' : 'CASH', 's16' => null, 's20' => null,
         'er_in' => 'ER', 'er_out' => null,
@@ -323,7 +342,22 @@ function flow_segments(array $r, array $deps, array $idx, ?float $now): array
         $ev = array_values(array_filter($ev, fn($e) => !in_array($e[2], ['lo', 'lr', 'xr', 'us'], true) || $e[0] <= $lastSrv));
     }
 
-    // ตรวจเสร็จ → รอที่ห้องยาถ้ามีขั้นยาตามมา ไม่งั้นการเงิน ไม่งั้นกลับบ้าน (ไม่ให้นั่งค้างห้องตรวจ)
+    // จุดของขั้นถัดไปที่มีบันทึกหลังเวลา $t (ข้ามขั้นที่ยังไม่รู้จุด)
+    $nextArea = function (float $t, string $self) use ($ev, &$area): ?string {
+        foreach ($ev as $e) {
+            if ($e[0] >= $t && $e[2] !== $self && $e[2] !== 's12' && $area[$e[2]] !== null) {
+                return $area[$e[2]];
+            }
+        }
+        return null;
+    };
+    // แล็บรับสิ่งส่งตรวจแล้ว: เจาะก่อนพบแพทย์ → ไปรอที่ขั้นถัดไป (ผู้ป่วยนัดเจาะเลือดก่อนซักประวัติ → จุดซักประวัติ)
+    // เจาะหลังพบแพทย์ → รอผลกลับไปพบแพทย์ที่หน้าห้องตรวจ
+    if ($r['lr'] !== null && ($r['s5'] === null || $r['lr'] < $r['s5'])) {
+        $n = $nextArea($r['lr'], 'lr');
+        $area['lr'] = ($n === null || $n === $room) ? $wait : $n;     // ขั้นถัดไปคือเข้าห้องตรวจ → รอหน้าห้อง
+    }
+    // ตรวจเสร็จ → ไปรอที่จุดถัดไปที่มีบันทึก (เช่น การเงินก่อนห้องยา) · ไม่มี → ห้องยา/การเงิน/กลับบ้าน (ไม่นั่งค้างห้องตรวจ)
     if ($r['s12'] !== null) {
         $later = [];
         foreach ($ev as $e) {
@@ -331,8 +365,9 @@ function flow_segments(array $r, array $deps, array $idx, ?float $now): array
                 $later[$e[2]] = true;
             }
         }
-        $area['s12'] = (isset($later['s6']) || isset($later['s16'])) ? $rx
-            : (in_array($exam, FLOW_CLINICS, true) ? $exam : (isset($later['s7']) ? $area['s7'] : null));
+        $next = $nextArea($r['s12'], 's12');
+        $area['s12'] = $next ?? ((isset($later['s6']) || isset($later['s16'])) ? $rx
+            : (in_array($exam, FLOW_CLINICS, true) ? $exam : (isset($later['s7']) ? $area['s7'] : null)));
     }
 
     $segs = [];
@@ -349,7 +384,7 @@ function flow_segments(array $r, array $deps, array $idx, ?float $now): array
     $end = $lastArea === null ? $lastT + FLOW_WALK_OUT : $lastT + (FLOW_LINGER[$lastArea] ?? 20);
     $home = $r['home'];
     $inClinic = in_array($lastArea, FLOW_CLINICS, true);
-    if ($home !== null && $home >= $reg) {
+    if ($home !== null && $home >= $reg && empty($examEst)) {
         if ($lastT <= $home && $home <= $lastT + ($inClinic ? FLOW_CLINIC_HOME_MAX : FLOW_HOME_MAX)) {
             $end = max($home, $lastT + FLOW_WALK_OUT);
         } elseif ($home < $lastT && $lastArea !== null) {
