@@ -25,6 +25,11 @@ include '../templates/sidebar.php';
                     <i class="fa-solid fa-hospital-user"></i>
                     คลินิคพิเศษ
                 </button>
+
+                <button class="opd-page-tab" type="button" role="tab" aria-selected="false" data-opd-tab="quality">
+                    <i class="fa-solid fa-stopwatch"></i>
+                    เวลารอ &amp; คุณภาพบริการ
+                </button>
             </div>
 
             <!-- =====================================================
@@ -439,13 +444,99 @@ include '../templates/sidebar.php';
 
             </div>
 
+            <!-- =====================================================
+                 TAB 3 : เวลารอ & คุณภาพบริการ (api/opd_service_kpi.php)
+            ====================================================== -->
+            <div class="opd-tab-panel" id="opd-tab-quality" role="tabpanel" hidden>
+                <div class="card shadow-sm mb-3">
+                    <div class="card-body oq-filter">
+                        <div>
+                            <div class="oq-title"><i class="fa-solid fa-stopwatch"></i> เวลารอและคุณภาพบริการผู้ป่วยนอก</div>
+                            <div class="oq-sub" id="oq-period">—</div>
+                        </div>
+                        <div class="oq-dates">
+                            <label>จาก <input type="date" id="oq-d1" class="form-control form-control-sm"></label>
+                            <label>ถึง <input type="date" id="oq-d2" class="form-control form-control-sm"></label>
+                            <div class="btn-group btn-group-sm" role="group" aria-label="ช่วงวันที่ด่วน">
+                                <button type="button" class="btn btn-outline-success" data-oq-days="1">วันนี้</button>
+                                <button type="button" class="btn btn-outline-success" data-oq-days="7">7 วัน</button>
+                                <button type="button" class="btn btn-outline-success" data-oq-days="30">30 วัน</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="oq-kpis" id="oq-kpis"></div>
+
+                <div class="row">
+                    <div class="col-lg-7 mb-3">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body">
+                                <h5 class="chart-title"><i class="fa-solid fa-list-check"></i> เวลาแต่ละขั้นเทียบเป้าหมาย (SLA)</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-sm oq-table">
+                                        <thead><tr><th>ขั้นตอน</th><th class="text-right">เฉลี่ย (นาที)</th><th class="text-right">เป้าหมาย</th><th class="text-right">ทันเป้า</th><th class="text-right">จำนวน</th><th class="text-center">ผล</th></tr></thead>
+                                        <tbody id="oq-sla"></tbody>
+                                    </table>
+                                </div>
+                                <p class="oq-note">นับเฉพาะ visit ที่บันทึกเวลาทั้งสองขั้น · ช่วงติดลบหรือเกิน 6 ชม. ไม่นับ (กดเวลาผิด/ลืมกด)</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-5 mb-3">
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body">
+                                <h5 class="chart-title"><i class="fa-solid fa-filter"></i> Patient Flow — % ที่บันทึกเวลาแต่ละขั้น</h5>
+                                <div id="oq-funnel"></div>
+                                <p class="oq-note">ขั้นที่ % ต่ำผิดปกติ = จุดนั้นไม่ได้กดเวลาใน HOSxP ทำให้เวลารอของขั้นนั้นเชื่อได้น้อย</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mb-3">
+                    <div class="card-body">
+                        <h5 class="chart-title"><i class="fa-solid fa-chart-column"></i> ผู้ป่วยตามชั่วโมงที่ลงทะเบียน — Walk-in / นัด</h5>
+                        <div id="oq-hours" style="height:320px;"></div>
+                        <p class="oq-note" id="oq-hours-note"></p>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mb-3">
+                    <div class="card-body">
+                        <h5 class="chart-title"><i class="fa-solid fa-triangle-exclamation"></i> Alert &amp; Action</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm oq-table">
+                                <thead><tr><th>ประเด็น</th><th class="text-right">ค่าจริง</th><th class="text-right">เป้าหมาย</th><th class="text-center">ระดับ</th><th>แนวทาง</th></tr></thead>
+                                <tbody id="oq-alerts"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mb-3">
+                    <div class="card-body">
+                        <h5 class="chart-title"><i class="fa-solid fa-hospital"></i> รายแผนก (แผนกส่งคิวแรก) — 20 อันดับ</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover oq-table">
+                                <thead><tr><th>แผนก</th><th class="text-right">Visit</th><th class="text-right">พบแพทย์</th><th class="text-right">Door-to-Doctor</th><th class="text-right">ทันเป้า</th><th class="text-right">รอรับยา</th><th class="text-right">เวลารวม</th></tr></thead>
+                                <tbody id="oq-deps"></tbody>
+                            </table>
+                        </div>
+                        <p class="oq-note">เวลาเป็นนาทีเฉลี่ย · ไม่รวม Admit และ Telemed/PCU · ผู้ป่วยนัด = มาตามนัดในระบบ (oapp) · เป้าหมายเป็นค่าตั้งต้น รอทีมคุณภาพยืนยัน</p>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </section>
 </div>
 
+<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_quality.css?v=<?= filemtime(__DIR__ . '/../assets/css/opd_quality.css') ?>">
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script>window.BBH_CURRENT_FISCAL_YEAR = <?= $currentYear ?>;</script>
 <script src="<?= BASE_URL ?>assets/js/opd_detail.js"></script>
+<script src="<?= BASE_URL ?>assets/js/opd_quality.js?v=<?= filemtime(__DIR__ . '/../assets/js/opd_quality.js') ?>"></script>
 
 <script>
 /* =========================================================

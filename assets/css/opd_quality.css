@@ -1,0 +1,40 @@
+/* OPD — เวลารอ & คุณภาพบริการ (แท็บ 3) */
+.oq-filter { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; }
+.oq-title { font-size: 1.5rem; font-weight: bold; color: #198754; }
+.oq-sub { color: #6b7280; }
+.oq-dates { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.oq-dates label { display: flex; gap: 6px; align-items: center; margin: 0; font-weight: normal; }
+.oq-dates input { width: auto; }
+
+.oq-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 1rem; }
+.oq-kpi { padding: 12px 14px; margin: 0; border-top: 4px solid #198754; }
+.oq-kpi.bad { border-top-color: #e5484d; }
+.oq-kpi small { color: #6b7280; font-size: 1.05rem; }
+.oq-kpi b { display: block; font-size: 2.1rem; line-height: 1.1; color: #1f2937; }
+.oq-kpi b span { font-size: 1rem; font-weight: normal; color: #6b7280; margin-left: 4px; }
+.oq-d { font-size: .95rem; color: #6b7280; }
+.oq-d.up { color: #1e8e5a; }
+.oq-d.down { color: #e5484d; }
+
+.oq-table { font-size: 1.1rem; }
+.oq-table th { color: #6b7280; font-weight: 600; border-top: 0; white-space: nowrap; }
+.oq-ok { color: #1e8e5a; }
+.oq-bad { color: #e5484d; font-weight: bold; }
+.oq-note { color: #8a94a0; font-size: .95rem; margin: 6px 0 0; }
+
+.oq-fn { display: grid; grid-template-columns: 90px 1fr 48px 56px; gap: 8px; align-items: center; margin: 8px 0; }
+.oq-fn span { color: #374151; }
+.oq-fn small { color: #8a94a0; text-align: right; }
+.oq-fn b { text-align: right; }
+.oq-bar { height: 14px; background: #eef2f5; border-radius: 7px; overflow: hidden; }
+.oq-bar i { display: block; height: 100%; background: linear-gradient(90deg, #198754, #34c38f); border-radius: 7px; }
+
+.oq-lv { display: inline-block; padding: 1px 10px; border-radius: 10px; font-size: .95rem; white-space: nowrap; }
+.oq-lv-high { background: #fde8e8; color: #c62828; }
+.oq-lv-mid { background: #fff4de; color: #b26a00; }
+.oq-lv-ok { background: #e6f5ec; color: #1e8e5a; }
+
+@media (max-width: 576px) {
+    .oq-fn { grid-template-columns: 70px 1fr 42px; }
+    .oq-fn small { display: none; }
+}
