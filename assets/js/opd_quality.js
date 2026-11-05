@@ -29,7 +29,8 @@
             `<div class="oq-kpi card shadow-sm ${cls}"><small>${label}</small><b>${value}<span>${unit}</span></b>${sub}</div>`;
         const lvl = (bad) => bad ? 'bad' : 'ok';
         $('oq-kpis').innerHTML = [
-            card('ผู้ป่วยนอก (visit)', fmt(k.visits), 'ราย', delta(k.visits_delta, false)),
+            card('ผู้ป่วยนอก (visit)', fmt(k.visits), 'ราย', (k.visits_delta === null ? '<span class="oq-d">ยังไม่จบวัน ไม่เทียบช่วงก่อน</span>' : delta(k.visits_delta, false))
+                + (k.remote ? `<span class="oq-d">ไม่รวม Telemed/PCU/ส่งยาไปรษณีย์ ${fmt(k.remote)} ราย</span>` : '')),
             card('Walk-in / นัด', `${fmt(k.walkin)} / ${fmt(k.appt)}`, '', `<span class="oq-d">นัด ${k.visits ? Math.round(k.appt * 100 / k.visits) : 0}%</span>`),
             card('Door-to-Doctor', fmt(k.d2d), 'นาที', delta(k.d2d_delta, true)),
             card('เวลารวมต่อราย', fmt(k.total), 'นาที', delta(k.total_delta, true), k.total !== null ? lvl(k.total > t.total) : ''),

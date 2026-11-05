@@ -4,7 +4,8 @@
  *
  * พอร์ตนิยามจาก queries.py ของ opd-dashboard-wnk (service_times, patient_flow, hourly, appointments, alerts)
  * นิยาม:
- *  - นับเป็น visit (ovst.vn) · ไม่รวม visit ที่ admit (ovst.an) และ Telemed/PCU (pt_subtype ≠ 0) — ชุดเดียวกับ 3D Monitor
+ *  - นับเป็น visit (ovst.vn) · ไม่รวม visit ที่ admit (ovst.an), pt_subtype ≠ 0 และแผนก Telemed/PCU/ส่งยาไปรษณีย์
+ *    (flow_remote_deps) — ชุดเดียวกับ 3D Monitor
  *  - เวลาแต่ละขั้นจาก service_time ผ่าน FLOW_ST_MAP (opd_flow_lib.php) — ช่วงที่ติดลบหรือเกิน 360 นาที = กดผิด/ลืมกด ไม่นับ
  *  - เวลารวม = ลงทะเบียน → ขั้นสุดท้ายที่บันทึก นับเฉพาะ 1–600 นาที
  *  - ผู้ป่วยนัด = มี oapp.visit_vn = vn (เหมือน opd_visit_today.php)
@@ -123,9 +124,15 @@ if (is_file($cacheFile) && time() - filemtime($cacheFile) < $ttl) {
 
 try {
     $st = flow_st_table();
-    $rows = sk_rows($conn, $st, $d1, $d2);
+    $deps = flow_deps($conn);
+    // ผู้ป่วยไม่ได้มา รพ. (Telemed, PCU, ส่งยาไปรษณีย์) — ตัดด้วยกฎเดียวกับ 3D Monitor · บ้านบึงไม่ได้ใช้ pt_subtype
+    $remote = flow_remote_deps($deps);
+    $inHosp = fn($rs) => array_values(array_filter($rs, fn($r) => !in_array((string) $r['md'], $remote, true)));
+    $all = sk_rows($conn, $st, $d1, $d2);
+    $rows = $inHosp($all);
+    $remoteN = sk_sum($all)['count'] - sk_sum($rows)['count'];
     $cur = sk_sum($rows);
-    $prev = sk_sum(sk_rows($conn, $st, $p1, $p2));
+    $prev = sk_sum($inHosp(sk_rows($conn, $st, $p1, $p2)));
     $delta = fn($a, $b) => ($a === null || !$b) ? null : round(($a - $b) * 100 / $b, 1);
     $apptN = sk_sum($rows, fn($r) => !empty($r['ap']))['count'];
     $d2d = $cur['steps'][2]['avg'];
@@ -146,7 +153,6 @@ try {
     }
 
     // รายแผนก (main_dep = แผนกส่งคิวแรก)
-    $deps = flow_deps($conn);
     $depRows = [];
     foreach (array_unique(array_map(fn($r) => (string) $r['md'], $rows)) as $code) {
         $s = sk_sum($rows, fn($r) => (string) $r['md'] === $code);
@@ -205,8 +211,9 @@ try {
         'period' => ['d1' => $d1, 'd2' => $d2, 'days' => $days, 'prev_d1' => $p1, 'prev_d2' => $p2,
             'label' => $d1 === $d2 ? flow_thai_date($d1) : flow_thai_date($d1) . ' – ' . flow_thai_date($d2)],
         'kpi' => [
-            'visits' => $cur['count'], 'visits_delta' => $delta($cur['count'], $prev['count']),
-            'appt' => $apptN, 'walkin' => $cur['count'] - $apptN,
+            // วันนี้ยังไม่จบวัน — จำนวน visit เทียบช่วงก่อนที่ครบวันไม่ได้
+            'visits' => $cur['count'], 'visits_delta' => $d2 === $today ? null : $delta($cur['count'], $prev['count']),
+            'appt' => $apptN, 'walkin' => $cur['count'] - $apptN, 'remote' => $remoteN,
             'total' => $cur['total'], 'total_delta' => $delta($cur['total'], $prev['total']),
             'd2d' => $d2d, 'd2d_delta' => $delta($d2d, $prev['steps'][2]['avg']),
             'done' => $cur['done'], 'done_prev' => $prev['done'],

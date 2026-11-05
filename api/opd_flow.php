@@ -78,11 +78,7 @@ try {
     $stmt->execute([':d' => $d]);
 
     // Telemed (ผู้ป่วยอยู่นอก รพ.) · FLOW_REMOTE_DEPS=none = วาดทุกคน
-    $remoteEnv = flow_env('FLOW_REMOTE_DEPS', '-');
-    $remoteDeps = $remoteEnv === '-'
-        // array_keys คืนรหัสแผนกที่เป็นตัวเลขเป็น int — แปลงกลับเป็น string ก่อนเทียบแบบ strict
-        ? array_map('strval', array_keys(array_filter($deps, fn($x) => in_array($x['group'], ['TELE', 'REMOTE'], true))))
-        : (strtolower(trim($remoteEnv)) === 'none' ? [] : array_map('trim', explode(',', $remoteEnv)));
+    $remoteDeps = flow_remote_deps($deps);
 
     $now = $isToday ? (int) date('G') * 60 + (int) date('i') : null;
     $visits = [];

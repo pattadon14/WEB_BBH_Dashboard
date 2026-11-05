@@ -146,6 +146,17 @@ function flow_deps(PDO $conn): array
     return $deps;
 }
 
+/** แผนกที่ผู้ป่วยไม่ได้อยู่ใน รพ. (Telemed, PCU, ส่งยาไปรษณีย์) · FLOW_REMOTE_DEPS=none = ไม่ตัด, หรือระบุรหัสคั่นด้วย , */
+function flow_remote_deps(array $deps): array
+{
+    $env = flow_env('FLOW_REMOTE_DEPS', '-');
+    if ($env !== '-') {
+        return strtolower(trim($env)) === 'none' ? [] : array_map('trim', explode(',', $env));
+    }
+    // array_keys คืนรหัสแผนกที่เป็นตัวเลขเป็น int — แปลงกลับเป็น string ก่อนเทียบแบบ strict
+    return array_map('strval', array_keys(array_filter($deps, fn($x) => in_array($x['group'], ['TELE', 'REMOTE'], true))));
+}
+
 function flow_group(array $deps, ?string $dep): ?string
 {
     return $deps[(string) $dep]['group'] ?? null;
