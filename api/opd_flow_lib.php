@@ -1,9 +1,14 @@
 <?php
 /*
- * ฟังก์ชันร่วมของ 3D Monitor OPD (api/opd_flow*.php)
+ * ฟังก์ชันร่วมของ 3D Monitor OPD (api/opd_flow*.php) และแท็บเวลารอ (api/opd_service_kpi.php)
  *
- * พอร์ตจาก flow.py / deps.py / stmap.py ของ opd-dashboard-wnk
+ * เอนจินเดิมพอร์ตจาก flow.py / deps.py ของ opd-dashboard-wnk
  * Copyright (c) 2569 นายเผด็จชัย สิงหล โรงพยาบาลวังน้ำเขียว — MIT License (ดู opd-dashboard/NOTICE.md)
+ *
+ * แหล่งข้อมูลของบ้านบึง (ตรวจกับข้อมูลจริง 29 ต.ค.–4 พ.ย. 2569):
+ *  - opd_dep_queue  = ทุกครั้งที่ส่งผู้ป่วยไปแผนก (ส่ง/รับ/เสร็จ) → ตำแหน่งบนผัง · 999 = กลับบ้าน
+ *  - ovst_service_time = เวลาแต่ละขั้นพร้อมประเภท (OPD-SCREEN, OPD-DOCTOR, OPD-RX-ENTRY ...) → เวลารอ
+ *  - service_time ใช้ไม่ได้ดี: service1 เก็บเวลาซักประวัติได้ครั้งเดียว ทั้งที่ visit ซักประวัติหลายครั้ง
  *
  * อ่านอย่างเดียว: ทุกคำสั่งเป็น SELECT + prepared statement
  * ไฟล์นี้ไม่ต่อฐานข้อมูลเอง (endpoint require config/database.php) จึงทดสอบ flow_segments() แยกได้
@@ -13,12 +18,12 @@
 date_default_timezone_set('Asia/Bangkok');
 
 const FLOW_MAX_TOTAL = 600;     // นาที — เวลาที่บันทึกเกินลงทะเบียน + 10 ชม. = กดผิดวัน ไม่นับ
-// บ้านบึงไม่บันทึก "ส่งไปจุดซักประวัติ" และ "คัดกรองเสร็จ → ส่งพบแพทย์" จึงประมาณ (นาที):
-// ส่งไปซักประวัติ = ลงทะเบียน + 3 · คัดกรองเสร็จ = เริ่มคัดกรอง + 5 (ไม่งั้นคนรอคัดกรองไปนั่งที่เวชระเบียน)
-const FLOW_EST_SEND = 3;
-const FLOW_EST_SCREEN = 5;
-// และไม่บันทึก "แพทย์ตรวจเสร็จ" — ตรวจเสร็จ = เริ่มตรวจ + 10 (ไม่งั้นผู้ป่วย 20 คนนั่งค้างในห้องตรวจห้องเดียวจนถึงห้องยา)
-const FLOW_EST_EXAM = 10;
+const FLOW_EST_SEND = 3;        // ไม่มีคิวแรกตอนลงทะเบียน → เดินไปแผนกหลักหลังลงทะเบียน 3 นาที
+// HOSxP มีแค่เวลาส่ง X-Ray/Ultrasound ไม่มีเวลาเสร็จ — ถ่าย/ตรวจกี่นาทีแล้วกลับจุดเดิม
+const FLOW_EST_XRAY = 10;
+const FLOW_EST_US = 20;
+const FLOW_WALK_OUT = 2;
+const FLOW_BUSY_MAX = 120;      // รับคิว → เสร็จ นานกว่านี้ = ลืมกดเสร็จ ไม่ถือว่ายังรับบริการอยู่
 
 // (รหัส, ชื่อที่แสดง, เป้าหมายนาที) — เป้าหมายใช้ระบายสี: ≤ เป้า เขียว · เกิน ส้ม · ≥ 1.5 เท่า แดง
 const FLOW_AREAS = [
@@ -47,6 +52,7 @@ const FLOW_AREAS = [
     ['XRAY', 'ห้อง X-Ray', 30],
     ['US', 'ห้อง Ultrasound', 30],
     ['DENT', 'ห้องทันตกรรม', 60],
+    ['WOUND', 'ห้องทำแผล', 30],
     // อาคารแยก
     ['ARI', 'คลินิก ARI', 60],
     ['TTM', 'แพทย์แผนไทย', 60],
@@ -54,58 +60,39 @@ const FLOW_AREAS = [
 ];
 // บ้านบึง: ห้อง 1–5 walk-in · 6 ห้องตรวจเด็ก · 7–10 ผู้ป่วยนัด
 const FLOW_ROOMS = ['R1', 'R2', 'R3', 'R4', 'R5', 'R6', 'R7', 'R8', 'R9', 'R10'];
-// คลินิกที่ตรวจ/ทำหัตถการเอง มักกด "ตรวจเสร็จ" ตั้งแต่รับเข้าคิว จึงให้อยู่ในคลินิกต่อจนขั้นถัดไป
-const FLOW_CLINICS = ['DENT', 'TTM', 'PT', 'ARI'];
-// ขั้นสุดท้ายไม่ใช่ "จบ" ให้ค้างที่จุดนั้นได้นานสุดกี่นาที (กันลืมกดเวลาแล้วค้างทั้งวัน)
-const FLOW_LINGER = ['REG' => 15, 'SCRW' => 60, 'SCRA' => 60, 'PED' => 120, 'DRWW' => 120, 'DRWA' => 120,
-    'CASH' => 30, 'RX' => 60, 'LAB' => 60, 'XRAY' => 30, 'US' => 30, 'ER' => 180,
-    'DENT' => 60, 'TTM' => 60, 'PT' => 60, 'ARI' => 60];    // ห้องตรวจ R1–R10 = 20
-const FLOW_WALK_OUT = 2;
-// ลำดับเมื่อเวลาเท่ากัน
-const FLOW_ORDER = ['reg', 's3', 'er_in', 's4', 'lo', 'lr', 'xr', 'us', 's11', 's5', 'er_out', 's12', 's6', 's7', 's16', 's20'];
-// HOSxP ไม่มีเวลาออกจาก ER ที่ใช้ได้ → อยู่ ER กี่นาทีนับจาก enter_er_time (observe = 'Y' นานกว่า)
-const FLOW_ER_STAY = 20;
-const FLOW_ER_OBSERVE = 180;
-const FLOW_HOME_MAX = 120;          // ส่งกลับบ้าน (cur_dep 999) หลังกิจกรรมสุดท้ายไม่เกินนี้ = เวลาออกจริง
-const FLOW_HOME_LINGER = 30;
-const FLOW_CLINIC_HOME_MAX = 240;
-const FLOW_CLINIC_OPEN_MAX = 300;
+// คิวค้างโดยไม่มีขั้นถัดไป — อยู่จุดนั้นต่อได้นานสุดกี่นาที (ห้องเก็บเงินแทบไม่กดรับคิว ส่งกลับบ้านช้าเป็นชั่วโมง)
+const FLOW_LINGER = ['REG' => 15, 'CASH' => 30, 'RX' => 60, 'LAB' => 60, 'XRAY' => 30, 'US' => 30];
+const FLOW_LINGER_DEFAULT = 120;
 const FLOW_OPEN_AHEAD = 5;
 
-// กลุ่มแผนกจากชื่อใน kskdepartment (ตัวแรกที่ตรงชนะ) — รหัสแผนกแต่ละ รพ. ไม่เหมือนกัน
+// จุด Exit / หลังพบแพทย์: พบแพทย์แล้ว รอทำนัดครั้งต่อไป/ส่งทำหัตถการต่อ — HOSxP บันทึกเป็น OPD-SCREEN แต่ไม่ใช่การซักประวัติ
+const FLOW_EXIT_RX = '/\bexit\b|หลังพบแพทย์/iu';
+const FLOW_CASH_RX = '/เก็บเงิน|การเงิน|ชำระเงิน/u';
+
+// กลุ่มแผนกจากชื่อใน kskdepartment (ตัวแรกที่ตรงชนะ) — ชื่อแผนกบ้านบึงขึ้นต้นด้วยรหัส
 const FLOW_DEP_RULES = [
-    ['REMOTE', '/ไปรษณีย์|\bpcu\b/iu'],    // ผู้ป่วยไม่ได้มา รพ. (ส่งยาทางไปรษณีย์, PCU) · ชื่อแผนกบ้านบึงขึ้นต้นด้วยรหัส
-    ['ADMIN', '/เวชระเบียน/u'],
-    ['RX', '/จ่ายยา|เภสัช|^ห้องยา/iu'],
-    ['CASH', '/เก็บเงิน|การเงิน|ชำระเงิน/u'],
-    ['TELE', '/telemed|โทรเวช/iu'],
-    ['ARI', '/\bari\b/iu'],
-    ['PED', '/เด็ก|กุมาร/u'],             // 134 จุดซักประวัติคลินิกเด็ก → ห้องตรวจ 6
-    ['ER','/\ber\b|ฉุกเฉิน|อุบัติเหตุ/iu'],
-    ['DENT', '/ทันต/u'],
+    ['REMOTE', '/ไปรษณีย์|\bpcu\b/iu'],    // ผู้ป่วยไม่ได้มา รพ.
+    ['ARI', '/\bari\b/iu'],                // บัตร ซักประวัติ ตรวจ การเงิน ยา Exit ของ ARI อยู่ในอาคาร ARI ทั้งหมด
+    ['DENT', '/ทันต/u'],                   // รวมห้องบัตร/การเงินทันตกรรม
     ['TTM', '/แผนไทย/u'],
     ['PT', '/กายภาพ/u'],
-    ['MH', '/จิตเวช|สุขภาพจิต/u'],
-    ['SPEC', '/ปฐมภูมิ|เวชศาสตร์ครอบครัว|เวชปฏิบัติครอบครัว/u'],
+    ['EXIT', FLOW_EXIT_RX],
+    ['WOUND', '/ท(?:ำ|ํา)แผล/u'],          // 078 คัดกรองห้องทำแผล → 047 ห้องทำแผล (อาคารอุบัติเหตุ)
+    ['SCRW', '/opd\s*นอกเวลา/iu'],         // 023 OPD นอกเวลา 16:00–20:30 ต่อจาก walk-in
+    ['ADMIN', '/เวชระเบียน|ห้องบัตร/u'],
+    ['RX', '/จ่ายยา|เภสัช|^\d*\s*ห้องยา/iu'],
+    ['CASH', FLOW_CASH_RX],
+    ['TELE', '/telemed|โทรเวช/iu'],
+    ['PED', '/เด็ก|กุมาร/u'],             // 134 จุดซักประวัติคลินิกเด็ก → ห้องตรวจ 6
+    ['ER', '/\ber\b|ฉุกเฉิน|อุบัติเหตุ/iu'],
     ['US', '/ultra|อัลตร/iu'],
     ['XRAY', '/x-?ray|เอกซเรย์|รังสี/iu'],
     ['LAB', '/\blab\b|ชันสูตร|เทคนิคการแพทย์/iu'],
-    ['NCD', '/\bncd\b|เบาหวาน|ความดัน|โรคเรื้อรัง/iu'],
+    ['DRW', '/หน้าห้องตรวจ/u'],           // จุดรอหน้าห้องตรวจ (002 หน้าห้องตรวจ 1, 129 หน้าห้องตรวจ3(นัด))
     ['ROOM', '/ห้องตรวจ(?:โรค)?\s*(\d+)/u'],
-    ['SCR', '/ซักประวัติ|คัดกรอง|หน้าห้องตรวจ/u'],
+    ['ROOMX', '/ห้องตรวจ/u'],             // ห้องตรวจไม่มีเลข (ห้องตรวจ พิเศษ 1–3) → เดาห้องจากแพทย์
 ];
-// กลุ่มที่ไม่มีจุดของตัวเองบนผัง (SCR, NCD, SPEC, MH ฯลฯ) → ซักประวัติ/ห้องตรวจตามฝั่ง walk-in / ผู้ป่วยนัด
-
-// คอลัมน์มาตรฐานของ service_time (ความหมายตามแบบ รพ.วังน้ำเขียว):
-// service3 ส่งตรวจ · service4 เริ่มคัดกรอง · service11 คัดกรองเสร็จ · service5 แพทย์เริ่มตรวจ · service12 แพทย์ตรวจเสร็จ
-// service6 ใบสั่งยาถึงห้องยา · service7 ชำระเงิน · service16 จ่ายยาเสร็จ · service20 จบบริการหน่วยเฉพาะ
-const FLOW_ST_STD = ['service3', 'service4', 'service11', 'service5', 'service12', 'service6', 'service7', 'service16', 'service20'];
-// บ้านบึงกดเวลาคนละคอลัมน์ — ตรวจจาก api/opd_flow_check.php (7 วัน ถึง 4 พ.ย. 2569, 7,865 visit):
-// service1 คัดกรอง +22 น. · service2 ห้องตรวจแพทย์ +88 · service5 ห้องจ่ายยา +111 · service6 การเงิน +104
-// service7 ห้องจ่ายยา +131 · service9 ทันตกรรม/กายภาพ +118 · service3 = คัดกรอง ER (ใช้ er_regist แทน)
-// แก้ทับได้ด้วย .env FLOW_ST_MAP รูปแบบเดียวกัน
-const FLOW_ST_MAP_DEFAULT = 'service3:none,service4:service1,service11:none,service5:service2,service12:none,'
-    . 'service6:service5,service7:service6,service16:service7,service20:service9';
+// กลุ่มอื่น (คลินิกเฉพาะโรค, ซักประวัติ, ไม่รู้จัก) → จุดซักประวัติตามฝั่ง walk-in / ผู้ป่วยนัด
 
 function flow_env(string $key, string $default = ''): string
 {
@@ -155,39 +142,18 @@ function flow_remote_deps(array $deps): array
     if ($env !== '-') {
         return strtolower(trim($env)) === 'none' ? [] : array_map('trim', explode(',', $env));
     }
-    // array_keys คืนรหัสแผนกที่เป็นตัวเลขเป็น int — แปลงกลับเป็น string ก่อนเทียบแบบ strict
-    return array_map('strval', array_keys(array_filter($deps, fn($x) => in_array($x['group'], ['TELE', 'REMOTE'], true))));
+    return flow_group_deps($deps, ['TELE', 'REMOTE']);
+}
+
+/** รหัสแผนกของกลุ่มที่ระบุ (string เสมอ — array_keys คืนรหัสที่เป็นตัวเลขเป็น int) */
+function flow_group_deps(array $deps, array $groups): array
+{
+    return array_map('strval', array_keys(array_filter($deps, fn($x) => in_array($x['group'], $groups, true))));
 }
 
 function flow_group(array $deps, ?string $dep): ?string
 {
     return $deps[(string) $dep]['group'] ?? null;
-}
-
-/** service_time ผ่าน derived table ที่เปลี่ยนชื่อคอลัมน์ตาม FLOW_ST_MAP (ไม่ตั้ง = ใช้ตารางตรง) */
-function flow_st_table(): string
-{
-    $map = [];
-    foreach (explode(',', flow_env('FLOW_ST_MAP') ?: FLOW_ST_MAP_DEFAULT) as $part) {
-        if (strpos($part, ':') === false) {
-            continue;
-        }
-        [$k, $v] = array_map(fn($x) => strtolower(trim($x)), explode(':', $part, 2));
-        // ชื่อคอลัมน์ถูกต่อเข้า SQL ตรง ๆ — รับเฉพาะรูปแบบที่ปลอดภัย
-        if (in_array($k, FLOW_ST_STD, true) && preg_match('/^(service([1-9]|1\d|20)|none)$/', $v)) {
-            $map[$k] = $v;
-        }
-    }
-    if (!$map) {
-        return 'service_time';
-    }
-    $cols = ['vn', 'hn', 'vstdate', 'vsttime'];
-    foreach (FLOW_ST_STD as $c) {
-        $p = $map[$c] ?? $c;
-        $cols[] = $p === 'none' ? "CAST(NULL AS time) $c" : "$p $c";
-        $cols[] = $p === 'none' ? "CAST(NULL AS varchar(3)) {$c}_dep" : "{$p}_dep {$c}_dep";
-    }
-    return '(SELECT ' . implode(', ', $cols) . ' FROM service_time)';
 }
 
 /** รหัส visit สุ่ม (ไม่ย้อนกลับเป็น vn ได้) — เกลือต้องคงที่ ไม่งั้นหุ่นสลับตัวตอนรีเฟรช */
@@ -236,18 +202,8 @@ function flow_thai_date(string $d): string
     return 'วัน' . $w[(int) date('w', $t)] . 'ที่ ' . (int) date('j', $t) . ' ' . $m[(int) date('n', $t)] . ' ' . ((int) date('Y', $t) + 543);
 }
 
-/** แผนก → จุดบริการบนผัง (ไม่อยู่ในผัง = default) */
-function flow_unit(array $deps, array $idx, ?string $dep, string $default): string
-{
-    $g = flow_group($deps, $dep);
-    if ($g === null) {
-        return $default;
-    }
-    return isset($idx[$g]) ? $g : $default;
-}
-
 /**
- * ห้องตรวจเมื่อ HOSxP ไม่บอกห้อง — ให้แพทย์คนเดียวกันอยู่ห้องเดิมทั้งวัน (ฝั่ง walk-in ห้อง 1–5, ผู้ป่วยนัด 7–10)
+ * ห้องตรวจเมื่อ HOSxP ไม่บอกเลขห้อง — ให้แพทย์คนเดียวกันอยู่ห้องเดิมทั้งวัน (ฝั่ง walk-in ห้อง 1–5, ผู้ป่วยนัด 7–10)
  * shortcut: เดาห้องจากรหัสแพทย์ ถ้ามีตารางแพทย์ ↔ ห้องตรวจของบ้านบึง ให้เปลี่ยนมาใช้ตารางนั้น
  */
 function flow_room_for(?string $dr, bool $appt): string
@@ -256,145 +212,140 @@ function flow_room_for(?string $dr, bool $appt): string
     return $rooms[$dr ? crc32($dr) % count($rooms) : 0];
 }
 
-/** 1 visit → [[นาทีที่เข้า, จุด], ...], นาทีที่ออก · $now = นาทีปัจจุบัน (เฉพาะวันนี้) */
-function flow_segments(array $r, array $deps, array $idx, ?float $now): array
+/**
+ * แผนกในคิว → [จุดที่รอเมื่อถูกส่งมา, จุดเมื่อรับเข้าบริการ]
+ * 'OUT' = กลับบ้าน (999) · null = ไม่ย้าย (แผนกนอก รพ. เช่น ส่งยาไปรษณีย์)
+ */
+function flow_place(array $deps, ?string $dep, bool $appt, ?string $dr): array
 {
-    $reg = $r['reg'];
-    $md = $r['md'];
-    // ขั้นที่บ้านบึงไม่บันทึก — ประมาณ (FLOW_EST_*) เฉพาะเมื่อมีเวลาขั้นถัดไปจริง
-    if ($r['s3'] === null && $r['s4'] !== null && $r['s4'] > $reg + FLOW_EST_SEND && flow_group($deps, $md) !== 'ER') {
-        $r['s3'] = $reg + FLOW_EST_SEND;
+    if ((string) $dep === '999') {
+        return ['OUT', 'OUT'];
     }
-    if ($r['s11'] === null && $r['s4'] !== null && $r['s5'] !== null && $r['s5'] > $r['s4'] + FLOW_EST_SCREEN) {
-        $r['s11'] = $r['s4'] + FLOW_EST_SCREEN;
+    $g = flow_group($deps, $dep);
+    $side = $appt ? 'A' : 'W';
+    if ($g === 'ROOMX') {
+        $g = flow_room_for($dr, $appt);
     }
-    $appt = !empty($r['ap']);     // มีนัดที่มาตามนัดใน visit นี้ (oapp.visit_vn) → ฝั่งผู้ป่วยนัด
-    $scr = flow_unit($deps, $idx, $r['d4'] ?: $md, '');
-    $exam = flow_unit($deps, $idx, $r['d5'] ?: ($r['d12'] ?: $md), '');
-    if (!in_array($exam, array_merge(FLOW_ROOMS, FLOW_CLINICS, ['PED', 'ER']), true)) {
-        $exam = $scr === 'PED' ? 'PED' : flow_room_for($r['dr'] ?? null, $appt);
+    if ($g === 'R6') {
+        return ['PED', 'R6'];
     }
-    // คลินิกเฉพาะ (กายภาพ แผนไทย ฯลฯ) มักกดแค่เวลาจบบริการ — ให้เดินไปคลินิกหลังลงทะเบียน ไม่งั้นไม่เห็นผู้ป่วยบนผัง
-    if (in_array($exam, FLOW_CLINICS, true) && $r['s4'] === null) {
-        $r['s4'] = $reg + FLOW_EST_SEND;
-        $scr = $exam;
+    if (in_array($g, FLOW_ROOMS, true)) {
+        return [(int) substr($g, 1) >= 7 ? 'DRWA' : 'DRWW', $g];
     }
-    // รอพบแพทย์: ห้อง 1–5 หน้าห้องฝั่ง walk-in · 7–10 ฝั่งผู้ป่วยนัด · ห้อง 6 (เด็ก) รอในคลินิกเด็ก · คลินิกเฉพาะรอในคลินิก
-    if ($exam === 'PED' || $exam === 'R6') {
-        [$wait, $room] = ['PED', 'R6'];
-    } elseif (in_array($exam, FLOW_ROOMS, true)) {
-        [$wait, $room] = [(int) substr($exam, 1) >= 7 ? 'DRWA' : 'DRWW', $exam];
-    } else {
-        $wait = $room = $exam;
+    switch ($g) {
+        case 'REMOTE':
+        case 'TELE':
+            return [null, null];
+        case 'ADMIN':
+            return ['REG', 'REG'];
+        case 'DRW':
+        case 'EXIT':
+            return ["DRW$side", "DRW$side"];
+        case 'SCRW':
+        case 'PED':
+        case 'ER':
+        case 'LAB':
+        case 'XRAY':
+        case 'US':
+        case 'DENT':
+        case 'WOUND':
+        case 'ARI':
+        case 'TTM':
+        case 'PT':
+        case 'CASH':
+        case 'RX':
+            return [$g, $g];
     }
-    if ($wait === 'PED') {
-        $scr = 'PED';
-    } elseif (!in_array($scr, array_merge(FLOW_CLINICS, ['ER']), true)) {
-        $scr = $appt ? 'SCRA' : 'SCRW';
-    }
-    if ($r['s12'] === null && $r['s5'] !== null && in_array($room, FLOW_ROOMS, true)) {
-        $next = null;
-        foreach (FLOW_ORDER as $k) {
-            if ($k !== 's5' && $r[$k] !== null && $r[$k] > $r['s5']) {
-                $next = min($next ?? $r[$k], $r[$k]);
-            }
-        }
-        if ($next === null || $next > $r['s5'] + FLOW_EST_EXAM) {
-            $r['s12'] = $r['s5'] + FLOW_EST_EXAM;
-            $examEst = $next === null;    // ตรวจเป็นขั้นสุดท้าย — ออกหลังตรวจ ไม่รอเวลาส่งกลับบ้าน
-        }
-    }
-    // คลินิก ARI ชำระเงินและรับยาในคลินิกเอง
-    $rx = $exam === 'ARI' ? 'ARI' : 'RX';
-    $area = [
-        'reg' => flow_group($deps, $md) === 'ER' ? 'ER' : 'REG',
-        's3' => $scr, 's4' => $scr,
-        'lo' => 'LAB', 'lr' => $wait, 'xr' => 'XRAY', 'us' => 'US',    // lr ปรับด้านล่างตามขั้นถัดไป
-        's11' => $wait, 's5' => $room,
-        's12' => null, 's6' => $rx, 's7' => $exam === 'ARI' ? 'ARI' : 'CASH', 's16' => null, 's20' => null,
-        'er_in' => 'ER', 'er_out' => null,
-    ];
+    return ["SCR$side", "SCR$side"];
+}
 
-    $ev = [];
-    foreach (FLOW_ORDER as $oi => $k) {
-        $t = $r[$k];
-        if ($t === null) {
+/**
+ * 1 visit → [[นาทีที่เข้า, จุด], ...], นาทีที่ออก (นาทีนับจากเที่ยงคืนของวันที่มา)
+ * $v: reg, md (แผนกหลัก), ap (ผู้ป่วยนัด), dr (แพทย์), lo/lr (แล็บสั่ง/รับสิ่งส่งตรวจ), xr, us
+ * $q: แถว opd_dep_queue [ส่ง, รับ, เสร็จ, depcode] · $now = นาทีปัจจุบัน (เฉพาะวันนี้)
+ */
+function flow_segments(array $v, array $q, array $deps, ?float $now): array
+{
+    $reg = $v['reg'];
+    $appt = !empty($v['ap']);
+    $dr = $v['dr'] ?? null;
+    $ok = fn($t) => $t !== null && $t >= $reg - 1 && $t <= $reg + FLOW_MAX_TOTAL;
+
+    $main = flow_place($deps, $v['md'] ?? null, $appt, $dr)[0];
+    $ev = [[$reg, 0, in_array($main, ['ER', 'ARI'], true) ? $main : 'REG']];   // ห้องบัตร ER/ARI อยู่ในอาคารนั้น
+    if (!array_filter($q, fn($r) => $ok($r[0]) && $r[0] <= $reg + FLOW_EST_SEND) && $main !== null) {
+        $ev[] = [$reg + FLOW_EST_SEND, 1, $main];
+    }
+    // กำลังรับบริการ (รับคิวแล้วยังไม่เสร็จ) — คิวที่ส่งไปที่อื่นระหว่างนั้น (เช่น ส่งการเงินล่วงหน้า) มีผลเมื่อบริการเสร็จ
+    $busy = [];
+    foreach ($q as $i => [, $ta, $tf]) {
+        if ($ok($ta) && $ok($tf) && $tf > $ta && $tf - $ta <= FLOW_BUSY_MAX) {
+            $busy[$i] = [$ta, $tf];
+        }
+    }
+    foreach ($q as $i => [$tq, $ta, $tf, $dep]) {
+        [$wait, $in] = flow_place($deps, $dep, $appt, $dr);
+        if ($wait === null) {
             continue;
         }
-        if (($k === 's3' || $k === 's20') && flow_group($deps, $r['d' . substr($k, 1)]) === 'ADMIN') {
-            continue;   // เวชระเบียนส่งต่อ/ปิด visit ย้อนหลัง ไม่ใช่ที่อยู่ของผู้ป่วย
+        if ($ok($tq)) {
+            $t = max($tq, $reg + FLOW_EST_SEND);    // แสดงที่เวชระเบียนสักครู่ก่อนไปจุดแรก
+            if ($wait !== 'OUT') {
+                foreach ($busy as $j => [$a, $b]) {
+                    $t = ($j !== $i && $t > $a && $t < $b) ? $b : $t;
+                }
+            }
+            $ev[] = [$t, 1, $wait];
         }
-        if ($k !== 'reg' && !($reg <= $t && $t <= $reg + FLOW_MAX_TOTAL)) {
-            continue;   // กดเวลาผิดวัน/ก่อนลงทะเบียน
+        if ($wait !== 'OUT' && $ok($ta)) {
+            $ev[] = [max($ta, $reg), 2, $in];
+            if ($in !== $wait && $ok($tf) && $tf > $ta) {
+                $ev[] = [$tf, 0, $wait];     // ออกจากห้องตรวจ — ถ้ามีคิวถัดไปเวลาเดียวกัน คิวนั้นชนะ
+            }
         }
-        $ev[] = [$t, $oi, $k];
+    }
+    foreach ([['lo', 'LAB', null], ['xr', 'XRAY', FLOW_EST_XRAY], ['us', 'US', FLOW_EST_US]] as [$k, $a, $dur]) {
+        if ($ok($v[$k] ?? null)) {
+            $ev[] = [$v[$k], 1, $a];
+            $back = $dur === null ? ($v['lr'] ?? null) : $v[$k] + $dur;
+            if ($ok($back) && $back > $v[$k]) {
+                $ev[] = [$back, 1, 'BACK'];   // กลับจุดเดิมหลังเจาะเลือด/ถ่ายภาพ
+            }
+        }
     }
     usort($ev, fn($a, $b) => $a[0] <=> $b[0] ?: $a[1] <=> $b[1]);
 
-    // แล็บ/X-Ray/Ultrasound ที่เกิดหลังขั้นบริการสุดท้าย = ผู้ป่วยกลับไปแล้ว (ส่งตรวจต่อภายหลัง)
-    $lastSrv = null;
-    foreach ($ev as $e) {
-        if (!in_array($e[2], ['reg', 'lo', 'lr', 'xr', 'us'], true)) {
-            $lastSrv = max($lastSrv ?? $e[0], $e[0]);
-        }
-    }
-    if ($lastSrv !== null) {
-        $ev = array_values(array_filter($ev, fn($e) => !in_array($e[2], ['lo', 'lr', 'xr', 'us'], true) || $e[0] <= $lastSrv));
-    }
-
-    // จุดของขั้นถัดไปที่มีบันทึกหลังเวลา $t (ข้ามขั้นที่ยังไม่รู้จุด)
-    $nextArea = function (float $t, string $self) use ($ev, &$area): ?string {
-        foreach ($ev as $e) {
-            if ($e[0] >= $t && $e[2] !== $self && $e[2] !== 's12' && $area[$e[2]] !== null) {
-                return $area[$e[2]];
-            }
-        }
-        return null;
-    };
-    // แล็บรับสิ่งส่งตรวจแล้ว: เจาะก่อนพบแพทย์ → ไปรอที่ขั้นถัดไป (ผู้ป่วยนัดเจาะเลือดก่อนซักประวัติ → จุดซักประวัติ)
-    // เจาะหลังพบแพทย์ → รอผลกลับไปพบแพทย์ที่หน้าห้องตรวจ
-    if ($r['lr'] !== null && ($r['s5'] === null || $r['lr'] < $r['s5'])) {
-        $n = $nextArea($r['lr'], 'lr');
-        $area['lr'] = ($n === null || $n === $room) ? $wait : $n;     // ขั้นถัดไปคือเข้าห้องตรวจ → รอหน้าห้อง
-    }
-    // ตรวจเสร็จ → ไปรอที่จุดถัดไปที่มีบันทึก (เช่น การเงินก่อนห้องยา) · ไม่มี → ห้องยา/การเงิน/กลับบ้าน (ไม่นั่งค้างห้องตรวจ)
-    if ($r['s12'] !== null) {
-        $later = [];
-        foreach ($ev as $e) {
-            if ($e[0] >= $r['s12']) {
-                $later[$e[2]] = true;
-            }
-        }
-        $next = $nextArea($r['s12'], 's12');
-        $area['s12'] = $next ?? ((isset($later['s6']) || isset($later['s16'])) ? $rx
-            : (in_array($exam, FLOW_CLINICS, true) ? $exam : (isset($later['s7']) ? $area['s7'] : null)));
-    }
-
     $segs = [];
-    foreach ($ev as [$t, , $k]) {
-        $a = $area[$k];
-        if ($a === null || ($segs && end($segs)[1] === $a)) {
-            continue;
+    $home = null;    // จุดล่าสุดที่ไม่ใช่แล็บ/X-Ray/Ultrasound
+    $out = null;
+    foreach ($ev as [$t, , $a]) {
+        if ($a === 'OUT') {
+            $out = $t;
+            break;                            // หลังส่งกลับบ้านไม่นับ (กดย้อนหลัง)
         }
-        $segs[] = [$t, $a];
-    }
-
-    [$lastT, , $lastK] = end($ev);
-    $lastArea = $area[$lastK];
-    $end = $lastArea === null ? $lastT + FLOW_WALK_OUT : $lastT + (FLOW_LINGER[$lastArea] ?? 20);
-    $home = $r['home'];
-    $inClinic = in_array($lastArea, FLOW_CLINICS, true);
-    if ($home !== null && $home >= $reg && empty($examEst)) {
-        if ($lastT <= $home && $home <= $lastT + ($inClinic ? FLOW_CLINIC_HOME_MAX : FLOW_HOME_MAX)) {
-            $end = max($home, $lastT + FLOW_WALK_OUT);
-        } elseif ($home < $lastT && $lastArea !== null) {
-            $end = min($end, $lastT + FLOW_HOME_LINGER);
+        if ($a === 'BACK') {
+            $a = $home;
+            if ($a === null) {
+                continue;
+            }
+        } elseif (!in_array($a, ['LAB', 'XRAY', 'US'], true)) {
+            $home = $a;
         }
-    } elseif ($now !== null && $inClinic && flow_unit($deps, $idx, $r['cd'], '') === $lastArea) {
-        $end = max($end, min($now + FLOW_OPEN_AHEAD, $reg + FLOW_CLINIC_OPEN_MAX));
+        if ($segs && end($segs)[0] == $t) {
+            array_pop($segs);                 // เหตุการณ์เวลาเดียวกัน — ตัวหลังชนะ
+        }
+        if (!$segs || end($segs)[1] !== $a) {
+            $segs[] = [$t, $a];
+        }
     }
-    if (!$segs) {
-        $segs = [[$reg, $area['reg']]];
+    [$lastT, $lastA] = end($segs);
+    $cap = $lastT + (FLOW_LINGER[$lastA] ?? FLOW_LINGER_DEFAULT);
+    if ($out !== null) {
+        $end = min(max($out, $lastT) + FLOW_WALK_OUT, $cap);
+    } elseif ($now !== null && $now <= $cap) {
+        $end = min(max($now + FLOW_OPEN_AHEAD, $lastT + FLOW_WALK_OUT), $cap);   // ยังอยู่ใน รพ.
+    } else {
+        $end = $cap;
     }
     return [$segs, $end];
 }

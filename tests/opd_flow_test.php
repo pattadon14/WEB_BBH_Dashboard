@@ -1,114 +1,113 @@
 <?php
 /*
- * ทดสอบตรรกะ visit → จุดบริการของ 3D Monitor (ไม่ต่อฐานข้อมูล) · รัน: php tests/opd_flow_test.php
+ * ทดสอบตรรกะ คิวส่งแผนก → จุดบริการของ 3D Monitor (ไม่ต่อฐานข้อมูล) · รัน: php tests/opd_flow_test.php
+ * กรณีทดสอบจำลองจาก visit จริงของบ้านบึง 4 พ.ย. 2569 (เวลาเป็นนาทีนับจากเที่ยงคืน)
  */
 if (PHP_SAPI !== 'cli') {
     exit;
 }
 require __DIR__ . '/../api/opd_flow_lib.php';
 
-$idx = [];
-foreach (FLOW_AREAS as $i => $a) {
-    $idx[$a[0]] = $i;
+$names = ['193 ห้องบัตร OPD', '207 จุดซักประวัติ GP', '115 จุดซักประวัติ OPD เฉพาะทาง', '109 ห้องตรวจโรค 7',
+    '129 หน้าห้องตรวจ3(นัด)', '131 Exit นัด', '014 ห้องเก็บเงิน', '203 ห้องจ่ายยาผู้ป่วยนอก', '999 กลับบ้าน',
+    '011 คัดกรองผู้ป่วย ER', '065 ห้องอุบัติเหตุ ER', "078 คัดกรองห้องท\u{0E4D}\u{0E32}แผล", '047 ห้องทำแผลตึกใหม่',
+    '023 OPDนอกเวลา', '035 ห้องตรวจ พิเศษ 1', '134 จุดซักประวัติคลินิกเด็ก', '108 ห้องตรวจโรค 6',
+    '143 ส่งเวชภัณฑ์ทางไปรษณีย์', '068 กายภาพบำบัด'];
+$deps = [];
+foreach ($names as $n) {
+    $deps[substr($n, 0, 3)] = ['name' => $n, 'group' => flow_classify($n)];
 }
-$deps = [
-    'OPD' => ['name' => 'ห้องบัตร', 'group' => null],
-    'EMR' => ['name' => 'ห้องฉุกเฉิน', 'group' => flow_classify('ห้องฉุกเฉิน')],
-    'DEN' => ['name' => 'ทันตกรรม', 'group' => flow_classify('ทันตกรรม')],
-    'R03' => ['name' => 'ห้องตรวจ 3', 'group' => flow_classify('ห้องตรวจ 3')],
-    'PED' => ['name' => '134 จุดซักประวัติคลินิกเด็ก', 'group' => flow_classify('134 จุดซักประวัติคลินิกเด็ก')],
-    'ARI' => ['name' => 'ห้องตรวจแพทย์ ARI', 'group' => flow_classify('ห้องตรวจแพทย์ ARI')],
-];
-function row(array $v): array
+function visit(array $v): array
 {
-    $keys = array_merge(FLOW_ORDER, ['home', 'md', 'cd', 'd3', 'd4', 'd5', 'd7', 'd12', 'd20', 'ap', 'dr']);
-    return array_merge(array_fill_keys($keys, null), $v);
+    return array_merge(['reg' => 480.0, 'md' => '207', 'ap' => false, 'dr' => null, 'lo' => null, 'lr' => null,
+        'xr' => null, 'us' => null], $v);
 }
 function check(string $name, $got, $want): void
 {
     if ($got !== $want) {
-        fwrite(STDERR, "FAIL $name\n  got:  " . json_encode($got) . "\n  want: " . json_encode($want) . "\n");
+        fwrite(STDERR, "FAIL $name\n  got:  " . json_encode($got, JSON_UNESCAPED_UNICODE) . "\n  want: "
+            . json_encode($want, JSON_UNESCAPED_UNICODE) . "\n");
         exit(1);
     }
     echo "ok   $name\n";
 }
 
-check('classify ER', $deps['EMR']['group'], 'ER');
-check('classify room 3', $deps['R03']['group'], 'R3');
-check('classify dent', $deps['DEN']['group'], 'DENT');
-check('classify ari before room', $deps['ARI']['group'], 'ARI');
-check('classify room 8', flow_classify('ห้องตรวจ 8'), 'R8');
-check('classify room 12 -> 10', flow_classify('ห้องตรวจ 12'), 'R10');
+// ---- จัดกลุ่มแผนกจากชื่อจริงของบ้านบึง
+foreach ([
+    ["078 คัดกรองห้องท\u{0E4D}\u{0E32}แผล", 'WOUND'], ['047 ห้องทำแผลตึกใหม่', 'WOUND'], ['131 Exit นัด', 'EXIT'],
+    ['076 Exit ทั่วไป', 'EXIT'], ['218 หลังพบแพทย์ NCD', 'EXIT'], ['199 Exit ARI', 'ARI'], ['200 การเงิน ARI', 'ARI'],
+    ['195 ห้องยา ARI', 'ARI'], ['162 ห้องตรวจแพทย์ ARI', 'ARI'], ['053 การเงินห้องทันตกรรม', 'DENT'],
+    ['189 ห้องบัตรทันตกรรม', 'DENT'], ['083 การเงินห้องกายภาพ', 'PT'], ['129 หน้าห้องตรวจ3(นัด)', 'DRW'],
+    ['002 หน้าห้องตรวจ 1(ทั่วไป)', 'DRW'], ['109 ห้องตรวจโรค 7', 'R7'], ['177 ห้องตรวจโรค14', 'R10'],
+    ['035 ห้องตรวจ พิเศษ 1', 'ROOMX'], ['023 OPDนอกเวลา', 'SCRW'], ['040 ER(นอกเวลาราชการ)', 'ER'],
+    ['193 ห้องบัตร OPD', 'ADMIN'], ['203 ห้องจ่ายยาผู้ป่วยนอก', 'RX'], ['014 ห้องเก็บเงิน', 'CASH'],
+    ['134 จุดซักประวัติคลินิกเด็ก', 'PED'], ['143 ส่งเวชภัณฑ์ทางไปรษณีย์', 'REMOTE'], ['234 PCU การเงิน', 'REMOTE'],
+    ['178 Telemedicine', 'TELE'], ['039 คลินิคเบาหวาน GP', null],
+] as [$n, $g]) {
+    check("classify $n", flow_classify($n), $g);
+}
 
-// OPD ทั่วไป: ลงทะเบียน → ซักประวัติ → รอหน้าห้องตรวจ → ห้องตรวจ 3 → ห้องยา → ส่งกลับบ้าน
-[$s, $e] = flow_segments(row(['reg' => 480.0, 's4' => 490.0, 's11' => 500.0, 's5' => 530.0, 'd5' => 'R03',
-    's12' => 540.0, 's16' => 560.0, 'home' => 565.0, 'md' => 'OPD']), $deps, $idx, null);
-check('opd segments', $s, [[480.0, 'REG'], [483.0, 'SCRW'], [500.0, 'DRWW'], [530.0, 'R3'], [540.0, 'RX']]);
-check('opd exit = send-home time', $e, 565.0);
+// ---- ผู้ป่วยนัด: ซักประวัติ → หน้าห้องตรวจ → ห้อง 7 → Exit นัด → การเงิน (ส่งกลับบ้านช้า 4 ชม. = การเงินไม่กดรับคิว)
+[$s, $e] = flow_segments(visit(['reg' => 446.0, 'md' => '115', 'ap' => true]), [
+    [446.0, null, null, '115'], [595.0, 598.0, 599.0, '129'], [599.0, 619.0, 623.0, '109'],
+    [623.0, 626.0, 628.0, '131'], [628.0, null, null, '014'], [903.0, null, null, '999']], $deps, null);
+check('appointment path', $s, [[446.0, 'REG'], [449.0, 'SCRA'], [595.0, 'DRWA'], [619.0, 'R7'], [623.0, 'DRWA'], [628.0, 'CASH']]);
+check('cashier capped at 30 min', $e, 658.0);
 
-// แบบบ้านบึง: ไม่มีเวลาส่งตรวจ/คัดกรองเสร็จ/ตรวจเสร็จ → ประมาณขั้นที่ขาด · ตรวจ 10 นาทีแล้วไปรอที่จุดถัดไป (การเงิน)
-[$s, $e] = flow_segments(row(['reg' => 480.0, 's4' => 500.0, 's5' => 560.0, 's6' => 585.0, 's7' => 580.0,
-    's16' => 600.0, 'md' => 'OPD']), $deps, $idx, null);
-check('banbung estimated steps', $s, [[480.0, 'REG'], [483.0, 'SCRW'], [505.0, 'DRWW'], [560.0, 'R1'], [570.0, 'CASH'], [585.0, 'RX']]);
-check('banbung exit after dispense', $e, 602.0);
+// ---- ทำแผล: ส่งการเงินล่วงหน้าระหว่างทำแผล → ไปการเงินเมื่อทำแผลเสร็จ
+[$s, $e] = flow_segments(visit(['reg' => 521.0, 'md' => '078']), [
+    [521.0, 531.0, 577.0, '078'], [532.0, null, null, '014'], [577.0, null, null, '999']], $deps, null);
+check('wound then cashier', $s, [[521.0, 'REG'], [524.0, 'WOUND'], [577.0, 'CASH']]);
+check('wound exit', $e, 579.0);
 
-// สั่งแล็บหลังตรวจ: ห้องตรวจ → แล็บ → รับสิ่งส่งตรวจแล้วกลับไปรอหน้าห้องตรวจ (ไม่ค้างหน้าแล็บ)
-[$s] = flow_segments(row(['reg' => 480.0, 's4' => 490.0, 's5' => 530.0, 'd5' => 'R03', 'lo' => 535.0, 'lr' => 545.0,
-    's6' => 620.0, 's16' => 640.0, 'md' => 'OPD']), $deps, $idx, null);
-check('lab then back to wait', $s, [[480.0, 'REG'], [483.0, 'SCRW'], [495.0, 'DRWW'], [530.0, 'R3'], [535.0, 'LAB'],
-    [545.0, 'DRWW'], [620.0, 'RX']]);
+// ---- ER: ลงทะเบียนที่ ER · ส่งห้องยาและการเงินพร้อมกัน → ห้องยารับคิวทีหลัง
+[$s, $e] = flow_segments(visit(['reg' => 488.0, 'md' => '011']), [
+    [488.0, 489.0, 491.0, '011'], [521.0, 512.0, 524.0, '065'], [524.0, 528.0, 537.0, '203'],
+    [524.0, null, null, '014'], [537.0, null, null, '999']], $deps, null);
+check('er path', $s, [[488.0, 'ER'], [524.0, 'CASH'], [528.0, 'RX']]);
+check('er exit', $e, 539.0);
 
-// ผู้ป่วยนัดเจาะเลือดก่อนซักประวัติ → หลังแล็บรับสิ่งส่งตรวจไปรอที่จุดซักประวัติฝั่งนัด ไม่ใช่หน้าห้องตรวจ
-[$s] = flow_segments(row(['reg' => 400.0, 'lo' => 405.0, 'lr' => 415.0, 's4' => 470.0, 's5' => 530.0, 'd5' => 'R03',
-    'ap' => true, 'md' => 'OPD']), $deps, $idx, null);
-check('appt lab before screening', $s, [[400.0, 'REG'], [403.0, 'SCRA'], [405.0, 'LAB'], [415.0, 'SCRA'], [475.0, 'DRWW'],
-    [530.0, 'R3']]);
+// ---- เจาะเลือดก่อนพบแพทย์ → กลับไปรอที่ซักประวัติ
+[$s, $e] = flow_segments(visit(['reg' => 400.0, 'md' => '115', 'ap' => true, 'lo' => 405.0, 'lr' => 415.0]), [
+    [400.0, null, null, '115'], [470.0, 480.0, 485.0, '109'], [485.0, null, null, '999']], $deps, null);
+check('lab and back', $s, [[400.0, 'REG'], [403.0, 'SCRA'], [405.0, 'LAB'], [415.0, 'SCRA'], [470.0, 'DRWA'], [480.0, 'R7'], [485.0, 'DRWA']]);
+check('lab visit exit', $e, 487.0);
 
-// คลินิก ARV: ซักประวัติแล้ว แล็บรับสิ่งส่งตรวจ แพทย์ตรวจบ่าย → รอหน้าห้องตรวจ ไม่นั่งในห้องตรวจ 4 ชม.
-[$s] = flow_segments(row(['reg' => 505.0, 'lo' => 506.0, 's4' => 536.0, 'lr' => 551.0, 's5' => 844.0, 'd5' => 'R03',
-    's6' => 870.0, 'md' => 'OPD']), $deps, $idx, null);
-check('lab then wait outside room', $s, [[505.0, 'REG'], [506.0, 'LAB'], [508.0, 'SCRW'], [541.0, 'DRWW'], [844.0, 'R3'],
-    [854.0, 'RX']]);
+// ---- X-Ray มีแค่เวลาส่ง → อยู่ 10 นาทีแล้วกลับ · ไม่มีส่งกลับบ้าน (วันก่อน) → ค้างได้ 120 นาที
+[$s, $e] = flow_segments(visit(['reg' => 500.0, 'xr' => 520.0]), [[500.0, null, null, '207']], $deps, null);
+check('xray and back', $s, [[500.0, 'REG'], [503.0, 'SCRW'], [520.0, 'XRAY'], [530.0, 'SCRW']]);
+check('no go-home linger', $e, 650.0);
 
-// กายภาพ: บันทึกแค่เวลาจบบริการ (service20) → อยู่คลินิกกายภาพตั้งแต่หลังลงทะเบียนจนจบบริการ
-$deps['PTX'] = ['name' => '068 กายภาพบำบัด', 'group' => flow_classify('068 กายภาพบำบัด')];
-[$s, $e] = flow_segments(row(['reg' => 480.0, 's20' => 560.0, 'md' => 'PTX']), $deps, $idx, null);
-check('pt shown in clinic', $s, [[480.0, 'REG'], [483.0, 'PT']]);
-check('pt leaves after service end', $e, 562.0);
+// ---- ห้องตรวจไม่มีเลข → ห้องเดิมตามรหัสแพทย์ (walk-in 1–5)
+[$s] = flow_segments(visit(['dr' => 'D9']), [[480.0, null, null, '207'], [500.0, 510.0, 515.0, '035']], $deps, null);
+check('unnumbered room by doctor', [$s[2][1], $s[3][1]], ['DRWW', flow_room_for('D9', false)]);
+check('same doctor same room', flow_room_for('D9', true), flow_room_for('D9', true));
 
-// ARI: ซักประวัติ ตรวจ รับยา อยู่ในคลินิก ARI ทั้งหมด
-[$s] = flow_segments(row(['reg' => 480.0, 's4' => 490.0, 'd4' => 'ARI', 's5' => 520.0, 'd5' => 'ARI', 's6' => 540.0,
-    's16' => 550.0, 'md' => 'ARI']), $deps, $idx, null);
-check('ari stays in clinic', $s, [[480.0, 'REG'], [483.0, 'ARI']]);
+// ---- คลินิกเด็ก: รอในคลินิกเด็ก ตรวจห้อง 6
+[$s] = flow_segments(visit(['md' => '134']), [[480.0, null, null, '134'], [520.0, 525.0, 530.0, '108']], $deps, null);
+check('pediatric', $s, [[480.0, 'REG'], [483.0, 'PED'], [525.0, 'R6'], [530.0, 'PED']]);
 
-// ผู้ป่วยนัด (oapp.visit_vn) ไม่รู้ห้อง → ซักประวัติ/หน้าห้องตรวจฝั่งนัด ห้อง 7–10 ตามรหัสแพทย์ (คงที่)
-[$s] = flow_segments(row(['reg' => 480.0, 's4' => 490.0, 's5' => 520.0, 'md' => 'OPD', 'ap' => true, 'dr' => 'D01']), $deps, $idx, null);
-check('appointment side', [$s[1][1], $s[2][1], in_array($s[3][1], ['R7', 'R8', 'R9', 'R10'], true)], ['SCRA', 'DRWA', true]);
-check('same doctor same room', flow_room_for('D01', true), flow_room_for('D01', true));
+// ---- แผนกนอก รพ. กลางทาง (ส่งยาไปรษณีย์) ไม่ย้ายผู้ป่วย
+[$s] = flow_segments(visit([]), [[480.0, null, null, '207'], [490.0, null, null, '143']], $deps, null);
+check('remote dep ignored', $s, [[480.0, 'REG'], [483.0, 'SCRW']]);
 
-// คลินิกเด็ก: ซักประวัติและรอในคลินิกเด็ก แล้วตรวจห้อง 6
-[$s] = flow_segments(row(['reg' => 480.0, 's4' => 490.0, 'd4' => 'PED', 's5' => 520.0, 'md' => 'OPD']), $deps, $idx, null);
-check('pediatric', $s, [[480.0, 'REG'], [483.0, 'PED'], [520.0, 'R6']]);
+// ---- ไม่มีคิวเลย → เดินไปแผนกหลัก (กายภาพ)
+[$s, $e] = flow_segments(visit(['md' => '068']), [], $deps, null);
+check('no queue goes to main dep', $s, [[480.0, 'REG'], [483.0, 'PT']]);
 
-// ไปรษณีย์ / PCU = ไม่ได้มา รพ.
-check('classify remote post', flow_classify('ส่งเวชภัณฑ์ทางไปรษณีย์'), 'REMOTE');
-check('classify remote pcu', flow_classify('234 PCU การเงิน'), 'REMOTE');
-check('classify remote post with code', flow_classify('143 ส่งเวชภัณฑ์ทางไปรษณีย์'), 'REMOTE');
-check('classify tele with code', flow_classify('178 Telemedicine'), 'TELE');
+// ---- วันนี้ ยังไม่ส่งกลับบ้าน → อยู่ถึงตอนนี้
+[$s, $e] = flow_segments(visit(['reg' => 580.0]), [[580.0, null, null, '207']], $deps, 600.0);
+check('today still here', $e, 605.0);
 
-// ER: ลงทะเบียนที่ ER, อยู่ 20 นาทีหลังเข้า ER แล้วออก
-[$s, $e] = flow_segments(row(['reg' => 600.0, 'er_in' => 605.0, 'er_out' => 625.0, 'md' => 'EMR']), $deps, $idx, null);
-check('er segments', $s, [[600.0, 'ER']]);
-check('er exit', $e, 627.0);
+// ---- คิวหลังส่งกลับบ้าน (กดย้อนหลัง) และคิวก่อนลงทะเบียน ไม่นับ
+[$s, $e] = flow_segments(visit([]), [[300.0, null, null, '014'], [480.0, null, null, '207'], [500.0, null, null, '999'],
+    [520.0, null, null, '014']], $deps, null);
+check('ignore before reg and after home', $s, [[480.0, 'REG'], [483.0, 'SCRW']]);
+check('exit at go-home', $e, 502.0);
 
-// ทันตกรรม: กดตรวจเสร็จทันทีแต่ยังรอทำฟันในคลินิก
-[$s, $e] = flow_segments(row(['reg' => 500.0, 's5' => 510.0, 'd5' => 'DEN', 's12' => 512.0, 'md' => 'DEN']), $deps, $idx, null);
-check('dent segments', $s, [[500.0, 'REG'], [503.0, 'DENT']]);   // ไม่มีเวลาคัดกรอง → เดินไปรอในคลินิกเลย
-check('dent linger', $e, 572.0);
-
-// เวลาก่อนลงทะเบียน (กดผิด) ไม่นับ
-[$s] = flow_segments(row(['reg' => 500.0, 's4' => 400.0, 'md' => 'OPD']), $deps, $idx, null);
-check('ignore time before reg', $s, [[500.0, 'REG']]);
+// ---- OPD นอกเวลา อยู่ฝั่ง walk-in แม้เป็นผู้ป่วยนัด
+[$s] = flow_segments(visit(['md' => '023', 'ap' => true]), [[480.0, null, null, '023']], $deps, null);
+check('after-hours opd walk-in side', $s[1][1], 'SCRW');
 
 check('urgency er level', flow_urgency('2', '0'), 2);
 check('urgency opd emergency', flow_urgency(null, '4'), 2);

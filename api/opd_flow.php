@@ -2,13 +2,13 @@
 /*
  * ข้อมูล 3D Monitor OPD — GET api/opd_flow.php?d=YYYY-MM-DD
  *
- * แปลงเวลาแต่ละขั้นใน service_time + lab_head + xray_report + er_regist ของแต่ละ visit เป็นเส้นทาง
- * "ช่วงเวลาไหน อยู่จุดบริการไหน" ให้หน้าเว็บขยับหุ่นตามเวลา (พอร์ตจาก flow.py ของ opd-dashboard-wnk, MIT)
+ * แปลงคิวส่งแผนก (opd_dep_queue) + lab_head + xray_report ของแต่ละ visit เป็นเส้นทาง
+ * "ช่วงเวลาไหน อยู่จุดบริการไหน" ให้หน้าเว็บขยับหุ่นตามเวลา (เอนจินพอร์ตจาก flow.py ของ opd-dashboard-wnk, MIT)
  *
  * นิยาม (ดูปุ่ม "วิธีคำนวณ" บนหน้าเว็บด้วย):
  *  - ฝั่งผู้ป่วยนัด = มี oapp.visit_vn = vn (มาตามนัด) · ไม่งั้นฝั่ง walk-in
- *  - นับเป็น visit (ovst.vn) ของวันที่เลือก · ไม่รวม visit ที่ admit (ovst.an) และ Telemed/PCU (pt_subtype ≠ 0)
- *  - ตำแหน่งอนุมานจากขั้นล่าสุดที่บันทึกเวลาแล้ว · เวลาที่เกินลงทะเบียน + 10 ชม. หรือก่อนลงทะเบียน ไม่นับ
+ *  - นับเป็น visit (ovst.vn) ของวันที่เลือก · ไม่รวม visit ที่ admit (ovst.an), pt_subtype ≠ 0 และแผนก Telemed/PCU/ไปรษณีย์
+ *  - ส่งไปแผนก = ไปรอที่จุดนั้น · รับเข้าห้องตรวจ = อยู่ในห้อง · ส่ง 999 = กลับบ้าน · เวลาเกินลงทะเบียน + 10 ชม. ไม่นับ
  *
  * ส่งออกเฉพาะเวลา (นาทีนับจากเที่ยงคืน) จุดบริการ เพศ ระดับเร่งด่วน รหัสแผนก ลำดับแพทย์ — ไม่มี vn / HN / ชื่อ
  */
@@ -20,7 +20,7 @@ $d = flow_date();
 $today = date('Y-m-d');
 $isToday = $d === $today;
 
-$cacheFile = __DIR__ . '/../storage/cache/opd_flow_v3_' . $d . '.json';
+$cacheFile = __DIR__ . '/../storage/cache/opd_flow_v4_' . $d . '.json';
 $ttl = $isToday ? 45 : 3600;
 if (is_file($cacheFile) && time() - filemtime($cacheFile) < $ttl) {
     header('Content-Type: application/json; charset=utf-8');
@@ -36,8 +36,8 @@ foreach (FLOW_AREAS as $i => $a) {
 
 try {
     $deps = flow_deps($conn);
-    $st = flow_st_table();
     $m = fn($col) => "EXTRACT(EPOCH FROM $col)/60.0";
+    $mt = fn($col) => "EXTRACT(EPOCH FROM ($col - o.vstdate))/60.0";     // timestamp → นาทีนับจากเที่ยงคืนวันที่มา
     // X-Ray กับ Ultrasound อยู่ใน xray_report เดียวกัน — แยกด้วยชื่อรายการ (xray_items) ถ้าตารางมีคอลัมน์ให้
     $xr = 'NULL';
     $us = 'NULL';
@@ -54,28 +54,32 @@ try {
     }
 
     $sql = "
-        SELECT o.vn, {$m('COALESCE(s.vsttime, o.vsttime)')} reg,
-          {$m('s.service3')} s3, {$m('s.service4')} s4, {$m('s.service11')} s11,
-          {$m('s.service5')} s5, {$m('s.service12')} s12, {$m('s.service6')} s6,
-          {$m('s.service7')} s7, {$m('s.service16')} s16, {$m('s.service20')} s20,
-          s.service3_dep d3, s.service4_dep d4, s.service5_dep d5, s.service7_dep d7, s.service12_dep d12,
-          s.service20_dep d20, o.main_dep md, o.pt_priority pr, p.sex sex, o.doctor dr,
-          o.an, o.pt_subtype pst, o.cur_dep cd,
-          CASE WHEN o.cur_dep = '999' THEN {$m('o.cur_dep_time')} END home,
-          (SELECT {$m('MIN(e.enter_er_time::time)')} FROM er_regist e
-            WHERE e.vn = o.vn AND e.enter_er_time::date = o.vstdate) er_in,
-          (SELECT MAX(e.observe) FROM er_regist e WHERE e.vn = o.vn) er_obs,
+        SELECT o.vn, {$m('o.vsttime')} reg, o.main_dep md, o.pt_priority pr, p.sex sex, o.doctor dr,
+          o.an, o.pt_subtype pst,
           (SELECT MAX(e.er_emergency_level_id) FROM er_regist e WHERE e.vn = o.vn) erl,
           (SELECT {$m('MIN(l.order_time)')} FROM lab_head l WHERE l.vn = o.vn AND l.order_date = o.vstdate) lo,
           (SELECT {$m('MIN(l.receive_time)')} FROM lab_head l WHERE l.vn = o.vn AND l.receive_date = o.vstdate) lr,
           $xr xr, $us us,
-          EXISTS (SELECT 1 FROM oapp a WHERE a.visit_vn = o.vn) ap
-        FROM ovst o
-          LEFT JOIN $st s ON s.vn = o.vn
-          LEFT JOIN patient p ON p.hn = o.hn
+          EXISTS (SELECT 1 FROM oapp a WHERE a.visit_vn = o.vn) ap,
+          EXISTS (SELECT 1 FROM ovst_service_time t WHERE t.vn = o.vn AND t.ovst_service_time_type_code = 'OPD-SCREEN') has_scr,
+          EXISTS (SELECT 1 FROM ovst_service_time t WHERE t.vn = o.vn AND t.ovst_service_time_type_code = 'OPD-DOCTOR') has_dr
+        FROM ovst o LEFT JOIN patient p ON p.hn = o.hn
         WHERE o.vstdate = :d";
     $stmt = $conn->prepare($sql);
     $stmt->execute([':d' => $d]);
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // คิวส่งแผนกของทั้งวัน → [vn => [[ส่ง, รับ, เสร็จ, depcode], ...]]
+    $qs = $conn->prepare("
+        SELECT q.vn, {$mt('q.queue_datetime')} tq, {$mt('q.accept_datetime')} ta, {$mt('q.finish_datetime')} tf, q.depcode
+        FROM opd_dep_queue q JOIN ovst o ON o.vn = q.vn
+        WHERE o.vstdate = :d ORDER BY q.vn, q.queue_datetime, q.opd_dep_queue_id");
+    $qs->execute([':d' => $d]);
+    $queue = [];
+    $num = fn($x) => $x === null ? null : round((float) $x, 1);
+    while ($q = $qs->fetch(PDO::FETCH_ASSOC)) {
+        $queue[$q['vn']][] = [$num($q['tq']), $num($q['ta']), $num($q['tf']), (string) $q['depcode']];
+    }
 
     // Telemed (ผู้ป่วยอยู่นอก รพ.) · FLOW_REMOTE_DEPS=none = วาดทุกคน
     $remoteDeps = flow_remote_deps($deps);
@@ -86,8 +90,7 @@ try {
     $admitted = 0;
     $doctors = [];
     $depUsed = [];
-    $numKeys = array_merge(FLOW_ORDER, ['home']);
-    while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    foreach ($rows as $r) {
         if (!empty($r['an'])) {
             $admitted++;        // admit จาก OPD/ER — ไม่นับในผัง OPD
             continue;
@@ -99,21 +102,16 @@ try {
             $remote[] = round((float) $r['reg'], 1);    // Telemed / PCU ไม่ได้อยู่ใน รพ.
             continue;
         }
-        $r['er_out'] = null;
-        foreach ($numKeys as $k) {
-            $r[$k] = isset($r[$k]) && $r[$k] !== null ? round((float) $r[$k], 1) : null;
-        }
-        if ($r['er_in'] !== null) {
-            $r['er_in'] = max($r['er_in'], $r['reg']);
-            $r['er_out'] = $r['er_in'] + ($r['er_obs'] === 'Y' ? FLOW_ER_OBSERVE : FLOW_ER_STAY);
+        foreach (['reg', 'lo', 'lr', 'xr', 'us'] as $k) {
+            $r[$k] = $num($r[$k]);
         }
         if ($r['lo'] !== null && $r['lr'] !== null && $r['lr'] < $r['lo']) {
             $r['lr'] = null;
         }
-        [$segs, $end] = flow_segments($r, $deps, $AREA_IDX, $now);
+        [$segs, $end] = flow_segments($r, $queue[$r['vn']] ?? [], $deps, $now);
         $dr = (string) $r['dr'];
         $drIdx = null;
-        if ($dr !== '' && $r['s5'] !== null) {
+        if ($dr !== '' && $r['has_dr']) {
             $drIdx = $doctors[$dr] ??= count($doctors);   // ลำดับแพทย์ (ไม่ส่งรหัสแพทย์ออกไป)
         }
         $md = (string) $r['md'];
@@ -127,8 +125,8 @@ try {
             'g' => in_array($sex, ['1', '2'], true) ? (int) $sex : 0,
             'd' => $md,
             'dr' => $drIdx,
-            // บันทึกเวลาครบคู่ = มีทั้งเวลาคัดกรอง (service4) และแพทย์เริ่มตรวจ (service5)
-            'q' => ($r['s4'] !== null && $r['s5'] !== null) ? 1 : 0,
+            // บันทึกเวลาครบคู่ = มีทั้งเวลาซักประวัติและแพทย์ตรวจใน ovst_service_time
+            'q' => ($r['has_scr'] && $r['has_dr']) ? 1 : 0,
             'a' => $r['ap'] ? 1 : 0,     // ผู้ป่วยนัด
         ];
     }

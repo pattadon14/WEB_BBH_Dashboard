@@ -6,8 +6,11 @@
  * นิยาม:
  *  - นับเป็น visit (ovst.vn) · ไม่รวม visit ที่ admit (ovst.an), pt_subtype ≠ 0 และแผนก Telemed/PCU/ส่งยาไปรษณีย์
  *    (flow_remote_deps) — ชุดเดียวกับ 3D Monitor
- *  - เวลาแต่ละขั้นจาก service_time ผ่าน FLOW_ST_MAP (opd_flow_lib.php) — ช่วงที่ติดลบหรือเกิน 360 นาที = กดผิด/ลืมกด ไม่นับ
- *  - เวลารวม = ลงทะเบียน → ขั้นสุดท้ายที่บันทึก นับเฉพาะ 1–600 นาที
+ *  - เวลาแต่ละขั้นจาก ovst_service_time (มีประเภทขั้นชัดเจน) — ช่วงที่ติดลบหรือเกิน 360 นาที = กดผิด/ลืมกด ไม่นับ
+ *    ซักประวัติ = OPD-SCREEN ครั้งแรก ไม่นับที่จุด Exit/หลังพบแพทย์ · พบแพทย์ = OPD-DOCTOR ครั้งแรก
+ *    รอรับยา = OPD-RX-ENTRY ครั้งแรก → OPD-RX-DISPENSE เสร็จครั้งสุดท้าย
+ *  - เวลารวม = ลงทะเบียน → ขั้นสุดท้ายที่บันทึกเสร็จ นับเฉพาะ 1–600 นาที
+ *  - ส่งชำระเงิน = มี OPD-FINANCE หรือมีคิวส่งไปแผนกการเงิน (ห้องเก็บเงินแทบไม่บันทึก OPD-FINANCE)
  *  - ผู้ป่วยนัด = มี oapp.visit_vn = vn (เหมือน opd_visit_today.php)
  *  - ใช้ค่าเฉลี่ย (avg) เหมือนต้นแบบ เพื่อเทียบตัวเลขกับ /api/data.json ของ opd-dashboard ได้
  * ไม่มีข้อมูลรายบุคคลในผลลัพธ์ จึงไม่ต้อง login
@@ -18,13 +21,13 @@ require_once __DIR__ . '/opd_flow_lib.php';
 
 const SK_MAX_GAP = 360;
 const SK_MAX_TOTAL = 600;
-// [ชื่อขั้น, คอลัมน์เริ่ม, คอลัมน์จบ, เป้าหมายนาที] — คอลัมน์เป็นชื่อมาตรฐานหลัง FLOW_ST_MAP
+// [ชื่อขั้น, เวลาเริ่ม, เวลาจบ, เป้าหมายนาที] — ชื่อเวลาตาม CTE t ใน sk_rows()
 // shortcut: เป้าหมายเป็นค่าตั้งต้นจากต้นแบบวังน้ำเขียว ให้ทีมคุณภาพ รพ. กำหนดค่าจริงแล้วแก้ที่นี่
 const SK_STEPS = [
-    ['รอคัดกรอง', 'reg', 'service4', 15],
-    ['คัดกรอง → พบแพทย์', 'service4', 'service5', 30],
-    ['Door-to-Doctor', 'reg', 'service5', 45],
-    ['รอรับยา', 'service6', 'service16', 20],
+    ['รอคัดกรอง', 'reg', 'scr', 15],
+    ['คัดกรอง → พบแพทย์', 'scr', 'dr', 30],
+    ['Door-to-Doctor', 'reg', 'dr', 45],
+    ['รอรับยา', 'rxin', 'rxout', 20],
 ];
 const SK_TARGET_TOTAL = 120;    // เวลารวมเฉลี่ยต่อราย (นาที)
 const SK_TARGET_DONE = 80;      // % จบบริการภายใน 2 ชม.
@@ -39,8 +42,11 @@ function sk_date(string $key, string $default): string
 }
 
 /** สรุปเป็นกลุ่ม (แผนก × ชั่วโมง × นัด/walk-in) ในคำสั่งเดียว แล้วรวมต่อในฝั่ง PHP */
-function sk_rows(PDO $conn, string $st, string $d1, string $d2): array
+function sk_rows(PDO $conn, array $deps, string $d1, string $d2): array
 {
+    // รหัสแผนกเป็นตัวเลข/ตัวอักษรล้วน — ส่งเป็น array literal ของ PostgreSQL
+    $codes = fn($rx) => '{' . implode(',', array_filter(array_map('strval', array_keys(array_filter($deps,
+        fn($x) => preg_match($rx, $x['name'])))), fn($c) => preg_match('/^\w+$/', $c))) . '}';
     $gap = fn($a, $b) => "EXTRACT(EPOCH FROM (v.$b - v.$a))/60.0";
     $cols = [];
     foreach (SK_STEPS as $i => [, $a, $b, $t]) {
@@ -48,29 +54,47 @@ function sk_rows(PDO $conn, string $st, string $d1, string $d2): array
         $ok = "$g BETWEEN 0 AND " . SK_MAX_GAP;
         $cols[] = "SUM($g) FILTER (WHERE $ok) s$i, COUNT(*) FILTER (WHERE $ok) n$i, COUNT(*) FILTER (WHERE $g BETWEEN 0 AND $t) k$i";
     }
-    $tt = "EXTRACT(EPOCH FROM (GREATEST(COALESCE(v.service5, TIME '00:00'), COALESCE(v.service6, TIME '00:00'),"
-        . " COALESCE(v.service7, TIME '00:00'), COALESCE(v.service16, TIME '00:00'), COALESCE(v.service20, TIME '00:00')) - v.reg))/60.0";
+    $tt = "EXTRACT(EPOCH FROM (v.fin - v.reg))/60.0";
+    $ty = fn($code) => "t.ovst_service_time_type_code = '$code'";
     $sql = "
+        WITH o AS (
+          SELECT o.vn, o.main_dep md, o.vstdate + o.vsttime reg, EXTRACT(HOUR FROM o.vsttime)::int h,
+            EXISTS (SELECT 1 FROM oapp a WHERE a.visit_vn = o.vn) ap
+          FROM ovst o
+          WHERE o.vstdate BETWEEN :d1 AND :d2 AND (o.an IS NULL OR o.an = '')
+            AND COALESCE(o.pt_subtype::text, '0') = '0'
+        ), t AS (
+          SELECT t.vn,
+            MIN(t.service_begin_datetime) FILTER (WHERE {$ty('OPD-SCREEN')} AND NOT t.depcode = ANY(CAST(:exits AS text[]))) scr,
+            MIN(t.service_begin_datetime) FILTER (WHERE {$ty('OPD-DOCTOR')}) dr,
+            MIN(t.service_begin_datetime) FILTER (WHERE {$ty('OPD-RX-ENTRY')}) rxin,
+            MAX(t.service_end_datetime) FILTER (WHERE {$ty('OPD-RX-DISPENSE')}) rxout,
+            MAX(t.service_end_datetime) FILTER (WHERE t.ovst_service_time_type_code IN
+              ('OPD-SCREEN', 'OPD-DOCTOR', 'OPD-RX-ENTRY', 'OPD-RX-DISPENSE', 'OPD-FINANCE', 'OPD-DENTAL', 'OPD-ER')) fin,
+            BOOL_OR({$ty('OPD-FINANCE')}) fi
+          FROM ovst_service_time t
+          WHERE t.service_date BETWEEN :s1 AND :s2 AND t.vn IN (SELECT vn FROM o)
+          GROUP BY t.vn
+        ), c AS (
+          SELECT DISTINCT q.vn FROM opd_dep_queue q
+          WHERE q.vn IN (SELECT vn FROM o) AND q.depcode = ANY(CAST(:cash AS text[]))
+        ), v AS (
+          SELECT o.*, t.scr, t.dr, t.rxin, t.rxout, t.fin, (COALESCE(t.fi, false) OR c.vn IS NOT NULL) paid
+          FROM o LEFT JOIN t ON t.vn = o.vn LEFT JOIN c ON c.vn = o.vn
+        )
         SELECT v.md, v.h, v.ap, COUNT(*) c, " . implode(', ', $cols) . ",
-          COUNT(*) FILTER (WHERE v.service4 IS NOT NULL) scr,
-          COUNT(*) FILTER (WHERE v.service5 IS NOT NULL) seen,
-          COUNT(*) FILTER (WHERE v.service6 IS NOT NULL OR v.service16 IS NOT NULL) rx,
-          COUNT(*) FILTER (WHERE v.service7 IS NOT NULL) paid,
+          COUNT(*) FILTER (WHERE v.scr IS NOT NULL) scr,
+          COUNT(*) FILTER (WHERE v.dr IS NOT NULL) seen,
+          COUNT(*) FILTER (WHERE v.rxin IS NOT NULL OR v.rxout IS NOT NULL) rx,
+          COUNT(*) FILTER (WHERE v.paid) paid,
           SUM($tt) FILTER (WHERE $tt BETWEEN 1 AND " . SK_MAX_TOTAL . ") tts,
           COUNT(*) FILTER (WHERE $tt BETWEEN 1 AND " . SK_MAX_TOTAL . ") ttn,
           COUNT(*) FILTER (WHERE $tt BETWEEN 1 AND 120) done
-        FROM (
-          SELECT o.main_dep md, COALESCE(s.vsttime, o.vsttime) reg,
-            EXTRACT(HOUR FROM COALESCE(s.vsttime, o.vsttime))::int h,
-            s.service4, s.service5, s.service6, s.service7, s.service16, s.service20,
-            EXISTS (SELECT 1 FROM oapp a WHERE a.visit_vn = o.vn) ap
-          FROM ovst o LEFT JOIN $st s ON s.vn = o.vn
-          WHERE o.vstdate BETWEEN :d1 AND :d2 AND (o.an IS NULL OR o.an = '')
-            AND COALESCE(o.pt_subtype::text, '0') = '0'
-        ) v
+        FROM v
         GROUP BY v.md, v.h, v.ap";
     $stmt = $conn->prepare($sql);
-    $stmt->execute([':d1' => $d1, ':d2' => $d2]);
+    $stmt->execute([':d1' => $d1, ':d2' => $d2, ':s1' => $d1, ':s2' => date('Y-m-d', strtotime("$d2 +1 day")),
+        ':exits' => $codes(FLOW_EXIT_RX), ':cash' => $codes(FLOW_CASH_RX)]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
@@ -113,7 +137,7 @@ $days = (int) round((strtotime($d2) - strtotime($d1)) / 86400) + 1;
 $p2 = date('Y-m-d', strtotime("$d1 -1 day"));
 $p1 = date('Y-m-d', strtotime("$p2 -" . ($days - 1) . " days"));
 
-$cacheFile = __DIR__ . "/../storage/cache/opd_service_kpi_{$d1}_{$d2}.json";
+$cacheFile = __DIR__ . "/../storage/cache/opd_service_kpi_v2_{$d1}_{$d2}.json";
 $ttl = $d2 === $today ? 300 : 3600;
 if (is_file($cacheFile) && time() - filemtime($cacheFile) < $ttl) {
     header('Content-Type: application/json; charset=utf-8');
@@ -123,16 +147,15 @@ if (is_file($cacheFile) && time() - filemtime($cacheFile) < $ttl) {
 }
 
 try {
-    $st = flow_st_table();
     $deps = flow_deps($conn);
     // ผู้ป่วยไม่ได้มา รพ. (Telemed, PCU, ส่งยาไปรษณีย์) — ตัดด้วยกฎเดียวกับ 3D Monitor · บ้านบึงไม่ได้ใช้ pt_subtype
     $remote = flow_remote_deps($deps);
     $inHosp = fn($rs) => array_values(array_filter($rs, fn($r) => !in_array((string) $r['md'], $remote, true)));
-    $all = sk_rows($conn, $st, $d1, $d2);
+    $all = sk_rows($conn, $deps, $d1, $d2);
     $rows = $inHosp($all);
     $remoteN = sk_sum($all)['count'] - sk_sum($rows)['count'];
     $cur = sk_sum($rows);
-    $prev = sk_sum($inHosp(sk_rows($conn, $st, $p1, $p2)));
+    $prev = sk_sum($inHosp(sk_rows($conn, $deps, $p1, $p2)));
     $delta = fn($a, $b) => ($a === null || !$b) ? null : round(($a - $b) * 100 / $b, 1);
     $apptN = sk_sum($rows, fn($r) => !empty($r['ap']))['count'];
     $d2d = $cur['steps'][2]['avg'];
@@ -221,7 +244,7 @@ try {
         ],
         'steps' => $cur['steps'],
         'funnel' => [$f('ลงทะเบียน', $cur['count']), $f('คัดกรอง', $cur['scr']), $f('พบแพทย์', $cur['seen']),
-            $f('ห้องยา', $cur['rx']), $f('ชำระเงิน', $cur['paid']), $f('จบบริการ', $cur['fin'])],
+            $f('ห้องยา', $cur['rx']), $f('ส่งชำระเงิน', $cur['paid']), $f('จบบริการ', $cur['fin'])],
         'hours' => array_values($hours),
         'off_hours' => $off,
         'deps' => array_slice($depRows, 0, 20),

@@ -479,7 +479,7 @@ include '../templates/sidebar.php';
                                         <tbody id="oq-sla"></tbody>
                                     </table>
                                 </div>
-                                <p class="oq-note">นับเฉพาะ visit ที่บันทึกเวลาทั้งสองขั้น · ช่วงติดลบหรือเกิน 6 ชม. ไม่นับ (กดเวลาผิด/ลืมกด)</p>
+                                <p class="oq-note">เวลาจาก ovst_service_time · ซักประวัติ/พบแพทย์ = ครั้งแรก (ไม่นับจุด Exit) · นับเฉพาะ visit ที่บันทึกทั้งสองขั้น · ติดลบหรือเกิน 6 ชม. ไม่นับ</p>
                             </div>
                         </div>
                     </div>
