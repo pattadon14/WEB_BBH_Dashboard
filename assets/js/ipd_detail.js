@@ -384,7 +384,7 @@ async function loadChart() {
             type: 'column',
             backgroundColor: '#ffffff',
             style: {
-                fontFamily: "'IBM Plex Sans Thai', sans-serif"
+                fontFamily: 'THSarabun'
             }
         },
 
@@ -450,7 +450,7 @@ async function loadChart() {
             zoomType: 'xy',
             backgroundColor: '#ffffff',
             style: {
-                fontFamily: "'IBM Plex Sans Thai', sans-serif"
+                fontFamily: 'THSarabun'
             }
         },
 

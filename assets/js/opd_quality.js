@@ -58,7 +58,7 @@
     let chart = null;
     function hours(h, off) {
         const opts = {
-            chart: { type: 'column', style: { fontFamily: "'IBM Plex Sans Thai', sans-serif" } },
+            chart: { type: 'column', style: { fontFamily: 'inherit' } },
             title: { text: null }, credits: { enabled: false },
             xAxis: { categories: h.map(x => String(x.h).padStart(2, '0') + ':00') },
             yAxis: { title: { text: 'ราย' }, stackLabels: { enabled: true } },
