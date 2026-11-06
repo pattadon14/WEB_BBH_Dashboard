@@ -198,7 +198,7 @@ async function loadChart() {
         chart: {
             type: 'column',
             style: {
-                fontFamily: 'THSarabun'
+                fontFamily: "'IBM Plex Sans Thai', sans-serif"
             }
         },
 
@@ -294,7 +294,7 @@ async function loadPttypeChart(){
             type: 'column',
             height: 420,
             style: {
-                fontFamily: 'THSarabun'
+                fontFamily: "'IBM Plex Sans Thai', sans-serif"
             }
         },
 
@@ -754,7 +754,7 @@ try {
         chart: {
             type: 'bar',
             backgroundColor: '#ffffff',
-            style: { fontFamily: 'THSarabun' }
+            style: { fontFamily: "'IBM Plex Sans Thai', sans-serif" }
         },
 
         title: {
@@ -767,7 +767,7 @@ try {
             labels: {
                 style: {
                     fontSize: '15px',
-                    fontFamily: 'THSarabun',
+                    fontFamily: "'IBM Plex Sans Thai', sans-serif",
                     fontWeight: 'normal'
                 }
             }
@@ -805,7 +805,7 @@ try {
                     },
                     style: {
                         fontSize: '14px',
-                        fontFamily: 'THSarabun',
+                        fontFamily: "'IBM Plex Sans Thai', sans-serif",
                         fontWeight: 'normal',
                         textOutline: 'none'
                     }

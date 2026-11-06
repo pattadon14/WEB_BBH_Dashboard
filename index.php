@@ -720,6 +720,8 @@ async function loadWardBed() {
 
             let colorClass = 'success';
             let statusText = '';
+            // ป้ายข้อความคู่กับสี (ไม่สื่อด้วยสีอย่างเดียว) — เกณฑ์เดียวกับ colorClass ด้านล่าง
+            const statusLabel = { success: 'ว่าง', info: 'ปานกลาง', warning: 'ใกล้เต็ม', danger: 'เต็ม/เกิน' };
 
             const rate =
                 parseFloat(
@@ -773,7 +775,7 @@ async function loadWardBed() {
 
                     </div>
 
-                    <div class="ward-name text-${colorClass}">
+                    <div class="ward-name">
 
                         ${ward.name}
 
@@ -790,7 +792,8 @@ async function loadWardBed() {
 
                     <div class="ward-percent">
 
-                        ครองเตียง ${rate}%
+                        <span>ครองเตียง <strong class="ward-rate-${colorClass}">${rate}%</strong></span>
+                        <span class="ward-status ward-status-${colorClass}">${statusLabel[colorClass]}</span>
 
                     </div>
 

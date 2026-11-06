@@ -390,3 +390,22 @@
         height: 380px;
     }
 }
+
+/* ชื่อการ์ดสรุปไม่หักทีละคำ: ถ้าที่ไม่พอให้ตัวเลขลงบรรทัดใหม่แทน */
+.ipd-ward-page .overview-card {
+    flex-wrap: wrap;
+}
+
+.ipd-ward-page .overview-left {
+    flex: 1 1 200px;
+    min-width: 0;
+}
+
+.ipd-ward-page .overview-label {
+    text-wrap: balance;
+}
+
+/* ตัวเลขลงบรรทัดใต้ชื่อเสมอทุกการ์ด ให้แนวเดียวกัน */
+.ipd-ward-page .overview-value-wrap {
+    flex-basis: 100%;
+}

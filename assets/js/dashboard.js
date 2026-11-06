@@ -136,7 +136,7 @@ async function loadHeatmap() {
                 marginTop: 50,
                 marginBottom: 60,
                 marginRight: 90,
-                style: { fontFamily: 'THSarabun' }
+                style: { fontFamily: "'IBM Plex Sans Thai', sans-serif" }
             },
 
             title: { text: null },
@@ -160,7 +160,7 @@ async function loadHeatmap() {
                 labels: {
                     style: {
                         fontSize: '14px',
-                        fontFamily: 'THSarabun',
+                        fontFamily: "'IBM Plex Sans Thai', sans-serif",
                         color: '#333'
                     }
                 }

@@ -104,12 +104,12 @@ $isProviderLoggedIn = provider_is_logged_in();
 
             <li><a href="<?= BASE_URL ?>pages/ER_detail.php"
                     class="<?= $currentPage === 'ER_detail.php' ? 'active' : '' ?>"><i class="fa-solid fa-truck-medical"></i><span>ห้องอุบัติฉุกเฉินและฉุกเฉิน (ER)</span></a></li>
-            <li><a href="#" class="bbh-sidebar-static-item"><i class="fa-solid fa-tooth"></i><span>ทันตกรรม</span></a></li>
-            <li><a href="#" class="bbh-sidebar-static-item"><i class="fa-solid fa-mortar-pestle"></i><span>แพทย์แผนไทย</span></a></li>
-            <li><a href="#" class="bbh-sidebar-static-item"><i class="fa-solid fa-person-walking"></i><span>กายภาพบำบัด</span></a></li>
-            <li><a href="#" class="bbh-sidebar-static-item"><i class="fa-solid fa-droplet"></i><span>บำบัดไตเทียม</span></a></li>
-            <li><a href="#" class="bbh-sidebar-static-item"><i class="fa-solid fa-person-running"></i><span>ผ่าตัดและวิสัญญี</span></a></li>
-            <li><a href="#" class="bbh-sidebar-static-item"><i class="fa-solid fa-x-ray"></i><span>X-ray และ Ultrasound</span></a></li>
+            <li><a href="#" class="bbh-sidebar-static-item" aria-disabled="true" tabindex="-1"><i class="fa-solid fa-tooth"></i><span>ทันตกรรม</span><small class="bbh-soon">เร็วๆ นี้</small></a></li>
+            <li><a href="#" class="bbh-sidebar-static-item" aria-disabled="true" tabindex="-1"><i class="fa-solid fa-mortar-pestle"></i><span>แพทย์แผนไทย</span><small class="bbh-soon">เร็วๆ นี้</small></a></li>
+            <li><a href="#" class="bbh-sidebar-static-item" aria-disabled="true" tabindex="-1"><i class="fa-solid fa-person-walking"></i><span>กายภาพบำบัด</span><small class="bbh-soon">เร็วๆ นี้</small></a></li>
+            <li><a href="#" class="bbh-sidebar-static-item" aria-disabled="true" tabindex="-1"><i class="fa-solid fa-droplet"></i><span>บำบัดไตเทียม</span><small class="bbh-soon">เร็วๆ นี้</small></a></li>
+            <li><a href="#" class="bbh-sidebar-static-item" aria-disabled="true" tabindex="-1"><i class="fa-solid fa-person-running"></i><span>ผ่าตัดและวิสัญญี</span><small class="bbh-soon">เร็วๆ นี้</small></a></li>
+            <li><a href="#" class="bbh-sidebar-static-item" aria-disabled="true" tabindex="-1"><i class="fa-solid fa-x-ray"></i><span>X-ray และ Ultrasound</span><small class="bbh-soon">เร็วๆ นี้</small></a></li>
         </ul>
 
         <div class="bbh-sidebar-divider"></div>

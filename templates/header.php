@@ -33,6 +33,9 @@ require_once __DIR__ . '/../config/app.php';
     <!-- Login styles -->
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/login.css">
 
+    <!-- ธีมกลางทุกหน้า (โหลดท้ายสุด) -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/theme.css?v=<?= filemtime(__DIR__ . '/../assets/css/theme.css') ?>">
+
     <style>
         /* =========================================================
            OPD SUMMARY - BALANCED COLUMNS

@@ -123,7 +123,7 @@ Highcharts.chart('er-chart', {
     chart: {
         type: 'column',
         backgroundColor: '#ffffff',
-        style: { fontFamily: 'THSarabun' }
+        style: { fontFamily: "'IBM Plex Sans Thai', sans-serif" }
     },
 
     title: {
@@ -179,7 +179,7 @@ Highcharts.chart('er-pie-chart', {
     chart: {
         type: 'pie',
         backgroundColor: '#ffffff',
-        style: { fontFamily: 'THSarabun' }
+        style: { fontFamily: "'IBM Plex Sans Thai', sans-serif" }
     },
 
     title: {
@@ -203,7 +203,7 @@ Highcharts.chart('er-pie-chart', {
                 format: '<b>{point.name}</b><br>{point.percentage:.2f} %',
                 style: {
                     fontSize: '16px',
-                    fontFamily: 'THSarabun'
+                    fontFamily: "'IBM Plex Sans Thai', sans-serif"
                 }
             },
             showInLegend: false
@@ -273,7 +273,7 @@ Highcharts.chart('er-triage-chart', {
     chart: {
         type: 'bar',
         backgroundColor: '#ffffff',
-        style: { fontFamily: 'THSarabun' }
+        style: { fontFamily: "'IBM Plex Sans Thai', sans-serif" }
     },
 
     title: {
@@ -286,7 +286,7 @@ Highcharts.chart('er-triage-chart', {
         labels: {
             style: {
                 fontSize: '16px',
-                fontFamily: 'THSarabun',
+                fontFamily: "'IBM Plex Sans Thai', sans-serif",
                 fontWeight: 'normal'
             }
         }
@@ -329,7 +329,7 @@ Highcharts.chart('er-triage-chart', {
                 },
                 style: {
                     fontSize: '14px',
-                    fontFamily: 'THSarabun',
+                    fontFamily: "'IBM Plex Sans Thai', sans-serif",
                     fontWeight: 'normal',
                     textOutline: 'none'
                 }
@@ -388,7 +388,7 @@ Highcharts.chart('er-timeslot-chart', {
     chart: {
         type: 'column',
         backgroundColor: '#ffffff',
-        style: { fontFamily: 'THSarabun' }
+        style: { fontFamily: "'IBM Plex Sans Thai', sans-serif" }
     },
 
     title: {
@@ -401,7 +401,7 @@ Highcharts.chart('er-timeslot-chart', {
         labels: {
             style: {
                 fontSize: '16px',
-                fontFamily: 'THSarabun',
+                fontFamily: "'IBM Plex Sans Thai', sans-serif",
                 fontWeight: 'normal'
             }
         }
@@ -440,7 +440,7 @@ Highcharts.chart('er-timeslot-chart', {
                 },
                 style: {
                     fontSize: '14px',
-                    fontFamily: 'THSarabun',
+                    fontFamily: "'IBM Plex Sans Thai', sans-serif",
                     fontWeight: 'normal',
                     textOutline: 'none'
                 },

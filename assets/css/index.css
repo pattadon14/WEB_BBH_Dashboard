@@ -156,10 +156,20 @@
     font-size: 1rem;
 }
 
+/* ปุ่ม "รายละเอียด" เป็นแถบจางสีเขียว เข้มขึ้นเมื่อชี้ — ไม่แย่งสายตาจากตัวเลข */
 .home-dash .small-box-footer {
-    background: linear-gradient(90deg, var(--bbh-green), #1e9e64) !important;
+    background: var(--bbh-green-soft) !important;
+    color: var(--bbh-green-dark) !important;
+    border-top: 1px solid rgba(25, 135, 84, .12);
     font-size: 1.35rem;
     padding: 8px;
+    transition: background .15s ease, color .15s ease;
+}
+
+.home-dash .small-box-footer:hover,
+.home-dash .small-box-footer:focus-visible {
+    background: var(--bbh-green) !important;
+    color: #fff !important;
 }
 
 .home-dash .small-box-footer i {
@@ -281,6 +291,41 @@
     height: 8px;
     background: #edf1ef;
 }
+
+/* ชื่อ Ward สีเข้มเสมอ (สีเหลือง/ฟ้าบนพื้นขาวอ่านยาก) — สถานะบอกด้วยเส้นซ้าย ไอคอน แถบ และป้ายข้อความ */
+.home-dash .ward-name {
+    color: var(--bbh-text);
+}
+
+.home-dash .ward-percent {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-weight: 500;
+}
+
+.home-dash .ward-percent strong {
+    font-size: 1.15em;
+}
+
+.home-dash .ward-status {
+    padding: 1px 10px;
+    border-radius: 999px;
+    font-size: 17px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* สีข้อความเข้มพอ (contrast ≥ 4.5:1) บนพื้นจางของสีสถานะเดิม */
+.home-dash .ward-rate-success { color: #146c43; }
+.home-dash .ward-rate-info    { color: #0a6c80; }
+.home-dash .ward-rate-warning { color: #8a5a00; }
+.home-dash .ward-rate-danger  { color: #b02a37; }
+.home-dash .ward-status-success { color: #146c43; background: #e3f3ea; }
+.home-dash .ward-status-info    { color: #0a6c80; background: #dff5fa; }
+.home-dash .ward-status-warning { color: #8a5a00; background: #fff3cd; }
+.home-dash .ward-status-danger  { color: #b02a37; background: #fbe4e6; }
 
 /* ---------- Other services (right) ---------- */
 .home-dash .service-summary-card {

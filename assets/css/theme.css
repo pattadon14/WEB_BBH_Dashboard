@@ -1,0 +1,287 @@
+/* =========================================================
+   BBH theme layer — โหลดท้ายสุดใน templates/header.php ใช้ร่วมทุกหน้า
+   คงสีเขียวเดิมของ BBH (#198754) ปรับเฉพาะพื้นผิว เงา ระยะ ตัวอักษร และสถานะ (hover/focus)
+   หมายเหตุขนาดตัวอักษร: body ใช้ 'BBH Sans' (size-adjust 70% เทียบ TH Sarabun เดิม)
+   ส่วนกราฟ Highcharts ใช้ 'IBM Plex Sans Thai' ขนาดปกติ (ประกาศด้านล่าง)
+========================================================= */
+
+/* ฟอนต์ขนาดปกติ (ไม่ย่อ) สำหรับกราฟ — ไฟล์เดียวกับ BBH Sans เบราว์เซอร์โหลดครั้งเดียว */
+@font-face { font-family: 'IBM Plex Sans Thai'; src: url('../fonts/ibm-plex-sans-thai/400-thai.woff2') format('woff2'); font-weight: 400; font-display: swap; unicode-range: U+0E01-0E5B, U+200C-200D, U+25CC; }
+@font-face { font-family: 'IBM Plex Sans Thai'; src: url('../fonts/ibm-plex-sans-thai/400-latin.woff2') format('woff2'); font-weight: 400; font-display: swap; unicode-range: U+0000-00FF, U+2000-206F, U+2212; }
+@font-face { font-family: 'IBM Plex Sans Thai'; src: url('../fonts/ibm-plex-sans-thai/600-thai.woff2') format('woff2'); font-weight: 600 700; font-display: swap; unicode-range: U+0E01-0E5B, U+200C-200D, U+25CC; }
+@font-face { font-family: 'IBM Plex Sans Thai'; src: url('../fonts/ibm-plex-sans-thai/600-latin.woff2') format('woff2'); font-weight: 600 700; font-display: swap; unicode-range: U+0000-00FF, U+2000-206F, U+2212; }
+
+:root {
+    --bbh-green: #198754;
+    --bbh-green-600: #157347;
+    --bbh-green-700: #0f5132;
+    --bbh-green-50: #eef7f2;
+    --bbh-green-100: #d5ebde;
+    --bbh-bg: #f4f7f5;
+    --bbh-surface: #ffffff;
+    --bbh-border: #e1eae5;
+    --bbh-text: #1f2d27;
+    --bbh-muted: #5d6e67;
+    --bbh-radius: 16px;
+    --bbh-radius-sm: 10px;
+    --bbh-shadow: 0 1px 2px rgba(16, 40, 30, .05), 0 4px 14px rgba(16, 40, 30, .06);
+    --bbh-shadow-hover: 0 2px 6px rgba(16, 40, 30, .08), 0 12px 28px rgba(16, 40, 30, .10);
+    --bbh-ring: 0 0 0 3px rgba(25, 135, 84, .28);
+}
+
+/* ---------- พื้นฐาน ---------- */
+body {
+    color: var(--bbh-text);
+    background: var(--bbh-bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.content-wrapper {
+    background: linear-gradient(180deg, #e9f4ee 0, var(--bbh-bg) 280px) !important;
+}
+
+/* ตัวเลขทุกชุดกว้างเท่ากัน อ่านเทียบแนวตั้งง่าย */
+.small-box h3,
+[class*="-number"],
+[class*="-count"],
+[class*="-total"],
+.badge,
+.table td {
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---------- การ์ด: เส้นขอบบาง + เงานุ่ม แบบเดียวกันทั้งเว็บ ---------- */
+.card,
+.small-box,
+.ward-card,
+.summary-card,
+.bed-summary-card,
+.chart-box,
+.service-summary-card,
+.opd-room-card {
+    border-radius: var(--bbh-radius);
+    box-shadow: var(--bbh-shadow) !important;
+    transition: box-shadow .2s ease, transform .2s ease;
+}
+
+.card,
+.chart-box,
+.service-summary-card {
+    border: 1px solid var(--bbh-border);
+}
+
+.small-box:hover,
+.ward-card:hover,
+.summary-card:hover,
+.opd-room-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--bbh-shadow-hover) !important;
+}
+
+.card-header {
+    background: transparent;
+    border-bottom: 1px solid var(--bbh-border);
+}
+
+.chart-title {
+    color: var(--bbh-text);
+}
+
+/* หัวข้อย่อยแบบเส้นซ้าย — ภาษาไทยไม่มีตัวพิมพ์ใหญ่ ไม่ต้อง uppercase */
+.section-label {
+    color: var(--bbh-muted);
+    text-transform: none;
+    letter-spacing: 0;
+    border-left-width: 4px;
+    border-radius: 2px;
+}
+
+/* ---------- Sidebar: เมนูที่ยังไม่มีหน้า แสดงจาง + ป้าย "เร็วๆ นี้" กดไม่ได้ ---------- */
+.bbh-sidebar-menu a.bbh-sidebar-static-item {
+    color: #8a9a93;
+    pointer-events: none;
+    cursor: default;
+}
+
+.bbh-sidebar-static-item .bbh-soon {
+    margin-left: auto;
+    padding: 0 8px;
+    border-radius: 999px;
+    background: #eef2f0;
+    color: #6b7c75;
+    font-size: .8em;
+    white-space: nowrap;
+}
+
+.bbh-sidebar-section-title {
+    color: var(--bbh-muted);
+    letter-spacing: .2px;
+}
+
+/* ---------- Navbar ---------- */
+.custom-navbar::after {
+    height: 2px;
+}
+
+/* ---------- ฟอร์ม ---------- */
+.form-control,
+.form-select,
+.custom-select {
+    border: 1px solid #cddad3;
+    border-radius: var(--bbh-radius-sm);
+    color: var(--bbh-text);
+    font-weight: 500;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.form-control:hover,
+.form-select:hover,
+.custom-select:hover {
+    border-color: #a9c4b6;
+}
+
+.form-control:focus,
+.form-select:focus,
+.custom-select:focus,
+.budget-select:focus {
+    border-color: var(--bbh-green) !important;
+    box-shadow: var(--bbh-ring) !important;
+    outline: none;
+}
+
+.budget-select {
+    border-color: #cddad3;
+    color: var(--bbh-text);
+    background: var(--bbh-surface);
+    cursor: pointer;
+}
+
+/* ---------- ปุ่ม ---------- */
+.btn {
+    border-radius: var(--bbh-radius-sm);
+    font-weight: 600;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease;
+}
+
+.btn-success {
+    background: var(--bbh-green);
+    border-color: var(--bbh-green);
+}
+
+.btn-success:hover {
+    background: var(--bbh-green-600);
+    border-color: var(--bbh-green-600);
+}
+
+.btn-outline-success {
+    color: var(--bbh-green);
+    border-color: #a9d3bc;
+}
+
+.btn-outline-success:hover {
+    background: var(--bbh-green);
+    border-color: var(--bbh-green);
+    color: #fff;
+}
+
+button,
+[role="button"],
+select,
+a.btn {
+    cursor: pointer;
+}
+
+/* โฟกัสคีย์บอร์ดเห็นชัดทุกปุ่ม/ลิงก์ (เมาส์คลิกไม่ขึ้นกรอบ) */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--bbh-green);
+    outline-offset: 2px;
+}
+
+/* ---------- ตาราง ---------- */
+.table {
+    color: var(--bbh-text);
+}
+
+.table thead th {
+    background: var(--bbh-green-50);
+    color: var(--bbh-green-700);
+    font-weight: 600;
+    border-top: 0;
+    border-bottom: 1px solid var(--bbh-green-100);
+    vertical-align: middle;
+}
+
+.table td,
+.table th {
+    border-color: #edf2ef;
+}
+
+.table-hover tbody tr:hover,
+.table tbody tr:hover {
+    background: #f5faf7;
+}
+
+/* ---------- ป้าย / แถบ ---------- */
+.badge {
+    font-weight: 600;
+    border-radius: 999px;
+}
+
+.progress {
+    background: #edf1ef;
+}
+
+/* ---------- กราฟ Highcharts: ตัวอักษรเทาเข้ม เส้นกริดจาง ---------- */
+.highcharts-title {
+    fill: var(--bbh-text) !important;
+    color: var(--bbh-text) !important;
+    font-weight: 600 !important;
+}
+
+.highcharts-subtitle,
+.highcharts-axis-title,
+.highcharts-axis-labels text,
+.highcharts-legend-item text {
+    fill: var(--bbh-muted) !important;
+    color: var(--bbh-muted) !important;
+}
+
+.highcharts-grid-line {
+    stroke: #edf2ef !important;
+}
+
+.highcharts-axis-line,
+.highcharts-tick {
+    stroke: #d9e3de !important;
+}
+
+.highcharts-tooltip-box {
+    fill: #ffffff !important;
+    stroke: var(--bbh-border) !important;
+}
+
+/* ---------- Scrollbar บาง ---------- */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #c4d4cb transparent;
+}
+
+/* ---------- ลดการเคลื่อนไหวตามการตั้งค่าเครื่อง ---------- */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+    }
+
+    .small-box:hover,
+    .ward-card:hover,
+    .summary-card:hover,
+    .opd-room-card:hover {
+        transform: none;
+    }
+}
