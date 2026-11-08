@@ -327,13 +327,6 @@
 .home-dash .ward-status-warning { color: #8a5a00; background: #fff3cd; }
 .home-dash .ward-status-danger  { color: #b02a37; background: #fbe4e6; }
 
-/* หมายเหตุใต้การ์ด Home Ward */
-.home-dash .ward-note {
-    font-size: 16px;
-    color: var(--bbh-muted);
-    margin-bottom: 4px;
-}
-
 /* ---------- Other services (right) ---------- */
 .home-dash .service-summary-card {
     border-radius: 18px;
