@@ -327,6 +327,13 @@
 .home-dash .ward-status-warning { color: #8a5a00; background: #fff3cd; }
 .home-dash .ward-status-danger  { color: #b02a37; background: #fbe4e6; }
 
+/* หมายเหตุใต้การ์ด Home Ward */
+.home-dash .ward-note {
+    font-size: 16px;
+    color: var(--bbh-muted);
+    margin-bottom: 4px;
+}
+
 /* ---------- Other services (right) ---------- */
 .home-dash .service-summary-card {
     border-radius: 18px;
@@ -391,4 +398,14 @@
     .home-dash .opd-monitor-launch span {
         display: none;
     }
+}
+
+/* บริการที่วันนี้ยังเป็น 0: ตัวอักษรเทา ป้ายเทา (ไม่ใช้ opacity เพื่อคง contrast) */
+.home-dash .service-item.is-zero .service-name {
+    color: var(--bbh-muted);
+}
+
+.home-dash .service-item.is-zero .service-total {
+    background: #f1f4f2;
+    color: var(--bbh-muted);
 }

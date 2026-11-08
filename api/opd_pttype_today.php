@@ -3,6 +3,7 @@
 header('Content-Type: application/json; charset=utf-8');
 
 require_once '../config/database.php';
+require_once '../config/opd.php';
 
 try {
 
@@ -25,6 +26,7 @@ try {
         ON pt.pttype = ov.pttype
 
     WHERE ov.vstdate = :targetDate
+      AND ov.main_dep IN (" . opd_main_dep_sql() . ")
 
     GROUP BY
         ov.pttype,

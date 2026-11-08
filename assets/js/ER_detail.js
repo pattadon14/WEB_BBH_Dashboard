@@ -493,7 +493,7 @@ const tbody =
 // แสดง loading
 tbody.innerHTML = `
     <tr>
-        <td colspan="7" class="text-center text-muted py-4">
+        <td colspan="6" class="text-center text-muted py-4">
             <i class="fa-solid fa-spinner fa-spin me-2"></i>
             กำลังโหลดข้อมูล...
         </td>
@@ -507,7 +507,7 @@ try {
     if (data.error) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="7" class="text-center text-danger py-3">
+                <td colspan="6" class="text-center text-danger py-3">
                     เกิดข้อผิดพลาด: ${data.error}
                 </td>
             </tr>`;
@@ -517,7 +517,7 @@ try {
     if (!data.length) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="7" class="text-center text-muted py-3">
+                <td colspan="6" class="text-center text-muted py-3">
                     ไม่พบข้อมูล
                 </td>
             </tr>`;
@@ -539,9 +539,6 @@ try {
             ? `style="background:${rankColor[row.rank]};color:#333;"`
             : 'style="background:#198754;color:#fff;"';
 
-        const diagName = row.diag_th
-            ? row.diag_th
-            : (row.diag_en || '—');
 
         html += `
             <tr>
@@ -556,10 +553,7 @@ try {
                         ${row.icd10 || '—'}
                     </span>
                 </td>
-                <td>${diagName}</td>
-                <td class="text-muted" style="font-size:14px">
-                    ${row.diag_en || '—'}
-                </td>
+                <td>${diagCell(row.diag_th, row.diag_en)}</td>
                 <td class="text-center fw-bold text-success">
                     ${row.total.toLocaleString()}
                 </td>
@@ -577,7 +571,7 @@ try {
 } catch (e) {
     tbody.innerHTML = `
         <tr>
-            <td colspan="7" class="text-center text-danger py-3">
+            <td colspan="6" class="text-center text-danger py-3">
                 ไม่สามารถโหลดข้อมูลได้
             </td>
         </tr>`;
@@ -590,3 +584,11 @@ loadTop10Table();
 document
     .getElementById('budget-year')
     .addEventListener('change', loadTop10Table);
+
+// ชื่อโรค: ไทยเป็นหลัก อังกฤษตัวเล็กใต้ชื่อ (ไม่แสดงซ้ำถ้าเหมือนกันหรือไม่มีชื่อไทย) — ใช้รูปแบบเดียวกันทั้งหน้า OPD / IPD / ER
+function diagCell(th, en) {
+    th = (th || '').trim();
+    en = (en || '').trim();
+    const sub = th && en && th !== en ? `<div class="diag-en">${en}</div>` : '';
+    return `<div>${th || en || '—'}</div>${sub}`;
+}

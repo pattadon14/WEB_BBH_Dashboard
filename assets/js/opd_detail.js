@@ -273,26 +273,33 @@ async function loadPttypeChart(){
     const data =
         await response.json();
 
-    const categories = [];
-    const totals = [];
+    if (!Array.isArray(data)) {
+        console.error('pttype API error:', data && data.error);
+        return;
+    }
 
-    data.forEach(row => {
+    // แท่งแนวนอน 10 สิทธิ์แรก ที่เหลือรวมเป็น "อื่นๆ" — ชื่อสิทธิ์ยาว อ่านครบโดยไม่ต้องหมุนตัวอักษร
+    const TOP = 10;
+    const rows = data.map(row => ({
+        name: row.pttype_name || 'ไม่ระบุสิทธิ์',
+        y: parseInt(row.total_patient, 10) || 0
+    }));
+    const points = rows.slice(0, TOP);
+    const rest = rows.slice(TOP);
 
-        categories.push(
-            row.pttype_name
-        );
-
-        totals.push(
-            parseInt(row.total_patient)
-        );
-
-    });
+    if (rest.length) {
+        points.push({
+            name: 'อื่นๆ (' + rest.length + ' สิทธิ์)',
+            y: rest.reduce((sum, row) => sum + row.y, 0),
+            color: '#9aa9a2'
+        });
+    }
 
     Highcharts.chart('pttype-chart', {
 
         chart: {
-            type: 'column',
-            height: 420,
+            type: 'bar',
+            height: Math.max(260, points.length * 34 + 80),
             style: {
                 fontFamily: 'THSarabun'
             }
@@ -303,47 +310,34 @@ async function loadPttypeChart(){
         },
 
         xAxis: {
-
-            categories: categories,
-
+            type: 'category',
             labels: {
-
-                rotation: -90,
-
                 style: {
-                    fontSize: '14px'
+                    fontSize: '17px'
                 }
             }
         },
 
         yAxis: {
-
+            allowDecimals: false,
             title: {
-                text: 'จำนวนผู้รับบริการ'
+                text: 'จำนวนผู้รับบริการ (คน)'
             }
-
         },
 
         tooltip: {
-
             pointFormat:
                 '<b>{point.y} คน</b>'
         },
 
         plotOptions: {
-
-            column: {
-
+            bar: {
                 borderRadius: 4,
-
                 dataLabels: {
-
                     enabled: true,
-
                     color: '#000',
-
                     style: {
-                        fontSize: '14px'
+                        fontSize: '16px'
                     }
                 }
             }
@@ -357,24 +351,15 @@ async function loadPttypeChart(){
             enabled: false
         },
 
-        series: [
-
-            {
-
-                name: 'จำนวนผู้ป่วย',
-
-                color: '#198754',
-
-                data: totals
-
-            }
-
-        ]
+        series: [{
+            name: 'จำนวนผู้ป่วย',
+            color: '#198754',
+            data: points
+        }]
 
     });
 
 }
-    
 loadPttypeChart();
 setInterval(loadPttypeChart, 60000);
 
@@ -624,7 +609,7 @@ const tbody =
 
 tbody.innerHTML = `
     <tr>
-        <td colspan="7" class="text-center text-muted py-4">
+        <td colspan="6" class="text-center text-muted py-4">
             <i class="fa-solid fa-spinner fa-spin me-2"></i>
             กำลังโหลดข้อมูล...
         </td>
@@ -638,7 +623,7 @@ try {
     if (data.error) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="7" class="text-center text-danger py-3">
+                <td colspan="6" class="text-center text-danger py-3">
                     เกิดข้อผิดพลาด: ${data.error}
                 </td>
             </tr>`;
@@ -648,7 +633,7 @@ try {
     if (!data.length) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="7" class="text-center text-muted py-3">
+                <td colspan="6" class="text-center text-muted py-3">
                     ไม่พบข้อมูล
                 </td>
             </tr>`;
@@ -669,9 +654,6 @@ try {
             ? rankColor[row.rank]
             : 'background:#198754;color:#fff;';
 
-        const diagName = row.diag_th
-            ? row.diag_th
-            : (row.diag_en || '—');
 
         html += `
             <tr>
@@ -686,10 +668,8 @@ try {
                         ${row.icd10 || '—'}
                     </span>
                 </td>
-                <td>${diagName}</td>
-                <td class="text-muted" style="font-size:15px">
-                    ${row.diag_en || '—'}
-                </td>
+                <td>${diagCell(row.diag_th, row.diag_en)}</td>
+
                 <td class="text-center fw-bold text-success">
                     ${row.total.toLocaleString()}
                 </td>
@@ -707,7 +687,7 @@ try {
 } catch (e) {
     tbody.innerHTML = `
         <tr>
-            <td colspan="7" class="text-center text-danger py-3">
+            <td colspan="6" class="text-center text-danger py-3">
                 ไม่สามารถโหลดข้อมูลได้
             </td>
         </tr>`;
@@ -881,3 +861,11 @@ loadAgeGroupChart();
 document
     .getElementById('budget-year')
     .addEventListener('change', loadAgeGroupChart);
+
+// ชื่อโรค: ไทยเป็นหลัก อังกฤษตัวเล็กใต้ชื่อ (ไม่แสดงซ้ำถ้าเหมือนกันหรือไม่มีชื่อไทย) — ใช้รูปแบบเดียวกันทั้งหน้า OPD / IPD / ER
+function diagCell(th, en) {
+    th = (th || '').trim();
+    en = (en || '').trim();
+    const sub = th && en && th !== en ? `<div class="diag-en">${en}</div>` : '';
+    return `<div>${th || en || '—'}</div>${sub}`;
+}

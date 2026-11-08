@@ -97,6 +97,11 @@ body {
     cursor: default;
 }
 
+.bbh-sidebar-parent-main .bbh-soon {
+    margin-left: 8px;
+}
+
+.bbh-sidebar-parent-main .bbh-soon,
 .bbh-sidebar-static-item .bbh-soon {
     margin-left: auto;
     padding: 0 8px;
@@ -213,6 +218,13 @@ a.btn {
 .table-hover tbody tr:hover,
 .table tbody tr:hover {
     background: #f5faf7;
+}
+
+/* ชื่อโรคภาษาอังกฤษใต้ชื่อไทย (ตาราง 10 อันดับโรค) */
+.diag-en {
+    font-size: .85em;
+    color: var(--bbh-muted);
+    line-height: 1.2;
 }
 
 /* ---------- ป้าย / แถบ ---------- */

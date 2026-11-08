@@ -151,8 +151,7 @@ include '../templates/sidebar.php';
                                                 <tr>
                                                     <th class="text-center" style="width:60px">อันดับ</th>
                                                     <th class="text-center" style="width:100px">ICD-10</th>
-                                                    <th>ชื่อโรค (ไทย)</th>
-                                                    <th>การวินิจฉัย (EN)</th>
+                                                    <th>ชื่อโรค / การวินิจฉัย</th>
                                                     <th class="text-center" style="width:90px">รวม</th>
                                                     <th class="text-center" style="width:80px">
                                                         <i class="fa-solid fa-mars" style="color:#3b82f6"></i>
@@ -166,7 +165,7 @@ include '../templates/sidebar.php';
                                             </thead>
                                             <tbody id="er-top10-tbody">
                                                 <tr>
-                                                    <td colspan="7" class="text-center text-muted py-4">
+                                                    <td colspan="6" class="text-center text-muted py-4">
                                                         <i class="fa-solid fa-spinner fa-spin me-2"></i>
                                                         กำลังโหลดข้อมูล...
                                                     </td>

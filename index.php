@@ -716,6 +716,10 @@ async function loadWardBed() {
 
         let html = '';
 
+        // Home Ward (23) ผู้ป่วยนอนที่บ้าน ไม่นับรวมยอดเตียงทั้งหมด — แสดงไว้ท้ายสุดพร้อมหมายเหตุ
+        const HOME_WARD = '23';
+        data.sort((a, b) => (a.ward === HOME_WARD) - (b.ward === HOME_WARD));
+
         data.forEach(ward => {
 
             let colorClass = 'success';
@@ -789,6 +793,8 @@ async function loadWardBed() {
                         (${statusText})
 
                     </div>
+
+                    ${ward.ward === HOME_WARD ? '<div class="ward-note"><i class="fa-solid fa-circle-info"></i> ผู้ป่วยอยู่ที่บ้าน ไม่นับรวมยอดเตียงทั้งหมด</div>' : ''}
 
                     <div class="ward-percent">
 
@@ -935,6 +941,16 @@ async function loadServiceSummary() {
 
     document.getElementById('ct_total').innerHTML =
         data.ct_total + ' ราย';
+
+    // เรียงมากไปน้อย และทำให้รายการที่เป็น 0 เป็นสีเทา ให้เห็นบริการที่มีผู้ใช้ก่อน (sort แบบ stable: เท่ากันคงลำดับเดิม)
+    const serviceBox = document.getElementById('service-container');
+    [...serviceBox.children]
+        .map(el => [el, parseInt(el.querySelector('.service-total').textContent, 10) || 0])
+        .sort((a, b) => b[1] - a[1])
+        .forEach(([el, total]) => {
+            el.classList.toggle('is-zero', total === 0);
+            serviceBox.appendChild(el);
+        });
 
     markUpdated();
 

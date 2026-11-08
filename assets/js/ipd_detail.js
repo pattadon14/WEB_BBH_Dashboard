@@ -603,9 +603,6 @@ async function loadTop10Disease() {
                 ? rankColor[rank]
                 : 'background:#198754;color:#fff;';
 
-            const diagName = row.tname
-                ? row.tname
-                : (row.diag ?? '—');
 
             html += `
                 <tr>
@@ -620,18 +617,15 @@ async function loadTop10Disease() {
                             ${row.pdx ?? '—'}
                         </span>
                     </td>
-                    <td>${row.diag ?? '—'}</td>
-                    <td class="text-muted" style="font-size:15px">
-                        ${diagName}
+                    <td>${diagCell(row.tname, row.diag)}</td>
+                    <td class="text-center fw-bold text-success">
+                        ${Number(row.total_case || 0).toLocaleString()}
                     </td>
                     <td class="text-center" style="color:#3b82f6">
                         ${Number(row.male || 0).toLocaleString()}
                     </td>
                     <td class="text-center" style="color:#ec4899">
                         ${Number(row.female || 0).toLocaleString()}
-                    </td>
-                    <td class="text-center fw-bold text-success">
-                        ${Number(row.total_case || 0).toLocaleString()}
                     </td>
                 </tr>
             `;
@@ -645,10 +639,18 @@ async function loadTop10Disease() {
 
         document.getElementById('top10-ipd-body').innerHTML = `
             <tr>
-                <td colspan="7" class="text-center text-danger">
+                <td colspan="6" class="text-center text-danger">
                     ไม่สามารถโหลดข้อมูลได้
                 </td>
             </tr>
         `;
     }
+}
+
+// ชื่อโรค: ไทยเป็นหลัก อังกฤษตัวเล็กใต้ชื่อ (ไม่แสดงซ้ำถ้าเหมือนกันหรือไม่มีชื่อไทย) — ใช้รูปแบบเดียวกันทั้งหน้า OPD / IPD / ER
+function diagCell(th, en) {
+    th = (th || '').trim();
+    en = (en || '').trim();
+    const sub = th && en && th !== en ? `<div class="diag-en">${en}</div>` : '';
+    return `<div>${th || en || '—'}</div>${sub}`;
 }

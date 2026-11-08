@@ -203,15 +203,14 @@ include '../templates/sidebar.php';
                                                 <tr>
                                                     <th class="text-center" style="width:60px">อันดับ</th>
                                                     <th class="text-center" style="width:100px">ICD-10</th>
-                                                    <th>การวินิจฉัย (EN)</th>
-                                                    <th>ชื่อโรค (ไทย)</th>
+                                                    <th>ชื่อโรค / การวินิจฉัย</th>
+                                                    <th class="text-center" style="width:90px">รวม</th>
                                                     <th class="text-center" style="width:80px">
                                                         <i class="fa-solid fa-mars" style="color:#3b82f6"></i> ชาย
                                                     </th>
                                                     <th class="text-center" style="width:80px">
                                                         <i class="fa-solid fa-venus" style="color:#ec4899"></i> หญิง
                                                     </th>
-                                                    <th class="text-center" style="width:90px">รวม</th>
                                                 </tr>
                                             </thead>
 
