@@ -3,15 +3,14 @@
 header('Content-Type: application/json; charset=utf-8');
 
 require_once '../config/database.php';
+require_once '../config/period.php';
 
 try {
 
-    $year = isset($_GET['year'])
-        ? (int)$_GET['year']
-        : date('Y') + 543 + (date('n') >= 10 ? 1 : 0);
-
-    $startDate = ($year - 544) . '-10-01';
-    $endDate   = ($year - 543) . '-09-30';
+    // ช่วงเวลา: ?d1&d2 หรือ ?year (config/period.php)
+    $p         = bbh_period();
+    $startDate = $p['start'];
+    $endDate   = $p['end'];
 
     $sql = "
 
@@ -48,7 +47,9 @@ try {
 
         WHERE
 
-            i.regdate BETWEEN
+            -- นับตามวันจำหน่าย: an_stat มีการวินิจฉัยหลัก (pdx) หลังจำหน่ายเท่านั้น
+            -- ถ้านับตามวัน admit ช่วงสั้น/ล่าสุดจะได้แค่ไม่กี่ราย (ผู้ป่วยส่วนใหญ่ยังไม่จำหน่าย)
+            i.dchdate BETWEEN
             :startDate
             AND
             :endDate

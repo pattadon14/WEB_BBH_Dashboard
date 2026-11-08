@@ -3,21 +3,14 @@
 header('Content-Type: application/json; charset=utf-8');
 
 require_once '../config/database.php';
+require_once '../config/period.php';
 
 try {
 
-    $year = isset($_GET['year'])
-        ? (int)$_GET['year']
-        : date('Y') + 543 + (date('n') >= 10 ? 1 : 0);
-
-    /*
-    ==========================
-    ปีงบประมาณ
-    ==========================
-    */
-
-    $startDate = ($year - 544) . '-10-01';
-    $endDate   = ($year - 543) . '-09-30';
+    // ช่วงเวลา: ?d1&d2 หรือ ?year (config/period.php)
+    $p         = bbh_period();
+    $startDate = $p['start'];
+    $endDate   = $p['end'];
 
     /*
     ==========================
@@ -26,7 +19,7 @@ try {
     */
 
     $cacheDir  = __DIR__ . '/../storage/cache/';
-    $cacheFile = $cacheDir . 'er_triage_v2_' . $year . '.json';
+    $cacheFile = $cacheDir . 'er_triage_v2_' . $p['key'] . '.json';
     $cacheTTL  = 5 * 60;
 
     if (

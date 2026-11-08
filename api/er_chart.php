@@ -3,21 +3,14 @@
 header('Content-Type: application/json; charset=utf-8');
 
 require_once '../config/database.php';
+require_once '../config/period.php';
 
 try {
 
-    $year = isset($_GET['year'])
-        ? (int)$_GET['year']
-        : date('Y') + 543 + (date('n') >= 10 ? 1 : 0);
-
-    /*
-    ==========================
-    ปีงบประมาณ
-    ==========================
-    */
-
-    $startDate = ($year - 544) . '-10-01';
-    $endDate   = ($year - 543) . '-09-30';
+    // ช่วงเวลา: ?d1&d2 หรือ ?year (config/period.php)
+    $p         = bbh_period();
+    $startDate = $p['start'];
+    $endDate   = $p['end'];
 
     /*
     ==========================
@@ -26,7 +19,7 @@ try {
     */
 
     $cacheDir  = __DIR__ . '/../storage/cache/';
-    $cacheFile = $cacheDir . 'er_chart_v3_' . $year . '.json';
+    $cacheFile = $cacheDir . 'er_chart_v4_' . $p['key'] . '.json';
     $cacheTTL  = 5 * 60; // 5 นาที
 
     if (
@@ -39,7 +32,7 @@ try {
 
     /*
     ==========================
-    ER Trend รายเดือน
+    ER Trend รายวัน/รายเดือน (ตาม unit ของช่วงเวลา)
     er       = ผู้รับบริการ ER ทุกประเภท (นับครั้ง จาก er_regist ตรงกับการ์ด ER หน้าหลัก)
     accident = เฉพาะ er_pt_type 2 ผู้ป่วยอุบัติเหตุ (เดิมนับ 2,5 แต่ 5 = ห้องทำแผลเวรเช้า ไม่ใช่อุบัติเหตุ)
     ==========================
@@ -47,39 +40,32 @@ try {
 
     $sqlTrend = "
         SELECT
-            EXTRACT(MONTH FROM vstdate) AS month,
-            TO_CHAR(vstdate, 'YYYY-MM') AS amonth,
+            TO_CHAR(DATE_TRUNC(:unit, vstdate), 'YYYY-MM-DD') AS bucket,
             COUNT(*) AS er_total,
             COUNT(*) FILTER (WHERE er_pt_type = 2) AS accident_total
         FROM er_regist
         WHERE
             vstdate BETWEEN :startDate AND :endDate
-        GROUP BY
-            TO_CHAR(vstdate, 'YYYY-MM'),
-            EXTRACT(MONTH FROM vstdate)
-        ORDER BY amonth
+        GROUP BY 1
     ";
 
     $stmtTrend = $conn->prepare($sqlTrend);
     $stmtTrend->execute([
+        ':unit'      => $p['unit'],
         ':startDate' => $startDate,
         ':endDate'   => $endDate,
     ]);
-    $rows = $stmtTrend->fetchAll(PDO::FETCH_ASSOC);
-
-    // เรียงตามปีงบประมาณ
-    $months   = [10,11,12,1,2,3,4,5,6,7,8,9];
-    $monthMap = [];
-    foreach ($rows as $row) {
-        $monthMap[(int)$row['month']] = [(int)$row['er_total'], (int)$row['accident_total']];
+    $byBucket = [];
+    foreach ($stmtTrend->fetchAll(PDO::FETCH_ASSOC) as $row) {
+        $byBucket[$row['bucket']] = $row;
     }
 
     $trend = [];
-    foreach ($months as $month) {
+    foreach (bbh_period_buckets($p) as $bucket => $label) {
         $trend[] = [
-            'month' => $month,
-            'er'       => $monthMap[$month][0] ?? 0,
-            'accident' => $monthMap[$month][1] ?? 0,
+            'label'    => $label,
+            'er'       => (int)($byBucket[$bucket]['er_total'] ?? 0),
+            'accident' => (int)($byBucket[$bucket]['accident_total'] ?? 0),
         ];
     }
 
@@ -135,6 +121,7 @@ try {
     */
 
     $result = [
+        'unit'  => $p['unit'],
         'trend' => $trend,
         'pie'   => $pie,
     ];

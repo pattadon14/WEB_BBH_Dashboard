@@ -2,117 +2,24 @@ async function loadChart() {
 
 /*
 ==========================
-ปีที่เลือก
+โหลดข้อมูลตามช่วงเวลาที่เลือก (assets/js/period_filter.js)
+ช่วงสั้น API คืนรายวัน ช่วงยาวคืนรายเดือน พร้อม label ของแต่ละช่อง
 ==========================
 */
 
-const year =
-    document.getElementById('budget-year').value;
-
-const now = new Date();
-const serverFiscalYear = Number(window.BBH_CURRENT_FISCAL_YEAR);
-const currentThaiYear =
-    serverFiscalYear ||
-    (now.getFullYear() + 543 + (now.getMonth() + 1 >= 10 ? 1 : 0));
-const isCurrentFiscalYear =
-    Number(year) === currentThaiYear;
-
-/*
-==========================
-วันที่ปีงบประมาณ
-==========================
-*/
-
-const startDateText = `1 ตุลาคม ${year - 1}`;
-
-let endDateText;
-
-if (isCurrentFiscalYear) {
-
-    const today = new Date();
-
-    const thaiMonths = [
-        'มกราคม','กุมภาพันธ์','มีนาคม',
-        'เมษายน','พฤษภาคม','มิถุนายน',
-        'กรกฎาคม','สิงหาคม','กันยายน',
-        'ตุลาคม','พฤศจิกายน','ธันวาคม'
-    ];
-
-    endDateText = `${today.getDate()} ${
-        thaiMonths[today.getMonth()]
-    } ${today.getFullYear() + 543}`;
-
-} else {
-
-    endDateText = `30 กันยายน ${year}`;
-
-}
-
-document.getElementById('budget-date-text').innerHTML =
-    `ปีงบประมาณ ${year} (${startDateText} - ${endDateText})`;
-
-/*
-==========================
-โหลดข้อมูล
-==========================
-*/
-
-const response = await fetch('../api/er_chart.php?year=' + year);
+const response = await fetch('../api/er_chart.php?' + bbhPeriod.query());
 const json     = await response.json();
 
-const trendData = json.trend;
-const pieData   = json.pie;
-
-/*
-==========================
-เดือนตามปีงบประมาณ
-==========================
-*/
-
-const allMonths = [
-    'ต.ค.','พ.ย.','ธ.ค.',
-    'ม.ค.','ก.พ.','มี.ค.',
-    'เม.ย.','พ.ค.','มิ.ย.',
-    'ก.ค.','ส.ค.','ก.ย.'
-];
-
-let months     = allMonths;
-let monthCount = 12;
-
-if (parseInt(year) === currentThaiYear) {
-
-    const currentMonth = new Date().getMonth() + 1;
-
-    const currentFiscalIndex =
-        currentMonth >= 10
-            ? currentMonth - 10
-            : currentMonth + 2;
-
-    monthCount = currentFiscalIndex + 1;
-    months     = allMonths.slice(0, monthCount);
-
+if (json.error) {
+    console.error('ER chart API error:', json.error);
+    return;
 }
 
-/*
-==========================
-Bar Chart Data
-==========================
-*/
-
-let erData       = Array(monthCount).fill(0);
-let accidentData = Array(monthCount).fill(0);
-
-trendData.forEach(row => {
-
-    const month = parseInt(row.month);
-    const index = month >= 10 ? month - 10 : month + 2;
-
-    if (index < monthCount) {
-        erData[index]       = parseInt(row.er);
-        accidentData[index] = parseInt(row.accident || 0);
-    }
-
-});
+const trendData    = json.trend;
+const pieData      = json.pie;
+const months       = trendData.map(row => row.label);
+const erData       = trendData.map(row => Number(row.er) || 0);
+const accidentData = trendData.map(row => Number(row.accident) || 0);
 
 /*
 ==========================
@@ -152,7 +59,7 @@ Highcharts.chart('er-chart', {
         column: {
             borderRadius: 4,
             dataLabels: {
-                enabled: true,
+                enabled: months.length <= 16, // รายวันหลายแท่ง ป้ายตัวเลขจะทับกัน
                 color: '#000',
                 style: { fontSize: '16px' }
             }
@@ -255,8 +162,6 @@ Triage Level Chart
 
 async function loadTriageChart() {
 
-const year =
-    document.getElementById('budget-year').value;
 
 /*
 ==========================
@@ -264,7 +169,7 @@ const year =
 ==========================
 */
 
-const response = await fetch('../api/er_triage.php?year=' + year);
+const response = await fetch('../api/er_triage.php?' + bbhPeriod.query());
 const data     = await response.json();
 
 if (data.error) {
@@ -378,10 +283,8 @@ Time Slot Chart
 
 async function loadTimeSlotChart() {
 
-const year =
-    document.getElementById('budget-year').value;
 
-const response = await fetch('../api/er_timeslot.php?year=' + year);
+const response = await fetch('../api/er_timeslot.php?' + bbhPeriod.query());
 const data     = await response.json();
 
 if (data.error) {
@@ -490,8 +393,6 @@ Top 10 Diagnosis ER
 
 async function loadTop10Table() {
 
-const year =
-    document.getElementById('budget-year').value;
 
 const tbody =
     document.getElementById('er-top10-tbody');
@@ -507,7 +408,7 @@ tbody.innerHTML = `
 
 try {
 
-    const response = await fetch('../api/er_top10_diagnosis.php?year=' + year);
+    const response = await fetch('../api/er_top10_diagnosis.php?' + bbhPeriod.query());
     const data     = await response.json();
 
     if (data.error) {

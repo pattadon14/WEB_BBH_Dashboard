@@ -20,7 +20,7 @@ include '../templates/sidebar.php';
                     <div class="row align-items-center">
 
                         <!-- TITLE -->
-                        <div class="col-md-7">
+                        <div class="col-xl-5 col-12">
 
                             <h2 class="mb-1 text-success" style="font-weight: bold;">
                                 <i class="fa-solid fa-chart-column"></i>
@@ -31,9 +31,10 @@ include '../templates/sidebar.php';
 
                         </div>
 
-                        <!-- SELECT -->
-                        <div class="col-md-5 col-lg-4">
+                        <!-- ช่วงเวลา: ปุ่มลัด + ปีงบ + ช่วงวันที่ (assets/js/period_filter.js เติมปุ่มและช่องวันที่) -->
+                        <div class="col-xl-7 col-12">
 
+                            <div id="period-filter" class="bbh-period">
                             <div class="budget-select-wrapper">
 
                                 <select id="budget-year" class="form-control budget-select">
@@ -47,6 +48,7 @@ include '../templates/sidebar.php';
 
                                 <i class="fas fa-chevron-down budget-select-icon"></i>
 
+                            </div>
                             </div>
 
                         </div>
@@ -69,7 +71,7 @@ include '../templates/sidebar.php';
 
                                     <h5 class="chart-title">
                                         <i class="fa-solid fa-hospital-user"></i>
-                                        จำนวนผู้รับบริการ ER รายเดือน
+                                        จำนวนผู้รับบริการ ER
                                     </h5>
 
                                     <div id="er-chart" style="height: 420px;"></div>
@@ -195,6 +197,7 @@ include '../templates/sidebar.php';
 <!-- HIGHCHART -->
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script>window.BBH_CURRENT_FISCAL_YEAR = <?= $currentYear ?>;</script>
+<script src="<?= BASE_URL ?>assets/js/period_filter.js?v=<?= filemtime(__DIR__ . '/../assets/js/period_filter.js') ?>"></script>
 <script src="<?= BASE_URL ?>assets/js/ER_detail.js"></script>
 
 <?php include '../templates/footer.php'; ?>

@@ -303,3 +303,142 @@ a.btn {
 .table-ipd-top10 thead th:nth-child(3) {
     text-align: left;
 }
+
+/* ---------- ตัวเลือกช่วงเวลา (หน้า ER / IPD — assets/js/period_filter.js) ---------- */
+.bbh-period {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.bbh-period .budget-select-wrapper {
+    margin-left: 0;
+}
+
+.bbh-period .budget-select {
+    height: 42px;
+}
+
+.bbh-period .budget-select-wrapper[hidden] {
+    display: none;
+}
+
+.bbh-seg {
+    display: inline-flex;
+    padding: 3px;
+    background: #eef4f0;
+    border: 1px solid #d5e5dc;
+    border-radius: 12px;
+}
+
+.bbh-seg button {
+    min-width: 64px;
+    height: 34px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: #2f5d47;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color .15s ease, color .15s ease;
+}
+
+.bbh-seg button:hover {
+    background: #dcefe4;
+}
+
+.bbh-seg button[aria-pressed="true"] {
+    background: var(--bbh-green);
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(25, 135, 84, .25);
+}
+
+.bbh-range {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 42px;
+    padding: 0 6px 0 14px;
+    background: #fff;
+    border: 1px solid #cddad3;
+    border-radius: 12px;
+}
+
+.bbh-range > i {
+    color: var(--bbh-green);
+}
+
+.bbh-range-sep {
+    color: var(--bbh-muted);
+    font-size: 17px;
+}
+
+.bbh-date {
+    position: relative;
+    margin: 0;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--bbh-text);
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.bbh-date:hover {
+    background: var(--bbh-green-50);
+}
+
+.bbh-date:focus-within {
+    background: var(--bbh-green-50);
+    box-shadow: var(--bbh-ring);
+}
+
+/* input date จริงซ้อนใต้ข้อความ พ.ศ. แบบโปร่งใส — กดตรงไหนก็เปิดปฏิทิน */
+.bbh-date input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    border: 0;
+    padding: 0;
+}
+
+.bbh-date input::-webkit-calendar-picker-indicator {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+@media (max-width: 1199px) {
+    .bbh-period {
+        justify-content: flex-start;
+        margin-top: 10px;
+    }
+}
+
+@media (max-width: 576px) {
+    .bbh-seg,
+    .bbh-range,
+    .bbh-period .budget-select-wrapper,
+    .bbh-period .budget-select {
+        width: 100%;
+    }
+
+    .bbh-seg button {
+        flex: 1;
+    }
+
+    .bbh-range {
+        justify-content: space-between;
+    }
+}

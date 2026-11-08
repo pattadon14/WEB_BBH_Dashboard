@@ -3,25 +3,12 @@
 header('Content-Type: application/json; charset=utf-8');
 
 require_once '../config/database.php';
+require_once '../config/period.php';
 
 try {
 
-    $year =
-        isset($_GET['year'])
-        ? (int)$_GET['year']
-        : date('Y') + 543 + (date('n') >= 10 ? 1 : 0);
-
-    /*
-    ==========================
-    ปีงบประมาณ
-    ==========================
-    */
-
-    $startDate =
-        ($year - 544) . '-10-01';
-
-    $endDate =
-        ($year - 543) . '-09-30';
+    // ช่วงเวลา: ?d1&d2 หรือ ?year (config/period.php) — ช่วงสั้นแสดงรายวัน ช่วงยาวแสดงรายเดือน
+    $p = bbh_period();
 
     /*
     ==========================
@@ -30,138 +17,95 @@ try {
     */
 
     $bedSql = "SELECT SUM(bedcount)
-    AS total_bed 
+    AS total_bed
             FROM
-                ward 
+                ward
             WHERE
-                ward_active = 'Y' 
+                ward_active = 'Y'
                 AND ward NOT IN ( '10', '11', '05', '04', '23' )";
 
-    $bedStmt =
-        $conn->query($bedSql);
-    
-    $totalBed = (int)$bedStmt->fetch(PDO::FETCH_ASSOC)['total_bed'];
+    $totalBed = (int)$conn->query($bedSql)->fetch(PDO::FETCH_ASSOC)['total_bed'];
 
     /*
     ==========================
-    Occupancy Rate รายเดือน
-    = วันนอนจริงในเดือน / (เตียงทั้งหมด x จำนวนวันในเดือน)
-    - วันนอน: นับคืนที่อยู่ในเดือนนั้นจริง (วันจำหน่ายไม่นับ, ยังไม่จำหน่ายนับถึงวันนี้)
-      เดิมใช้ an_stat.admdate ของคนที่จำหน่ายในเดือน ทำให้เดือนที่ยังไม่จบต่ำผิดปกติ และนับวันนอนข้ามเดือน
-    - เดือนปัจจุบันหารด้วยจำนวนวันที่ผ่านไปแล้วเท่านั้น
-    - ward ชุดเดียวกับจำนวนเตียง (ไม่นับ LR, Observe ER, ส่องกล้อง, ผ่าตัด, Home Ward)
+    ต่อช่อง (วัน/เดือน) ในช่วงที่เลือก
+    - admit      = รับใหม่ (ipt.regdate) ทุก ward นับ AN — ตรงกับการ์ด "รับใหม่" และ Admit หน้าหลัก
+    - occupancy  = วันนอนจริงในช่อง / (เตียงทั้งหมด x จำนวนวันในช่อง)
+      วันนอน: นับคืนที่อยู่ในช่องนั้นจริง (วันจำหน่ายไม่นับ, ยังไม่จำหน่ายนับถึงวันนี้)
+      ช่องที่ยังไม่จบ (เดือนนี้/วันนี้) หารด้วยจำนวนวันที่ผ่านไปแล้วเท่านั้น
+      ward ชุดเดียวกับจำนวนเตียง (ไม่นับ LR, Observe ER, ส่องกล้อง, ผ่าตัด, Home Ward)
     ==========================
     */
 
     $sql = "
-        WITH months AS (
+        WITH params AS (
             SELECT
-                ms::date AS month_start,
-                LEAST((ms + INTERVAL '1 month')::date, CURRENT_DATE + 1) AS month_until
-            FROM generate_series(CAST(:startDate AS date), CAST(:endDate AS date), INTERVAL '1 month') AS ms
-            WHERE ms::date <= CURRENT_DATE
+                CAST(:startDate AS date) AS start_date,
+                CAST(:endDate AS date) + 1 AS end_excl,
+                CAST(('1 ' || :unit) AS interval) AS step
+        ),
+        buckets AS (
+            SELECT
+                TO_CHAR(gs, 'YYYY-MM-DD') AS bucket,
+                GREATEST(gs::date, p.start_date) AS b_start,
+                LEAST((gs + p.step)::date, p.end_excl, CURRENT_DATE + 1) AS b_until
+            FROM params p,
+                 generate_series(DATE_TRUNC(:unit2, p.start_date), LEAST(p.end_excl - 1, CURRENT_DATE)::timestamp, p.step) AS gs
         )
         SELECT
-            EXTRACT(MONTH FROM m.month_start) AS month,
-            m.month_until - m.month_start AS days,
+            b.bucket,
+            b.b_until - b.b_start AS days,
+            (SELECT COUNT(*) FROM ipt a WHERE a.regdate >= b.b_start AND a.regdate < b.b_until) AS admit,
             COALESCE(SUM(GREATEST(0,
-                LEAST(COALESCE(i.dchdate, CURRENT_DATE + 1), m.month_until)
-                - GREATEST(i.regdate, m.month_start)
+                LEAST(COALESCE(i.dchdate, CURRENT_DATE + 1), b.b_until)
+                - GREATEST(i.regdate, b.b_start)
             )), 0) AS patient_day
-        FROM months m
+        FROM buckets b
         LEFT JOIN ipt i
-            ON i.regdate < m.month_until
-           AND COALESCE(i.dchdate, CURRENT_DATE + 1) > m.month_start
+            ON i.regdate < b.b_until
+           AND COALESCE(i.dchdate, CURRENT_DATE + 1) > b.b_start
            AND i.ward NOT IN ('10', '11', '05', '04', '23')
-        GROUP BY m.month_start, m.month_until
-        ORDER BY m.month_start
+        GROUP BY b.bucket, b.b_start, b.b_until
     ";
 
-    $stmt =
-        $conn->prepare($sql);
-
+    $stmt = $conn->prepare($sql);
     $stmt->execute([
-
-        ':startDate' =>
-            $startDate,
-
-        ':endDate' =>
-            $endDate
-
+        ':startDate' => $p['start'],
+        ':endDate'   => $p['end'],
+        ':unit'      => $p['unit'],
+        ':unit2'     => $p['unit'],
     ]);
 
-    $rows =
-        $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    /*
-    ==========================
-    จัดเรียงตามปีงบประมาณ
-    ==========================
-    */
-
-    $months = [
-        10,11,12,
-        1,2,3,4,5,6,7,8,9
-    ];
-
-    $monthMap = [];
-
-    foreach($rows as $row){
-
-        $monthMap[
-            (int)$row['month']
-        ] = [
-
-            'patient_day' =>
-                (int)$row['patient_day'],
-
-            'occupancy_rate' =>
-                $totalBed > 0
-                    ? round($row['patient_day'] * 100 / ($totalBed * $row['days']), 2)
-                    : 0
-
-        ];
-
+    $byBucket = [];
+    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+        $byBucket[$row['bucket']] = $row;
     }
 
     $data = [];
-
-    foreach($months as $month){
-
+    foreach (bbh_period_buckets($p) as $bucket => $label) {
+        $row = $byBucket[$bucket] ?? null;
+        $days = $row ? (int)$row['days'] : 0;
         $data[] = [
-
-            'month' =>
-                $month,
-
-            'patient_day' =>
-                $monthMap[$month]['patient_day']
-                ?? 0,
-
-            'occupancy_rate' =>
-                $monthMap[$month]['occupancy_rate']
-                ?? 0
-
+            'label'          => $label,
+            'admit'          => $row ? (int)$row['admit'] : 0,
+            'patient_day'    => $row ? (int)$row['patient_day'] : 0,
+            'occupancy_rate' => $totalBed > 0 && $days > 0
+                ? round($row['patient_day'] * 100 / ($totalBed * $days), 2)
+                : 0,
         ];
-
     }
 
     echo json_encode([
-
-        'total_bed' =>
-            $totalBed,
-
-        'data' =>
-            $data
-
+        'total_bed' => $totalBed,
+        'unit'      => $p['unit'],
+        'data'      => $data,
     ], JSON_UNESCAPED_UNICODE);
 
-} catch(Exception $e){
+} catch (Exception $e) {
 
+    http_response_code($e instanceof InvalidArgumentException ? 400 : 500);
     echo json_encode([
-
-        'error' =>
-            $e->getMessage()
-
-    ]);
+        'error' => $e->getMessage()
+    ], JSON_UNESCAPED_UNICODE);
 
 }

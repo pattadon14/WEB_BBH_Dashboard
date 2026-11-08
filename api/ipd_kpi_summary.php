@@ -3,19 +3,14 @@
 header('Content-Type: application/json; charset=utf-8');
 
 require_once '../config/database.php';
+require_once '../config/period.php';
 
 try {
 
-    $year = isset($_GET['year'])
-        ? (int)$_GET['year']
-        : date('Y') + 543 + (date('n') >= 10 ? 1 : 0);
-
-    if ($year < 2565 || $year > 2600) {
-        throw new Exception('ปีงบประมาณไม่ถูกต้อง');
-    }
-
-    $startDate = ($year - 544) . '-10-01';
-    $endDate   = ($year - 543) . '-10-01';
+    // ช่วงเวลา: ?d1&d2 หรือ ?year (config/period.php) — SQL ด้านล่างใช้ end แบบไม่รวม จึง +1 วัน
+    $p = bbh_period();
+    $startDate = $p['start'];
+    $endDate   = date('Y-m-d', strtotime($p['end'] . ' +1 day'));
 
     /*
     ============================================
@@ -25,7 +20,7 @@ try {
     = ผู้ป่วยที่ยัง Admit อยู่ ณ ปัจจุบัน (เฉพาะ valid_wards ให้ตรงกับ "Admit อยู่" หน้าหลัก)
 
     Occupancy Rate
-    = อัตราครองเตียงเฉลี่ยของปีงบที่เลือก (วิธีเดียวกับ bed_occupancy_trend.php)
+    = อัตราครองเตียงเฉลี่ยของช่วงที่เลือก (ปีงบ หรือ d1–d2) (วิธีเดียวกับ bed_occupancy_trend.php)
 
     Admissions / Discharges / LOS / Readmission
     = คำนวณตามปีงบประมาณที่เลือก
@@ -197,7 +192,6 @@ try {
     }
 
     $result = [
-        'fiscal_year' => $year,
         'start_date' => $startDate,
         'end_date' => date('Y-m-d', strtotime($endDate . ' -1 day')),
 

@@ -1,14 +1,12 @@
 
 async function loadKpiSummary() {
 
-    const year =
-        document.getElementById('budget-year').value;
 
     try {
 
         const response =
             await fetch(
-                '../api/ipd_kpi_summary.php?year=' + encodeURIComponent(year),
+                '../api/ipd_kpi_summary.php?' + bbhPeriod.query(),
                 { cache: 'no-store' }
             );
 
@@ -180,198 +178,28 @@ async function loadKpiSummary() {
 
 async function loadChart() {
 
-    const year =
-        document.getElementById(
-            'budget-year'
-        ).value;
-
     /*
     ==========================
-    วันที่ปีงบประมาณ
-    ==========================
-    */
-
-    const startDateText =
-        `1 ตุลาคม ${year - 1}`;
-
-    const currentThaiYear =
-        Number(window.BBH_CURRENT_FISCAL_YEAR) ||
-        (new Date().getFullYear() + 543 + (new Date().getMonth() + 1 >= 10 ? 1 : 0));
-
-    let endDateText;
-
-    if (parseInt(year) === currentThaiYear) {
-
-        const today =
-            new Date();
-
-        const thaiMonths = [
-            'มกราคม',
-            'กุมภาพันธ์',
-            'มีนาคม',
-            'เมษายน',
-            'พฤษภาคม',
-            'มิถุนายน',
-            'กรกฎาคม',
-            'สิงหาคม',
-            'กันยายน',
-            'ตุลาคม',
-            'พฤศจิกายน',
-            'ธันวาคม'
-        ];
-
-        endDateText =
-            `${today.getDate()} ${
-                thaiMonths[today.getMonth()]
-            } ${today.getFullYear() + 543}`;
-
-    } else {
-
-        endDateText =
-            `30 กันยายน ${year}`;
-    }
-
-    document.getElementById(
-        'budget-date-text'
-    ).innerHTML =
-
-        `ปีงบประมาณ ${year}
-        (${startDateText} - ${endDateText})`;
-
-    /*
-    ==========================
-    โหลดข้อมูลผู้ป่วยใน
-    ==========================
-    */
-
-    const response =
-        await fetch(
-            '../api/service_trend.php?year=' + year
-        );
-
-    const data =
-        await response.json();
-
-    /*
-    ==========================
-    โหลดข้อมูลอัตราครองเตียง
+    รับใหม่ + อัตราครองเตียง ต่อช่อง (วัน/เดือน ตามช่วงที่เลือก) — api/bed_occupancy_trend.php
     ==========================
     */
 
     const bedResponse =
         await fetch(
-            '../api/bed_occupancy_trend.php?year=' + year
+            '../api/bed_occupancy_trend.php?' + bbhPeriod.query()
         );
 
     const bedData =
         await bedResponse.json();
 
-    /*
-    ==========================
-    เดือน
-    ==========================
-    */
-
-    const allMonths = [
-        'ต.ค.',
-        'พ.ย.',
-        'ธ.ค.',
-        'ม.ค.',
-        'ก.พ.',
-        'มี.ค.',
-        'เม.ย.',
-        'พ.ค.',
-        'มิ.ย.',
-        'ก.ค.',
-        'ส.ค.',
-        'ก.ย.'
-    ];
-
-    let months = allMonths;
-
-    let monthCount = 12;
-
-    if (parseInt(year) === currentThaiYear) {
-
-        const currentMonth =
-            new Date().getMonth() + 1;
-
-        let currentFiscalIndex;
-
-        if (currentMonth >= 10) {
-
-            currentFiscalIndex =
-                currentMonth - 10;
-
-        } else {
-
-            currentFiscalIndex =
-                currentMonth + 2;
-        }
-
-        monthCount =
-            currentFiscalIndex + 1;
-
-        months =
-            allMonths.slice(0, monthCount);
+    if (bedData.error) {
+        console.error('IPD trend API error:', bedData.error);
+        return;
     }
 
-    /*
-    ==========================
-    IPD DATA
-    ==========================
-    */
-
-    let ipdData =
-        Array(monthCount).fill(0);
-
-    data.forEach(row => {
-
-        const month =
-            parseInt(row.month);
-
-        const index =
-            month >= 10
-                ? month - 10
-                : month + 2;
-
-        if (index < monthCount) {
-
-            ipdData[index] =
-                parseInt(row.ipd);
-        }
-
-    });
-
-    /*
-    ==========================
-    BED OCCUPANCY DATA
-    ==========================
-    */
-
-    let occupancyData =
-        Array(monthCount).fill(0);
-
-    bedData.data.forEach(row => {
-
-        const month =
-            parseInt(row.month);
-
-        const index =
-            month >= 10
-                ? month - 10
-                : month + 2;
-
-        if (index < monthCount) {
-
-            occupancyData[index] =
-                parseFloat(
-                    row.occupancy_rate
-                );
-        }
-
-    });
-
+    const months = bedData.data.map(row => row.label);
+    const ipdData = bedData.data.map(row => Number(row.admit) || 0);
+    const occupancyData = bedData.data.map(row => Number(row.occupancy_rate) || 0);
     /*
     ==========================
     กราฟผู้ป่วยใน
@@ -419,7 +247,7 @@ async function loadChart() {
 
                 dataLabels: {
 
-                    enabled: true,
+                    enabled: months.length <= 16, // รายวันหลายแท่ง ป้ายตัวเลขจะทับกัน
 
                     color: '#333333',
 
@@ -495,7 +323,7 @@ async function loadChart() {
 
                 dataLabels: {
 
-                    enabled: true,
+                    enabled: months.length <= 16, // รายวันหลายแท่ง ป้ายตัวเลขจะทับกัน
 
                     format: '{y:.1f}%',
 
@@ -533,12 +361,10 @@ async function loadTop10Disease() {
 
     try {
 
-        const year =
-            document.getElementById('budget-year').value;
 
         const response =
             await fetch(
-                `../api/ipd_top10_disease.php?year=${year}`
+                '../api/ipd_top10_disease.php?' + bbhPeriod.query()
             );
 
         const data =
@@ -589,7 +415,8 @@ async function loadTop10Disease() {
             `;
         });
 
-        document.getElementById('top10-ipd-body').innerHTML = html;
+        document.getElementById('top10-ipd-body').innerHTML = html ||
+            '<tr><td colspan="6" class="text-center text-muted py-3">ไม่พบข้อมูลผู้ป่วยที่จำหน่ายในช่วงนี้</td></tr>';
 
     } catch (err) {
 
