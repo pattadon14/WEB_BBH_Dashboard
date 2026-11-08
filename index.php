@@ -657,8 +657,9 @@ include 'templates/sidebar.php';
 
 </div>
 
-<script src="https://code.highcharts.com/highcharts.js"></script>
-<script src="https://code.highcharts.com/modules/heatmap.js"></script>
+<!-- Highcharts เก็บไว้ในเว็บเอง (assets/lib) ไม่โหลดจาก code.highcharts.com: CDN นั้นปฏิเสธคำขอที่ไม่มี Referer และเปลี่ยนเวอร์ชันเองได้ -->
+<script src="assets/lib/highcharts/13.1.1/highcharts.js"></script>
+<script src="assets/lib/highcharts/13.1.1/modules/heatmap.js"></script>
 <script src="assets/js/dashboard.js"></script>
 <script>
 // เรียกหลังโหลดข้อมูลสำเร็จเท่านั้น ถ้า API ล่ม เวลาจะค้างไว้ที่ครั้งล่าสุดที่ได้ข้อมูลจริง

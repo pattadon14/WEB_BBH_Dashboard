@@ -474,3 +474,10 @@ a.btn {
         flex-basis: 34px;
     }
 }
+
+/* หัวการ์ดที่มีตัวเลือกช่วงเวลา: custom.css ล็อกความสูง .opd-chart ไว้ 80px พอจอแคบตัวเลือกขึ้นบรรทัดใหม่จึงไปซ้อนใต้การ์ด KPI */
+.opd-chart:has(.bbh-period) {
+    height: auto;
+    min-height: 80px;
+    padding-bottom: 12px;
+}

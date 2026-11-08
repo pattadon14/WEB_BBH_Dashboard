@@ -189,7 +189,7 @@
         if (existing) { existing.addEventListener('load', callback, { once: true }); return; }
         var script = document.createElement('script');
         script.id = 'bbh-highcharts-loader';
-        script.src = 'https://code.highcharts.com/highcharts.js';
+        script.src = getBasePath() + '/assets/lib/highcharts/13.1.1/highcharts.js'; // เวอร์ชันเดียวกับหน้าอื่น (assets/lib)
         script.onload = callback;
         script.onerror = function () {
             ['ipd-history-admit', 'ipd-history-occupancy'].forEach(function (id) {

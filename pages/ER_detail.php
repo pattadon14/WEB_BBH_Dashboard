@@ -195,7 +195,7 @@ include '../templates/sidebar.php';
 </div>
 
 <!-- HIGHCHART -->
-<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="<?= BASE_URL ?>assets/lib/highcharts/13.1.1/highcharts.js"></script>
 <script>window.BBH_CURRENT_FISCAL_YEAR = <?= $currentYear ?>;</script>
 <script src="<?= BASE_URL ?>assets/js/period_filter.js?v=<?= filemtime(__DIR__ . '/../assets/js/period_filter.js') ?>"></script>
 <script src="<?= BASE_URL ?>assets/js/ER_detail.js"></script>
