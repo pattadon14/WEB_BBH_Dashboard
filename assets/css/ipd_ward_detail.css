@@ -409,3 +409,39 @@
 .ipd-ward-page .overview-value-wrap {
     flex-basis: 100%;
 }
+
+/* =========================================================
+   PATIENT CARD (ปรับรอบ 2026-11-08)
+   - AN / เตียงลงมาอยู่ใต้ชื่อ ไม่บีบชื่อผู้ป่วยให้หักหลายบรรทัด
+   - ข้อมูล HN / วันนอน / Admit เป็น 2 คอลัมน์ การ์ดเตี้ยลง เห็นผู้ป่วยต่อจอมากขึ้น
+   (คงโครง DOM เดิม เพราะ ipd_ward_filter.js อ่าน .patient-info-row ตามลำดับ)
+========================================================= */
+/* ใช้ .patient-grid เพิ่มน้ำหนัก เพราะ <style> ในหน้า ipd_ward_detail.php โหลดทีหลังไฟล์นี้ */
+.ipd-ward-page .patient-grid .patient-card {
+    min-height: 0;
+}
+
+.ipd-ward-page .patient-grid .patient-top {
+    padding-right: 0;
+    min-height: 0;
+}
+
+.ipd-ward-page .patient-badges {
+    position: static !important;
+    max-width: none !important;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    margin-top: 8px !important;
+}
+
+.ipd-ward-page .patient-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 12px;
+    margin-top: 8px;
+    padding-top: 7px;
+}
+
+.ipd-ward-page .doctor-row {
+    grid-column: 1 / -1;
+}

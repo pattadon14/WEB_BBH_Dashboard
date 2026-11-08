@@ -26,7 +26,7 @@ try {
     */
 
     $cacheDir  = __DIR__ . '/../storage/cache/';
-    $cacheFile = $cacheDir . 'er_chart_v2_' . $year . '.json';
+    $cacheFile = $cacheDir . 'er_chart_v3_' . $year . '.json';
     $cacheTTL  = 5 * 60; // 5 นาที
 
     if (
@@ -111,10 +111,19 @@ try {
     ]);
     $pieRows = $stmtPie->fetchAll(PDO::FETCH_ASSOC);
 
+    // ชื่อใน er_pt_type ยาวและถูกตัดกลางคำ (เช่น "...ตั้งแต่") ใช้ชื่อสั้นตาม code ของ รพ.บ้านบึง
+    $shortName = [
+        1 => 'ฉุกเฉิน (ไม่ใช่อุบัติเหตุ)',
+        2 => 'อุบัติเหตุ',
+        3 => 'ตรวจโรคทั่วไป',
+        4 => 'บริการอื่น (ทำแผล/ฉีดยา/ใบรับรองแพทย์)',
+        5 => 'ห้องทำแผล เวรเช้า',
+    ];
+
     $pie = [];
     foreach ($pieRows as $row) {
         $pie[] = [
-            'name' => $row['typename'] ?? 'ไม่ระบุ',
+            'name' => $shortName[(int)$row['ertype']] ?? ($row['typename'] ?? 'ไม่ระบุ'),
             'y'    => (int)$row['total'],
         ];
     }

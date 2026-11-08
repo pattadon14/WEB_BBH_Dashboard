@@ -226,3 +226,56 @@
 .kpi-status-normal {
     border-color: #cfe9db;
 }
+
+/* =========================================
+   KPI CARD (ปรับรอบ 2026-11-08)
+   ไอคอนอยู่บน ข้อความอยู่ล่าง — 7 การ์ดในแถวเดียวยังอ่านได้
+   ขนาดตัวอักษรเดิม 11–15px เล็กเกินไปสำหรับ TH Sarabun
+   ========================================= */
+.ipd-kpi-card {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr);
+    align-items: center;
+    align-content: start;
+    column-gap: 10px;
+    row-gap: 4px;
+    min-height: 0;
+    padding: 14px 14px 14px 18px;
+}
+
+/* ไอคอน + ชื่อ อยู่แถวเดียวกัน ตัวเลข/หน่วย/สถานะ เต็มความกว้างด้านล่าง */
+.ipd-kpi-content {
+    display: contents;
+}
+
+.ipd-kpi-value,
+.ipd-kpi-unit,
+.ipd-kpi-status {
+    grid-column: 1 / -1;
+}
+
+.ipd-kpi-icon {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+    font-size: 19px;
+}
+
+.ipd-kpi-label {
+    font-size: 19px;
+    line-height: 1.15;
+}
+
+.ipd-kpi-value {
+    font-size: 36px;
+}
+
+.ipd-kpi-unit {
+    font-size: 16px;
+}
+
+.ipd-kpi-status {
+    font-size: 15px;
+    font-weight: 600;
+}
+

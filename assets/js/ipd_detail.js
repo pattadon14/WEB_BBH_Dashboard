@@ -388,9 +388,7 @@ async function loadChart() {
             }
         },
 
-        title: {
-            text: 'จำนวนผู้รับบริการ ปีงบประมาณ ' + year
-        },
+        title: { text: null },
 
         xAxis: {
             categories: months
@@ -402,7 +400,7 @@ async function loadChart() {
                 text: 'จำนวน'
             },
 
-            tickInterval: 250
+            allowDecimals: false
         },
 
         credits: {
@@ -454,42 +452,23 @@ async function loadChart() {
             }
         },
 
-        title: {
-            text: 'อัตราการครองเตียง ปีงบประมาณ ' + year
-        },
+        title: { text: null },
 
         xAxis: {
             categories: months
         },
 
-        yAxis: [{
+        // แกนเดียว: เดิมมีเส้น "แนวโน้ม" ที่เป็นข้อมูลชุดเดียวกับแท่งซ้ำบนแกนที่ 2
+        yAxis: {
             min: 0,
-            max: 100,
-            tickInterval: 20,
-
+            softMax: 100,
             title: {
                 text: 'อัตราการครองเตียง (%)'
             },
-
             labels: {
                 format: '{value}%'
             }
         },
-        {
-            min: 0,
-            max: 100,
-            tickInterval: 20,
-
-            title: {
-                text: 'แนวโน้ม'
-            },
-
-            opposite: true,
-
-            labels: {
-                format: '{value}%'
-            }
-        }],
 
         tooltip: {
 
@@ -526,27 +505,6 @@ async function loadChart() {
                         textOutline: 'none',
                         color: '#333333'
                     }
-                }
-
-            },
-
-            {
-
-                type: 'spline',
-
-                name: 'แนวโน้ม',
-
-                color: '#dc3545',
-
-                yAxis: 1,
-
-                data: occupancyData,
-
-                marker: {
-
-                    enabled: true,
-
-                    radius: 4
                 }
 
             }

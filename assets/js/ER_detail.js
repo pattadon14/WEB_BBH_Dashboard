@@ -128,9 +128,7 @@ Highcharts.chart('er-chart', {
         style: { fontFamily: 'THSarabun' }
     },
 
-    title: {
-        text: 'จำนวนผู้รับบริการ ER ปีงบประมาณ ' + year
-    },
+    title: { text: null },
 
     xAxis: {
         categories: months
@@ -187,10 +185,7 @@ Highcharts.chart('er-pie-chart', {
         style: { fontFamily: 'THSarabun' }
     },
 
-    title: {
-        text: 'สัดส่วนผู้รับบริการ ER ปีงบประมาณ ' + year,
-        style: { fontSize: '1.2em' }
-    },
+    title: { text: null },
 
     tooltip: {
         pointFormat:
@@ -199,24 +194,41 @@ Highcharts.chart('er-pie-chart', {
 
     credits: { enabled: false },
 
+    // โดนัท + คำอธิบายด้านขวา: ป้ายบนชิ้นเหลือแค่ % ไม่ทับกัน
     plotOptions: {
         pie: {
+            innerSize: '55%',
             allowPointSelect: true,
             cursor: 'pointer',
             dataLabels: {
                 enabled: true,
-                format: '<b>{point.name}</b><br>{point.percentage:.2f} %',
+                distance: 14,
+                format: '{point.percentage:.1f}%',
                 style: {
-                    fontSize: '16px',
-                    fontFamily: 'THSarabun'
+                    fontSize: '17px',
+                    fontFamily: 'THSarabun',
+                    textOutline: 'none'
                 }
             },
-            showInLegend: false
+            showInLegend: true
         }
     },
 
     legend: {
-        enabled: false
+        enabled: true,
+        layout: 'vertical',
+        align: 'right',
+        verticalAlign: 'middle',
+        itemMarginBottom: 6,
+        labelFormat: '{name} <b>{y:,.0f}</b>',
+        itemStyle: { fontSize: '17px', fontWeight: 'normal' }
+    },
+
+    responsive: {
+        rules: [{
+            condition: { maxWidth: 520 },
+            chartOptions: { legend: { layout: 'horizontal', align: 'center', verticalAlign: 'bottom' } }
+        }]
     },
 
     series: [{
@@ -281,10 +293,7 @@ Highcharts.chart('er-triage-chart', {
         style: { fontFamily: 'THSarabun' }
     },
 
-    title: {
-        text: 'Triage Level ปีงบประมาณ ' + year,
-        style: { fontSize: '1.2em' }
-    },
+    title: { text: null },
 
     xAxis: {
         categories: categories,
@@ -396,10 +405,7 @@ Highcharts.chart('er-timeslot-chart', {
         style: { fontFamily: 'THSarabun' }
     },
 
-    title: {
-        text: 'ช่วงเวลาที่ผู้ป่วยเข้า ER ปีงบประมาณ ' + year,
-        style: { fontSize: '1.2em' }
-    },
+    title: { text: null },
 
     xAxis: {
         categories: data.map(d => d.name),

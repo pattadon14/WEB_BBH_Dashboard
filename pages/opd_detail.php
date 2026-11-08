@@ -453,13 +453,24 @@ include '../templates/sidebar.php';
                             <div class="oq-title"><i class="fa-solid fa-stopwatch"></i> เวลารอและคุณภาพบริการผู้ป่วยนอก</div>
                             <div class="oq-sub" id="oq-period">—</div>
                         </div>
-                        <div class="oq-dates">
-                            <label>จาก <input type="date" id="oq-d1" class="form-control form-control-sm"></label>
-                            <label>ถึง <input type="date" id="oq-d2" class="form-control form-control-sm"></label>
-                            <div class="btn-group btn-group-sm" role="group" aria-label="ช่วงวันที่ด่วน">
-                                <button type="button" class="btn btn-outline-success" data-oq-days="1">วันนี้</button>
-                                <button type="button" class="btn btn-outline-success" data-oq-days="7">7 วัน</button>
-                                <button type="button" class="btn btn-outline-success" data-oq-days="30">30 วัน</button>
+                        <!-- ตัวกรองช่วงวันที่: ปุ่มลัด + ช่องวันที่แสดงแบบ พ.ศ. (input date จริงซ้อนอยู่ใต้ข้อความ กดแล้วเปิดปฏิทิน) -->
+                        <div class="oq-controls">
+                            <div class="oq-seg" role="group" aria-label="ช่วงวันที่ด่วน">
+                                <button type="button" data-oq-days="1" aria-pressed="false">วันนี้</button>
+                                <button type="button" data-oq-days="7" aria-pressed="false">7 วัน</button>
+                                <button type="button" data-oq-days="30" aria-pressed="false">30 วัน</button>
+                            </div>
+                            <div class="oq-range">
+                                <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+                                <label class="oq-date">
+                                    <span id="oq-d1-text">—</span>
+                                    <input type="date" id="oq-d1" aria-label="วันที่เริ่มต้น">
+                                </label>
+                                <span class="oq-range-sep" aria-hidden="true">ถึง</span>
+                                <label class="oq-date">
+                                    <span id="oq-d2-text">—</span>
+                                    <input type="date" id="oq-d2" aria-label="วันที่สิ้นสุด">
+                                </label>
                             </div>
                         </div>
                     </div>

@@ -7,7 +7,9 @@
 if (window.Highcharts) {
     Highcharts.setOptions({
         chart: { backgroundColor: '#ffffff' },
-        tooltip: { borderRadius: 10, borderWidth: 1, shadow: false }
+        tooltip: { borderRadius: 10, borderWidth: 1, shadow: false },
+        // กราฟที่มีข้อมูลไม่กี่เดือน (ต้นปีงบ) แท่งไม่กว้างเต็มกรอบ
+        plotOptions: { column: { maxPointWidth: 90 }, bar: { maxPointWidth: 44 } }
     });
 }
 </script>

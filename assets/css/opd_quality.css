@@ -2,9 +2,22 @@
 .oq-filter { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; }
 .oq-title { font-size: 1.5rem; font-weight: bold; color: #198754; }
 .oq-sub { color: #6b7280; }
-.oq-dates { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.oq-dates label { display: flex; gap: 6px; align-items: center; margin: 0; font-weight: normal; }
-.oq-dates input { width: auto; }
+
+/* ตัวกรองช่วงวันที่: ปุ่มลัด (segmented) + กล่องช่วงวันที่ สูงใกล้เคียงกัน */
+.oq-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.oq-seg { display: inline-flex; padding: 3px; background: #eef4f0; border: 1px solid #d5e5dc; border-radius: 12px; }
+.oq-seg button { min-width: 64px; height: 34px; padding: 0 14px; border: 0; border-radius: 9px; background: transparent; color: #2f5d47; font-size: 18px; font-weight: 600; line-height: 1; cursor: pointer; transition: background-color .15s ease, color .15s ease; }
+.oq-seg button:hover { background: #dcefe4; }
+.oq-seg button[aria-pressed="true"] { background: #198754; color: #fff; box-shadow: 0 2px 6px rgba(25, 135, 84, .25); }
+.oq-range { display: inline-flex; align-items: center; gap: 8px; height: 42px; padding: 0 6px 0 14px; background: #fff; border: 1px solid #cddad3; border-radius: 12px; }
+.oq-range > i { color: #198754; }
+.oq-range-sep { color: #6b7f78; font-size: 17px; }
+.oq-date { position: relative; margin: 0; padding: 4px 10px; border-radius: 8px; font-size: 19px; font-weight: 600; color: #1f2d27; white-space: nowrap; cursor: pointer; }
+.oq-date:hover { background: #eef7f2; }
+.oq-date:focus-within { background: #eef7f2; box-shadow: 0 0 0 3px rgba(25, 135, 84, .28); }
+/* input date จริงซ้อนใต้ข้อความ พ.ศ. แบบโปร่งใส — กดตรงไหนก็เปิดปฏิทิน */
+.oq-date input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; border: 0; padding: 0; }
+.oq-date input::-webkit-calendar-picker-indicator { position: absolute; inset: 0; width: 100%; height: 100%; cursor: pointer; }
 
 .oq-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 1rem; }
 .oq-kpi { padding: 12px 14px; margin: 0; border-top: 4px solid #198754; }
@@ -35,6 +48,9 @@
 .oq-lv-ok { background: #e6f5ec; color: #1e8e5a; }
 
 @media (max-width: 576px) {
+    .oq-controls, .oq-seg, .oq-range { width: 100%; }
+    .oq-seg button { flex: 1; }
+    .oq-range { justify-content: space-between; }
     .oq-fn { grid-template-columns: 70px 1fr 42px; }
     .oq-fn small { display: none; }
 }

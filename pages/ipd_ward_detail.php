@@ -606,8 +606,8 @@ $ward = trim((string)($_GET['ward'] ?? ''));
                                 <div class="overview-left">
                                     <div class="overview-icon"><i class="fa-solid fa-bed"></i></div>
                                     <div>
-                                        <div class="overview-label">เตียงว่าง</div>
-                                        <div class="overview-help">เตียงที่ยังสามารถรับผู้ป่วยได้</div>
+                                        <div class="overview-label" id="available-label">เตียงว่าง</div>
+                                        <div class="overview-help" id="available-help">เตียงที่ยังสามารถรับผู้ป่วยได้</div>
                                     </div>
                                 </div>
                                 <div class="overview-value-wrap">
@@ -769,7 +769,13 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 
         totalBedsEl.textContent = beds.toLocaleString();
         admitEl.textContent = admit.toLocaleString();
-        availableEl.textContent = available.toLocaleString();
+        // ผู้ป่วยเกินจำนวนเตียง: แสดง "เกินจำนวนเตียง 8" แทน "เตียงว่าง -8"
+        const over = available < 0;
+        availableEl.textContent = Math.abs(available).toLocaleString();
+        document.getElementById('available-label').textContent = over ? 'เกินจำนวนเตียง' : 'เตียงว่าง';
+        document.getElementById('available-help').textContent = over ? 'ผู้ป่วยมากกว่าเตียงที่มี (เสริมเตียง)' : 'เตียงที่ยังสามารถรับผู้ป่วยได้';
+        availableEl.closest('.overview-card').classList.toggle('red', over);
+        availableEl.closest('.overview-card').classList.toggle('orange', !over);
         occupancyEl.textContent = rate.toFixed(2);
         occupancyFillEl.style.width = Math.min(Math.max(rate, 0), 100) + '%';
 

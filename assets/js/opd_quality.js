@@ -12,6 +12,18 @@
     d1.value = d2.value = today;
     d1.max = d2.max = today;
 
+    // แสดงวันที่แบบ พ.ศ. ทับ input date (ซึ่งแสดงตาม locale เครื่อง มักเป็น ค.ศ.) และไฮไลต์ปุ่มลัดที่ตรงกับช่วงปัจจุบัน
+    const thaiDate = v => v ? new Date(v + 'T00:00:00').toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+    function syncControls() {
+        $('oq-d1-text').textContent = thaiDate(d1.value);
+        $('oq-d2-text').textContent = thaiDate(d2.value);
+        const days = Math.round((new Date(d2.value) - new Date(d1.value)) / 86400000) + 1;
+        document.querySelectorAll('[data-oq-days]').forEach(b =>
+            b.setAttribute('aria-pressed', String(d2.value === today && Number(b.dataset.oqDays) === days)));
+    }
+    [d1, d2].forEach(input => input.addEventListener('click', () => { try { input.showPicker(); } catch (e) { /* เบราว์เซอร์เก่า: ใช้ปฏิทินปกติ */ } }));
+    syncControls();
+
     const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const fmt = v => v === null || v === undefined ? '–' : Number(v).toLocaleString('th-TH');
 
@@ -58,7 +70,7 @@
     let chart = null;
     function hours(h, off) {
         const opts = {
-            chart: { type: 'column', style: { fontFamily: 'inherit' } },
+            chart: { type: 'column', style: { fontFamily: 'THSarabun' } },
             title: { text: null }, credits: { enabled: false },
             xAxis: { categories: h.map(x => String(x.h).padStart(2, '0') + ':00') },
             yAxis: { title: { text: 'ราย' }, stackLabels: { enabled: true } },
@@ -97,6 +109,7 @@
     async function load() {
         if (busy) return;
         busy = true;
+        syncControls();
         $('oq-period').textContent = 'กำลังโหลดข้อมูล…';
         try {
             const res = await fetch(`../api/opd_service_kpi.php?d1=${encodeURIComponent(d1.value)}&d2=${encodeURIComponent(d2.value)}`);
@@ -104,6 +117,7 @@
             if (!res.ok || j.error) throw new Error(j.error || res.status);
             d1.value = j.period.d1;
             d2.value = j.period.d2;
+            syncControls();
             $('oq-period').textContent = `${j.period.label} · ${j.period.days} วัน · ข้อมูล ณ ${j.generated} น.`;
             kpis(j.kpi, j.targets);
             sla(j.steps);

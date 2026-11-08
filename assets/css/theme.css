@@ -290,3 +290,16 @@ a.btn {
         transform: none;
     }
 }
+
+/* ตัวเลือกปีงบประมาณชิดขวาของหัวการ์ด (เดิมลอยกลางหน้า) — หน้า OPD / IPD / ER ใช้ร่วมกัน */
+@media (min-width: 768px) {
+    .budget-select-wrapper {
+        width: fit-content;
+        margin-left: auto;
+    }
+}
+
+/* ตาราง 10 อันดับโรค: หัวคอลัมน์ชื่อโรคชิดซ้ายตรงกับข้อมูล */
+.table-ipd-top10 thead th:nth-child(3) {
+    text-align: left;
+}
