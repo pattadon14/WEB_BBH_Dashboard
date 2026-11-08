@@ -17,6 +17,9 @@ require_once __DIR__ . '/../config/app.php';
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>Dashboard BBH</title>
+    <!-- โลโก้ รพ.บ้านบึง (assets/img: ตัดเฉพาะสัญลักษณ์จาก logo-bbh.png) -->
+    <link rel="icon" type="image/png" sizes="32x32" href="<?= BASE_URL ?>assets/img/favicon-32.png">
+    <link rel="apple-touch-icon" href="<?= BASE_URL ?>assets/img/apple-touch-icon.png">
 
     <!-- AdminLTE -->
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/AdminLTE/dist/css/adminlte.min.css">

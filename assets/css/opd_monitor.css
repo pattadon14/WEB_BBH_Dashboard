@@ -454,3 +454,11 @@ button { cursor: pointer; }
     .chips, .note { display: none; }
     .speeds button { padding: 2px 6px; }
 }
+
+/* โลโก้ รพ. แทนไอคอนกากบาท: พื้นขาวให้สีโลโก้ชัด */
+.brand-icon.brand-logo-img {
+    padding: 3px;
+    background: #fff;
+    border: 1px solid #e3ebe6;
+    object-fit: contain;
+}

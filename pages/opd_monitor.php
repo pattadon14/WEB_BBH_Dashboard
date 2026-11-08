@@ -20,6 +20,9 @@ $loggedIn = provider_is_logged_in();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>3D Monitor OPD — โรงพยาบาลบ้านบึง</title>
+    <!-- โลโก้ รพ.บ้านบึง (assets/img: ตัดเฉพาะสัญลักษณ์จาก logo-bbh.png) -->
+    <link rel="icon" type="image/png" sizes="32x32" href="<?= BASE_URL ?>assets/img/favicon-32.png">
+    <link rel="apple-touch-icon" href="<?= BASE_URL ?>assets/img/apple-touch-icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600&display=swap">
@@ -33,7 +36,7 @@ $loggedIn = provider_is_logged_in();
 
 <header class="top">
     <a class="brand card" href="<?= BASE_URL ?>index.php" title="กลับหน้าหลัก">
-        <span class="brand-icon"><i class="fa-solid fa-plus"></i></span>
+        <img class="brand-icon brand-logo-img" src="<?= BASE_URL ?>assets/img/logo-bbh-mark.png" alt="" width="36" height="36">
         <span><b>โรงพยาบาลบ้านบึง</b><small>ผู้ป่วยนอก (OPD) · 3D Monitor</small></span>
     </a>
     <form class="search card" id="search" role="search">

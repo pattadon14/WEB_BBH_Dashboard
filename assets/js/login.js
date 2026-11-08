@@ -118,6 +118,13 @@
                     to { opacity: 1; transform: translateY(0) scale(1); }
                 }
 
+                .bbh-guest-access-logo {
+                    display: block;
+                    width: 150px;
+                    height: auto;
+                    margin: 24px auto 10px;
+                }
+
                 .bbh-guest-access-icon {
                     width: 68px;
                     height: 68px;
@@ -216,14 +223,16 @@
         function createPopup() {
             if (popup) return;
 
+            // โลโก้เต็ม (มีชื่อ รพ.) อยู่โฟลเดอร์เดียวกับโลโก้ใน navbar — ไม่ต้องรู้ BASE_URL ของแต่ละหน้า
+            var navLogo = document.querySelector('.custom-navbar .brand-logo');
+            var logoSrc = navLogo ? navLogo.src.replace('logo-bbh-mark.png', 'logo-bbh.png') : '';
+
             popup = document.createElement('div');
             popup.className = 'bbh-guest-access-backdrop';
             popup.setAttribute('aria-hidden', 'true');
             popup.innerHTML = `
                 <div class="bbh-guest-access-popup" role="dialog" aria-modal="true" aria-labelledby="bbh-guest-access-title">
-                    <div class="bbh-guest-access-icon">
-                        <i class="fas fa-lock"></i>
-                    </div>
+                    ${logoSrc ? `<img class="bbh-guest-access-logo" src="${logoSrc}" alt="โรงพยาบาลบ้านบึง จังหวัดชลบุรี" width="150" height="113">` : `<div class="bbh-guest-access-icon"><i class="fas fa-lock"></i></div>`}
                     <div class="bbh-guest-access-body">
                         <h3 class="bbh-guest-access-title" id="bbh-guest-access-title">กรุณาเข้าสู่ระบบก่อน</h3>
                         <p class="bbh-guest-access-message">ข้อมูลส่วนนี้สำหรับผู้ใช้งานที่เข้าสู่ระบบ Provider ID เท่านั้น<br>กรุณาเข้าสู่ระบบเพื่อดูรายละเอียดเพิ่มเติม</p>

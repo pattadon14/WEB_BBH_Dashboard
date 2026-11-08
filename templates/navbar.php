@@ -31,7 +31,7 @@ foreach (($_SESSION['provider_auth']['organization'] ?? []) as $organization) {
     </ul>
 
     <a href="<?= BASE_URL ?>" class="navbar-brand fw-bold">
-        <span class="brand-mark" aria-hidden="true"><i class="fa-solid fa-heart-pulse"></i></span>
+        <img class="brand-logo" src="<?= BASE_URL ?>assets/img/logo-bbh-mark.png" alt="" width="40" height="40">
         <span class="brand-text-main">BBH DASHBOARD <span class="brand-sub">(โรงพยาบาลบ้านบึง)</span></span>
     </a>
 

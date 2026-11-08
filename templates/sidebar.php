@@ -9,7 +9,7 @@ $isProviderLoggedIn = provider_is_logged_in();
 <aside class="bbh-sidebar" id="bbh-sidebar" data-provider-logged-in="<?= $isProviderLoggedIn ? '1' : '0' ?>" aria-label="เมนูหลัก">
     <div class="bbh-sidebar-header">
         <div class="bbh-sidebar-brand">
-            <i class="fa-solid fa-hospital me-2"></i>
+            <img class="bbh-sidebar-logo" src="<?= BASE_URL ?>assets/img/logo-bbh-mark.png" alt="" width="30" height="30">
             BBH DASHBOARD
         </div>
         <button type="button" class="bbh-sidebar-close" id="bbh-sidebar-close" aria-label="ปิดเมนู">
