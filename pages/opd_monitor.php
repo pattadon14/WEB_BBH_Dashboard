@@ -20,7 +20,10 @@ $loggedIn = provider_is_logged_in();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>3D Monitor OPD — โรงพยาบาลบ้านบึง</title>
-    <!-- ไอคอนเมื่อบันทึกลงหน้าจอโทรศัพท์ (favicon แท็บเบราว์เซอร์ใช้ค่าเดิมของเบราว์เซอร์ตามที่ผู้ใช้ต้องการ) -->
+    <!-- ไอคอนแท็บ = ไอคอนเดียวกับเว็บหลัก รพ. (WordPress Site Icon ที่ /favicon.ico ของโดเมนหลัก)
+         ใช้ URL เต็มเพื่อให้เครื่องทดสอบ (localhost) เห็นเหมือนเว็บจริง และเปลี่ยนตามเมื่อเว็บหลักเปลี่ยนไอคอน -->
+    <link rel="icon" href="https://banbunghospital.moph.go.th/favicon.ico">
+    <!-- ไอคอนเมื่อบันทึกลงหน้าจอโทรศัพท์ -->
     <link rel="apple-touch-icon" href="<?= BASE_URL ?>assets/img/apple-touch-icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
