@@ -306,7 +306,7 @@ include 'templates/sidebar.php';
 
                                             <div class="summary-item">
 
-                                                <span>อัตราครองเตียง</span>
+                                                <span>อัตราครองเตียงขณะนี้</span>
 
                                                 <span class="badge bg-danger" id="occupancy">
                                                     Loading...

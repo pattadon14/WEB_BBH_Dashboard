@@ -44,80 +44,37 @@ try {
 
     /*
     ==========================
-    Occupancy Rate
+    Occupancy Rate รายเดือน
+    = วันนอนจริงในเดือน / (เตียงทั้งหมด x จำนวนวันในเดือน)
+    - วันนอน: นับคืนที่อยู่ในเดือนนั้นจริง (วันจำหน่ายไม่นับ, ยังไม่จำหน่ายนับถึงวันนี้)
+      เดิมใช้ an_stat.admdate ของคนที่จำหน่ายในเดือน ทำให้เดือนที่ยังไม่จบต่ำผิดปกติ และนับวันนอนข้ามเดือน
+    - เดือนปัจจุบันหารด้วยจำนวนวันที่ผ่านไปแล้วเท่านั้น
+    - ward ชุดเดียวกับจำนวนเตียง (ไม่นับ LR, Observe ER, ส่องกล้อง, ผ่าตัด, Home Ward)
     ==========================
     */
 
     $sql = "
-
+        WITH months AS (
+            SELECT
+                ms::date AS month_start,
+                LEAST((ms + INTERVAL '1 month')::date, CURRENT_DATE + 1) AS month_until
+            FROM generate_series(CAST(:startDate AS date), CAST(:endDate AS date), INTERVAL '1 month') AS ms
+            WHERE ms::date <= CURRENT_DATE
+        )
         SELECT
-
-            TO_CHAR(
-                i.dchdate,
-                'YYYY-MM'
-            ) AS month_key,
-
-            EXTRACT(
-                MONTH FROM i.dchdate
-            ) AS month,
-
-            SUM(i.admdate) AS patient_day,
-
-            ROUND(
-
-                (
-                    SUM(i.admdate) * 100.0
-                )
-
-                /
-
-                (
-
-                    :totalBed *
-
-                    EXTRACT(
-                        DAY FROM (
-                            DATE_TRUNC(
-                                'month',
-                                i.dchdate
-                            )
-                            +
-                            INTERVAL '1 month'
-                            -
-                            INTERVAL '1 day'
-                        )
-                    )
-
-                )
-
-            ,2)
-
-            AS occupancy_rate
-
-        FROM an_stat i
-
-        LEFT JOIN ward w
-            ON w.ward = i.ward
-
-        WHERE
-
-            i.dchdate BETWEEN
-            :startDate
-            AND
-            :endDate
-
-        GROUP BY
-
-            month_key,
-            month,
-            DATE_TRUNC(
-                'month',
-                i.dchdate
-            )
-
-        ORDER BY
-            month_key
-
+            EXTRACT(MONTH FROM m.month_start) AS month,
+            m.month_until - m.month_start AS days,
+            COALESCE(SUM(GREATEST(0,
+                LEAST(COALESCE(i.dchdate, CURRENT_DATE + 1), m.month_until)
+                - GREATEST(i.regdate, m.month_start)
+            )), 0) AS patient_day
+        FROM months m
+        LEFT JOIN ipt i
+            ON i.regdate < m.month_until
+           AND COALESCE(i.dchdate, CURRENT_DATE + 1) > m.month_start
+           AND i.ward NOT IN ('10', '11', '05', '04', '23')
+        GROUP BY m.month_start, m.month_until
+        ORDER BY m.month_start
     ";
 
     $stmt =
@@ -129,10 +86,7 @@ try {
             $startDate,
 
         ':endDate' =>
-            $endDate,
-
-        ':totalBed' =>
-            $totalBed
+            $endDate
 
     ]);
 
@@ -162,7 +116,9 @@ try {
                 (int)$row['patient_day'],
 
             'occupancy_rate' =>
-                (float)$row['occupancy_rate']
+                $totalBed > 0
+                    ? round($row['patient_day'] * 100 / ($totalBed * $row['days']), 2)
+                    : 0
 
         ];
 

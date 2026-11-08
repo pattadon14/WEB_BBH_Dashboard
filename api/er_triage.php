@@ -26,7 +26,7 @@ try {
     */
 
     $cacheDir  = __DIR__ . '/../storage/cache/';
-    $cacheFile = $cacheDir . 'er_triage_' . $year . '.json';
+    $cacheFile = $cacheDir . 'er_triage_v2_' . $year . '.json';
     $cacheTTL  = 5 * 60;
 
     if (
@@ -67,25 +67,26 @@ try {
 
     /*
     ==========================
-    Map สีและ label ตามมาตรฐาน HosXp
-    er_emergency_type:
-      1 = Resuscitate  (ดำ)
-      2 = Emergency    (แดง)
-      3 = Urgency      (ส้ม)
-      4 = Semi Urgency (เหลือง)
-      5 = Non Urgency  (เขียว)
-      6 = ไม่ระบุ/walk-in (เทา)
+    Map สีและ label ตามตาราง er_emergency_type ของ รพ.บ้านบึง (ตรวจจาก DB 2026-11-08)
+    ระวัง: code ไม่ได้เรียงตามความรุนแรง
+      1 = 2 Emergency      2 = 1 Resuscitation   3 = 3 Urgent
+      4 = 4 Semi Urgent    5 = 5 Non Urgent      6 = 6 Black
+    'order' = ลำดับแสดงผลจากรุนแรงมากไปน้อย
     ==========================
     */
 
     $triageConfig = [
-        1 => ['label' => 'Resuscitate (กู้ชีพทันที)', 'color' => '#f01a1a'],
-        2 => ['label' => 'Emergency (ฉุกเฉินด่วน)',   'color' => '#dc35b2'],
-        3 => ['label' => 'Urgency (ด่วนมาก)',          'color' => '#13a142'],
-        4 => ['label' => 'Semi Urgency (ด่วน)',        'color' => '#07c5ff'],
-        5 => ['label' => 'Non Urgency (รอได้)',        'color' => '#6c757d'],
-        6 => ['label' => 'ไม่ระบุ / Walk-in',          'color' => '#bdbdbd'],
+        2 => ['order' => 1, 'label' => 'Resuscitation (กู้ชีพทันที)', 'color' => '#f01a1a'],
+        1 => ['order' => 2, 'label' => 'Emergency (ฉุกเฉินด่วน)',     'color' => '#dc35b2'],
+        3 => ['order' => 3, 'label' => 'Urgent (ด่วนมาก)',            'color' => '#13a142'],
+        4 => ['order' => 4, 'label' => 'Semi Urgent (ด่วน)',          'color' => '#07c5ff'],
+        5 => ['order' => 5, 'label' => 'Non Urgent (รอได้)',          'color' => '#6c757d'],
+        6 => ['order' => 6, 'label' => 'Black (เสียชีวิต)',           'color' => '#343a40'],
     ];
+
+    usort($rows, function ($x, $y) use ($triageConfig) {
+        return ($triageConfig[(int)$x['level_id']]['order'] ?? 99) <=> ($triageConfig[(int)$y['level_id']]['order'] ?? 99);
+    });
 
     $data = [];
 

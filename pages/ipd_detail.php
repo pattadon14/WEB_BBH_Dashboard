@@ -117,7 +117,7 @@ include '../templates/sidebar.php';
                     <div class="ipd-kpi-card kpi-occupancy">
                         <div class="ipd-kpi-icon"><i class="fa-solid fa-percent"></i></div>
                         <div class="ipd-kpi-content">
-                            <div class="ipd-kpi-label">อัตราครองเตียง</div>
+                            <div class="ipd-kpi-label">อัตราครองเตียงเฉลี่ยปีงบ</div>
                             <div id="kpi-occupancy-rate" class="ipd-kpi-value">-</div>
                             <div id="kpi-occupancy-status" class="ipd-kpi-status">กำลังประเมิน...</div>
                         </div>

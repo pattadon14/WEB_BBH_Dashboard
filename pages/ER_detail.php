@@ -69,7 +69,7 @@ include '../templates/sidebar.php';
 
                                     <h5 class="chart-title">
                                         <i class="fa-solid fa-hospital-user"></i>
-                                        จำนวนผู้ป่วยอุบัติเหตุ
+                                        จำนวนผู้รับบริการ ER รายเดือน
                                     </h5>
 
                                     <div id="er-chart" style="height: 420px;"></div>

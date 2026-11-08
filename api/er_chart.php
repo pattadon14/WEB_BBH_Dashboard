@@ -26,7 +26,7 @@ try {
     */
 
     $cacheDir  = __DIR__ . '/../storage/cache/';
-    $cacheFile = $cacheDir . 'er_chart_' . $year . '.json';
+    $cacheFile = $cacheDir . 'er_chart_v2_' . $year . '.json';
     $cacheTTL  = 5 * 60; // 5 นาที
 
     if (
@@ -40,6 +40,8 @@ try {
     /*
     ==========================
     ER Trend รายเดือน
+    er       = ผู้รับบริการ ER ทุกประเภท (นับครั้ง จาก er_regist ตรงกับการ์ด ER หน้าหลัก)
+    accident = เฉพาะ er_pt_type 2 ผู้ป่วยอุบัติเหตุ (เดิมนับ 2,5 แต่ 5 = ห้องทำแผลเวรเช้า ไม่ใช่อุบัติเหตุ)
     ==========================
     */
 
@@ -47,11 +49,11 @@ try {
         SELECT
             EXTRACT(MONTH FROM vstdate) AS month,
             TO_CHAR(vstdate, 'YYYY-MM') AS amonth,
-            COUNT(*) AS er_total
+            COUNT(*) AS er_total,
+            COUNT(*) FILTER (WHERE er_pt_type = 2) AS accident_total
         FROM er_regist
         WHERE
             vstdate BETWEEN :startDate AND :endDate
-            AND er_pt_type IN (2,5)
         GROUP BY
             TO_CHAR(vstdate, 'YYYY-MM'),
             EXTRACT(MONTH FROM vstdate)
@@ -69,14 +71,15 @@ try {
     $months   = [10,11,12,1,2,3,4,5,6,7,8,9];
     $monthMap = [];
     foreach ($rows as $row) {
-        $monthMap[(int)$row['month']] = (int)$row['er_total'];
+        $monthMap[(int)$row['month']] = [(int)$row['er_total'], (int)$row['accident_total']];
     }
 
     $trend = [];
     foreach ($months as $month) {
         $trend[] = [
             'month' => $month,
-            'er'    => $monthMap[$month] ?? 0,
+            'er'       => $monthMap[$month][0] ?? 0,
+            'accident' => $monthMap[$month][1] ?? 0,
         ];
     }
 

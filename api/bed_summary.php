@@ -102,6 +102,7 @@ try {
             ON pc.code = pt.pcode
 
         WHERE i.dchdate IS NULL
+          AND i.ward NOT IN ('10', '11', '05', '04', '23')
     ";
 
     $query = $conn->query($sql);
@@ -109,52 +110,10 @@ try {
 
 
     // =========================
-    // ปีงบประมาณ
+    // อัตราครองเตียงวันนี้ = Admit อยู่ / เตียงทั้งหมด (ward ชุดเดียวกัน ไม่นับ LR, Observe ER, ส่องกล้อง, ผ่าตัด, Home Ward)
+    // (ค่าเฉลี่ยรายเดือน/ปีงบ ดูที่หน้า IPD: api/bed_occupancy_trend.php)
     // =========================
-    if (empty($_POST['submitsend'])) {
-
-        $myearb = date("Y") - 1;
-        $myeare = date("Y");
-
-    } else {
-
-        $myearb = $_POST['year'] - 544;
-        $myeare = $_POST['year'] - 543;
-    }
-
-
-    // =========================
-    // วันที่สิ้นสุดคำนวณ
-    // =========================
-    $nowdate = date("Y-m-d");
-
-    if ($nowdate > $myeare . "-09-30") {
-
-        $enddate = $myeare . "-09-30";
-
-    } else {
-
-        $enddate = $nowdate;
-    }
-
-
-    // =========================
-    // อัตราครองเตียงเฉลี่ย
-    // =========================
-    $sql = "SELECT
-	ROUND(
-		( SUM ( i.admdate ) * 100 ) / ( ( SELECT SUM ( bedcount ) FROM ward WHERE ward_active = 'Y' AND ward NOT IN ( '10', '11', '05', '04','23' ) ) * 
-        ( ( DATE'$enddate' - DATE'$myearb-10-01' ) + 1 ) ),
-		2 
-	) AS admsum 
-    FROM
-        an_stat i 
-    WHERE
-        i.dchdate BETWEEN DATE'$myearb-10-01' 
-        AND DATE'$myeare-09-30'";
-
-    $query = $conn->query($sql);
-    $admsum = $query->fetch(PDO::FETCH_ASSOC)['admsum'];
+    $admsum = $bedcount > 0 ? round($ward['wtotal'] * 100 / $bedcount, 2) : 0;
 
 
     // =========================
@@ -177,11 +136,7 @@ try {
         'ot'            => (int)$right['ot'],
 
         // occupancy
-        'occupancy'     => (float)$admsum,
-
-        // ปีงบประมาณ
-        'fiscal_start'  => $myearb . '-10-01',
-        'fiscal_end'    => $enddate
+        'occupancy'     => (float)$admsum
 
     ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 

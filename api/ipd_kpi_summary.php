@@ -22,7 +22,10 @@ try {
     IPD KPI SUMMARY
 
     Current Inpatients
-    = ผู้ป่วยที่ยัง Admit อยู่ ณ ปัจจุบัน
+    = ผู้ป่วยที่ยัง Admit อยู่ ณ ปัจจุบัน (เฉพาะ valid_wards ให้ตรงกับ "Admit อยู่" หน้าหลัก)
+
+    Occupancy Rate
+    = อัตราครองเตียงเฉลี่ยของปีงบที่เลือก (วิธีเดียวกับ bed_occupancy_trend.php)
 
     Admissions / Discharges / LOS / Readmission
     = คำนวณตามปีงบประมาณที่เลือก
@@ -54,6 +57,29 @@ try {
                 COUNT(DISTINCT i.an) AS current_inpatients
             FROM ipt i
             WHERE i.dchdate IS NULL
+              AND i.ward IN (SELECT ward FROM valid_wards)
+        ),
+
+        -- วันนอนจริงในช่วงปีงบ (นับคืน: วันจำหน่ายไม่นับ, ยังไม่จำหน่ายนับถึงวันนี้) ตัดช่วงที่อยู่นอกปีงบออก
+        occupancy_period AS (
+            SELECT
+                start_date,
+                LEAST(end_date, CURRENT_DATE + 1) AS until_date
+            FROM params
+        ),
+
+        patient_days AS (
+            SELECT
+                COALESCE(SUM(GREATEST(0,
+                    LEAST(COALESCE(i.dchdate, CURRENT_DATE + 1), op.until_date)
+                    - GREATEST(i.regdate, op.start_date)
+                )), 0) AS patient_days,
+                MAX(op.until_date - op.start_date) AS period_days
+            FROM occupancy_period op
+            LEFT JOIN ipt i
+                ON i.regdate < op.until_date
+               AND COALESCE(i.dchdate, CURRENT_DATE + 1) > op.start_date
+               AND i.ward IN (SELECT ward FROM valid_wards)
         ),
 
         total_beds AS (
@@ -127,10 +153,11 @@ try {
 
             b.total_beds,
 
+            -- อัตราครองเตียงเฉลี่ยปีงบ = วันนอนรวม / (เตียง x จำนวนวันที่ผ่านไปของปีงบ)
             ROUND(
                 (
-                    c.current_inpatients * 100.0
-                    / NULLIF(b.total_beds, 0)
+                    pd.patient_days * 100.0
+                    / NULLIF(b.total_beds * pd.period_days, 0)
                 )::numeric,
                 1
             ) AS occupancy_rate,
@@ -153,6 +180,7 @@ try {
         CROSS JOIN total_beds b
         CROSS JOIN avg_los l
         CROSS JOIN readmission r
+        CROSS JOIN patient_days pd
     ";
 
     $stmt = $conn->prepare($sql);

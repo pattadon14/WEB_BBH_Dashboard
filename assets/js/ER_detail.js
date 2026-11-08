@@ -99,7 +99,8 @@ Bar Chart Data
 ==========================
 */
 
-let erData = Array(monthCount).fill(0);
+let erData       = Array(monthCount).fill(0);
+let accidentData = Array(monthCount).fill(0);
 
 trendData.forEach(row => {
 
@@ -107,7 +108,8 @@ trendData.forEach(row => {
     const index = month >= 10 ? month - 10 : month + 2;
 
     if (index < monthCount) {
-        erData[index] = parseInt(row.er);
+        erData[index]       = parseInt(row.er);
+        accidentData[index] = parseInt(row.accident || 0);
     }
 
 });
@@ -136,9 +138,8 @@ Highcharts.chart('er-chart', {
 
     yAxis: {
         min: 0,
-        tickInterval: 250,
         endOnTick: true,
-        title: { text: 'จำนวนผู้ป่วย' }
+        title: { text: 'จำนวนครั้ง' }
     },
 
     tooltip: {
@@ -161,9 +162,13 @@ Highcharts.chart('er-chart', {
     },
 
     series: [{
-        name: 'จำนวนผู้ป่วยงานอุบัติเหตุและฉุกเฉิน',
+        name: 'ผู้รับบริการ ER ทั้งหมด',
         color: '#dc3545',
         data: erData
+    }, {
+        name: 'เฉพาะผู้ป่วยอุบัติเหตุ',
+        color: '#f59e0b',
+        data: accidentData
     }]
 
 });
