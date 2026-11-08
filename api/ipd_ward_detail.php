@@ -1,9 +1,18 @@
 <?php
 
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+// คืน HN + ชื่อ-สกุลผู้ป่วย (PDPA): ต้อง login Provider ID เป็นเจ้าหน้าที่ รพ. ก่อน — แบบเดียวกับ api/opd_flow_people.php
+require_once __DIR__ . '/../auth/provider.php';
 
 header('Content-Type: application/json; charset=utf-8');
+
+if (!provider_is_logged_in()) {
+    http_response_code(401);
+    echo json_encode(['error' => 'กรุณาเข้าสู่ระบบ'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+// ไม่แสดง error PHP ในผลลัพธ์ (เดิมเปิด display_errors อาจเผยรายละเอียดเซิร์ฟเวอร์)
+ini_set('display_errors', 0);
 
 require_once '../config/database.php';
 

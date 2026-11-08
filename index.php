@@ -716,7 +716,7 @@ async function loadWardBed() {
 
         let html = '';
 
-        // Home Ward (23) ผู้ป่วยนอนที่บ้าน ไม่นับรวมยอดเตียงทั้งหมด — แสดงไว้ท้ายสุดพร้อมหมายเหตุ
+        // Home Ward (23) ผู้ป่วยนอนที่บ้าน ไม่นับรวมยอดเตียงทั้งหมด (api/bed_summary.php) — แสดงไว้ท้ายสุด
         const HOME_WARD = '23';
         data.sort((a, b) => (a.ward === HOME_WARD) - (b.ward === HOME_WARD));
 
@@ -793,9 +793,6 @@ async function loadWardBed() {
                         (${statusText})
 
                     </div>
-
-                    ${ward.ward === HOME_WARD ? '<div class="ward-note"><i class="fa-solid fa-circle-info"></i> ผู้ป่วยอยู่ที่บ้าน ไม่นับรวมยอดเตียงทั้งหมด</div>' : ''}
-
                     <div class="ward-percent">
 
                         <span>ครองเตียง <strong class="ward-rate-${colorClass}">${rate}%</strong></span>
