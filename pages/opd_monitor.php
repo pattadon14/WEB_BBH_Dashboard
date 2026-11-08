@@ -20,8 +20,7 @@ $loggedIn = provider_is_logged_in();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>3D Monitor OPD — โรงพยาบาลบ้านบึง</title>
-    <!-- โลโก้ รพ.บ้านบึง (assets/img: ตัดเฉพาะสัญลักษณ์จาก logo-bbh.png) -->
-    <link rel="icon" type="image/png" sizes="32x32" href="<?= BASE_URL ?>assets/img/favicon-32.png">
+    <!-- ไอคอนเมื่อบันทึกลงหน้าจอโทรศัพท์ (favicon แท็บเบราว์เซอร์ใช้ค่าเดิมของเบราว์เซอร์ตามที่ผู้ใช้ต้องการ) -->
     <link rel="apple-touch-icon" href="<?= BASE_URL ?>assets/img/apple-touch-icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
