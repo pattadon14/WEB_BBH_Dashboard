@@ -69,6 +69,10 @@ setInterval(loadDashboard, 30000);
 ============================================================
 */
 
+const HEATMAP_TOP_DEPTS = 15;
+let heatmapData = null;
+let heatmapShowAll = false;
+
 async function loadHeatmap() {
 
     try {
@@ -83,8 +87,7 @@ async function loadHeatmap() {
 
         const { depts, hours, data } = json;
 
-        // ค่ามากสุด (ไว้คำนวณสีตัวเลข + colorAxis)
-        const maxVal = data.reduce((m, d) => Math.max(m, d[2]), 0);
+        heatmapData = json;
 
         /*
         ==========================
@@ -108,149 +111,176 @@ async function loadHeatmap() {
         document.getElementById('hm-peak-dept').textContent =
             depts[peakD]?.replace(/^\d+\s*/, '') || '—';
 
-        /*
-        ==========================
-        *** ความสูง chart ปรับตามจำนวนแผนก ***
-        ให้แต่ละแถวสูงพออ่าน label/ตัวเลขได้
-        ==========================
-        */
-        const ROW_H        = 25;                                   // px ต่อแผนก
-        const chartHeight  = Math.max(420, depts.length * ROW_H + 110);
-        const cleanLabels  = depts.map(d => d.replace(/^\d+\s*/, ''));
-
-        const chartEl = document.getElementById('heatmap-chart');
-        chartEl.style.height = chartHeight + 'px';
-
-        /*
-        ==========================
-        Highcharts Heatmap
-        ==========================
-        */
-
-        Highcharts.chart('heatmap-chart', {
-
-            chart: {
-                type: 'heatmap',
-                height: chartHeight,
-                backgroundColor: '#ffffff',
-                marginTop: 50,
-                marginBottom: 60,
-                marginRight: 90,
-                style: { fontFamily: 'THSarabun' }
-            },
-
-            title: { text: null },
-
-            xAxis: {
-                categories: hours,
-                opposite: true,                 // ป้ายชั่วโมงไว้ด้านบน อ่านคู่กับ label แผนกง่ายกว่า
-                title: { text: null },
-                lineWidth: 0,
-                tickWidth: 0,
-                labels: {
-                    style: { fontSize: '14px', color: '#555' }
-                }
-            },
-
-            yAxis: {
-                categories: cleanLabels,
-                title: null,
-                reversed: true,                 // แผนกยุ่งสุดอยู่บนสุด อ่านเป็นอันดับ
-                gridLineWidth: 0,
-                labels: {
-                    style: {
-                        fontSize: '14px',
-                        fontFamily: 'THSarabun',
-                        color: '#333'
-                    }
-                }
-            },
-
-            /*
-            ==========================
-            *** color scale แบบ stops ***
-            ไล่จากครีมอ่อน → ส้ม → แดงเข้ม
-            ค่าน้อยก็เห็นความต่างชัด ไม่จมขาว
-            ==========================
-            */
-            colorAxis: {
-                min: 0,
-                max: maxVal || null,
-                stops: [
-                    [0.00, '#ffebeb'],
-                    [0.15, '#fda2a2'],
-                    [0.40, '#fd3c3c'],
-                    [0.70, '#e60d0d'],
-                    [1.00, '#a60303']
-                ],
-                labels: { style: { fontSize: '12px' } }
-            },
-
-            legend: {
-                align: 'right',
-                layout: 'vertical',
-                verticalAlign: 'middle',
-                margin: 8,
-                symbolHeight: Math.min(chartHeight - 140, 320)
-            },
-
-            tooltip: {
-                useHTML: true,
-                formatter: function () {
-                    const dept = cleanLabels[this.point.y] || '';
-                    const hour = hours[this.point.x] || '';
-                    return `<b>${dept}</b><br>${hour} น. — ` +
-                           `<b style="color:#e6550d">${this.point.value} ราย</b>`;
-                }
-            },
-
-            credits: { enabled: false },
-
-            series: [{
-                name: 'จำนวนผู้ป่วย',
-                borderWidth: 1,
-                borderColor: '#ffffff',
-                nullColor: '#fafafa',
-                data: data,
-                dataLabels: {
-                    enabled: true,
-                    useHTML: true,
-                    formatter: function () {
-                        const v = this.point.value;
-                        if (!v) return '';
-                        // ตัวเลขสีขาวบนเซลล์เข้ม / สีน้ำตาลเข้มบนเซลล์อ่อน
-                        const ratio = maxVal ? v / maxVal : 0;
-                        const color = ratio > 0.5 ? '#ffffff' : '#7a3a12';
-                        return `<span style="color:${color};font-weight:600;">${v}</span>`;
-                    },
-                    style: {
-                        fontSize: '12.5px',
-                        textOutline: 'none'
-                    }
-                }
-            }],
-
-            responsive: {
-                rules: [{
-                    condition: { maxWidth: 600 },
-                    chartOptions: {
-                        yAxis: {
-                            labels: { style: { fontSize: '12px' } }
-                        },
-                        xAxis: {
-                            labels: { style: { fontSize: '11px' } }
-                        }
-                    }
-                }]
-            }
-
-        });
+        renderHeatmap();
 
     } catch (error) {
         console.error('loadHeatmap error:', error);
     }
 
 }
+
+// เลือกตัวเลขขาวหรือเข้มตาม contrast กับสีจริงของเซลล์
+function heatmapTextColor(fill) {
+    const [r, g, b] = Highcharts.color(fill).rgba.slice(0, 3).map(v => {
+        const c = v / 255;
+        return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+    });
+    const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    return 1.05 / (lum + 0.05) > (lum + 0.05) / 0.073 ? '#ffffff' : '#1f2937';
+}
+
+function renderHeatmap() {
+
+    const { depts, hours, data } = heatmapData;
+    const chartEl = document.getElementById('heatmap-chart');
+    const isNarrow = chartEl.clientWidth < 600;
+
+    // API เรียงแผนกจากยอดรวมมากไปน้อย แถวบนจึงเป็นแผนกที่ยุ่งสุด
+    const deptTotals = Array(depts.length).fill(0);
+    data.forEach(([, d, v]) => { deptTotals[d] += v; });
+
+    // ถ้าเหลือแผนกนอกรายการแค่แผนกเดียว แสดงเลยดีกว่ารวมเป็น "แผนกอื่นๆ"
+    const canFold = depts.length > HEATMAP_TOP_DEPTS + 1;
+    const shownCount = canFold && !heatmapShowAll ? HEATMAP_TOP_DEPTS : depts.length;
+    const foldedCount = depts.length - shownCount;
+
+    const rowLabels = depts.slice(0, shownCount).map(d => d.replace(/^\d+\s*/, ''));
+    const rowTotals = deptTotals.slice(0, shownCount);
+    if (foldedCount) {
+        rowLabels.push(`แผนกอื่นๆ (${foldedCount} แผนก)`);
+        rowTotals.push(deptTotals.slice(shownCount).reduce((a, b) => a + b, 0));
+    }
+
+    const grid = rowLabels.map(() => Array(hours.length).fill(null));
+    data.forEach(([x, d, v]) => {
+        const y = Math.min(d, shownCount);
+        grid[y][x] = (grid[y][x] || 0) + v;
+    });
+
+    // แถวผลรวม "แผนกอื่นๆ" ใช้สีเทา เพราะเทียบกับแผนกเดี่ยวบนสเกลสีเดียวกันไม่ได้
+    const points = [];
+    grid.forEach((row, y) => row.forEach((value, x) => {
+        const point = { x, y, value };
+        if (foldedCount && y === shownCount && value !== null) point.color = '#dfe3e8';
+        points.push(point);
+    }));
+
+    const maxVal = data.reduce((m, d) => Math.max(m, d[2]), 0);
+    const rowHeight = heatmapShowAll ? 30 : 36;
+    const chartHeight = rowLabels.length * rowHeight + 100;
+    chartEl.style.height = chartHeight + 'px';
+
+    const toggle = document.getElementById('hm-toggle');
+    toggle.hidden = !canFold;
+    toggle.textContent = heatmapShowAll
+        ? `แสดงเฉพาะ ${HEATMAP_TOP_DEPTS} แผนกแรก`
+        : `แสดงทั้งหมด ${depts.length} แผนก`;
+    toggle.setAttribute('aria-expanded', String(heatmapShowAll));
+
+    const axisText = { fontSize: isNarrow ? '15px' : '17px', color: '#1f2937', fontFamily: 'THSarabun' };
+
+    Highcharts.chart('heatmap-chart', {
+
+        chart: {
+            type: 'heatmap',
+            height: chartHeight,
+            backgroundColor: '#ffffff',
+            style: { fontFamily: 'THSarabun' },
+            // จอแคบหรือวันที่มีหลายชั่วโมง: เลื่อนแนวนอน ชื่อแผนกอยู่กับที่ และเริ่มที่ชั่วโมงล่าสุด
+            scrollablePlotArea: { minWidth: hours.length * 40 + (isNarrow ? 130 : 270), scrollPositionX: 1, opacity: 1 }
+        },
+
+        title: { text: null },
+
+        xAxis: {
+            categories: hours,
+            opposite: true,
+            title: { text: null },
+            lineWidth: 0,
+            tickWidth: 0,
+            labels: { rotation: 0, autoRotation: false, style: { ...axisText, fontWeight: '700' } }
+        },
+
+        yAxis: [{
+            categories: rowLabels,
+            title: null,
+            reversed: true,
+            gridLineWidth: 0,
+            labels: {
+                style: { ...axisText, fontWeight: '700', width: (isNarrow ? 115 : 200) + 'px', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }
+            }
+        // จอแคบไม่มีที่พอสำหรับคอลัมน์รวมที่ตรึงด้านขวา
+        }].concat(isNarrow ? [] : [{
+            linkedTo: 0,
+            opposite: true,
+            reversed: true,
+            gridLineWidth: 0,
+            title: { text: 'รวม', rotation: 0, align: 'high', offset: 0, x: 18, y: -22, style: { ...axisText, fontWeight: '700' } },
+            labels: {
+                align: 'right',
+                x: 38,
+                formatter: function () { return rowTotals[this.pos] ?? ''; },
+                style: { ...axisText, fontWeight: '700' }
+            }
+        }]),
+
+        // ส่วนใหญ่ของเซลล์มีค่าน้อย จึงเร่งสีช่วงต้นสเกลให้เซลล์ค่าน้อยไม่จาง
+        colorAxis: {
+            min: 0,
+            max: maxVal || 1,
+            stops: [
+                [0.00, '#fee6ce'],
+                [0.08, '#fdc38a'],
+                [0.25, '#fd8d3c'],
+                [0.55, '#d94801'],
+                [1.00, '#7f2704']
+            ],
+            labels: { style: { fontSize: '15px', color: '#1f2937' } }
+        },
+
+        legend: {
+            align: 'right',
+            verticalAlign: 'top',
+            layout: 'horizontal',
+            symbolWidth: isNarrow ? 150 : 240,
+            symbolHeight: 12,
+            margin: 6,
+            title: { text: 'จำนวนผู้ป่วย (ราย)', style: { fontSize: '15px', color: '#1f2937', fontWeight: '700' } }
+        },
+
+        tooltip: {
+            useHTML: true,
+            formatter: function () {
+                return `<b>${rowLabels[this.point.y]}</b> (รวม ${rowTotals[this.point.y]} ราย)<br>${hours[this.point.x]} น. — <b>${this.point.value} ราย</b>`;
+            }
+        },
+
+        credits: { enabled: false },
+
+        series: [{
+            name: 'จำนวนผู้ป่วย',
+            borderWidth: 2,
+            borderColor: '#ffffff',
+            nullColor: '#f4f5f7',
+            data: points,
+            dataLabels: {
+                enabled: true,
+                formatter: function () {
+                    if (!this.point.value) return '';
+                    return `<span style="color:${heatmapTextColor(this.point.color)}">${this.point.value}</span>`;
+                },
+                style: { fontSize: isNarrow ? '16px' : '18px', fontWeight: '700', textOutline: 'none' }
+            }
+        }]
+
+    });
+
+}
+
+document.getElementById('hm-toggle')?.addEventListener('click', () => {
+    heatmapShowAll = !heatmapShowAll;
+    renderHeatmap();
+});
 
 loadHeatmap();
 setInterval(loadHeatmap, 3 * 60 * 1000); // refresh ทุก 3 นาที

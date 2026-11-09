@@ -194,6 +194,20 @@
     padding: 16px 20px;
 }
 
+/* theme.css ทำตัวอักษรกราฟเป็นสีเทา: Heatmap ต้องอ่านชื่อแผนกและตัวเลขได้ชัด */
+#heatmap-chart .highcharts-axis-labels text,
+#heatmap-chart .highcharts-axis-title,
+#heatmap-chart .highcharts-legend-title text,
+#heatmap-chart .highcharts-legend-item text,
+#heatmap-chart .highcharts-coloraxis-labels text {
+    fill: #1f2937 !important;
+}
+
+.home-dash #hm-toggle {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
 /* ---------- Bed/service wrapper: ให้การ์ดลอยบนพื้นหลังแทนการ์ดซ้อนการ์ด ---------- */
 .home-dash .card.shadow-lg {
     background: transparent;

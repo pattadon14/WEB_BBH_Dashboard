@@ -230,6 +230,10 @@ include 'templates/sidebar.php';
                                     </div>
                                 </div>
 
+                                <div class="col-lg-6 col-12 mb-2 d-flex align-items-end justify-content-end">
+                                    <button type="button" id="hm-toggle" class="btn btn-outline-success" aria-controls="heatmap-chart" hidden></button>
+                                </div>
+
                             </div>
 
                             <!-- Heatmap chart -->
