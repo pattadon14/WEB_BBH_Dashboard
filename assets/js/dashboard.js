@@ -185,6 +185,7 @@ function renderHeatmap() {
             type: 'heatmap',
             height: chartHeight,
             backgroundColor: '#ffffff',
+            marginRight: isNarrow ? undefined : 64,   // พื้นที่คอลัมน์ "รวม"
             style: { fontFamily: 'THSarabun' },
             // จอแคบหรือวันที่มีหลายชั่วโมง: เลื่อนแนวนอน ชื่อแผนกอยู่กับที่ และเริ่มที่ชั่วโมงล่าสุด
             scrollablePlotArea: { minWidth: hours.length * 40 + (isNarrow ? 130 : 270), scrollPositionX: 1, opacity: 1 }
@@ -215,10 +216,11 @@ function renderHeatmap() {
             opposite: true,
             reversed: true,
             gridLineWidth: 0,
-            title: { text: 'รวม', rotation: 0, align: 'high', offset: 0, x: 18, y: -22, style: { ...axisText, fontWeight: '700' } },
+            title: { text: 'รวม', rotation: 0, align: 'high', textAlign: 'center', offset: 30, y: -22, style: { ...axisText, fontWeight: '700' } },
             labels: {
-                align: 'right',
-                x: 38,
+                align: 'center',
+                x: 30,
+                reserveSpace: false,
                 formatter: function () { return rowTotals[this.pos] ?? ''; },
                 style: { ...axisText, fontWeight: '700' }
             }
@@ -229,11 +231,11 @@ function renderHeatmap() {
             min: 0,
             max: maxVal || 1,
             stops: [
-                [0.00, '#fee6ce'],
-                [0.08, '#fdc38a'],
-                [0.25, '#fd8d3c'],
-                [0.55, '#d94801'],
-                [1.00, '#7f2704']
+                [0.00, '#fee0d2'],
+                [0.08, '#fcae91'],
+                [0.25, '#fb6a4a'],
+                [0.55, '#cb181d'],
+                [1.00, '#67000d']
             ],
             labels: { style: { fontSize: '15px', color: '#1f2937' } }
         },
