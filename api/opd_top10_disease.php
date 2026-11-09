@@ -3,6 +3,7 @@
 header('Content-Type: application/json; charset=utf-8');
 
 require_once '../config/database.php';
+require_once '../config/opd.php';
 
 try {
 
@@ -60,6 +61,7 @@ try {
             ON i.code = v.pdx
         WHERE
             o.vstdate BETWEEN :startDate::date AND :endDate::date
+            AND o.main_dep IN (" . opd_main_dep_sql() . ")
             AND COALESCE(v.pdx, '') != ''
         GROUP BY
             v.pdx,

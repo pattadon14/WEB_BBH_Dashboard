@@ -123,7 +123,7 @@ include '../templates/sidebar.php';
                                                 <div class="appointment-status-item miss">
                                                     <div>
                                                         <i class="fa-solid fa-square-xmark"></i>
-                                                        ไม่มาตามนัด
+                                                        <span id="miss_label">ไม่มาตามนัด</span>
                                                     </div>
                                                     <strong id="miss_today">—</strong>
                                                     <small>คน</small>
@@ -254,7 +254,7 @@ include '../templates/sidebar.php';
                                 <hr class="my-2">
                                 <div class="pttype-header">
                                     <i class="fa-solid fa-chart-column"></i>
-                                    ผู้ใช้บริการ OPD แยกตามสิทธิ์ วันนี้
+                                    <span id="pttype-date-title">ผู้ใช้บริการ OPD แยกตามสิทธิ์ วันนี้</span>
                                 </div>
                                 <div id="pttype-chart" class="pttype-chart"></div>
                             </div>

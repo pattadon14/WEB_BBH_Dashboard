@@ -3,6 +3,7 @@
 header('Content-Type: application/json; charset=utf-8');
 
 require_once '../config/database.php';
+require_once '../config/opd.php';
 
 try {
 
@@ -64,6 +65,7 @@ try {
             ON p.hn = o.hn
         WHERE
             o.vstdate BETWEEN :startDate::date AND :endDate::date
+            AND o.main_dep IN (" . opd_main_dep_sql() . ")
             AND p.birthday IS NOT NULL
 
         GROUP BY age_group

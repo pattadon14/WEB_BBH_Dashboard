@@ -15,6 +15,10 @@ function getSelectedServiceDate() {
     const input = document.getElementById('opd-service-date');
     if (input && input.value) return input.value;
 
+    return getTodayServiceDate();
+}
+
+function getTodayServiceDate() {
     const today = new Date();
     return today.getFullYear() + '-' +
         String(today.getMonth() + 1).padStart(2, '0') + '-' +
@@ -268,7 +272,7 @@ loadChart();
 async function loadPttypeChart(){
 
     const response =
-        await fetch('../api/opd_pttype_today.php');
+        await fetch('../api/opd_pttype_today.php?date=' + encodeURIComponent(getSelectedServiceDate()));
 
     const data =
         await response.json();
@@ -446,21 +450,17 @@ async function loadOpdTodaySummary() {
                 data.miss_today || 0
             ).toLocaleString();
 
-        document.getElementById(
-            'wait_triage'
-        ).innerHTML =
+        // ระหว่างวันยังสรุปไม่ได้ว่าใครไม่มา และสถานะ "รอ" มีความหมายเฉพาะวันนี้
+        const isToday = getSelectedServiceDate() === getTodayServiceDate();
 
-            Number(
-                data.wait_triage || 0
-            ).toLocaleString();
+        document.getElementById('miss_label').textContent =
+            isToday ? 'ยังไม่มา' : 'ไม่มาตามนัด';
 
-        document.getElementById(
-            'wait_exam'
-        ).innerHTML =
+        document.getElementById('wait_triage').innerHTML =
+            isToday ? Number(data.wait_triage || 0).toLocaleString() : '—';
 
-            Number(
-                data.wait_exam
-            ).toLocaleString();
+        document.getElementById('wait_exam').innerHTML =
+            isToday ? Number(data.wait_exam || 0).toLocaleString() : '—';
 
         document.getElementById(
             'finish_exam'
@@ -568,6 +568,10 @@ function initOpdServiceDateFilter() {
                 'ผู้มารับบริการตรวจโรคทั่วไป วันที่ ' +
                 formatThaiDate(selected);
         }
+
+        document.getElementById('pttype-date-title').textContent =
+            'ผู้ใช้บริการ OPD แยกตามสิทธิ์ ' +
+            (selected === todayString ? 'วันนี้' : 'วันที่ ' + formatThaiDate(selected));
 
         loadOpdTodaySummary();
         loadPttypeChart();

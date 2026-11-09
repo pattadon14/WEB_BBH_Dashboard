@@ -26,7 +26,7 @@ try {
             appt.total_appointment      AS appointment_total,
             appt.came                   AS oapp_success,
             appt.not_came               AS miss_today,
-            opd.total - appt.came       AS walkin_total,
+            opd.walkin                  AS walkin_total,
             opd.night                   AS before_time,
             opd.morning                 AS worktime,
             opd.evening                 AS after_time
@@ -39,9 +39,10 @@ try {
                          AND oa.visit_vn <> ''
                         THEN 1
                     END) AS came,
+                    -- ไม่นับนัดที่ยกเลิกแล้ว (oapp_status_id 4)
                     COUNT(CASE
-                        WHEN oa.visit_vn IS NULL
-                          OR oa.visit_vn = ''
+                        WHEN (oa.visit_vn IS NULL OR oa.visit_vn = '')
+                         AND oa.oapp_status_id IS DISTINCT FROM 4
                         THEN 1
                     END) AS not_came
                 FROM oapp oa
@@ -58,6 +59,11 @@ try {
             (
                 SELECT
                     COUNT(*) AS total,
+                    -- Walk-in = visit ที่ไม่ถูกผูกกับนัดใดเลย (นับ visit ชุดเดียวกับยอดรวม)
+                    COUNT(CASE
+                        WHEN NOT EXISTS (SELECT 1 FROM oapp oa2 WHERE oa2.visit_vn = ovst.vn)
+                        THEN 1
+                    END) AS walkin,
                     COUNT(CASE
                         WHEN vsttime::TIME >  '20:00:00'
                           OR vsttime::TIME <  '08:00:00'
@@ -98,86 +104,40 @@ try {
 
     /*
     ==========================
-    รอซักประวัติ
+    สถานะการตรวจ (นับ visit ในชุด OPD เดียวกับยอดรวม โดยดูจากบันทึกเวลาใน ovst_service_time)
+    - ตรวจเสร็จแล้ว : มีบันทึกพบแพทย์ (OPD-DOCTOR) แม้ยังรอยา/การเงินอยู่
+    - รอซักประวัติ  : ยังไม่มีบันทึกซักประวัติและพบแพทย์ ยังไม่กลับบ้าน ไม่ Admit
+    - รอตรวจ       : ซักประวัติแล้ว ยังไม่พบแพทย์ ยังไม่กลับบ้าน ไม่ Admit
+                     และไม่ได้อยู่ที่การเงิน/ห้องยา/Exit (ผ่านจุดตรวจไปแล้ว)
     ==========================
     */
 
-    $sql_wait_triage = "SELECT COUNT(*) AS wait_triage
-    FROM ovst ov
-    LEFT JOIN ipt ip ON ip.vn = ov.vn
-    WHERE ov.vstdate = :targetDate
-      AND ov.cur_dep IN ('002', '021', '023', '061', '088', '110', '130', '134', '144', '201', '207', '224')
-      AND ov.main_dep IN ('002', '021', '023', '061', '088', '110', '130', '134', '144', '201', '207', '224')
-      AND ov.an IS NULL
-";
-
-    $stmt       = $conn->prepare($sql_wait_triage);
-    $stmt->execute([':targetDate' => $targetDate]);
-    $wait_row   = $stmt->fetch(PDO::FETCH_ASSOC);
-    $wait_triage = $wait_row['wait_triage'] ?? 0;
-
-    /*
-    ==========================
-    รอตรวจ
-    ==========================
-    */
-
-    $sql_wait_exam = "SELECT COUNT(*) AS wait_exam
-    --     ov.vn,
-    --     ov.hn,
-    --     ov.an,
-    --     ov.vstdate,
-    --     ov.vsttime,
-    --     ov.ovstost,
-    --     ot.name,
-    --     ov.spclty,
-    --     ov.cur_dep,
-    --     ksk_cur.department AS cur_dep_name,
-    --     ov.main_dep,
-    --     ksk_main.department AS main_dep_name
-    FROM ovst ov
-    LEFT JOIN kskdepartment ksk_cur
-        ON ksk_cur.depcode = ov.cur_dep
-    LEFT JOIN kskdepartment ksk_main
-        ON ksk_main.depcode = ov.main_dep
-    LEFT JOIN ovstost ot
-        ON ot.ovstost = ov.ovstost
-    WHERE
-        ov.cur_dep IN (
-            '009', '010', '036', '058', '086',
-            '108', '109', '111', '125', '126',
-            '162', '223'
-        )
-        AND ov.vstdate = :targetDate
-";
-
-    $stmt      = $conn->prepare($sql_wait_exam);
-    $stmt->execute([':targetDate' => $targetDate]);
-    $exam_row  = $stmt->fetch(PDO::FETCH_ASSOC);
-    $wait_exam = $exam_row['wait_exam'] ?? 0;
-
-    /*
-    ==========================
-    ตรวจเสร็จแล้ว
-    ==========================
-    */
-
-    $sql_finish_exam = "SELECT COUNT(*) AS finish_exam
-        FROM ovst o
-        WHERE o.vstdate  = :targetDate
-          AND o.main_dep IN (
-                      '002','009','010','021','023','029','036','058',
-                      '061','076','086','088','108','109','110','111',
-                      '125','126','127','128','129','130','131','134',
-                      '144','162','176','177','201','207','224'
-                  )
-          AND o.cur_dep = '999'
+    $sql_status = "SELECT
+            COUNT(*) FILTER (WHERE in_service AND NOT doctor AND NOT screen) AS wait_triage,
+            COUNT(*) FILTER (WHERE in_service AND NOT doctor AND screen
+                AND cur_dep NOT IN (
+                    '014','053','083','200','225','234',
+                    '025','203','204',
+                    '076','131','176','199','206'
+                ))                                                           AS wait_exam,
+            COUNT(*) FILTER (WHERE doctor)                                   AS finish_exam
+        FROM (
+            SELECT
+                o.cur_dep,
+                o.an IS NULL AND o.cur_dep IS DISTINCT FROM '999' AS in_service,
+                EXISTS (SELECT 1 FROM ovst_service_time s
+                        WHERE s.vn = o.vn AND s.ovst_service_time_type_code = 'OPD-SCREEN') AS screen,
+                EXISTS (SELECT 1 FROM ovst_service_time s
+                        WHERE s.vn = o.vn AND s.ovst_service_time_type_code = 'OPD-DOCTOR') AS doctor
+            FROM ovst o
+            WHERE o.vstdate = :targetDate
+              AND o.main_dep IN (" . opd_main_dep_sql() . ")
+        ) v
     ";
 
-    $stmt        = $conn->prepare($sql_finish_exam);
+    $stmt = $conn->prepare($sql_status);
     $stmt->execute([':targetDate' => $targetDate]);
-    $finish_row  = $stmt->fetch(PDO::FETCH_ASSOC);
-    $finish_exam = $finish_row['finish_exam'] ?? 0;
+    $status = $stmt->fetch(PDO::FETCH_ASSOC);
 
     /*
     =========================
@@ -194,9 +154,9 @@ try {
         'before_time'       => (int)$result['before_time'],
         'worktime'          => (int)$result['worktime'],
         'after_time'        => (int)$result['after_time'],
-        'wait_triage'       => (int)$wait_triage,
-        'wait_exam'         => (int)$wait_exam,
-        'finish_exam'       => (int)$finish_exam,
+        'wait_triage'       => (int)$status['wait_triage'],
+        'wait_exam'         => (int)$status['wait_exam'],
+        'finish_exam'       => (int)$status['finish_exam'],
     ], JSON_UNESCAPED_UNICODE);
 
 } catch (Exception $e) {

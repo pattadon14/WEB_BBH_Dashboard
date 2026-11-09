@@ -3,6 +3,7 @@
 header('Content-Type: application/json');
 
 require_once '../config/database.php';
+require_once '../config/opd.php';
 
 $budgetYear = isset($_GET['year'])
     ? (int)$_GET['year']
@@ -25,6 +26,7 @@ $sql = "SELECT
 FROM ovst
 WHERE vstdate BETWEEN :startDate
 AND :endDate
+AND main_dep IN (" . opd_main_dep_sql() . ")
 GROUP BY month
 UNION ALL
 SELECT
