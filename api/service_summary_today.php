@@ -137,20 +137,12 @@ try {
     =========================
     */
 
+    // ไม่นับเคสที่ยกเลิกการผ่าตัด (status_id = 9)
     $sql_or = "
-        SELECT 
-            COUNT(
-                CASE
-                    WHEN operation_date = CURRENT_DATE
-                    THEN hn
-                END
-            ) AS or_total
-
+        SELECT COUNT(*) AS or_total
         FROM operation_list
-
-        WHERE operation_date BETWEEN
-            DATE_TRUNC('month', CURRENT_DATE)
-            AND CURRENT_DATE
+        WHERE operation_date = CURRENT_DATE
+          AND status_id IS DISTINCT FROM 9
     ";
 
     $stmt =
@@ -165,22 +157,14 @@ try {
     =========================
     */
 
+    // นับ visit/admit ไม่ซ้ำ เฉพาะเอกซเรย์ทั่วไปและ Portable (กลุ่ม 1, 4)
+    // xray_report เก็บ EKG, CT, อัลตราซาวน์ และผลส่องกล้องไว้ด้วย
     $sql_xray = "
-        SELECT 
-            COUNT(
-                CASE
-                    WHEN request_date = CURRENT_DATE
-                    AND vn IS NOT NULL
-                    AND vn <> ''
-                    THEN vn
-                END
-            ) AS xray_total
-
-        FROM xray_report
-
-        WHERE request_date BETWEEN
-            DATE_TRUNC('month', CURRENT_DATE)
-            AND CURRENT_DATE
+        SELECT COUNT(DISTINCT COALESCE(NULLIF(r.vn, ''), r.an)) AS xray_total
+        FROM xray_report r
+        JOIN xray_items i ON i.xray_items_code = r.xray_items_code
+        WHERE r.request_date = CURRENT_DATE
+          AND i.xray_items_group IN (1, 4)
     ";
 
     $stmt =
@@ -191,18 +175,26 @@ try {
         
     /*
     =========================
-    ไตเทียม
+    Observe ER
+    นับคน (HN) ที่ผ่านแผนก 119 วันนี้ รวมที่ย้ายออกแล้ว และที่ Admit ward 05 วันนี้
     =========================
     */
 
     $sql_observe = "
-        SELECT
-            COUNT(DISTINCT hn) AS observe_total
-
-        FROM ovst
-
-        WHERE vstdate = CURRENT_DATE
-        AND cur_dep = '119'
+        SELECT COUNT(*) AS observe_total
+        FROM (
+            SELECT o.hn
+            FROM ovst o
+            WHERE o.vstdate = CURRENT_DATE
+              AND (o.main_dep = '119' OR o.cur_dep = '119'
+                   OR EXISTS (SELECT 1 FROM opd_dep_queue q
+                              WHERE q.vn = o.vn AND q.depcode = '119'))
+            UNION
+            SELECT i.hn
+            FROM ipt i
+            WHERE i.regdate = CURRENT_DATE
+              AND i.ward = '05'
+        ) observe_patients
     ";
 
     $stmt =
@@ -214,17 +206,25 @@ try {
     /*
     =========================
     LR
+    นับคน (HN) ที่ผ่านแผนก 004 วันนี้ รวมที่ย้ายออกแล้ว และที่ Admit ward 04 วันนี้
     =========================
     */
 
     $sql_lr = "
-        SELECT
-            COUNT(DISTINCT hn) AS lr_total
-
-        FROM ovst
-
-        WHERE vstdate = CURRENT_DATE
-        AND cur_dep = '004'
+        SELECT COUNT(*) AS lr_total
+        FROM (
+            SELECT o.hn
+            FROM ovst o
+            WHERE o.vstdate = CURRENT_DATE
+              AND (o.main_dep = '004' OR o.cur_dep = '004'
+                   OR EXISTS (SELECT 1 FROM opd_dep_queue q
+                              WHERE q.vn = o.vn AND q.depcode = '004'))
+            UNION
+            SELECT i.hn
+            FROM ipt i
+            WHERE i.regdate = CURRENT_DATE
+              AND i.ward = '04'
+        ) lr_patients
     ";
 
     $stmt =
@@ -261,12 +261,15 @@ try {
     =========================
     */
 
-    $sql_wound = "SELECT COUNT(DISTINCT vn) AS wound_total
-        FROM ovst
-        WHERE vstdate = CURRENT_DATE
+    // รวมคนที่ถูกส่งต่อมาจากจุดอื่น ซึ่ง main_dep ไม่ใช่ 078 (ดูจาก opd_dep_queue)
+    $sql_wound = "SELECT COUNT(DISTINCT o.vn) AS wound_total
+        FROM ovst o
+        WHERE o.vstdate = CURRENT_DATE
         AND (
-            main_dep = '078'
-            OR cur_dep = '047'
+            o.main_dep IN ('078', '047')
+            OR o.cur_dep IN ('078', '047')
+            OR EXISTS (SELECT 1 FROM opd_dep_queue q
+                       WHERE q.vn = o.vn AND q.depcode IN ('078', '047'))
         )
     ";
 
@@ -282,13 +285,13 @@ try {
     =========================
     */
 
-    $sql_us = "SELECT COUNT(DISTINCT vn) AS us_total
-        FROM ovst
-        WHERE vstdate = CURRENT_DATE
-        AND (
-            main_dep IN ('080','240')
-            OR cur_dep IN ('080','240')
-        );
+    // คำขออัลตราซาวน์อยู่ในระบบ X-ray ผู้ป่วยส่วนใหญ่ไม่ผ่านแผนก 080/240
+    $sql_us = "SELECT COUNT(DISTINCT COALESCE(NULLIF(r.vn, ''), r.an)) AS us_total
+        FROM xray_report r
+        JOIN xray_items i ON i.xray_items_code = r.xray_items_code
+        WHERE r.request_date = CURRENT_DATE
+          AND i.xray_items_group = 2
+          AND i.xray_items_name ILIKE '%ultrasound%'
     ";
 
     $stmt =
