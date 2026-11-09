@@ -8,15 +8,39 @@ try {
 
     /*
     =========================
-    ห้องส่องกล้อง
+    ห้องส่องกล้อง (แผนก 121) นับคน (HN) ไม่ซ้ำ จาก 3 แหล่ง
+    - visit ที่ถูกส่งเข้า 121 วันนี้: ดู opd_dep_queue ด้วย
+      เพราะ ovst.cur_dep เปลี่ยนทันทีเมื่อผู้ป่วยย้ายออกจากห้อง
+    - ผู้ป่วยในที่มีค่าบริการลงจากแผนก 121
+    - ผู้ป่วยในที่ลงหัตถการส่องกล้อง (ICD-9) ซึ่งไม่อยู่ในตารางผ่าตัด
+      ผู้ป่วยใน Admit อยู่ก่อนแล้วไม่มีคิวแผนก 121 และ ward 10 เลิกใช้ตั้งแต่ปี 2566
     =========================
     */
 
     $sql_scope = "
-        SELECT COUNT(DISTINCT hn) AS scope_total
-        FROM ovst
-        WHERE vstdate = CURRENT_DATE
-        AND cur_dep = '121'
+        SELECT COUNT(*) AS scope_total
+        FROM (
+            SELECT o.hn
+            FROM ovst o
+            WHERE o.vstdate = CURRENT_DATE
+              AND (o.cur_dep = '121'
+                   OR EXISTS (SELECT 1 FROM opd_dep_queue q
+                              WHERE q.vn = o.vn AND q.depcode = '121'))
+            UNION
+            SELECT r.hn
+            FROM opitemrece r
+            WHERE r.rxdate = CURRENT_DATE
+              AND r.dep_code = '121'
+              AND r.an <> ''
+            UNION
+            SELECT i.hn
+            FROM iptoprt io
+            JOIN ipt i ON i.an = io.an
+            WHERE io.opdate = CURRENT_DATE
+              AND LEFT(io.icd9, 4) IN ('4513', '4516', '4523', '4525', '4542', '4233', '4443')
+              AND NOT EXISTS (SELECT 1 FROM operation_list l
+                              WHERE l.an = io.an AND l.operation_date = io.opdate)
+        ) scope_patients
     ";
 
     $stmt =
