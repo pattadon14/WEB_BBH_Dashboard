@@ -500,6 +500,7 @@ async function loadOpdTodaySummary() {
 
         // ระหว่างวันยังสรุปไม่ได้ว่าใครไม่มา และสถานะ "รอ" มีความหมายเฉพาะวันนี้
         const isToday = getSelectedServiceDate() === getTodayServiceDate();
+        setOpdLive(isToday);
 
         document.getElementById('miss_label').textContent =
             isToday ? 'ยังไม่มา' : 'ไม่มาตามนัด';
@@ -588,6 +589,21 @@ async function loadOpdTodaySummary() {
 }
 
 const fmtN = n => Number(n || 0).toLocaleString();
+
+// ป้าย LIVE ใน navbar (templates/navbar.php) ข้อความเดียวกับหน้าแรก — แสดงเฉพาะตอนดูวันนี้ ซึ่งรีเฟรชทุก 60 วินาที
+function setOpdLive(isToday) {
+    const box = document.getElementById('live-status');
+    if (!box) return;
+    box.style.display = isToday ? '' : 'none';
+    if (!isToday) return;
+    const now = new Date();
+    const text = 'ข้อมูล ณ วันที่ ' +
+        now.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) +
+        ' เวลา ' +
+        now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' น.';
+    document.getElementById('last-updated').textContent = text;
+    box.title = text;   // จอเล็กซ่อนข้อความยาว ดูได้จาก tooltip
+}
 
 function setText(id, value) {
     document.getElementById(id).textContent = value;
@@ -1139,6 +1155,8 @@ async function openDrill(type, key, label) {
     setText('opd-drill-count', '');
     document.getElementById('opd-drill-q').value = '';
     document.getElementById('opd-drill-export').disabled = true;
+    document.getElementById('opd-drill-filters').innerHTML = '';
+    document.getElementById('opd-drill-pager').innerHTML = '';
     document.getElementById('opd-drill-body').innerHTML =
         '<p class="opd-drill-msg"><i class="fa-solid fa-spinner fa-spin"></i> กำลังโหลดรายชื่อ...</p>';
     if (!dlg.open) dlg.showModal();
@@ -1151,7 +1169,8 @@ async function openDrill(type, key, label) {
         if (!res.ok || data.error) throw new Error(data.error || 'โหลดรายชื่อไม่สำเร็จ');
 
         const cols = data.kind === 'appt' ? APPT_COLS : VISIT_COLS;
-        drillState = { rows: data.rows, cols, file: `OPD_${type}_${date}.csv` };
+        drillState = { rows: data.rows, cols, file: `OPD_${type}_${date}.csv`, page: 1 };
+        renderDrillFilters(DRILL_FILTERS[data.kind]);
 
         const people = new Set(data.rows.map(r => r.hn)).size;
         const unit = data.kind === 'appt' ? 'ราย' : 'ครั้ง';
@@ -1175,37 +1194,90 @@ function drillCell(r, k) {
     return v === null || v === '' ? '<span class="text-muted">–</span>' : escHtml(v);
 }
 
-function drillMatches(r, q) {
-    return !q || drillState.cols.some(([k]) => String(r[k] ?? '').toLowerCase().includes(q));
+// ตัวกรองแบบเลือกในหน้าต่างรายชื่อ ตัวเลือกสร้างจากข้อมูลจริงของรายการนั้น (เรียงตามจำนวนมากไปน้อย)
+const DRILL_FILTERS = {
+    visit: [['main_dep', 'แผนกที่ลงทะเบียน'], ['cur_dep', 'อยู่ที่'], ['pttype', 'สิทธิ์'], ['nation', 'สัญชาติ'], ['ptkind', 'ผู้ป่วยใหม่/เก่า']],
+    appt:  [['clinic', 'คลินิก'], ['status', 'สถานะ'], ['nation', 'สัญชาติ']]
+};
+const DRILL_PAGE_SIZE = 50;
+
+const drillValue = (r, k) => k === 'ptkind' ? (r.is_new ? 'ผู้ป่วยใหม่' : 'ผู้ป่วยเก่า') : String(r[k] ?? '');
+
+function renderDrillFilters(defs) {
+    const box = document.getElementById('opd-drill-filters');
+    box.innerHTML = defs.map(([k, label]) => {
+        const counts = new Map();
+        drillState.rows.forEach(r => { const v = drillValue(r, k); if (v) counts.set(v, (counts.get(v) || 0) + 1); });
+        if (counts.size < 2) return '';   // มีค่าเดียว กรองไปก็ไม่ต่าง
+        const opts = [...counts].sort((a, b) => b[1] - a[1])
+            .map(([v, n]) => `<option value="${escHtml(v)}">${escHtml(v)} (${fmtN(n)})</option>`).join('');
+        return `<label class="opd-drill-filter"><span>${label}</span>
+            <select data-filter="${k}"><option value="">ทั้งหมด</option>${opts}</select></label>`;
+    }).join('');
+}
+
+function drillFiltered() {
+    const q = document.getElementById('opd-drill-q').value.trim().toLowerCase();
+    const picks = [...document.querySelectorAll('#opd-drill-filters select')].filter(s => s.value)
+        .map(s => [s.dataset.filter, s.value]);
+    return drillState.rows.filter(r =>
+        picks.every(([k, v]) => drillValue(r, k) === v) &&
+        (!q || drillState.cols.some(([k]) => String(r[k] ?? '').toLowerCase().includes(q))));
+}
+
+// เลขหน้าแบบย่อ: 1 … 4 5 6 … 20
+function pageList(cur, last) {
+    const set = new Set([1, last, cur - 1, cur, cur + 1].filter(p => p >= 1 && p <= last));
+    const out = [];
+    [...set].sort((a, b) => a - b).forEach((p, i, arr) => { if (i && p - arr[i - 1] > 1) out.push('…'); out.push(p); });
+    return out;
 }
 
 function renderDrillTable() {
 
-    const q = document.getElementById('opd-drill-q').value.trim().toLowerCase();
-    const rows = drillState.rows.filter(r => drillMatches(r, q));
+    const rows = drillFiltered();
     const { cols } = drillState;
+    const filtered = rows.length !== drillState.rows.length;
 
-    setText('opd-drill-count', q ? `พบ ${fmtN(rows.length)} จาก ${fmtN(drillState.rows.length)} รายการ` : '');
+    setText('opd-drill-count', filtered ? `พบ ${fmtN(rows.length)} จาก ${fmtN(drillState.rows.length)} รายการ` : '');
+    const pager = document.getElementById('opd-drill-pager');
 
     if (!rows.length) {
+        pager.innerHTML = '';
         document.getElementById('opd-drill-body').innerHTML =
-            `<p class="opd-drill-msg">${drillState.rows.length ? 'ไม่พบรายการที่ค้นหา' : 'ไม่มีรายการในวันที่เลือก'}</p>`;
+            `<p class="opd-drill-msg">${drillState.rows.length ? 'ไม่พบรายการตามที่ค้นหา/กรอง' : 'ไม่มีรายการในวันที่เลือก'}</p>`;
         return;
     }
 
-    const num = k => k.startsWith('wait_') ? ' class="num"' : '';
-    document.getElementById('opd-drill-body').innerHTML = `
+    const last = Math.ceil(rows.length / DRILL_PAGE_SIZE);
+    const page = Math.min(Math.max(drillState.page, 1), last);
+    drillState.page = page;
+    const start = (page - 1) * DRILL_PAGE_SIZE;
+    const pageRows = rows.slice(start, start + DRILL_PAGE_SIZE);
+
+    const body = document.getElementById('opd-drill-body');
+    body.innerHTML = `
         <table class="opd-drill-table">
-            <thead><tr><th class="num">#</th>${cols.map(([k, t]) => `<th${num(k)}>${t}</th>`).join('')}</tr></thead>
-            <tbody>${rows.map((r, i) =>
-                `<tr><td class="num">${i + 1}</td>${cols.map(([k]) => `<td${num(k)}>${drillCell(r, k)}</td>`).join('')}</tr>`
+            <thead><tr><th>#</th>${cols.map(([, t]) => `<th>${t}</th>`).join('')}</tr></thead>
+            <tbody>${pageRows.map((r, i) =>
+                `<tr><td>${start + i + 1}</td>${cols.map(([k]) => `<td>${drillCell(r, k)}</td>`).join('')}</tr>`
             ).join('')}</tbody>
         </table>`;
+    body.scrollTop = 0;
+
+    const btn = (p, label, aria, disabled, current) =>
+        `<button type="button" data-page="${p}" aria-label="${aria}"${disabled ? ' disabled' : ''}${current ? ' aria-current="page" class="is-current"' : ''}>${label}</button>`;
+    pager.innerHTML = `
+        <span class="opd-drill-range">แสดง ${fmtN(start + 1)}–${fmtN(start + pageRows.length)} จาก ${fmtN(rows.length)} รายการ</span>
+        ${last > 1 ? `<div class="opd-drill-pages">
+            ${btn(page - 1, '<i class="fa-solid fa-chevron-left"></i>', 'หน้าก่อน', page === 1)}
+            ${pageList(page, last).map(p => p === '…' ? '<span class="gap">…</span>' : btn(p, p, 'หน้า ' + p, false, p === page)).join('')}
+            ${btn(page + 1, '<i class="fa-solid fa-chevron-right"></i>', 'หน้าถัดไป', page === last)}
+        </div>` : ''}`;
 }
 
 function exportDrillCsv() {
-    const q = document.getElementById('opd-drill-q').value.trim().toLowerCase();
-    const rows = drillState.rows.filter(r => drillMatches(r, q));
+    const rows = drillFiltered();
     const cell = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
     const lines = [drillState.cols.map(([, t]) => cell(t)).join(',')]
         .concat(rows.map(r => drillState.cols.map(([k]) => cell(r[k])).join(',')));
@@ -1248,6 +1320,15 @@ function exportDrillCsv() {
     document.getElementById('opd-drill-close').addEventListener('click', () => dlg.close());
     // คลิกพื้นหลังนอกกล่องเพื่อปิด
     dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
-    document.getElementById('opd-drill-q').addEventListener('input', renderDrillTable);
+    // ค้นหา/กรองใหม่ กลับไปหน้า 1
+    const refilter = () => { drillState.page = 1; renderDrillTable(); };
+    document.getElementById('opd-drill-q').addEventListener('input', refilter);
+    document.getElementById('opd-drill-filters').addEventListener('change', refilter);
+    document.getElementById('opd-drill-pager').addEventListener('click', e => {
+        const b = e.target.closest('button[data-page]');
+        if (!b || b.disabled) return;
+        drillState.page = Number(b.dataset.page);
+        renderDrillTable();
+    });
     document.getElementById('opd-drill-export').addEventListener('click', exportDrillCsv);
 })();

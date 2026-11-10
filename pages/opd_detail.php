@@ -1,4 +1,7 @@
 <?php
+// ป้าย LIVE ใน navbar แบบหน้าแรก — opd_detail.js แสดงเฉพาะตอนเลือกดูข้อมูลวันนี้
+$showLiveStatus = true;
+
 include '../templates/header.php';
 include '../templates/navbar.php';
 include '../templates/sidebar.php';
@@ -412,7 +415,9 @@ include '../templates/sidebar.php';
                     <span class="opd-drill-count" id="opd-drill-count" aria-live="polite"></span>
                     <button type="button" class="opd-drill-export" id="opd-drill-export"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
                 </div>
+                <div class="opd-drill-filters" id="opd-drill-filters"></div>
                 <div class="opd-drill-body" id="opd-drill-body"></div>
+                <nav class="opd-drill-pager" id="opd-drill-pager" aria-label="เปลี่ยนหน้ารายชื่อ"></nav>
             </dialog>
 
             <!-- =====================================================
