@@ -151,7 +151,7 @@ function renderHeatmap() {
         rowTotals.push(deptTotals.slice(shownCount).reduce((a, b) => a + b, 0));
     }
 
-    // แถว LAB อยู่บนสุด: ผู้ป่วยถูกนับที่แผนกลงทะเบียนแล้ว จึงใช้สเกลสีฟ้าแยกและไม่รวมในชั่วโมง/แผนกพีค
+    // แถว LAB อยู่บนสุด: ผู้ป่วยถูกนับที่แผนกลงทะเบียนแล้ว จึงไม่รวมในชั่วโมง/แผนกพีค
     const lab = heatmapData.lab || [];
     const labMax = lab.reduce((m, [, v]) => Math.max(m, v), 0);
     const top = lab.length ? 1 : 0;
@@ -171,15 +171,14 @@ function renderHeatmap() {
     const points = [];
     grid.forEach((row, y) => row.forEach((value, x) => {
         const point = { x, y, value };
-        if (value !== null && top && y === 0) {
-            point.color = Highcharts.color('#deebf7').tweenTo(Highcharts.color('#08519c'), value / labMax);
-        } else if (foldedCount && y === shownCount + top && value !== null) {
+        if (foldedCount && y === shownCount + top && value !== null) {
             point.color = '#dfe3e8';
         }
         points.push(point);
     }));
 
-    const maxVal = data.reduce((m, d) => Math.max(m, d[2]), 0);
+    // สเกลสีรวมค่า LAB ด้วย ให้ทุกแถวเทียบสีกันได้
+    const maxVal = data.reduce((m, d) => Math.max(m, d[2]), labMax);
     const rowHeight = heatmapShowAll ? 30 : 36;
     const chartHeight = rowLabels.length * rowHeight + 100;
     chartEl.style.height = chartHeight + 'px';
