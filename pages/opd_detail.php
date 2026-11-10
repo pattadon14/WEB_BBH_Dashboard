@@ -4,7 +4,7 @@ include '../templates/navbar.php';
 include '../templates/sidebar.php';
 ?>
 
-<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_tabs.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_tabs.css?v=<?= filemtime(__DIR__ . '/../assets/css/opd_tabs.css') ?>">
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_service_filter.css">
 
 <div class="content-wrapper">
@@ -52,8 +52,9 @@ include '../templates/sidebar.php';
                                             ผู้มารับบริการตรวจโรคทั่วไปวันนี้
                                         </div>
                                         <div class="opd-summary-total-label">
-                                            จำนวนผู้มารับบริการ
+                                            จำนวนผู้มารับบริการ <span id="opd_total_people">—</span> คน
                                         </div>
+                                        <div class="opd-summary-compare" id="opd-compare">—</div>
                                     </div>
 
                                     <div class="opd-summary-date-filter">
@@ -71,7 +72,7 @@ include '../templates/sidebar.php';
 
                                 <div class="opd-summary-main-number">
                                         <span id="opd_total_today">—</span>
-                                        <small>คน</small>
+                                        <small>ครั้ง</small>
                                     </div>
                                 </div>
 
@@ -90,10 +91,21 @@ include '../templates/sidebar.php';
                                             </div>
                                             <div class="summary-number">
                                                 <span id="walkin_today">—</span>
-                                                <span class="summary-unit">คน</span>
+                                                <span class="summary-unit">ราย</span>
                                             </div>
                                             <div class="todaysummary-sub">
                                                 มารับบริการโดยไม่มีนัดล่วงหน้า
+                                            </div>
+                                        </div>
+
+                                        <div class="opd-mini-pair">
+                                            <div class="exam-horizontal-card newpt-card">
+                                                <div class="summary-title">ผู้ป่วยใหม่</div>
+                                                <div class="summary-number"><span id="new_patient">—</span> <span class="summary-unit">ราย</span></div>
+                                            </div>
+                                            <div class="exam-horizontal-card oldpt-card">
+                                                <div class="summary-title">ผู้ป่วยเก่า</div>
+                                                <div class="summary-number"><span id="old_patient">—</span> <span class="summary-unit">ราย</span></div>
                                             </div>
                                         </div>
                                     </div>
@@ -101,13 +113,13 @@ include '../templates/sidebar.php';
                                     <div class="opd-summary-section">
                                         <div class="summary-section-title">
                                             <i class="fa-solid fa-calendar-days"></i>
-                                            นัดหมายวันนี้
+                                            <span id="appt-section-title">นัดหมายวันนี้</span>
                                         </div>
 
                                         <div class="appointment-horizontal-card">
                                             <div class="appointment-total">
                                                 <span id="appoint_today">—</span>
-                                                <small>คน</small>
+                                                <small>ราย</small>
                                             </div>
 
                                             <div class="appointment-status">
@@ -117,7 +129,7 @@ include '../templates/sidebar.php';
                                                         มาตามนัด
                                                     </div>
                                                     <strong id="oapp_success">—</strong>
-                                                    <small>คน</small>
+                                                    <small>ราย · <span id="oapp_success_pct">–</span></small>
                                                 </div>
 
                                                 <div class="appointment-status-item miss">
@@ -126,7 +138,7 @@ include '../templates/sidebar.php';
                                                         <span id="miss_label">ไม่มาตามนัด</span>
                                                     </div>
                                                     <strong id="miss_today">—</strong>
-                                                    <small>คน</small>
+                                                    <small>ราย · <span id="miss_pct">–</span></small>
                                                 </div>
                                             </div>
                                         </div>
@@ -146,7 +158,7 @@ include '../templates/sidebar.php';
                                                     <div class="time-range">20:01 – 07:59 น.</div>
                                                 </div>
                                                 <div class="time-count">
-                                                    <span id="before_time">—</span><small>คน</small>
+                                                    <span id="before_time">—</span><small>ราย</small>
                                                 </div>
                                             </div>
 
@@ -157,7 +169,7 @@ include '../templates/sidebar.php';
                                                     <div class="time-range">08:00 – 15:59 น.</div>
                                                 </div>
                                                 <div class="time-count">
-                                                    <span id="worktime">—</span><small>คน</small>
+                                                    <span id="worktime">—</span><small>ราย</small>
                                                 </div>
                                             </div>
 
@@ -168,7 +180,7 @@ include '../templates/sidebar.php';
                                                     <div class="time-range">16:00 – 20:00 น.</div>
                                                 </div>
                                                 <div class="time-count">
-                                                    <span id="after_time">—</span><small>คน</small>
+                                                    <span id="after_time">—</span><small>ราย</small>
                                                 </div>
                                             </div>
                                         </div>
@@ -188,7 +200,7 @@ include '../templates/sidebar.php';
                                                 </div>
                                                 <div class="summary-number">
                                                     <span id="wait_triage">—</span>
-                                                    <span class="summary-unit">คน</span>
+                                                    <span class="summary-unit">ราย</span>
                                                 </div>
                                             </div>
 
@@ -199,7 +211,7 @@ include '../templates/sidebar.php';
                                                 </div>
                                                 <div class="summary-number">
                                                     <span id="wait_exam">—</span>
-                                                    <span class="summary-unit">คน</span>
+                                                    <span class="summary-unit">ราย</span>
                                                 </div>
                                             </div>
 
@@ -210,8 +222,19 @@ include '../templates/sidebar.php';
                                                 </div>
                                                 <div class="summary-number">
                                                     <span id="finish_exam">—</span>
-                                                    <span class="summary-unit">คน</span>
+                                                    <span class="summary-unit">ราย</span>
                                                 </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="opd-mini-pair">
+                                            <div class="exam-horizontal-card admit-card">
+                                                <div class="summary-title">Admit</div>
+                                                <div class="summary-number"><span id="opd_admit">—</span> <span class="summary-unit">ราย</span></div>
+                                            </div>
+                                            <div class="exam-horizontal-card refer-card">
+                                                <div class="summary-title">Refer ส่งต่อ</div>
+                                                <div class="summary-number"><span id="opd_refer">—</span> <span class="summary-unit">ราย</span></div>
                                             </div>
                                         </div>
                                     </div>
@@ -221,6 +244,32 @@ include '../templates/sidebar.php';
                         </div>
                     </div>
 
+                    <!-- ข้อมูลของวันที่เลือก (ใช้ตัวเลือกวันที่ด้านบน) -->
+                    <div class="col-12 mb-3">
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <h2 class="mb-3 text-success opd-section-heading">
+                                    <i class="fa-solid fa-calendar-day"></i>
+                                    <span id="opd-day-title">ข้อมูลผู้มารับบริการวันนี้</span>
+                                </h2>
+                                <div class="row">
+                                    <div class="col-lg-6 mb-3">
+                                        <h5 class="chart-title"><i class="fa-solid fa-hospital"></i> ผู้มารับบริการแยกตามแผนกที่ลงทะเบียน</h5>
+                                        <div id="opd-dept-chart"></div>
+                                    </div>
+                                    <div class="col-lg-6 mb-3">
+                                        <h5 class="chart-title"><i class="fa-solid fa-id-card"></i> แยกตามกลุ่มสิทธิ์การรักษา</h5>
+                                        <div id="pttype-chart" class="pttype-chart"></div>
+                                    </div>
+                                </div>
+                                <h5 class="chart-title"><i class="fa-solid fa-clock"></i> การกระจายเวลานัดหมาย</h5>
+                                <div id="opd-appt-time-chart"></div>
+                                <p class="text-muted mb-0" id="appt-time-note"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ข้อมูลตามปีงบประมาณ (ใช้ตัวเลือกปีงบ) -->
                     <div class="col-12">
                         <div class="card shadow-sm mb-3">
                             <div class="opd-chart">
@@ -228,7 +277,7 @@ include '../templates/sidebar.php';
                                     <div class="col-md-7">
                                         <h2 class="mb-1 text-success" style="font-weight:bold;">
                                             <i class="fa-solid fa-chart-column"></i>
-                                            ข้อมูลสถิติผู้มารับบริการ
+                                            ข้อมูลตามปีงบประมาณ
                                         </h2>
                                         <div id="budget-date-text" class="text-success fs-5"></div>
                                     </div>
@@ -251,12 +300,6 @@ include '../templates/sidebar.php';
 
                             <div class="card-body">
                                 <div id="opd-chart" style="height:470px;"></div>
-                                <hr class="my-2">
-                                <div class="pttype-header">
-                                    <i class="fa-solid fa-chart-column"></i>
-                                    <span id="pttype-date-title">ผู้ใช้บริการ OPD แยกตามสิทธิ์ วันนี้</span>
-                                </div>
-                                <div id="pttype-chart" class="pttype-chart"></div>
                             </div>
                         </div>
                     </div>
@@ -545,7 +588,7 @@ include '../templates/sidebar.php';
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_quality.css?v=<?= filemtime(__DIR__ . '/../assets/css/opd_quality.css') ?>">
 <script src="<?= BASE_URL ?>assets/lib/highcharts/13.1.1/highcharts.js"></script>
 <script>window.BBH_CURRENT_FISCAL_YEAR = <?= $currentYear ?>;</script>
-<script src="<?= BASE_URL ?>assets/js/opd_detail.js"></script>
+<script src="<?= BASE_URL ?>assets/js/opd_detail.js?v=<?= filemtime(__DIR__ . '/../assets/js/opd_detail.js') ?>"></script>
 <script src="<?= BASE_URL ?>assets/js/opd_quality.js?v=<?= filemtime(__DIR__ . '/../assets/js/opd_quality.js') ?>"></script>
 
 <script>

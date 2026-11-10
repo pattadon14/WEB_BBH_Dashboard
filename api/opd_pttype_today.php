@@ -18,6 +18,7 @@ try {
     SELECT
         ov.pttype,
         pt.name AS pttype_name,
+        pt.hipdata_code,
         COUNT(*) AS total_patient
 
     FROM ovst ov
@@ -30,7 +31,8 @@ try {
 
     GROUP BY
         ov.pttype,
-        pt.name
+        pt.name,
+        pt.hipdata_code
 
     ORDER BY total_patient DESC
 

@@ -140,6 +140,106 @@ try {
     $status = $stmt->fetch(PDO::FETCH_ASSOC);
 
     /*
+    ==========================
+    จำนวนคน / ผู้ป่วยใหม่ / Admit / Refer (visit ชุด OPD เดียวกับยอดรวม)
+    - ผู้ป่วยใหม่ : patient.firstday = วันที่มารับบริการ (ลงทะเบียนครั้งแรกวันนั้น)
+    - Admit      : visit ที่มี an
+    - Refer      : visit ที่มีใบส่งต่อใน referout
+    ==========================
+    */
+
+    $sql_extra = "SELECT
+            COUNT(DISTINCT o.hn)                                         AS total_people,
+            COUNT(*) FILTER (WHERE p.firstday = o.vstdate)               AS new_patient,
+            COUNT(*) FILTER (WHERE COALESCE(o.an, '') <> '')             AS admit,
+            COUNT(*) FILTER (WHERE EXISTS (SELECT 1 FROM referout r WHERE r.vn = o.vn)) AS refer
+        FROM ovst o
+        LEFT JOIN patient p ON p.hn = o.hn
+        WHERE o.vstdate = :targetDate
+          AND o.main_dep IN (" . opd_main_dep_sql() . ")
+    ";
+
+    $stmt = $conn->prepare($sql_extra);
+    $stmt->execute([':targetDate' => $targetDate]);
+    $extra = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    /*
+    ==========================
+    เทียบกับเมื่อวาน และวันเดียวกันของสัปดาห์ก่อน
+    ถ้าเลือกวันนี้ นับวันก่อนหน้าถึงเวลาเดียวกับตอนนี้ (เวลาของฐานข้อมูล) จึงเทียบกันได้ระหว่างวัน
+    ==========================
+    */
+
+    $sql_compare = "SELECT
+            COUNT(*) FILTER (WHERE vstdate = CAST(:targetDate AS date) - 1) AS prev_day,
+            COUNT(*) FILTER (WHERE vstdate = CAST(:targetDate AS date) - 7) AS prev_week
+        FROM ovst
+        WHERE vstdate IN (CAST(:targetDate AS date) - 1, CAST(:targetDate AS date) - 7)
+          AND main_dep IN (" . opd_main_dep_sql() . ")
+          AND (CAST(:targetDate AS date) <> CURRENT_DATE OR vsttime <= LOCALTIME)
+    ";
+
+    $stmt = $conn->prepare($sql_compare);
+    $stmt->execute([':targetDate' => $targetDate]);
+    $compare = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    /*
+    ==========================
+    ผู้ป่วยแยกตามแผนกที่ลงทะเบียน (main_dep) — visit ชุด OPD
+    ==========================
+    */
+
+    $sql_depts = "SELECT
+            COALESCE(k.department, o.main_dep) AS name,
+            COUNT(*)                           AS total
+        FROM ovst o
+        LEFT JOIN kskdepartment k ON k.depcode = o.main_dep
+        WHERE o.vstdate = :targetDate
+          AND o.main_dep IN (" . opd_main_dep_sql() . ")
+        GROUP BY 1
+        ORDER BY 2 DESC
+    ";
+
+    $stmt = $conn->prepare($sql_depts);
+    $stmt->execute([':targetDate' => $targetDate]);
+    $depts = array_map(
+        fn($r) => ['name' => $r['name'], 'total' => (int)$r['total']],
+        $stmt->fetchAll(PDO::FETCH_ASSOC)
+    );
+
+    /*
+    ==========================
+    การกระจายเวลานัด (oapp.nexttime) — นัดชุดเดียวกับการ์ดนัดหมาย ไม่นับนัดที่ยกเลิก
+    ปัดลงเป็นช่วงละ 30 นาที (08:01, 08:02 รวมเข้าช่วง 08:00)
+    ==========================
+    */
+
+    $sql_appt_times = "SELECT
+            COALESCE(TO_CHAR(oa.nexttime - (EXTRACT(MINUTE FROM oa.nexttime)::int % 30) * INTERVAL '1 minute', 'HH24:MI'), 'ไม่ระบุ') AS time,
+            COUNT(*)                                            AS total
+        FROM oapp oa
+        LEFT JOIN clinic cl ON cl.clinic = oa.clinic
+        LEFT JOIN patient p  ON p.hn      = oa.hn
+        WHERE oa.nextdate       = :targetDate
+          AND cl.active_status  = 'Y'
+          AND (p.death = 'N' OR p.death IS NULL)
+          AND oa.oapp_status_id IS DISTINCT FROM 4
+          AND oa.clinic IN (
+                '004','011','049','074','083','106','111','113','116','118','119','123','129','131',
+                '001','014','020','030','076','084','085','087','097','107','114','120','126','128','130','132'
+          )
+        GROUP BY 1
+        ORDER BY 1
+    ";
+
+    $stmt = $conn->prepare($sql_appt_times);
+    $stmt->execute([':targetDate' => $targetDate]);
+    $appt_times = array_map(
+        fn($r) => ['time' => $r['time'], 'total' => (int)$r['total']],
+        $stmt->fetchAll(PDO::FETCH_ASSOC)
+    );
+
+    /*
     =========================
     RETURN JSON
     =========================
@@ -157,6 +257,14 @@ try {
         'wait_triage'       => (int)$status['wait_triage'],
         'wait_exam'         => (int)$status['wait_exam'],
         'finish_exam'       => (int)$status['finish_exam'],
+        'total_people'      => (int)$extra['total_people'],
+        'new_patient'       => (int)$extra['new_patient'],
+        'admit'             => (int)$extra['admit'],
+        'refer'             => (int)$extra['refer'],
+        'prev_day'          => (int)$compare['prev_day'],
+        'prev_week'         => (int)$compare['prev_week'],
+        'depts'             => $depts,
+        'appt_times'        => $appt_times,
     ], JSON_UNESCAPED_UNICODE);
 
 } catch (Exception $e) {

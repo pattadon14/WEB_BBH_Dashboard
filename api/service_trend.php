@@ -19,23 +19,23 @@ $yearAD = $budgetYear - 543;
 $startDate = ($yearAD - 1) . '-10-01';
 $endDate = $yearAD . '-09-30';
 
+// สแกน ovst ทั้งปีงบ จึง cache 30 นาทีแบบเดียวกับ 10 อันดับโรค
+$cacheDir  = __DIR__ . '/../storage/cache/';
+$cacheFile = $cacheDir . 'opd_trend_' . $budgetYear . '.json';
+
+if (file_exists($cacheFile) && (time() - filemtime($cacheFile)) < 30 * 60) {
+    echo file_get_contents($cacheFile);
+    exit;
+}
+
+// ผู้ป่วยนอกรายเดือน (นับ visit ชุด OPD) — ผู้ป่วยในดูที่หน้า IPD
 $sql = "SELECT
     EXTRACT(MONTH FROM vstdate) AS month,
-    COUNT(DISTINCT vn) AS opd,
-    0 AS ipd
+    COUNT(DISTINCT vn) AS opd
 FROM ovst
 WHERE vstdate BETWEEN :startDate
 AND :endDate
 AND main_dep IN (" . opd_main_dep_sql() . ")
-GROUP BY month
-UNION ALL
-SELECT
-    EXTRACT(MONTH FROM regdate) AS month,
-    0 AS opd,
-    COUNT(DISTINCT an) AS ipd
-FROM ipt
-WHERE regdate BETWEEN :startDate
-AND :endDate
 GROUP BY month";
 
 $stmt = $conn->prepare($sql);
@@ -45,6 +45,11 @@ $stmt->execute([
     ':endDate' => $endDate
 ]);
 
-$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$json = json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
 
-echo json_encode($data);
+if (!is_dir($cacheDir)) {
+    mkdir($cacheDir, 0755, true);
+}
+file_put_contents($cacheFile, $json);
+
+echo $json;

@@ -11,6 +11,27 @@ function formatThaiDate(dateString) {
     return `${d.getDate()} ${thaiMonths[d.getMonth()]} ${d.getFullYear() + 543}`;
 }
 
+// กลุ่มสิทธิ์หลักตาม pttype.hipdata_code (ชื่อกลุ่มตั้งจากชื่อสิทธิ์ย่อยที่ใช้จริงของ รพ.)
+const PAYER_GROUPS = {
+    UCS: 'บัตรทอง (UC)',
+    SSS: 'ประกันสังคม',
+    SSI: 'ประกันสังคม',
+    OFC: 'ข้าราชการ / เบิกกรมบัญชีกลาง',
+    BKK: 'ข้าราชการ / เบิกกรมบัญชีกลาง',
+    LGO: 'ท้องถิ่น (อปท.)',
+    NRH: 'ต่างด้าว',
+    STP: 'ผู้มีปัญหาสถานะและสิทธิ',
+    INS: 'พ.ร.บ.',
+    OTH: 'ชำระเงินเอง / อื่นๆ',
+    PVT: 'ชำระเงินเอง / อื่นๆ'
+};
+
+const THAI_WEEKDAYS = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
+
+// กราฟแท่งแนวนอน: ชื่อยาวขึ้นบรรทัดใหม่แทนการตัด "..." และตัวเลขอยู่นอกแท่งเสมอ (ในแท่งสีเข้มอ่านไม่ออก)
+const BAR_LABEL_STYLE = { fontSize: '16px', width: '170px', textOverflow: 'none' };
+const BAR_DATA_LABELS = { enabled: true, inside: false, crop: false, overflow: 'allow', color: '#000', style: { fontSize: '16px', textOutline: 'none' } };
+
 function getSelectedServiceDate() {
     const input = document.getElementById('opd-service-date');
     if (input && input.value) return input.value;
@@ -170,9 +191,6 @@ async function loadChart() {
     let opdData =
         Array(monthCount).fill(0);
 
-    let ipdData =
-        Array(monthCount).fill(0);
-
     /*
     ใส่ข้อมูล
     */
@@ -191,9 +209,6 @@ async function loadChart() {
 
             opdData[index] +=
                 parseInt(row.opd);
-
-            ipdData[index] +=
-                parseInt(row.ipd);
         }
     });
 
@@ -208,7 +223,7 @@ async function loadChart() {
 
         title: {
             text:
-            'จำนวนผู้รับบริการ ปีงบประมาณ ' + year
+            'จำนวนครั้งที่มารับบริการผู้ป่วยนอก ปีงบประมาณ ' + year
         },
 
         xAxis: {
@@ -218,50 +233,35 @@ async function loadChart() {
         yAxis: {
 
             title: {
-                text: 'จำนวน'
-            },
-
-            tickInterval: 10000
+                text: 'จำนวน (ครั้ง)'
+            }
 
         },
 
-        series: [
+        legend: {
+            enabled: false
+        },
 
-    {
-        name: 'ผู้ป่วยนอก',
+        credits: {
+            enabled: false
+        },
 
-        color: '#198754',
+        tooltip: {
+            pointFormat: '<b>{point.y:,.0f} ครั้ง</b>'
+        },
 
-        data: opdData,
-
-        dataLabels: {
-            enabled: true,
-            color: '#000000',
-            style: {
-                fontSize: '16px',
-            }
-        }
-
-    },
-
-    {
-        name: 'ผู้ป่วยใน',
-
-        color: '#6EC1E4',
-
-        data: ipdData,
-
-        dataLabels: {
-            enabled: true,
-            color: '#000000',
-            style: {
-                fontSize: '16px',
-            }
+        series: [{
+            name: 'ผู้ป่วยนอก',
+            color: '#198754',
+            data: opdData,
+            dataLabels: {
+                enabled: true,
+                color: '#000000',
+                style: {
+                    fontSize: '16px',
                 }
-
             }
-
-        ]
+        }]
 
     });
 
@@ -282,22 +282,18 @@ async function loadPttypeChart(){
         return;
     }
 
-    // แท่งแนวนอน 10 สิทธิ์แรก ที่เหลือรวมเป็น "อื่นๆ" — ชื่อสิทธิ์ยาว อ่านครบโดยไม่ต้องหมุนตัวอักษร
-    const TOP = 10;
-    const rows = data.map(row => ({
-        name: row.pttype_name || 'ไม่ระบุสิทธิ์',
-        y: parseInt(row.total_patient, 10) || 0
-    }));
-    const points = rows.slice(0, TOP);
-    const rest = rows.slice(TOP);
-
-    if (rest.length) {
-        points.push({
-            name: 'อื่นๆ (' + rest.length + ' สิทธิ์)',
-            y: rest.reduce((sum, row) => sum + row.y, 0),
-            color: '#9aa9a2'
-        });
-    }
+    // รหัสสิทธิ์ย่อยมี 40+ รหัส จึงรวมเป็นกลุ่มสิทธิ์หลักตาม hipdata_code แล้วแสดงรายการย่อยใน tooltip
+    const groups = {};
+    data.forEach(row => {
+        const name = PAYER_GROUPS[row.hipdata_code] || 'อื่นๆ';
+        const n = parseInt(row.total_patient, 10) || 0;
+        const g = groups[name] || (groups[name] = { name, y: 0, subs: [] });
+        g.y += n;
+        g.subs.push({ name: row.pttype_name || 'ไม่ระบุสิทธิ์', n });
+    });
+    const points = Object.values(groups).sort((a, b) => b.y - a.y);
+    const total = points.reduce((s, p) => s + p.y, 0);
+    const pct = y => total ? (y * 100 / total).toFixed(1) : '0.0';
 
     Highcharts.chart('pttype-chart', {
 
@@ -316,32 +312,34 @@ async function loadPttypeChart(){
         xAxis: {
             type: 'category',
             labels: {
-                style: {
-                    fontSize: '17px'
-                }
+                style: BAR_LABEL_STYLE
             }
         },
 
         yAxis: {
             allowDecimals: false,
+            maxPadding: 0.25,   // เว้นที่ให้ป้าย "จำนวน (%)" อยู่นอกแท่ง
             title: {
-                text: 'จำนวนผู้รับบริการ (คน)'
+                text: 'จำนวนผู้รับบริการ (ราย)'
             }
         },
 
         tooltip: {
-            pointFormat:
-                '<b>{point.y} คน</b>'
+            formatter: function () {
+                const subs = this.point.subs.slice().sort((a, b) => b.n - a.n);
+                const lines = subs.slice(0, 6).map(s => `${s.name}: ${s.n}`);
+                if (subs.length > 6) lines.push(`และอีก ${subs.length - 6} รายการ`);
+                return `<b>${this.point.name}</b> ${this.point.y} ราย (${pct(this.point.y)}%)<br>` + lines.join('<br>');
+            }
         },
 
         plotOptions: {
             bar: {
                 borderRadius: 4,
                 dataLabels: {
-                    enabled: true,
-                    color: '#000',
-                    style: {
-                        fontSize: '16px'
+                    ...BAR_DATA_LABELS,
+                    formatter: function () {
+                        return `${this.y} (${pct(this.y)}%)`;
                     }
                 }
             }
@@ -364,8 +362,6 @@ async function loadPttypeChart(){
     });
 
 }
-loadPttypeChart();
-setInterval(loadPttypeChart, 60000);
 
 async function loadOpdTodaySummary() {
 
@@ -378,8 +374,6 @@ async function loadOpdTodaySummary() {
 
         const data =
             await response.json();
-
-        console.log(data);
 
         /*
         =========================
@@ -526,6 +520,8 @@ async function loadOpdTodaySummary() {
                 data.after_time || 0
             ).toLocaleString();
 
+        renderOpdExtras(data, isToday);
+
     } catch(error) {
 
         console.error(
@@ -537,12 +533,98 @@ async function loadOpdTodaySummary() {
 
 }
 
-loadOpdTodaySummary();
+const fmtN = n => Number(n || 0).toLocaleString();
 
-setInterval(
-    loadOpdTodaySummary,
-    60000
-);
+function setText(id, value) {
+    document.getElementById(id).textContent = value;
+}
+
+// A1–A3 + % นัด + กราฟแผนก/เวลานัด — ทุกค่ามาจาก opd_visit_today.php ของวันที่เลือก
+function renderOpdExtras(data, isToday) {
+
+    setText('opd_total_people', fmtN(data.total_people));
+    setText('new_patient', fmtN(data.new_patient));
+    setText('old_patient', fmtN(data.opd_total_today - data.new_patient));
+    setText('opd_admit', fmtN(data.admit));
+    setText('opd_refer', fmtN(data.refer));
+
+    const change = prev => {
+        if (!prev) return '';
+        const p = Math.round((data.opd_total_today - prev) * 100 / prev);
+        return p === 0 ? ' (เท่ากัน)' : ` (${p > 0 ? '▲' : '▼'}${Math.abs(p)}%)`;
+    };
+    const weekday = THAI_WEEKDAYS[new Date(getSelectedServiceDate() + 'T00:00:00').getDay()];
+    setText('opd-compare',
+        `เมื่อวาน ${fmtN(data.prev_day)}${change(data.prev_day)} · ` +
+        `วัน${weekday}ที่แล้ว ${fmtN(data.prev_week)}${change(data.prev_week)}` +
+        (isToday ? ' — นับถึงเวลาเดียวกัน' : ''));
+
+    // % คิดจากนัดที่ไม่ได้ยกเลิก (มา + ไม่มา)
+    const apptBase = data.oapp_success + data.miss_today;
+    const apptPct = n => apptBase ? Math.round(n * 100 / apptBase) + '%' : '–';
+    setText('oapp_success_pct', apptPct(data.oapp_success));
+    setText('miss_pct', apptPct(data.miss_today));
+
+    renderDeptChart(data.depts || []);
+    renderApptTimeChart(data.appt_times || []);
+}
+
+// A4: 10 แผนกที่ลงทะเบียนมากสุด ที่เหลือรวมเป็น "อื่นๆ"
+function renderDeptChart(depts) {
+
+    const TOP = 10;
+    const points = depts.slice(0, TOP).map(d => ({ name: d.name.replace(/^\d+\s*/, ''), y: d.total }));
+    const rest = depts.slice(TOP);
+    if (rest.length) {
+        points.push({ name: `แผนกอื่นๆ (${rest.length} แผนก)`, y: rest.reduce((s, d) => s + d.total, 0), color: '#9aa9a2' });
+    }
+
+    if (!points.length) {
+        document.getElementById('opd-dept-chart').innerHTML = '<p class="text-muted text-center py-5">ไม่มีผู้มารับบริการในวันที่เลือก</p>';
+        return;
+    }
+
+    Highcharts.chart('opd-dept-chart', {
+        chart: { type: 'bar', height: Math.max(260, points.length * 34 + 80), style: { fontFamily: 'THSarabun' } },
+        title: { text: null },
+        xAxis: { type: 'category', labels: { style: BAR_LABEL_STYLE } },
+        yAxis: { allowDecimals: false, maxPadding: 0.15, title: { text: 'จำนวน (ราย)' } },
+        tooltip: { pointFormat: '<b>{point.y} ราย</b>' },
+        plotOptions: { bar: { borderRadius: 4, dataLabels: { ...BAR_DATA_LABELS } } },
+        credits: { enabled: false },
+        legend: { enabled: false },
+        series: [{ name: 'ผู้มารับบริการ', color: '#198754', data: points }]
+    });
+}
+
+// A5: จำนวนนัดตามเวลานัด — เห็นว่านัดกระจุกเวลาเดียวกันแค่ไหน
+function renderApptTimeChart(times) {
+
+    const total = times.reduce((s, t) => s + t.total, 0);
+    const note = document.getElementById('appt-time-note');
+
+    if (!total) {
+        document.getElementById('opd-appt-time-chart').innerHTML = '<p class="text-muted text-center py-5">ไม่มีนัดในวันที่เลือก</p>';
+        note.textContent = '';
+        return;
+    }
+
+    const peak = times.reduce((a, b) => (b.total > a.total ? b : a));
+    note.textContent = `ช่วง ${peak.time} น. (30 นาที) มีนัดมากที่สุด ${fmtN(peak.total)} ราย ` +
+        `(${Math.round(peak.total * 100 / total)}% ของนัด ${fmtN(total)} ราย) · ไม่นับนัดที่ยกเลิก`;
+
+    Highcharts.chart('opd-appt-time-chart', {
+        chart: { type: 'column', height: 300, style: { fontFamily: 'THSarabun' } },
+        title: { text: null },
+        xAxis: { categories: times.map(t => t.time), labels: { style: { fontSize: '15px' } } },
+        yAxis: { allowDecimals: false, title: { text: 'จำนวนนัด (ราย)' } },
+        tooltip: { pointFormat: '<b>{point.y} ราย</b>' },
+        plotOptions: { column: { borderRadius: 4, dataLabels: { enabled: true, color: '#000', style: { fontSize: '15px' } } } },
+        credits: { enabled: false },
+        legend: { enabled: false },
+        series: [{ name: 'นัดหมาย', color: '#198754', data: times.map(t => t.total) }]
+    });
+}
 
 function initOpdServiceDateFilter() {
     const input = document.getElementById('opd-service-date');
@@ -569,13 +651,21 @@ function initOpdServiceDateFilter() {
                 formatThaiDate(selected);
         }
 
-        document.getElementById('pttype-date-title').textContent =
-            'ผู้ใช้บริการ OPD แยกตามสิทธิ์ ' +
-            (selected === todayString ? 'วันนี้' : 'วันที่ ' + formatThaiDate(selected));
+        const dayText = selected === todayString ? 'วันนี้' : 'วันที่ ' + formatThaiDate(selected);
+        setText('opd-day-title', 'ข้อมูลผู้มารับบริการ' + dayText);
+        setText('appt-section-title', 'นัดหมาย' + dayText);
 
         loadOpdTodaySummary();
         loadPttypeChart();
     }
+
+    // รีเฟรชอัตโนมัติเฉพาะเมื่อดูวันนี้ — วันย้อนหลังตัวเลขไม่เปลี่ยนแล้ว
+    setInterval(() => {
+        if ((input.value || todayString) === getTodayServiceDate()) {
+            loadOpdTodaySummary();
+            loadPttypeChart();
+        }
+    }, 60000);
 
     input.addEventListener('change', refreshDateSummary);
 

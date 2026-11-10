@@ -142,6 +142,49 @@
     color: #198754;
 }
 
+/* การ์ดคู่เล็ก: ผู้ป่วยใหม่/เก่า และ Admit/Refer (สีข้อความเข้มพอ contrast ≥ 4.5:1 บนพื้นจาง) */
+.opd-summary-horizontal .opd-mini-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+    margin-top: 7px;
+}
+
+/* คอลัมน์แคบ: ชื่อบนบรรทัดแรก ตัวเลขบรรทัดสอง ไม่ให้ชื่อถูกตัดกลางคำ */
+.opd-summary-horizontal .opd-mini-pair .exam-horizontal-card {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    min-height: 46px;
+    padding: 6px 10px;
+}
+
+.opd-summary-horizontal .opd-mini-pair .summary-title {
+    flex: none;
+    font-size: 1.05rem;
+    white-space: nowrap;
+}
+
+.opd-summary-horizontal .opd-mini-pair .summary-number {
+    margin-left: 0;
+    font-size: 1.3rem;
+}
+
+.opd-summary-horizontal .exam-horizontal-card.newpt-card { background: #eef4ff; border-left-color: #0d6efd; color: #0a58ca; }
+.opd-summary-horizontal .exam-horizontal-card.oldpt-card { background: #f3f5f7; border-left-color: #6c757d; color: #495057; }
+.opd-summary-horizontal .exam-horizontal-card.admit-card { background: #fff4e6; border-left-color: #fd7e14; color: #a14a00; }
+.opd-summary-horizontal .exam-horizontal-card.refer-card { background: #fdeeee; border-left-color: #dc3545; color: #b02a37; }
+
+.opd-summary-horizontal .opd-summary-compare {
+    margin-top: 2px;
+    font-size: 1.05rem;
+    color: #4b5f58;
+}
+
+.opd-section-heading {
+    font-weight: bold;
+}
+
 /* =========================================================
    SPECIAL CLINIC
    ให้ 2 ส่วนหลักมีความกว้างและความสูงสมดุลกัน
