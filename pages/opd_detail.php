@@ -255,7 +255,7 @@ include '../templates/sidebar.php';
 
                                 <div class="row">
                                     <div class="col-xl-6 mb-3">
-                                        <section class="opd-panel">
+                                        <section class="opd-panel opd-panel--green">
                                             <header class="opd-panel-head">
                                                 <span class="opd-panel-icon"><i class="fa-solid fa-hospital"></i></span>
                                                 <div>
@@ -267,7 +267,7 @@ include '../templates/sidebar.php';
                                         </section>
                                     </div>
                                     <div class="col-xl-6 mb-3">
-                                        <section class="opd-panel">
+                                        <section class="opd-panel opd-panel--blue">
                                             <header class="opd-panel-head">
                                                 <span class="opd-panel-icon"><i class="fa-solid fa-id-card"></i></span>
                                                 <div>
@@ -282,7 +282,7 @@ include '../templates/sidebar.php';
 
                                 <div class="row">
                                     <div class="col-xl-8 mb-3 mb-xl-0">
-                                        <section class="opd-panel">
+                                        <section class="opd-panel opd-panel--violet">
                                             <header class="opd-panel-head">
                                                 <span class="opd-panel-icon"><i class="fa-solid fa-clock"></i></span>
                                                 <div>
@@ -294,15 +294,15 @@ include '../templates/sidebar.php';
                                         </section>
                                     </div>
                                     <div class="col-xl-4">
-                                        <section class="opd-panel">
+                                        <section class="opd-panel opd-panel--amber">
                                             <header class="opd-panel-head">
                                                 <span class="opd-panel-icon"><i class="fa-solid fa-earth-asia"></i></span>
                                                 <div>
-                                                    <h3 class="opd-panel-title">เชื้อชาติผู้มารับบริการ</h3>
-                                                    <p class="opd-panel-sub" id="race-note">—</p>
+                                                    <h3 class="opd-panel-title">สัญชาติ</h3>
+                                                    <p class="opd-panel-sub" id="nation-note">—</p>
                                                 </div>
                                             </header>
-                                            <div id="opd-race-chart"></div>
+                                            <div id="opd-nation-chart"></div>
                                         </section>
                                     </div>
                                 </div>

@@ -207,27 +207,27 @@ try {
 
     /*
     ==========================
-    เชื้อชาติ (patient.citizenship → ตาราง nationality) — visit ชุด OPD, นับครั้ง + คน
+    สัญชาติ (patient.nationality → ตาราง nationality) — visit ชุด OPD, นับครั้ง + คน
     ไม่มีรหัสหรือรหัสไม่อยู่ในตาราง = "ไม่ระบุ"
     ==========================
     */
 
-    $sql_races = "SELECT
+    $sql_nations = "SELECT
             COALESCE(n.name, 'ไม่ระบุ') AS name,
             COUNT(*)                    AS total,
             COUNT(DISTINCT o.hn)        AS people
         FROM ovst o
         LEFT JOIN patient p     ON p.hn = o.hn
-        LEFT JOIN nationality n ON n.nationality = p.citizenship
+        LEFT JOIN nationality n ON n.nationality = p.nationality
         WHERE o.vstdate = :targetDate
           AND o.main_dep IN (" . opd_main_dep_sql() . ")
         GROUP BY 1
         ORDER BY 2 DESC
     ";
 
-    $stmt = $conn->prepare($sql_races);
+    $stmt = $conn->prepare($sql_nations);
     $stmt->execute([':targetDate' => $targetDate]);
-    $races = array_map(
+    $nations = array_map(
         fn($r) => ['name' => $r['name'], 'total' => (int)$r['total'], 'people' => (int)$r['people']],
         $stmt->fetchAll(PDO::FETCH_ASSOC)
     );
@@ -288,7 +288,7 @@ try {
         'refer'             => (int)$extra['refer'],
         'prev_day'          => (int)$compare['prev_day'],
         'depts'             => $depts,
-        'races'             => $races,
+        'nations'           => $nations,
         'appt_times'        => $appt_times,
     ], JSON_UNESCAPED_UNICODE);
 

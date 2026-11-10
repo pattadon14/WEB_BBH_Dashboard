@@ -26,6 +26,11 @@ const PAYER_GROUPS = {
     PVT: 'ชำระเงินเอง / อื่นๆ'
 };
 
+// สีประจำกลุ่ม (ผ่านการตรวจแยกสีสำหรับคนตาบอดสีแล้ว) — สีผูกกับชื่อ ไม่เปลี่ยนตามอันดับ
+const CAT_COLORS = ['#16a34a', '#7c3aed', '#d97706', '#2563eb', '#dc2626', '#0891b2', '#db2777'];
+const OTHER_COLOR = '#9aa9a2';
+const NATION_COLORS = { 'ไทย': CAT_COLORS[0], 'พม่า': CAT_COLORS[1], 'กัมพูชา': CAT_COLORS[2], 'ลาว': CAT_COLORS[3], 'จีน': CAT_COLORS[4] };
+
 // กราฟแท่งแนวนอน: ชื่อยาวขึ้นบรรทัดใหม่แทนการตัด "..." และตัวเลขอยู่นอกแท่งเสมอ (ในแท่งสีเข้มอ่านไม่ออก)
 const BAR_LABEL_STYLE = { fontSize: '18px', width: '180px', textOverflow: 'none' };
 const BAR_DATA_LABELS = { enabled: true, inside: false, crop: false, overflow: 'allow', color: '#000', style: { fontSize: '18px', textOutline: 'none' } };
@@ -326,7 +331,12 @@ async function loadPttypeChart(){
         g.y += n;
         g.subs.push({ name: row.pttype_name || 'ไม่ระบุสิทธิ์', n });
     });
-    const points = Object.values(groups).sort((a, b) => b.y - a.y);
+    // สีประจำกลุ่มสิทธิ์ตามลำดับใน PAYER_GROUPS (ไม่เปลี่ยนตามอันดับ) "ชำระเงินเอง / อื่นๆ" เป็นสีเทา
+    const payerNames = [...new Set(Object.values(PAYER_GROUPS))];
+    const points = Object.values(groups).sort((a, b) => b.y - a.y).map(g => {
+        const i = payerNames.indexOf(g.name);
+        return { ...g, color: i >= 0 && i < CAT_COLORS.length ? CAT_COLORS[i] : OTHER_COLOR };
+    });
     const total = points.reduce((s, p) => s + p.y, 0);
     const pct = y => total ? (y * 100 / total).toFixed(1) : '0.0';
 
@@ -371,6 +381,7 @@ async function loadPttypeChart(){
         plotOptions: {
             bar: {
                 borderRadius: 4,
+                minPointLength: 6,
                 dataLabels: {
                     ...BAR_DATA_LABELS,
                     formatter: function () {
@@ -390,7 +401,6 @@ async function loadPttypeChart(){
 
         series: [{
             name: 'จำนวนผู้ป่วย',
-            color: '#198754',
             data: points
         }]
 
@@ -603,39 +613,43 @@ function renderOpdExtras(data, isToday) {
 
     renderDeptChart(data.depts || []);
     renderApptTimeChart(data.appt_times || []);
-    renderRaceChart(data.races || []);
+    renderNationChart(data.nations || []);
 }
 
-// เชื้อชาติ (patient.citizenship) — 6 อันดับแรก ที่เหลือรวมเป็น "อื่นๆ"
-function renderRaceChart(races) {
+// สัญชาติ (patient.nationality) — 6 อันดับแรก ที่เหลือรวมเป็น "อื่นๆ"
+function renderNationChart(nations) {
 
-    const total = races.reduce((s, r) => s + r.total, 0);
-    const thai = races.filter(r => r.name === 'ไทย').reduce((s, r) => s + r.total, 0);
+    const total = nations.reduce((s, r) => s + r.total, 0);
+    const thai = nations.filter(r => r.name === 'ไทย').reduce((s, r) => s + r.total, 0);
     const pct = n => total ? (n * 100 / total).toFixed(1) : '0';
-    setText('race-note', total
+    setText('nation-note', total
         ? `ไทย ${pct(thai)}% · ไม่ใช่ไทย ${fmtN(total - thai)} ครั้ง (${pct(total - thai)}%)`
         : '—');
 
     // ถ้าเกินมาแค่ 1 กลุ่ม แสดงชื่อจริงไปเลย ไม่ต้องรวมเป็น "อื่นๆ"
-    const TOP = races.length <= 7 ? 7 : 6;
-    const points = races.slice(0, TOP).map(r => ({ name: r.name, y: r.total, people: r.people }));
-    const rest = races.slice(TOP);
+    const TOP = nations.length <= 7 ? 7 : 6;
+    let spare = 5;   // สัญชาติที่ไม่มีสีประจำ ใช้สีลำดับที่ 6–7 ที่เหลือ เกินจากนั้นเป็นสีเทา
+    const points = nations.slice(0, TOP).map(r => ({
+        name: r.name, y: r.total, people: r.people,
+        color: NATION_COLORS[r.name] || (r.name === 'ไม่ระบุ' ? OTHER_COLOR : CAT_COLORS[spare++] || OTHER_COLOR)
+    }));
+    const rest = nations.slice(TOP);
     if (rest.length) {
         points.push({
-            name: `อื่นๆ (${rest.length} กลุ่ม)`,
+            name: `อื่นๆ (${rest.length} สัญชาติ)`,
             y: rest.reduce((s, r) => s + r.total, 0),
             people: rest.reduce((s, r) => s + r.people, 0),
             detail: rest.map(r => `${r.name} ${fmtN(r.total)}`).join('<br>'),
-            color: '#9aa9a2'
+            color: OTHER_COLOR
         });
     }
 
     if (!points.length) {
-        document.getElementById('opd-race-chart').innerHTML = '<p class="text-muted text-center py-5">ไม่มีผู้มารับบริการในวันที่เลือก</p>';
+        document.getElementById('opd-nation-chart').innerHTML = '<p class="text-muted text-center py-5">ไม่มีผู้มารับบริการในวันที่เลือก</p>';
         return;
     }
 
-    Highcharts.chart('opd-race-chart', {
+    Highcharts.chart('opd-nation-chart', {
         chart: { type: 'bar', height: Math.max(260, points.length * 40 + 80), style: { fontFamily: 'THSarabun' } },
         title: { text: null },
         xAxis: { type: 'category', labels: { style: BAR_LABEL_STYLE } },
@@ -648,12 +662,13 @@ function renderRaceChart(races) {
         plotOptions: {
             bar: {
                 borderRadius: 4,
+                minPointLength: 6,   // แท่งที่มีแค่ 1–2 ครั้งยังเห็นสีประจำสัญชาติ
                 dataLabels: { ...BAR_DATA_LABELS, formatter() { return `${fmtN(this.y)} (${pct(this.y)}%)`; } }
             }
         },
         credits: { enabled: false },
         legend: { enabled: false },
-        series: [{ name: 'เชื้อชาติ', color: '#0f766e', data: points }]
+        series: [{ name: 'สัญชาติ', data: points }]
     });
 }
 
@@ -716,7 +731,7 @@ function renderApptTimeChart(times) {
         },
         credits: { enabled: false },
         legend: { enabled: false },
-        series: [{ name: 'นัดหมาย', color: '#198754', data: times.map(t => t.total) }]
+        series: [{ name: 'นัดหมาย', color: '#7c3aed', data: times.map(t => t.total) }]
     });
 }
 
