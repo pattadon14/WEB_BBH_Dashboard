@@ -389,6 +389,12 @@
     gap: 6px;
 }
 #opd-tab-general .opd-summary-horizontal .time-count { justify-content: flex-end; }
+/* ยอดนัดรวมอยู่กลางกล่องทั้งแนวตั้ง/แนวนอน (baseline อย่างเดียวจะดันขึ้นชิดขอบบน) */
+#opd-tab-general .opd-summary-horizontal .appointment-total {
+    flex-wrap: wrap;
+    align-content: center;
+    justify-content: center;
+}
 #opd-tab-general .opd-summary-horizontal :is(.opd-summary-main-number, .appointment-total, .time-count, .summary-number) :is(small, .summary-unit) { margin-left: 0; }
 /* ตัวเลข/การ์ดที่คลิกดูรายชื่อได้ */
 #opd-tab-general [data-drill] { cursor: pointer; transition: box-shadow .15s ease, transform .15s ease; }
