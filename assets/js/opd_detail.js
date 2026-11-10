@@ -29,6 +29,11 @@ const PAYER_GROUPS = {
 // สีประจำกลุ่ม (ผ่านการตรวจแยกสีสำหรับคนตาบอดสีแล้ว) — สีผูกกับชื่อ ไม่เปลี่ยนตามอันดับ
 const CAT_COLORS = ['#16a34a', '#7c3aed', '#d97706', '#2563eb', '#dc2626', '#0891b2', '#db2777'];
 const OTHER_COLOR = '#9aa9a2';
+// แท่งกราฟที่มี point.drill = [type, key] คลิกแล้วเปิดรายชื่อ (แท่ง "อื่นๆ" ที่รวมหลายกลุ่มไม่มี drill)
+const DRILL_BAR = {
+    cursor: 'pointer',
+    point: { events: { click() { if (this.options.drill) openDrill(this.options.drill[0], this.options.drill[1], this.name); } } }
+};
 const NATION_COLORS = { 'ไทย': CAT_COLORS[0], 'พม่า': CAT_COLORS[1], 'กัมพูชา': CAT_COLORS[2], 'ลาว': CAT_COLORS[3], 'จีน': CAT_COLORS[4] };
 
 // กราฟแท่งแนวนอน: ชื่อยาวขึ้นบรรทัดใหม่แทนการตัด "..." และตัวเลขอยู่นอกแท่งเสมอ (ในแท่งสีเข้มอ่านไม่ออก)
@@ -335,7 +340,10 @@ async function loadPttypeChart(){
     const payerNames = [...new Set(Object.values(PAYER_GROUPS))];
     const points = Object.values(groups).sort((a, b) => b.y - a.y).map(g => {
         const i = payerNames.indexOf(g.name);
-        return { ...g, color: i >= 0 && i < CAT_COLORS.length ? CAT_COLORS[i] : OTHER_COLOR };
+        // คลิกแท่งเพื่อดูรายชื่อ: ส่งรหัส hipdata ทุกตัวของกลุ่ม ("อื่นๆ" ที่ไม่มีรหัสในตาราง คลิกไม่ได้)
+        const codes = Object.keys(PAYER_GROUPS).filter(c => PAYER_GROUPS[c] === g.name);
+        return { ...g, color: i >= 0 && i < CAT_COLORS.length ? CAT_COLORS[i] : OTHER_COLOR,
+                 drill: codes.length ? ['payer', codes.join(',')] : null };
     });
     const total = points.reduce((s, p) => s + p.y, 0);
     const pct = y => total ? (y * 100 / total).toFixed(1) : '0.0';
@@ -382,6 +390,7 @@ async function loadPttypeChart(){
             bar: {
                 borderRadius: 4,
                 minPointLength: 6,
+                ...DRILL_BAR,
                 dataLabels: {
                     ...BAR_DATA_LABELS,
                     formatter: function () {
@@ -630,7 +639,7 @@ function renderNationChart(nations) {
     const TOP = nations.length <= 7 ? 7 : 6;
     let spare = 5;   // สัญชาติที่ไม่มีสีประจำ ใช้สีลำดับที่ 6–7 ที่เหลือ เกินจากนั้นเป็นสีเทา
     const points = nations.slice(0, TOP).map(r => ({
-        name: r.name, y: r.total, people: r.people,
+        name: r.name, y: r.total, people: r.people, drill: ['nation', r.name],
         color: NATION_COLORS[r.name] || (r.name === 'ไม่ระบุ' ? OTHER_COLOR : CAT_COLORS[spare++] || OTHER_COLOR)
     }));
     const rest = nations.slice(TOP);
@@ -663,6 +672,7 @@ function renderNationChart(nations) {
             bar: {
                 borderRadius: 4,
                 minPointLength: 6,   // แท่งที่มีแค่ 1–2 ครั้งยังเห็นสีประจำสัญชาติ
+                ...DRILL_BAR,
                 dataLabels: { ...BAR_DATA_LABELS, formatter() { return `${fmtN(this.y)} (${pct(this.y)}%)`; } }
             }
         },
@@ -676,7 +686,7 @@ function renderNationChart(nations) {
 function renderDeptChart(depts) {
 
     const TOP = 10;
-    const points = depts.slice(0, TOP).map(d => ({ name: d.name.replace(/^\d+\s*/, ''), y: d.total }));
+    const points = depts.slice(0, TOP).map(d => ({ name: d.name.replace(/^\d+\s*/, ''), y: d.total, drill: ['dept', d.name] }));
     const rest = depts.slice(TOP);
     if (rest.length) {
         points.push({ name: `แผนกอื่นๆ (${rest.length} แผนก)`, y: rest.reduce((s, d) => s + d.total, 0), color: '#9aa9a2' });
@@ -693,7 +703,7 @@ function renderDeptChart(depts) {
         xAxis: { type: 'category', labels: { style: BAR_LABEL_STYLE } },
         yAxis: { allowDecimals: false, maxPadding: 0.2, title: { text: 'จำนวน (ครั้ง)' } },
         tooltip: { pointFormat: '<b>{point.y} ครั้ง</b>' },
-        plotOptions: { bar: { borderRadius: 4, dataLabels: { ...BAR_DATA_LABELS } } },
+        plotOptions: { bar: { borderRadius: 4, ...DRILL_BAR, dataLabels: { ...BAR_DATA_LABELS } } },
         credits: { enabled: false },
         legend: { enabled: false },
         series: [{ name: 'ผู้มารับบริการ', color: '#198754', data: points }]
@@ -1083,3 +1093,161 @@ function diagCell(th, en) {
     const sub = th && en && th !== en ? `<div class="diag-en">${en}</div>` : '';
     return `<div>${th || en || '—'}</div>${sub}`;
 }
+
+/*
+============================================================
+รายชื่อผู้ป่วยเมื่อคลิกตัวเลข / แท่งกราฟ (แท็บตรวจโรคทั่วไป)
+ข้อมูลจาก api/opd_visit_list.php (ต้อง login) · เงื่อนไขเดียวกับตัวเลขบนการ์ด
+============================================================
+*/
+
+const DRILL_TITLES = {
+    all: 'ผู้มารับบริการทั้งหมด', new: 'ผู้ป่วยใหม่', old: 'ผู้ป่วยเก่า', walkin: 'Walk-in',
+    appt: 'นัดหมายทั้งหมด', appt_came: 'มาตามนัด', appt_miss: 'ยังไม่มา / ไม่มาตามนัด',
+    night: 'ก่อนเวลาราชการ (20:01–07:59 น.)', morning: 'ในเวลาราชการ (08:00–15:59 น.)', evening: 'นอกเวลาราชการ (16:00–20:00 น.)',
+    wait_triage: 'รอซักประวัติ', wait_exam: 'รอตรวจ', finish: 'ตรวจเสร็จแล้ว', admit: 'Admit', refer: 'Refer ส่งต่อ',
+    dept: 'แผนก', payer: 'สิทธิ์', nation: 'สัญชาติ'
+};
+
+const VISIT_COLS = [
+    ['hn', 'HN'], ['name', 'ชื่อ-สกุล'], ['vsttime', 'เวลามา'], ['main_dep', 'แผนกที่ลงทะเบียน'], ['cur_dep', 'อยู่ที่'],
+    ['pttype', 'สิทธิ์'], ['nation', 'สัญชาติ'], ['screen_at', 'ซักประวัติ'], ['wait_screen', 'รอซักประวัติ (นาที)'],
+    ['doctor_at', 'พบแพทย์'], ['wait_doctor', 'รอแพทย์ (นาที)']
+];
+const APPT_COLS = [
+    ['hn', 'HN'], ['name', 'ชื่อ-สกุล'], ['appt_time', 'เวลานัด'], ['clinic', 'คลินิก'], ['status', 'สถานะ'],
+    ['vsttime', 'เวลามา'], ['pttype', 'สิทธิ์'], ['nation', 'สัญชาติ']
+];
+
+const escHtml = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+let drillState = { rows: [], cols: [], file: '' };
+
+async function openDrill(type, key, label) {
+
+    const dlg = document.getElementById('opd-drill');
+    if (!dlg) return;
+
+    const date = getSelectedServiceDate();
+    const isToday = date === getTodayServiceDate();
+    // วันที่ผ่านมาแล้วการ์ดรอซักประวัติ/รอตรวจแสดง "—" จึงไม่เปิดรายชื่อ
+    if (!isToday && (type === 'wait_triage' || type === 'wait_exam')) return;
+
+    const title = key ? `${DRILL_TITLES[type]}: ${label || key}` : DRILL_TITLES[type];
+    setText('opd-drill-title', title);
+    setText('opd-drill-sub', 'วันที่ ' + formatThaiDate(date));
+    setText('opd-drill-count', '');
+    document.getElementById('opd-drill-q').value = '';
+    document.getElementById('opd-drill-export').disabled = true;
+    document.getElementById('opd-drill-body').innerHTML =
+        '<p class="opd-drill-msg"><i class="fa-solid fa-spinner fa-spin"></i> กำลังโหลดรายชื่อ...</p>';
+    if (!dlg.open) dlg.showModal();
+
+    try {
+        const qs = new URLSearchParams({ date, type });
+        if (key) qs.set('key', key);
+        const res = await fetch('../api/opd_visit_list.php?' + qs);
+        const data = await res.json();
+        if (!res.ok || data.error) throw new Error(data.error || 'โหลดรายชื่อไม่สำเร็จ');
+
+        const cols = data.kind === 'appt' ? APPT_COLS : VISIT_COLS;
+        drillState = { rows: data.rows, cols, file: `OPD_${type}_${date}.csv` };
+
+        const people = new Set(data.rows.map(r => r.hn)).size;
+        const unit = data.kind === 'appt' ? 'ราย' : 'ครั้ง';
+        setText('opd-drill-sub', `วันที่ ${formatThaiDate(date)} · ${fmtN(data.rows.length)} ${unit} (${fmtN(people)} คน)`);
+        document.getElementById('opd-drill-export').disabled = !data.rows.length;
+        renderDrillTable();
+
+    } catch (e) {
+        document.getElementById('opd-drill-body').innerHTML =
+            `<p class="opd-drill-msg opd-drill-error"><i class="fa-solid fa-lock"></i> ${escHtml(e.message)}</p>`;
+    }
+}
+
+function drillCell(r, k) {
+    const v = r[k];
+    if (k === 'name' && r.is_new) return `${escHtml(v)} <span class="opd-drill-tag">ใหม่</span>`;
+    if (k === 'status') {
+        const cls = v === 'มาตามนัด' ? 'came' : v === 'ยกเลิกนัด' ? 'cancel' : 'miss';
+        return `<span class="opd-drill-status ${cls}">${escHtml(v)}</span>`;
+    }
+    return v === null || v === '' ? '<span class="text-muted">–</span>' : escHtml(v);
+}
+
+function drillMatches(r, q) {
+    return !q || drillState.cols.some(([k]) => String(r[k] ?? '').toLowerCase().includes(q));
+}
+
+function renderDrillTable() {
+
+    const q = document.getElementById('opd-drill-q').value.trim().toLowerCase();
+    const rows = drillState.rows.filter(r => drillMatches(r, q));
+    const { cols } = drillState;
+
+    setText('opd-drill-count', q ? `พบ ${fmtN(rows.length)} จาก ${fmtN(drillState.rows.length)} รายการ` : '');
+
+    if (!rows.length) {
+        document.getElementById('opd-drill-body').innerHTML =
+            `<p class="opd-drill-msg">${drillState.rows.length ? 'ไม่พบรายการที่ค้นหา' : 'ไม่มีรายการในวันที่เลือก'}</p>`;
+        return;
+    }
+
+    const num = k => k.startsWith('wait_') ? ' class="num"' : '';
+    document.getElementById('opd-drill-body').innerHTML = `
+        <table class="opd-drill-table">
+            <thead><tr><th class="num">#</th>${cols.map(([k, t]) => `<th${num(k)}>${t}</th>`).join('')}</tr></thead>
+            <tbody>${rows.map((r, i) =>
+                `<tr><td class="num">${i + 1}</td>${cols.map(([k]) => `<td${num(k)}>${drillCell(r, k)}</td>`).join('')}</tr>`
+            ).join('')}</tbody>
+        </table>`;
+}
+
+function exportDrillCsv() {
+    const q = document.getElementById('opd-drill-q').value.trim().toLowerCase();
+    const rows = drillState.rows.filter(r => drillMatches(r, q));
+    const cell = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+    const lines = [drillState.cols.map(([, t]) => cell(t)).join(',')]
+        .concat(rows.map(r => drillState.cols.map(([k]) => cell(r[k])).join(',')));
+    const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = drillState.file;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+}
+
+(function initDrill() {
+
+    const tab = document.getElementById('opd-tab-general');
+    const dlg = document.getElementById('opd-drill');
+    if (!tab || !dlg) return;
+
+    // ตัวเลข/การ์ดที่คลิกได้ ทำเป็นปุ่มสำหรับคีย์บอร์ดด้วย
+    tab.querySelectorAll('[data-drill]').forEach(el => {
+        el.setAttribute('role', 'button');
+        el.setAttribute('tabindex', '0');
+        el.setAttribute('title', 'คลิกเพื่อดูรายชื่อ');
+    });
+
+    const trigger = e => {
+        const el = e.target.closest('[data-drill]');
+        if (!el || !tab.contains(el)) return;
+        if (e.type === 'keydown') {
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            e.preventDefault();
+        }
+        openDrill(el.dataset.drill);
+    };
+    tab.addEventListener('click', trigger);
+    tab.addEventListener('keydown', trigger);
+
+    document.getElementById('opd-drill-close').addEventListener('click', () => dlg.close());
+    // คลิกพื้นหลังนอกกล่องเพื่อปิด
+    dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+    document.getElementById('opd-drill-q').addEventListener('input', renderDrillTable);
+    document.getElementById('opd-drill-export').addEventListener('click', exportDrillCsv);
+})();

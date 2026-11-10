@@ -73,13 +73,13 @@ include '../templates/sidebar.php';
                                     </div>
 
                                 <div class="opd-summary-main-total">
-                                    <div class="opd-summary-main-number">
+                                    <div class="opd-summary-main-number" data-drill="all">
                                         <span id="opd_total_today">—</span>
                                         <small>ครั้ง</small>
                                     </div>
                                     <div class="opd-summary-newold">
-                                        <span class="newpt">ผู้ป่วยใหม่ <strong id="new_patient">—</strong> คน</span>
-                                        <span class="oldpt">ผู้ป่วยเก่า <strong id="old_patient">—</strong> คน</span>
+                                        <span class="newpt" data-drill="new">ผู้ป่วยใหม่ <strong id="new_patient">—</strong> คน</span>
+                                        <span class="oldpt" data-drill="old">ผู้ป่วยเก่า <strong id="old_patient">—</strong> คน</span>
                                     </div>
                                 </div>
                                 </div>
@@ -92,7 +92,7 @@ include '../templates/sidebar.php';
                                             ประเภทการมารับบริการ
                                         </div>
 
-                                        <div class="horizontal-summary-item walkin-card">
+                                        <div class="horizontal-summary-item walkin-card" data-drill="walkin">
                                             <span class="opd-ico"><i class="fa-solid fa-person-walking"></i></span>
                                             <div>
                                                 <div class="summary-title">Walk-in</div>
@@ -114,13 +114,13 @@ include '../templates/sidebar.php';
                                         </div>
 
                                         <div class="appointment-horizontal-card">
-                                            <div class="appointment-total">
+                                            <div class="appointment-total" data-drill="appt">
                                                 <span id="appoint_today">—</span>
                                                 <small>ราย</small>
                                             </div>
 
                                             <div class="appointment-status">
-                                                <div class="appointment-status-item came">
+                                                <div class="appointment-status-item came" data-drill="appt_came">
                                                     <div>
                                                         <i class="fa-solid fa-square-check"></i>
                                                         มาตามนัด
@@ -129,7 +129,7 @@ include '../templates/sidebar.php';
                                                     <small>ราย · <span id="oapp_success_pct">–</span></small>
                                                 </div>
 
-                                                <div class="appointment-status-item miss">
+                                                <div class="appointment-status-item miss" data-drill="appt_miss">
                                                     <div>
                                                         <i class="fa-solid fa-square-xmark"></i>
                                                         <span id="miss_label">ไม่มาตามนัด</span>
@@ -148,7 +148,7 @@ include '../templates/sidebar.php';
                                         </div>
 
                                         <div class="time-horizontal-group">
-                                            <div class="time-horizontal-card time-night">
+                                            <div class="time-horizontal-card time-night" data-drill="night">
                                                 <div class="time-icon"><i class="fa-solid fa-moon"></i></div>
                                                 <div class="time-info">
                                                     <div class="time-label">ก่อนเวลาราชการ</div>
@@ -159,7 +159,7 @@ include '../templates/sidebar.php';
                                                 </div>
                                             </div>
 
-                                            <div class="time-horizontal-card time-morning">
+                                            <div class="time-horizontal-card time-morning" data-drill="morning">
                                                 <div class="time-icon"><i class="fa-solid fa-sun"></i></div>
                                                 <div class="time-info">
                                                     <div class="time-label">ในเวลาราชการ</div>
@@ -170,7 +170,7 @@ include '../templates/sidebar.php';
                                                 </div>
                                             </div>
 
-                                            <div class="time-horizontal-card time-evening">
+                                            <div class="time-horizontal-card time-evening" data-drill="evening">
                                                 <div class="time-icon"><i class="fa-solid fa-cloud-sun"></i></div>
                                                 <div class="time-info">
                                                     <div class="time-label">นอกเวลาราชการ</div>
@@ -190,7 +190,7 @@ include '../templates/sidebar.php';
                                         </div>
 
                                         <div class="exam-horizontal-group">
-                                            <div class="exam-horizontal-card wait-card">
+                                            <div class="exam-horizontal-card wait-card" data-drill="wait_triage">
                                                 <div class="summary-title">
                                                     <span class="opd-ico"><i class="fa-solid fa-user-nurse"></i></span>
                                                     รอซักประวัติ
@@ -201,7 +201,7 @@ include '../templates/sidebar.php';
                                                 </div>
                                             </div>
 
-                                            <div class="exam-horizontal-card exam-card">
+                                            <div class="exam-horizontal-card exam-card" data-drill="wait_exam">
                                                 <div class="summary-title">
                                                     <span class="opd-ico"><i class="fa-solid fa-stethoscope"></i></span>
                                                     รอตรวจ
@@ -212,7 +212,7 @@ include '../templates/sidebar.php';
                                                 </div>
                                             </div>
 
-                                            <div class="exam-horizontal-card finish-card">
+                                            <div class="exam-horizontal-card finish-card" data-drill="finish">
                                                 <div class="summary-title">
                                                     <span class="opd-ico"><i class="fa-solid fa-circle-check"></i></span>
                                                     ตรวจเสร็จแล้ว
@@ -225,11 +225,11 @@ include '../templates/sidebar.php';
                                         </div>
 
                                         <div class="opd-mini-pair">
-                                            <div class="exam-horizontal-card admit-card">
+                                            <div class="exam-horizontal-card admit-card" data-drill="admit">
                                                 <div class="summary-title"><i class="fa-solid fa-bed-pulse"></i> Admit</div>
                                                 <div class="summary-number"><span id="opd_admit">—</span> <span class="summary-unit">ครั้ง</span></div>
                                             </div>
-                                            <div class="exam-horizontal-card refer-card">
+                                            <div class="exam-horizontal-card refer-card" data-drill="refer">
                                                 <div class="summary-title"><i class="fa-solid fa-truck-medical"></i> Refer ส่งต่อ</div>
                                                 <div class="summary-number"><span id="opd_refer">—</span> <span class="summary-unit">ครั้ง</span></div>
                                             </div>
@@ -394,6 +394,26 @@ include '../templates/sidebar.php';
                 </div>
 
             </div>
+
+            <!-- รายชื่อผู้ป่วยเมื่อคลิกตัวเลข (ข้อมูลจาก api/opd_visit_list.php ต้อง login) -->
+            <dialog class="opd-drill" id="opd-drill" aria-labelledby="opd-drill-title">
+                <header class="opd-drill-head">
+                    <div>
+                        <h3 id="opd-drill-title">รายชื่อผู้ป่วย</h3>
+                        <p id="opd-drill-sub"></p>
+                    </div>
+                    <button type="button" class="opd-drill-close" id="opd-drill-close" aria-label="ปิด"><i class="fa-solid fa-xmark"></i></button>
+                </header>
+                <div class="opd-drill-tools">
+                    <label class="opd-drill-search">
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                        <input type="search" id="opd-drill-q" placeholder="ค้นหา HN / ชื่อ / แผนก / สิทธิ์" aria-label="ค้นหาในรายชื่อ">
+                    </label>
+                    <span class="opd-drill-count" id="opd-drill-count" aria-live="polite"></span>
+                    <button type="button" class="opd-drill-export" id="opd-drill-export"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
+                </div>
+                <div class="opd-drill-body" id="opd-drill-body"></div>
+            </dialog>
 
             <!-- =====================================================
                  TAB 2 : คลินิคพิเศษ

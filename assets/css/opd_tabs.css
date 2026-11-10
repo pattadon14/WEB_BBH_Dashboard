@@ -382,6 +382,123 @@
 #opd-tab-general .opd-summary-horizontal .exam-horizontal-card.finish-card .summary-title,
 #opd-tab-general .opd-summary-horizontal .exam-horizontal-card.finish-card .summary-number { color: #146c43; }
 
+/* ตัวเลข/การ์ดที่คลิกดูรายชื่อได้ */
+#opd-tab-general [data-drill] { cursor: pointer; transition: box-shadow .15s ease, transform .15s ease; }
+#opd-tab-general [data-drill]:hover { box-shadow: 0 3px 10px rgba(16, 60, 40, .16); transform: translateY(-1px); }
+#opd-tab-general [data-drill]:focus-visible { outline: 3px solid #198754; outline-offset: 2px; }
+#opd-tab-general .opd-summary-main-number[data-drill],
+#opd-tab-general .appointment-total[data-drill],
+#opd-tab-general .opd-summary-newold [data-drill] { border-radius: 10px; }
+
+/* =========================================================
+   หน้าต่างรายชื่อผู้ป่วย (<dialog>)
+========================================================= */
+.opd-drill {
+    width: min(1280px, calc(100vw - 32px));
+    max-height: calc(100vh - 48px);
+    padding: 0;
+    border: 0;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
+    color: #1f2d27;
+}
+.opd-drill[open] { display: flex; flex-direction: column; }
+.opd-drill::backdrop { background: rgba(15, 35, 28, .45); }
+
+.opd-drill-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 20px 10px;
+    border-bottom: 1px solid #e3ece7;
+}
+.opd-drill-head h3 { margin: 0; font-size: 1.8rem; font-weight: bold; color: #198754; }
+.opd-drill-head p  { margin: 2px 0 0; font-size: 1.25rem; color: #5c6f68; }
+
+.opd-drill-close {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: 10px;
+    background: #eef5f1;
+    color: #24433a;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+.opd-drill-close:hover { background: #dcebe3; }
+
+.opd-drill-tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+}
+.opd-drill-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1 1 260px;
+    max-width: 420px;
+    margin: 0;
+    padding: 4px 12px;
+    border: 1px solid #cddad3;
+    border-radius: 10px;
+    color: #5c6f68;
+}
+.opd-drill-search input { flex: 1; min-width: 0; border: 0; outline: 0; font-size: 1.2rem; background: transparent; }
+.opd-drill-search:focus-within { border-color: #198754; box-shadow: 0 0 0 3px rgba(25, 135, 84, .15); }
+.opd-drill-count { font-size: 1.15rem; color: #5c6f68; }
+.opd-drill-export {
+    margin-left: auto;
+    padding: 6px 14px;
+    border: 0;
+    border-radius: 10px;
+    background: #198754;
+    color: #fff;
+    font-size: 1.15rem;
+    cursor: pointer;
+}
+.opd-drill-export:disabled { opacity: .5; cursor: default; }
+
+.opd-drill-body { overflow: auto; padding: 0 20px 16px; }
+.opd-drill-msg { padding: 40px 0; text-align: center; font-size: 1.3rem; color: #5c6f68; }
+.opd-drill-error { color: #b02a37; }
+
+.opd-drill-table { width: 100%; border-collapse: collapse; font-size: 1.15rem; }
+.opd-drill-table th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 8px 10px;
+    background: #e8f5ee;
+    color: #146c43;
+    font-weight: bold;
+    white-space: nowrap;
+    text-align: left;
+}
+.opd-drill-table td { padding: 6px 10px; border-bottom: 1px solid #edf2ef; vertical-align: top; }
+.opd-drill-table tbody tr:nth-child(even) { background: #f8fbf9; }
+.opd-drill-table tbody tr:hover { background: #eef7f2; }
+.opd-drill-table .num { text-align: right; white-space: nowrap; }
+.opd-drill-table td:nth-child(2),
+.opd-drill-table td:nth-child(4) { white-space: nowrap; }
+
+.opd-drill-tag {
+    display: inline-block;
+    padding: 0 6px;
+    border-radius: 6px;
+    background: #dde9ff;
+    color: #0b5ed7;
+    font-size: .95rem;
+}
+.opd-drill-status { display: inline-block; padding: 1px 8px; border-radius: 6px; white-space: nowrap; }
+.opd-drill-status.came   { background: #d8efe2; color: #146c43; }
+.opd-drill-status.miss   { background: #f9d9dc; color: #b02a37; }
+.opd-drill-status.cancel { background: #e9ecef; color: #495057; }
+
 /* หัวข้อกราฟใช้สีเขียวเดียวกับหัวข้อการ์ด (theme.css ตั้งเป็นสีเข้ม) */
 #opd-tab-general .highcharts-title {
     fill: #198754 !important;
