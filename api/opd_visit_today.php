@@ -207,6 +207,33 @@ try {
 
     /*
     ==========================
+    เชื้อชาติ (patient.citizenship → ตาราง nationality) — visit ชุด OPD, นับครั้ง + คน
+    ไม่มีรหัสหรือรหัสไม่อยู่ในตาราง = "ไม่ระบุ"
+    ==========================
+    */
+
+    $sql_races = "SELECT
+            COALESCE(n.name, 'ไม่ระบุ') AS name,
+            COUNT(*)                    AS total,
+            COUNT(DISTINCT o.hn)        AS people
+        FROM ovst o
+        LEFT JOIN patient p     ON p.hn = o.hn
+        LEFT JOIN nationality n ON n.nationality = p.citizenship
+        WHERE o.vstdate = :targetDate
+          AND o.main_dep IN (" . opd_main_dep_sql() . ")
+        GROUP BY 1
+        ORDER BY 2 DESC
+    ";
+
+    $stmt = $conn->prepare($sql_races);
+    $stmt->execute([':targetDate' => $targetDate]);
+    $races = array_map(
+        fn($r) => ['name' => $r['name'], 'total' => (int)$r['total'], 'people' => (int)$r['people']],
+        $stmt->fetchAll(PDO::FETCH_ASSOC)
+    );
+
+    /*
+    ==========================
     การกระจายเวลานัด (oapp.nexttime) — นัดชุดเดียวกับการ์ดนัดหมาย ไม่นับนัดที่ยกเลิก
     ปัดลงเป็นช่วงละ 30 นาที (08:01, 08:02 รวมเข้าช่วง 08:00)
     ==========================
@@ -261,6 +288,7 @@ try {
         'refer'             => (int)$extra['refer'],
         'prev_day'          => (int)$compare['prev_day'],
         'depts'             => $depts,
+        'races'             => $races,
         'appt_times'        => $appt_times,
     ], JSON_UNESCAPED_UNICODE);
 

@@ -280,16 +280,32 @@ include '../templates/sidebar.php';
                                     </div>
                                 </div>
 
-                                <section class="opd-panel">
-                                    <header class="opd-panel-head">
-                                        <span class="opd-panel-icon"><i class="fa-solid fa-clock"></i></span>
-                                        <div>
-                                            <h3 class="opd-panel-title">การกระจายเวลานัดหมาย</h3>
-                                            <p class="opd-panel-sub" id="appt-time-note">—</p>
-                                        </div>
-                                    </header>
-                                    <div id="opd-appt-time-chart"></div>
-                                </section>
+                                <div class="row">
+                                    <div class="col-xl-8 mb-3 mb-xl-0">
+                                        <section class="opd-panel">
+                                            <header class="opd-panel-head">
+                                                <span class="opd-panel-icon"><i class="fa-solid fa-clock"></i></span>
+                                                <div>
+                                                    <h3 class="opd-panel-title">การกระจายเวลานัดหมาย</h3>
+                                                    <p class="opd-panel-sub" id="appt-time-note">—</p>
+                                                </div>
+                                            </header>
+                                            <div id="opd-appt-time-chart"></div>
+                                        </section>
+                                    </div>
+                                    <div class="col-xl-4">
+                                        <section class="opd-panel">
+                                            <header class="opd-panel-head">
+                                                <span class="opd-panel-icon"><i class="fa-solid fa-earth-asia"></i></span>
+                                                <div>
+                                                    <h3 class="opd-panel-title">เชื้อชาติผู้มารับบริการ</h3>
+                                                    <p class="opd-panel-sub" id="race-note">—</p>
+                                                </div>
+                                            </header>
+                                            <div id="opd-race-chart"></div>
+                                        </section>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

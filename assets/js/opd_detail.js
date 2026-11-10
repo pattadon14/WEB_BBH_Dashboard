@@ -603,6 +603,58 @@ function renderOpdExtras(data, isToday) {
 
     renderDeptChart(data.depts || []);
     renderApptTimeChart(data.appt_times || []);
+    renderRaceChart(data.races || []);
+}
+
+// เชื้อชาติ (patient.citizenship) — 6 อันดับแรก ที่เหลือรวมเป็น "อื่นๆ"
+function renderRaceChart(races) {
+
+    const total = races.reduce((s, r) => s + r.total, 0);
+    const thai = races.filter(r => r.name === 'ไทย').reduce((s, r) => s + r.total, 0);
+    const pct = n => total ? (n * 100 / total).toFixed(1) : '0';
+    setText('race-note', total
+        ? `ไทย ${pct(thai)}% · ไม่ใช่ไทย ${fmtN(total - thai)} ครั้ง (${pct(total - thai)}%)`
+        : '—');
+
+    // ถ้าเกินมาแค่ 1 กลุ่ม แสดงชื่อจริงไปเลย ไม่ต้องรวมเป็น "อื่นๆ"
+    const TOP = races.length <= 7 ? 7 : 6;
+    const points = races.slice(0, TOP).map(r => ({ name: r.name, y: r.total, people: r.people }));
+    const rest = races.slice(TOP);
+    if (rest.length) {
+        points.push({
+            name: `อื่นๆ (${rest.length} กลุ่ม)`,
+            y: rest.reduce((s, r) => s + r.total, 0),
+            people: rest.reduce((s, r) => s + r.people, 0),
+            detail: rest.map(r => `${r.name} ${fmtN(r.total)}`).join('<br>'),
+            color: '#9aa9a2'
+        });
+    }
+
+    if (!points.length) {
+        document.getElementById('opd-race-chart').innerHTML = '<p class="text-muted text-center py-5">ไม่มีผู้มารับบริการในวันที่เลือก</p>';
+        return;
+    }
+
+    Highcharts.chart('opd-race-chart', {
+        chart: { type: 'bar', height: Math.max(260, points.length * 40 + 80), style: { fontFamily: 'THSarabun' } },
+        title: { text: null },
+        xAxis: { type: 'category', labels: { style: BAR_LABEL_STYLE } },
+        yAxis: { allowDecimals: false, maxPadding: 0.45, title: { text: 'จำนวน (ครั้ง)' } },
+        tooltip: {
+            pointFormatter() {
+                return `<b>${fmtN(this.y)} ครั้ง</b> (${fmtN(this.people)} คน)` + (this.detail ? `<br>${this.detail}` : '');
+            }
+        },
+        plotOptions: {
+            bar: {
+                borderRadius: 4,
+                dataLabels: { ...BAR_DATA_LABELS, formatter() { return `${fmtN(this.y)} (${pct(this.y)}%)`; } }
+            }
+        },
+        credits: { enabled: false },
+        legend: { enabled: false },
+        series: [{ name: 'เชื้อชาติ', color: '#0f766e', data: points }]
+    });
 }
 
 // A4: 10 แผนกที่ลงทะเบียนมากสุด ที่เหลือรวมเป็น "อื่นๆ"
