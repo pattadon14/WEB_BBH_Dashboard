@@ -170,19 +170,95 @@
     font-size: 1.3rem;
 }
 
-.opd-summary-horizontal .exam-horizontal-card.newpt-card { background: #eef4ff; border-left-color: #0d6efd; color: #0a58ca; }
-.opd-summary-horizontal .exam-horizontal-card.oldpt-card { background: #f3f5f7; border-left-color: #6c757d; color: #495057; }
 .opd-summary-horizontal .exam-horizontal-card.admit-card { background: #fff4e6; border-left-color: #fd7e14; color: #a14a00; }
 .opd-summary-horizontal .exam-horizontal-card.refer-card { background: #fdeeee; border-left-color: #dc3545; color: #b02a37; }
 
 .opd-summary-horizontal .opd-summary-compare {
-    margin-top: 2px;
-    font-size: 1.05rem;
+    margin-top: 4px;
+    font-size: 1.4rem;
     color: #4b5f58;
 }
 
+/* ลูกศรเทียบยอด: มากขึ้น = เขียว, น้อยลง = แดง (สีเข้มพอ contrast ≥ 4.5:1) */
+.opd-delta {
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.opd-delta.up { color: #146c43; }
+.opd-delta.down { color: #b02a37; }
+
+/* ยอด visit + ผู้ป่วยใหม่/เก่า (คน) ใต้ตัวเลขหลัก */
+.opd-summary-main-total {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+.opd-summary-newold {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 6px;
+    font-size: 1.3rem;
+}
+
+.opd-summary-newold span {
+    padding: 1px 12px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.opd-summary-newold .newpt { background: #eef4ff; color: #0a58ca; }
+.opd-summary-newold .oldpt { background: #f1f3f5; color: #495057; }
+
 .opd-section-heading {
     font-weight: bold;
+}
+
+/* =========================================================
+   ตรวจโรคทั่วไป: ขยายตัวอักษร (THSarabun ตัวเล็กกว่าฟอนต์ทั่วไป)
+========================================================= */
+#opd-tab-general .opd-summary-main .opd-summary-total-label { font-size: 1.5rem; }
+#opd-tab-general .summary-section-title { font-size: 1.6rem; }
+#opd-tab-general .horizontal-summary-item { height: auto; }
+#opd-tab-general .horizontal-summary-item .summary-title { font-size: 1.6rem; }
+#opd-tab-general .horizontal-summary-item .summary-number { font-size: 2.8rem; }
+#opd-tab-general .horizontal-summary-item .todaysummary-sub { font-size: 1.25rem; }
+#opd-tab-general .appointment-total small { font-size: 1.3rem; }
+#opd-tab-general .appointment-status-item div { font-size: 1.3rem; }
+#opd-tab-general .appointment-status-item strong { font-size: 2rem; }
+#opd-tab-general .appointment-status-item small { font-size: 1.15rem; white-space: nowrap; }
+#opd-tab-general .time-horizontal-card .time-label { font-size: 1.3rem; }
+#opd-tab-general .time-horizontal-card .time-range { font-size: 1.05rem; color: #5c6670; }
+#opd-tab-general .time-horizontal-card .time-count { font-size: 1.7rem; }
+#opd-tab-general .time-horizontal-card .time-count small { font-size: 1.05rem; }
+#opd-tab-general .opd-summary-horizontal .exam-horizontal-card .summary-title { font-size: 1.35rem; }
+#opd-tab-general .opd-summary-horizontal .exam-horizontal-card .summary-number { font-size: 1.75rem; }
+#opd-tab-general .opd-summary-horizontal .exam-horizontal-card .summary-unit { font-size: 1.15rem; }
+#opd-tab-general .opd-summary-horizontal .opd-mini-pair .summary-title { font-size: 1.25rem; }
+#opd-tab-general .opd-summary-horizontal .opd-mini-pair .summary-number { font-size: 1.55rem; }
+#opd-tab-general .chart-title { font-size: 1.6rem; }
+#opd-tab-general #appt-time-note { font-size: 1.3rem; }
+
+/* theme.css ทำตัวอักษรกราฟเป็นสีเทาจาง: แท็บนี้ใช้สีเข้มให้อ่านง่าย */
+#opd-tab-general .highcharts-axis-labels text,
+#opd-tab-general .highcharts-axis-title,
+#opd-tab-general .highcharts-legend-item text {
+    fill: #1f2937 !important;
+    color: #1f2937 !important;
+}
+
+@media (max-width: 768px) {
+    .opd-summary-main-total {
+        width: 100%;
+        align-items: center;
+    }
+
+    .opd-summary-newold {
+        justify-content: center;
+    }
 }
 
 /* =========================================================

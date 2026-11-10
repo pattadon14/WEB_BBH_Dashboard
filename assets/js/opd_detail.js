@@ -29,8 +29,32 @@ const PAYER_GROUPS = {
 const THAI_WEEKDAYS = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
 
 // กราฟแท่งแนวนอน: ชื่อยาวขึ้นบรรทัดใหม่แทนการตัด "..." และตัวเลขอยู่นอกแท่งเสมอ (ในแท่งสีเข้มอ่านไม่ออก)
-const BAR_LABEL_STYLE = { fontSize: '16px', width: '170px', textOverflow: 'none' };
-const BAR_DATA_LABELS = { enabled: true, inside: false, crop: false, overflow: 'allow', color: '#000', style: { fontSize: '16px', textOutline: 'none' } };
+const BAR_LABEL_STYLE = { fontSize: '18px', width: '180px', textOverflow: 'none' };
+const BAR_DATA_LABELS = { enabled: true, inside: false, crop: false, overflow: 'allow', color: '#000', style: { fontSize: '18px', textOutline: 'none' } };
+
+// ฟอนต์ THSarabun ตัวเล็กกว่าฟอนต์ทั่วไป จึงขยายขนาดตัวอักษรทุกกราฟในหน้านี้
+Highcharts.setOptions({
+    chart: { style: { fontFamily: 'THSarabun' } },
+    title: { style: { fontSize: '24px' } },
+    subtitle: { style: { fontSize: '17px' } },
+    xAxis: { labels: { style: { fontSize: '17px' } }, title: { style: { fontSize: '17px' } } },
+    yAxis: { labels: { style: { fontSize: '16px' } }, title: { style: { fontSize: '17px' } } },
+    tooltip: { style: { fontSize: '17px' } },
+    legend: { itemStyle: { fontSize: '18px' } }
+});
+
+// เส้นตรงที่ fit ดีที่สุด (least squares) จากค่าที่มี แล้วลากยาวถึง length จุด; ข้อมูล < 2 จุดคืน null
+function linearTrend(values, length) {
+    const n = values.length;
+    if (n < 2) return null;
+    const mx = (n - 1) / 2;
+    const my = values.reduce((s, v) => s + v, 0) / n;
+    let num = 0, den = 0;
+    values.forEach((v, x) => { num += (x - mx) * (v - my); den += (x - mx) ** 2; });
+    const slope = num / den;
+    return Array.from({ length }, (_, x) => Math.round(my + slope * (x - mx)));
+}
+console.assert(linearTrend([10, 20, 30], 4).join() === '10,20,30,40', 'linearTrend');
 
 function getSelectedServiceDate() {
     const input = document.getElementById('opd-service-date');
@@ -212,10 +236,23 @@ async function loadChart() {
         }
     });
 
+    /*
+    เส้นแนวโน้ม = linear regression จากเดือนที่ครบแล้วเท่านั้น
+    เดือนปัจจุบันของปีงบนี้ยังไม่ครบเดือน ถ้านำมาคิดเส้นจะดิ่งลงผิดความจริง
+    */
+    const isCurrentYear = parseInt(year) === currentThaiYear;
+    const completeCount = isCurrentYear ? monthCount - 1 : monthCount;
+    const trend = linearTrend(opdData.slice(0, completeCount), monthCount);
+
+    const columnData = opdData.map((y, i) =>
+        isCurrentYear && i === monthCount - 1
+            ? { y, color: '#8fd1b0', partial: true }   // เดือนที่ยังไม่จบ ใช้สีอ่อน
+            : y
+    );
+
     Highcharts.chart('opd-chart', {
 
         chart: {
-            type: 'column',
             style: {
                 fontFamily: 'THSarabun'
             }
@@ -224,6 +261,12 @@ async function loadChart() {
         title: {
             text:
             'จำนวนครั้งที่มารับบริการผู้ป่วยนอก ปีงบประมาณ ' + year
+        },
+
+        subtitle: {
+            text: trend
+                ? 'เส้นแนวโน้มคำนวณจากเดือนที่ครบแล้ว' + (isCurrentYear ? ' · แท่งสีอ่อน = เดือนปัจจุบัน (ยังไม่ครบเดือน)' : '')
+                : 'เส้นแนวโน้มจะแสดงเมื่อมีข้อมูลครบอย่างน้อย 2 เดือน · แท่งสีอ่อน = เดือนปัจจุบัน (ยังไม่ครบเดือน)'
         },
 
         xAxis: {
@@ -239,7 +282,7 @@ async function loadChart() {
         },
 
         legend: {
-            enabled: false
+            enabled: !!trend
         },
 
         credits: {
@@ -247,21 +290,33 @@ async function loadChart() {
         },
 
         tooltip: {
-            pointFormat: '<b>{point.y:,.0f} ครั้ง</b>'
+            pointFormatter: function () {
+                const note = this.options.partial ? ' (ยังไม่ครบเดือน)' : '';
+                return `${this.series.name}: <b>${Math.round(this.y).toLocaleString()} ครั้ง</b>${note}`;
+            }
         },
 
         series: [{
+            type: 'column',
             name: 'ผู้ป่วยนอก',
             color: '#198754',
-            data: opdData,
+            data: columnData,
             dataLabels: {
                 enabled: true,
                 color: '#000000',
                 style: {
-                    fontSize: '16px',
+                    fontSize: '17px',
                 }
             }
-        }]
+        }].concat(trend ? [{
+            type: 'line',
+            name: 'เส้นแนวโน้ม',
+            color: '#c2410c',
+            dashStyle: 'Dash',
+            lineWidth: 3,
+            marker: { enabled: false },
+            data: trend
+        }] : [])
 
     });
 
@@ -318,9 +373,9 @@ async function loadPttypeChart(){
 
         yAxis: {
             allowDecimals: false,
-            maxPadding: 0.25,   // เว้นที่ให้ป้าย "จำนวน (%)" อยู่นอกแท่ง
+            maxPadding: 0.4,   // เว้นที่ให้ป้าย "จำนวน (%)" อยู่นอกแท่ง
             title: {
-                text: 'จำนวนผู้รับบริการ (ราย)'
+                text: 'จำนวน (ครั้ง)'
             }
         },
 
@@ -329,7 +384,7 @@ async function loadPttypeChart(){
                 const subs = this.point.subs.slice().sort((a, b) => b.n - a.n);
                 const lines = subs.slice(0, 6).map(s => `${s.name}: ${s.n}`);
                 if (subs.length > 6) lines.push(`และอีก ${subs.length - 6} รายการ`);
-                return `<b>${this.point.name}</b> ${this.point.y} ราย (${pct(this.point.y)}%)<br>` + lines.join('<br>');
+                return `<b>${this.point.name}</b> ${this.point.y} ครั้ง (${pct(this.point.y)}%)<br>` + lines.join('<br>');
             }
         },
 
@@ -543,21 +598,24 @@ function setText(id, value) {
 function renderOpdExtras(data, isToday) {
 
     setText('opd_total_people', fmtN(data.total_people));
+    // นับเป็นคน (HN) ให้ ใหม่ + เก่า = จำนวนคนทั้งหมด
     setText('new_patient', fmtN(data.new_patient));
-    setText('old_patient', fmtN(data.opd_total_today - data.new_patient));
+    setText('old_patient', fmtN(data.total_people - data.new_patient));
     setText('opd_admit', fmtN(data.admit));
     setText('opd_refer', fmtN(data.refer));
 
+    // มากกว่า = เขียว ▲, น้อยกว่า = แดง ▼ (มีลูกศรกำกับ ไม่พึ่งสีอย่างเดียว)
     const change = prev => {
         if (!prev) return '';
         const p = Math.round((data.opd_total_today - prev) * 100 / prev);
-        return p === 0 ? ' (เท่ากัน)' : ` (${p > 0 ? '▲' : '▼'}${Math.abs(p)}%)`;
+        if (p === 0) return ' <span class="opd-delta">(เท่ากัน)</span>';
+        return ` <span class="opd-delta ${p > 0 ? 'up' : 'down'}">${p > 0 ? '▲' : '▼'} ${Math.abs(p)}%</span>`;
     };
     const weekday = THAI_WEEKDAYS[new Date(getSelectedServiceDate() + 'T00:00:00').getDay()];
-    setText('opd-compare',
+    document.getElementById('opd-compare').innerHTML =
         `เมื่อวาน ${fmtN(data.prev_day)}${change(data.prev_day)} · ` +
         `วัน${weekday}ที่แล้ว ${fmtN(data.prev_week)}${change(data.prev_week)}` +
-        (isToday ? ' — นับถึงเวลาเดียวกัน' : ''));
+        (isToday ? ' — นับถึงเวลาเดียวกัน' : '');
 
     // % คิดจากนัดที่ไม่ได้ยกเลิก (มา + ไม่มา)
     const apptBase = data.oapp_success + data.miss_today;
@@ -588,8 +646,8 @@ function renderDeptChart(depts) {
         chart: { type: 'bar', height: Math.max(260, points.length * 34 + 80), style: { fontFamily: 'THSarabun' } },
         title: { text: null },
         xAxis: { type: 'category', labels: { style: BAR_LABEL_STYLE } },
-        yAxis: { allowDecimals: false, maxPadding: 0.15, title: { text: 'จำนวน (ราย)' } },
-        tooltip: { pointFormat: '<b>{point.y} ราย</b>' },
+        yAxis: { allowDecimals: false, maxPadding: 0.2, title: { text: 'จำนวน (ครั้ง)' } },
+        tooltip: { pointFormat: '<b>{point.y} ครั้ง</b>' },
         plotOptions: { bar: { borderRadius: 4, dataLabels: { ...BAR_DATA_LABELS } } },
         credits: { enabled: false },
         legend: { enabled: false },
@@ -614,12 +672,18 @@ function renderApptTimeChart(times) {
         `(${Math.round(peak.total * 100 / total)}% ของนัด ${fmtN(total)} ราย) · ไม่นับนัดที่ยกเลิก`;
 
     Highcharts.chart('opd-appt-time-chart', {
-        chart: { type: 'column', height: 300, style: { fontFamily: 'THSarabun' } },
+        chart: { type: 'line', height: 320, style: { fontFamily: 'THSarabun' } },
         title: { text: null },
-        xAxis: { categories: times.map(t => t.time), labels: { style: { fontSize: '15px' } } },
-        yAxis: { allowDecimals: false, title: { text: 'จำนวนนัด (ราย)' } },
-        tooltip: { pointFormat: '<b>{point.y} ราย</b>' },
-        plotOptions: { column: { borderRadius: 4, dataLabels: { enabled: true, color: '#000', style: { fontSize: '15px' } } } },
+        xAxis: { categories: times.map(t => t.time), title: { text: 'เวลานัด (ช่วงละ 30 นาที)' } },
+        yAxis: { allowDecimals: false, min: 0, title: { text: 'จำนวนนัด (ราย)' } },
+        tooltip: { headerFormat: '<b>{point.key} น.</b><br>', pointFormat: 'นัด <b>{point.y} ราย</b>' },
+        plotOptions: {
+            line: {
+                lineWidth: 3,
+                marker: { enabled: true, radius: 5 },
+                dataLabels: { enabled: true, color: '#000', style: { fontSize: '17px', textOutline: '2px #fff' } }
+            }
+        },
         credits: { enabled: false },
         legend: { enabled: false },
         series: [{ name: 'นัดหมาย', color: '#198754', data: times.map(t => t.total) }]
@@ -833,14 +897,14 @@ try {
 
         title: {
             text: 'กลุ่มอายุผู้ป่วย OPD ปีงบประมาณ ' + year,
-            style: { fontSize: '16px' }
+            style: { fontSize: '20px' }
         },
 
         xAxis: {
             categories: data.map(d => d.name),
             labels: {
                 style: {
-                    fontSize: '15px',
+                    fontSize: '18px',
                     fontFamily: 'THSarabun',
                     fontWeight: 'normal'
                 }
@@ -849,8 +913,8 @@ try {
 
         yAxis: {
             min: 0,
-            title: { text: 'จำนวนผู้ป่วย (ราย)' },
-            labels: { style: { fontSize: '13px' } }
+            maxPadding: 0.2,
+            title: { text: 'จำนวน (ครั้ง)' }
         },
 
         tooltip: {
@@ -860,7 +924,7 @@ try {
                 const male   = row ? row.male.toLocaleString()   : 0;
                 const female = row ? row.female.toLocaleString() : 0;
                 return `<b>${this.x}</b><br/>
-                        รวม: <b>${this.y.toLocaleString()} ราย</b> (${pct}%)<br/>
+                        รวม: <b>${this.y.toLocaleString()} ครั้ง</b> (${pct}%)<br/>
                         ชาย: <span style="color:#3b82f6">${male}</span> |
                         หญิง: <span style="color:#ec4899">${female}</span>`;
             }
@@ -875,10 +939,10 @@ try {
                         const pct = total > 0
                             ? ((this.y / total) * 100).toFixed(1)
                             : '0.0';
-                        return `${this.y.toLocaleString()} ราย (${pct}%)`;
+                        return `${this.y.toLocaleString()} ครั้ง (${pct}%)`;
                     },
                     style: {
-                        fontSize: '14px',
+                        fontSize: '17px',
                         fontFamily: 'THSarabun',
                         fontWeight: 'normal',
                         textOutline: 'none'
@@ -923,16 +987,16 @@ try {
                     border-left:5px solid ${d.color};
                     box-shadow:rgba(0,0,0,0.08) 0 2px 6px;
                 ">
-                    <div style="font-size:15px;font-weight:500;color:#333;margin-bottom:6px">
+                    <div style="font-size:19px;font-weight:600;color:#333;margin-bottom:6px">
                         ${d.name}
                     </div>
-                    <div style="font-size:26px;font-weight:bold;color:${d.color};line-height:1">
+                    <div style="font-size:32px;font-weight:bold;color:${d.color};line-height:1">
                         ${d.total.toLocaleString()}
-                        <span style="font-size:15px;font-weight:normal;color:#888">
-                            ราย (${pct}%)
+                        <span style="font-size:18px;font-weight:normal;color:#555">
+                            ครั้ง (${pct}%)
                         </span>
                     </div>
-                    <div style="font-size:14px;margin-top:6px;color:#666">
+                    <div style="font-size:17px;margin-top:6px;color:#555">
                         <span style="color:#3b82f6">♂ ชาย ${d.male.toLocaleString()}</span>
                         &nbsp;|&nbsp;
                         <span style="color:#ec4899">♀ หญิง ${d.female.toLocaleString()}</span>

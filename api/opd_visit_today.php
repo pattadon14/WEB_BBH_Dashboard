@@ -142,7 +142,7 @@ try {
     /*
     ==========================
     จำนวนคน / ผู้ป่วยใหม่ / Admit / Refer (visit ชุด OPD เดียวกับยอดรวม)
-    - ผู้ป่วยใหม่ : patient.firstday = วันที่มารับบริการ (ลงทะเบียนครั้งแรกวันนั้น)
+    - ผู้ป่วยใหม่ : จำนวนคน (HN) ที่ patient.firstday = วันที่มารับบริการ (ลงทะเบียนครั้งแรกวันนั้น)
     - Admit      : visit ที่มี an
     - Refer      : visit ที่มีใบส่งต่อใน referout
     ==========================
@@ -150,7 +150,7 @@ try {
 
     $sql_extra = "SELECT
             COUNT(DISTINCT o.hn)                                         AS total_people,
-            COUNT(*) FILTER (WHERE p.firstday = o.vstdate)               AS new_patient,
+            COUNT(DISTINCT o.hn) FILTER (WHERE p.firstday = o.vstdate)   AS new_patient,
             COUNT(*) FILTER (WHERE COALESCE(o.an, '') <> '')             AS admit,
             COUNT(*) FILTER (WHERE EXISTS (SELECT 1 FROM referout r WHERE r.vn = o.vn)) AS refer
         FROM ovst o

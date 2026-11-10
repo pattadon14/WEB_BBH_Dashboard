@@ -70,10 +70,16 @@ include '../templates/sidebar.php';
                                     </div>
                                 </div>
 
-                                <div class="opd-summary-main-number">
+                                <div class="opd-summary-main-total">
+                                    <div class="opd-summary-main-number">
                                         <span id="opd_total_today">—</span>
                                         <small>ครั้ง</small>
                                     </div>
+                                    <div class="opd-summary-newold">
+                                        <span class="newpt">ผู้ป่วยใหม่ <strong id="new_patient">—</strong> คน</span>
+                                        <span class="oldpt">ผู้ป่วยเก่า <strong id="old_patient">—</strong> คน</span>
+                                    </div>
+                                </div>
                                 </div>
 
                                 <div class="opd-summary-grid">
@@ -91,21 +97,10 @@ include '../templates/sidebar.php';
                                             </div>
                                             <div class="summary-number">
                                                 <span id="walkin_today">—</span>
-                                                <span class="summary-unit">ราย</span>
+                                                <span class="summary-unit">ครั้ง</span>
                                             </div>
                                             <div class="todaysummary-sub">
                                                 มารับบริการโดยไม่มีนัดล่วงหน้า
-                                            </div>
-                                        </div>
-
-                                        <div class="opd-mini-pair">
-                                            <div class="exam-horizontal-card newpt-card">
-                                                <div class="summary-title">ผู้ป่วยใหม่</div>
-                                                <div class="summary-number"><span id="new_patient">—</span> <span class="summary-unit">ราย</span></div>
-                                            </div>
-                                            <div class="exam-horizontal-card oldpt-card">
-                                                <div class="summary-title">ผู้ป่วยเก่า</div>
-                                                <div class="summary-number"><span id="old_patient">—</span> <span class="summary-unit">ราย</span></div>
                                             </div>
                                         </div>
                                     </div>
@@ -158,7 +153,7 @@ include '../templates/sidebar.php';
                                                     <div class="time-range">20:01 – 07:59 น.</div>
                                                 </div>
                                                 <div class="time-count">
-                                                    <span id="before_time">—</span><small>ราย</small>
+                                                    <span id="before_time">—</span><small>ครั้ง</small>
                                                 </div>
                                             </div>
 
@@ -169,7 +164,7 @@ include '../templates/sidebar.php';
                                                     <div class="time-range">08:00 – 15:59 น.</div>
                                                 </div>
                                                 <div class="time-count">
-                                                    <span id="worktime">—</span><small>ราย</small>
+                                                    <span id="worktime">—</span><small>ครั้ง</small>
                                                 </div>
                                             </div>
 
@@ -180,7 +175,7 @@ include '../templates/sidebar.php';
                                                     <div class="time-range">16:00 – 20:00 น.</div>
                                                 </div>
                                                 <div class="time-count">
-                                                    <span id="after_time">—</span><small>ราย</small>
+                                                    <span id="after_time">—</span><small>ครั้ง</small>
                                                 </div>
                                             </div>
                                         </div>
@@ -200,7 +195,7 @@ include '../templates/sidebar.php';
                                                 </div>
                                                 <div class="summary-number">
                                                     <span id="wait_triage">—</span>
-                                                    <span class="summary-unit">ราย</span>
+                                                    <span class="summary-unit">ครั้ง</span>
                                                 </div>
                                             </div>
 
@@ -211,7 +206,7 @@ include '../templates/sidebar.php';
                                                 </div>
                                                 <div class="summary-number">
                                                     <span id="wait_exam">—</span>
-                                                    <span class="summary-unit">ราย</span>
+                                                    <span class="summary-unit">ครั้ง</span>
                                                 </div>
                                             </div>
 
@@ -222,7 +217,7 @@ include '../templates/sidebar.php';
                                                 </div>
                                                 <div class="summary-number">
                                                     <span id="finish_exam">—</span>
-                                                    <span class="summary-unit">ราย</span>
+                                                    <span class="summary-unit">ครั้ง</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -230,11 +225,11 @@ include '../templates/sidebar.php';
                                         <div class="opd-mini-pair">
                                             <div class="exam-horizontal-card admit-card">
                                                 <div class="summary-title">Admit</div>
-                                                <div class="summary-number"><span id="opd_admit">—</span> <span class="summary-unit">ราย</span></div>
+                                                <div class="summary-number"><span id="opd_admit">—</span> <span class="summary-unit">ครั้ง</span></div>
                                             </div>
                                             <div class="exam-horizontal-card refer-card">
                                                 <div class="summary-title">Refer ส่งต่อ</div>
-                                                <div class="summary-number"><span id="opd_refer">—</span> <span class="summary-unit">ราย</span></div>
+                                                <div class="summary-number"><span id="opd_refer">—</span> <span class="summary-unit">ครั้ง</span></div>
                                             </div>
                                         </div>
                                     </div>
