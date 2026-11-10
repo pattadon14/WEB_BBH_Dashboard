@@ -68,6 +68,31 @@ try {
         $activeHours[(int)$row['hour']] = true;
     }
 
+    /*
+    ==========================
+    ห้อง LAB: ไม่มีแผนกลงทะเบียนของตัวเอง จึงนับจากใบสั่งแล็ป (lab_head)
+    1 ราย (vn) นับครั้งเดียว ที่ชั่วโมงแรกที่แล็ปรับสิ่งส่งตรวจวันนี้ (รวมใบสั่งจาก ward)
+    ผู้ป่วยกลุ่มนี้ถูกนับที่แผนกลงทะเบียนแล้ว จึงไม่รวมใน total
+    ==========================
+    */
+
+    $labRows = $conn->query("
+        SELECT EXTRACT(HOUR FROM first_receive)::int AS hour, COUNT(*) AS value
+        FROM (
+            SELECT vn, MIN(receive_time) AS first_receive
+            FROM lab_head
+            WHERE receive_date = CURRENT_DATE
+              AND receive_time IS NOT NULL
+              AND COALESCE(vn, '') <> ''
+            GROUP BY vn
+        ) l
+        GROUP BY 1
+    ")->fetchAll(PDO::FETCH_ASSOC);
+
+    foreach ($labRows as $row) {
+        $activeHours[(int)$row['hour']] = true;
+    }
+
     if (!empty($activeHours)) {
         $minH = min(array_keys($activeHours));
         $maxH = max(array_keys($activeHours));
@@ -101,8 +126,15 @@ try {
         }
     }
 
+    $hourIndex = array_flip($hourRange);
+    $lab = [];
+    foreach ($labRows as $row) {
+        $lab[] = [$hourIndex[(int)$row['hour']], (int)$row['value']];
+    }
+
     $result = [
         'depts'   => $depts,
+        'lab'     => $lab,
         'hours'   => array_map(
             fn($h) => str_pad($h, 2, '0', STR_PAD_LEFT) . ':00',
             $hourRange

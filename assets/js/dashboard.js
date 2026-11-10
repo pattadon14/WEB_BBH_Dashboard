@@ -151,17 +151,31 @@ function renderHeatmap() {
         rowTotals.push(deptTotals.slice(shownCount).reduce((a, b) => a + b, 0));
     }
 
+    // แถว LAB อยู่บนสุด: ผู้ป่วยถูกนับที่แผนกลงทะเบียนแล้ว จึงใช้สเกลสีฟ้าแยกและไม่รวมในชั่วโมง/แผนกพีค
+    const lab = heatmapData.lab || [];
+    const labMax = lab.reduce((m, [, v]) => Math.max(m, v), 0);
+    const top = lab.length ? 1 : 0;
+    if (top) {
+        rowLabels.unshift('ห้อง LAB');
+        rowTotals.unshift(lab.reduce((s, [, v]) => s + v, 0));
+    }
+
     const grid = rowLabels.map(() => Array(hours.length).fill(null));
     data.forEach(([x, d, v]) => {
-        const y = Math.min(d, shownCount);
+        const y = Math.min(d, shownCount) + top;
         grid[y][x] = (grid[y][x] || 0) + v;
     });
+    lab.forEach(([x, v]) => { grid[0][x] = v; });
 
     // แถวผลรวม "แผนกอื่นๆ" ใช้สีเทา เพราะเทียบกับแผนกเดี่ยวบนสเกลสีเดียวกันไม่ได้
     const points = [];
     grid.forEach((row, y) => row.forEach((value, x) => {
         const point = { x, y, value };
-        if (foldedCount && y === shownCount && value !== null) point.color = '#dfe3e8';
+        if (value !== null && top && y === 0) {
+            point.color = Highcharts.color('#deebf7').tweenTo(Highcharts.color('#08519c'), value / labMax);
+        } else if (foldedCount && y === shownCount + top && value !== null) {
+            point.color = '#dfe3e8';
+        }
         points.push(point);
     }));
 
@@ -253,7 +267,8 @@ function renderHeatmap() {
         tooltip: {
             useHTML: true,
             formatter: function () {
-                return `<b>${rowLabels[this.point.y]}</b> (รวม ${rowTotals[this.point.y]} ราย)<br>${hours[this.point.x]} น. — <b>${this.point.value} ราย</b>`;
+                const note = top && this.point.y === 0 ? '<br><i>นับตามเวลาที่แล็ปรับสิ่งส่งตรวจ — ซ้ำกับแผนกที่ลงทะเบียน จึงไม่รวมในยอดพีค</i>' : '';
+                return `<b>${rowLabels[this.point.y]}</b> (รวม ${rowTotals[this.point.y]} ราย)<br>${hours[this.point.x]} น. — <b>${this.point.value} ราย</b>${note}`;
             }
         },
 
