@@ -319,6 +319,69 @@
 #opd-tab-general .opd-summary-horizontal .opd-mini-pair .summary-number { font-size: 1.55rem; }
 #opd-tab-general .chart-title { font-size: 1.6rem; color: #198754; font-weight: bold; }
 
+/* =========================================================
+   ตรวจโรคทั่วไป: การ์ดสรุป — ไม่มีแถบสีขอบซ้าย ใช้พื้นสีเข้มขึ้น
+   และไอคอนอยู่ในกล่องสี่เหลี่ยมมุมมนด้านซ้ายแบบเดียวกันทุกการ์ด
+========================================================= */
+#opd-tab-general .opd-summary-horizontal .horizontal-summary-item,
+#opd-tab-general .opd-summary-horizontal .exam-horizontal-card { border-left: 0; }
+
+#opd-tab-general .opd-ico,
+#opd-tab-general .time-horizontal-card .time-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, .8);
+    font-size: 1.15rem;
+}
+
+#opd-tab-general .opd-summary-horizontal .exam-horizontal-card .summary-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#opd-tab-general .opd-summary-horizontal .walkin-card {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 16px 20px;
+    gap: 14px;
+    background: #dde9ff;
+}
+#opd-tab-general .walkin-card .opd-ico { width: 54px; height: 54px; border-radius: 14px; font-size: 1.6rem; color: #0b5ed7; }
+#opd-tab-general .walkin-card .summary-title,
+#opd-tab-general .walkin-card .summary-number { color: #0b5ed7; }
+#opd-tab-general .walkin-card .todaysummary-sub { color: #3f4f63; }
+
+#opd-tab-general .opd-mini-pair .summary-title i { font-size: 1rem; margin-right: 4px; }
+
+#opd-tab-general .appointment-horizontal-card { background: #e4f2ea; border-color: #c9e5d5; }
+#opd-tab-general .appointment-status,
+#opd-tab-general .appointment-status-item:first-child { border-color: #c9e5d5; }
+
+#opd-tab-general .time-night   { background: #dfe6f1; }
+#opd-tab-general .time-morning { background: #fbefc4; }
+#opd-tab-general .time-evening { background: #ffdfc7; }
+
+#opd-tab-general .opd-summary-horizontal .exam-horizontal-card.wait-card   { background: #d6f1f8; }
+#opd-tab-general .opd-summary-horizontal .exam-horizontal-card.exam-card   { background: #e9ddff; }
+#opd-tab-general .opd-summary-horizontal .exam-horizontal-card.finish-card { background: #d8efe2; }
+#opd-tab-general .opd-summary-horizontal .exam-horizontal-card.admit-card  { background: #ffe6c7; }
+#opd-tab-general .opd-summary-horizontal .exam-horizontal-card.refer-card  { background: #f9d9dc; }
+/* ตัวอักษรเข้มขึ้นให้อ่านได้บนพื้นที่เข้มขึ้น */
+#opd-tab-general .opd-summary-horizontal .exam-horizontal-card.wait-card .summary-title,
+#opd-tab-general .opd-summary-horizontal .exam-horizontal-card.wait-card .summary-number { color: #08788f; }
+#opd-tab-general .opd-summary-horizontal .exam-horizontal-card.exam-card .summary-title,
+#opd-tab-general .opd-summary-horizontal .exam-horizontal-card.exam-card .summary-number { color: #5b0fd8; }
+#opd-tab-general .opd-summary-horizontal .exam-horizontal-card.finish-card .summary-title,
+#opd-tab-general .opd-summary-horizontal .exam-horizontal-card.finish-card .summary-number { color: #146c43; }
+
 /* หัวข้อกราฟใช้สีเขียวเดียวกับหัวข้อการ์ด (theme.css ตั้งเป็นสีเข้ม) */
 #opd-tab-general .highcharts-title {
     fill: #198754 !important;

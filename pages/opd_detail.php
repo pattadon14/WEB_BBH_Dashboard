@@ -93,16 +93,16 @@ include '../templates/sidebar.php';
                                         </div>
 
                                         <div class="horizontal-summary-item walkin-card">
-                                            <div class="summary-title">
-                                                <i class="fa-solid fa-person-walking"></i>
-                                                Walk-in
-                                            </div>
-                                            <div class="summary-number">
-                                                <span id="walkin_today">—</span>
-                                                <span class="summary-unit">ครั้ง</span>
-                                            </div>
-                                            <div class="todaysummary-sub">
-                                                มารับบริการโดยไม่มีนัดล่วงหน้า
+                                            <span class="opd-ico"><i class="fa-solid fa-person-walking"></i></span>
+                                            <div>
+                                                <div class="summary-title">Walk-in</div>
+                                                <div class="summary-number">
+                                                    <span id="walkin_today">—</span>
+                                                    <span class="summary-unit">ครั้ง</span>
+                                                </div>
+                                                <div class="todaysummary-sub">
+                                                    มารับบริการโดยไม่มีนัดล่วงหน้า
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -192,7 +192,7 @@ include '../templates/sidebar.php';
                                         <div class="exam-horizontal-group">
                                             <div class="exam-horizontal-card wait-card">
                                                 <div class="summary-title">
-                                                    <i class="fa-solid fa-user-nurse"></i>
+                                                    <span class="opd-ico"><i class="fa-solid fa-user-nurse"></i></span>
                                                     รอซักประวัติ
                                                 </div>
                                                 <div class="summary-number">
@@ -203,7 +203,7 @@ include '../templates/sidebar.php';
 
                                             <div class="exam-horizontal-card exam-card">
                                                 <div class="summary-title">
-                                                    <i class="fa-solid fa-stethoscope"></i>
+                                                    <span class="opd-ico"><i class="fa-solid fa-stethoscope"></i></span>
                                                     รอตรวจ
                                                 </div>
                                                 <div class="summary-number">
@@ -214,7 +214,7 @@ include '../templates/sidebar.php';
 
                                             <div class="exam-horizontal-card finish-card">
                                                 <div class="summary-title">
-                                                    <i class="fa-solid fa-circle-check"></i>
+                                                    <span class="opd-ico"><i class="fa-solid fa-circle-check"></i></span>
                                                     ตรวจเสร็จแล้ว
                                                 </div>
                                                 <div class="summary-number">
@@ -226,11 +226,11 @@ include '../templates/sidebar.php';
 
                                         <div class="opd-mini-pair">
                                             <div class="exam-horizontal-card admit-card">
-                                                <div class="summary-title">Admit</div>
+                                                <div class="summary-title"><i class="fa-solid fa-bed-pulse"></i> Admit</div>
                                                 <div class="summary-number"><span id="opd_admit">—</span> <span class="summary-unit">ครั้ง</span></div>
                                             </div>
                                             <div class="exam-horizontal-card refer-card">
-                                                <div class="summary-title">Refer ส่งต่อ</div>
+                                                <div class="summary-title"><i class="fa-solid fa-truck-medical"></i> Refer ส่งต่อ</div>
                                                 <div class="summary-number"><span id="opd_refer">—</span> <span class="summary-unit">ครั้ง</span></div>
                                             </div>
                                         </div>
