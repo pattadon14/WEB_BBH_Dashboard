@@ -5,7 +5,7 @@ include '../templates/sidebar.php';
 ?>
 
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_tabs.css?v=<?= filemtime(__DIR__ . '/../assets/css/opd_tabs.css') ?>">
-<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_service_filter.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_quality.css?v=<?= filemtime(__DIR__ . '/../assets/css/opd_quality.css') ?>">
 
 <div class="content-wrapper">
     <section class="content pt-3">
@@ -57,18 +57,20 @@ include '../templates/sidebar.php';
                                         <div class="opd-summary-compare" id="opd-compare">—</div>
                                     </div>
 
-                                    <div class="opd-summary-date-filter">
-                                    <label for="opd-service-date">
-                                        <i class="fa-solid fa-calendar-day"></i>
-                                        เลือกวันที่
-                                    </label>
-                                    <div class="opd-summary-date-controls">
-                                        <input type="date" id="opd-service-date" class="form-control">
-                                        <button type="button" id="opd-service-date-today" class="btn btn-outline-success">
-                                            วันนี้
-                                        </button>
+                                    <!-- ตัวกรองวันที่: รูปแบบเดียวกับแท็บเวลารอ & คุณภาพบริการ (opd_quality.css) -->
+                                    <div class="oq-controls opd-day-filter">
+                                        <div class="oq-seg" role="group" aria-label="เลือกวันด่วน">
+                                            <button type="button" data-opd-day="0" aria-pressed="true">วันนี้</button>
+                                            <button type="button" data-opd-day="1" aria-pressed="false">เมื่อวาน</button>
+                                        </div>
+                                        <div class="oq-range">
+                                            <i class="fa-solid fa-calendar-day" aria-hidden="true"></i>
+                                            <label class="oq-date">
+                                                <span id="opd-service-date-text">—</span>
+                                                <input type="date" id="opd-service-date" aria-label="เลือกวันที่">
+                                            </label>
+                                        </div>
                                     </div>
-                                </div>
 
                                 <div class="opd-summary-main-total">
                                     <div class="opd-summary-main-number">
@@ -243,23 +245,51 @@ include '../templates/sidebar.php';
                     <div class="col-12 mb-3">
                         <div class="card shadow-sm">
                             <div class="card-body">
-                                <h2 class="mb-3 text-success opd-section-heading">
-                                    <i class="fa-solid fa-calendar-day"></i>
-                                    <span id="opd-day-title">ข้อมูลผู้มารับบริการวันนี้</span>
-                                </h2>
+                                <div class="opd-day-head">
+                                    <h2 class="opd-section-heading">
+                                        <i class="fa-solid fa-calendar-day"></i>
+                                        <span id="opd-day-title">ข้อมูลผู้มารับบริการวันนี้</span>
+                                    </h2>
+                                    <div class="opd-day-sub">เปลี่ยนวันที่ได้จากตัวกรองด้านบน · นับเป็นครั้งที่มารับบริการ</div>
+                                </div>
+
                                 <div class="row">
-                                    <div class="col-lg-6 mb-3">
-                                        <h5 class="chart-title"><i class="fa-solid fa-hospital"></i> ผู้มารับบริการแยกตามแผนกที่ลงทะเบียน</h5>
-                                        <div id="opd-dept-chart"></div>
+                                    <div class="col-xl-6 mb-3">
+                                        <section class="opd-panel">
+                                            <header class="opd-panel-head">
+                                                <span class="opd-panel-icon"><i class="fa-solid fa-hospital"></i></span>
+                                                <div>
+                                                    <h3 class="opd-panel-title">แผนกที่ลงทะเบียน</h3>
+                                                    <p class="opd-panel-sub">10 แผนกที่มีผู้มารับบริการมากที่สุด</p>
+                                                </div>
+                                            </header>
+                                            <div id="opd-dept-chart"></div>
+                                        </section>
                                     </div>
-                                    <div class="col-lg-6 mb-3">
-                                        <h5 class="chart-title"><i class="fa-solid fa-id-card"></i> แยกตามกลุ่มสิทธิ์การรักษา</h5>
-                                        <div id="pttype-chart" class="pttype-chart"></div>
+                                    <div class="col-xl-6 mb-3">
+                                        <section class="opd-panel">
+                                            <header class="opd-panel-head">
+                                                <span class="opd-panel-icon"><i class="fa-solid fa-id-card"></i></span>
+                                                <div>
+                                                    <h3 class="opd-panel-title">กลุ่มสิทธิ์การรักษา</h3>
+                                                    <p class="opd-panel-sub">ชี้ที่แท่งเพื่อดูสิทธิ์ย่อย</p>
+                                                </div>
+                                            </header>
+                                            <div id="pttype-chart" class="pttype-chart"></div>
+                                        </section>
                                     </div>
                                 </div>
-                                <h5 class="chart-title"><i class="fa-solid fa-clock"></i> การกระจายเวลานัดหมาย</h5>
-                                <div id="opd-appt-time-chart"></div>
-                                <p class="text-muted mb-0" id="appt-time-note"></p>
+
+                                <section class="opd-panel">
+                                    <header class="opd-panel-head">
+                                        <span class="opd-panel-icon"><i class="fa-solid fa-clock"></i></span>
+                                        <div>
+                                            <h3 class="opd-panel-title">การกระจายเวลานัดหมาย</h3>
+                                            <p class="opd-panel-sub" id="appt-time-note">—</p>
+                                        </div>
+                                    </header>
+                                    <div id="opd-appt-time-chart"></div>
+                                </section>
                             </div>
                         </div>
                     </div>
@@ -580,7 +610,6 @@ include '../templates/sidebar.php';
     </section>
 </div>
 
-<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_quality.css?v=<?= filemtime(__DIR__ . '/../assets/css/opd_quality.css') ?>">
 <script src="<?= BASE_URL ?>assets/lib/highcharts/13.1.1/highcharts.js"></script>
 <script>window.BBH_CURRENT_FISCAL_YEAR = <?= $currentYear ?>;</script>
 <script src="<?= BASE_URL ?>assets/js/opd_detail.js?v=<?= filemtime(__DIR__ . '/../assets/js/opd_detail.js') ?>"></script>

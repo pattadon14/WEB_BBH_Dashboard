@@ -165,16 +165,14 @@ try {
 
     /*
     ==========================
-    เทียบกับเมื่อวาน และวันเดียวกันของสัปดาห์ก่อน
-    ถ้าเลือกวันนี้ นับวันก่อนหน้าถึงเวลาเดียวกับตอนนี้ (เวลาของฐานข้อมูล) จึงเทียบกันได้ระหว่างวัน
+    เทียบกับเมื่อวาน
+    ถ้าเลือกวันนี้ นับเมื่อวานถึงเวลาเดียวกับตอนนี้ (เวลาของฐานข้อมูล) จึงเทียบกันได้ระหว่างวัน
     ==========================
     */
 
-    $sql_compare = "SELECT
-            COUNT(*) FILTER (WHERE vstdate = CAST(:targetDate AS date) - 1) AS prev_day,
-            COUNT(*) FILTER (WHERE vstdate = CAST(:targetDate AS date) - 7) AS prev_week
+    $sql_compare = "SELECT COUNT(*) AS prev_day
         FROM ovst
-        WHERE vstdate IN (CAST(:targetDate AS date) - 1, CAST(:targetDate AS date) - 7)
+        WHERE vstdate = CAST(:targetDate AS date) - 1
           AND main_dep IN (" . opd_main_dep_sql() . ")
           AND (CAST(:targetDate AS date) <> CURRENT_DATE OR vsttime <= LOCALTIME)
     ";
@@ -262,7 +260,6 @@ try {
         'admit'             => (int)$extra['admit'],
         'refer'             => (int)$extra['refer'],
         'prev_day'          => (int)$compare['prev_day'],
-        'prev_week'         => (int)$compare['prev_week'],
         'depts'             => $depts,
         'appt_times'        => $appt_times,
     ], JSON_UNESCAPED_UNICODE);

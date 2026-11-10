@@ -26,8 +26,6 @@ const PAYER_GROUPS = {
     PVT: 'ชำระเงินเอง / อื่นๆ'
 };
 
-const THAI_WEEKDAYS = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
-
 // กราฟแท่งแนวนอน: ชื่อยาวขึ้นบรรทัดใหม่แทนการตัด "..." และตัวเลขอยู่นอกแท่งเสมอ (ในแท่งสีเข้มอ่านไม่ออก)
 const BAR_LABEL_STYLE = { fontSize: '18px', width: '180px', textOverflow: 'none' };
 const BAR_DATA_LABELS = { enabled: true, inside: false, crop: false, overflow: 'allow', color: '#000', style: { fontSize: '18px', textOutline: 'none' } };
@@ -42,19 +40,6 @@ Highcharts.setOptions({
     tooltip: { style: { fontSize: '17px' } },
     legend: { itemStyle: { fontSize: '18px' } }
 });
-
-// เส้นตรงที่ fit ดีที่สุด (least squares) จากค่าที่มี แล้วลากยาวถึง length จุด; ข้อมูล < 2 จุดคืน null
-function linearTrend(values, length) {
-    const n = values.length;
-    if (n < 2) return null;
-    const mx = (n - 1) / 2;
-    const my = values.reduce((s, v) => s + v, 0) / n;
-    let num = 0, den = 0;
-    values.forEach((v, x) => { num += (x - mx) * (v - my); den += (x - mx) ** 2; });
-    const slope = num / den;
-    return Array.from({ length }, (_, x) => Math.round(my + slope * (x - mx)));
-}
-console.assert(linearTrend([10, 20, 30], 4).join() === '10,20,30,40', 'linearTrend');
 
 function getSelectedServiceDate() {
     const input = document.getElementById('opd-service-date');
@@ -236,13 +221,8 @@ async function loadChart() {
         }
     });
 
-    /*
-    เส้นแนวโน้ม = linear regression จากเดือนที่ครบแล้วเท่านั้น
-    เดือนปัจจุบันของปีงบนี้ยังไม่ครบเดือน ถ้านำมาคิดเส้นจะดิ่งลงผิดความจริง
-    */
+    // เดือนปัจจุบันของปีงบนี้ยังไม่ครบเดือน: แท่งสีอ่อน และเส้นช่วงสุดท้ายเป็นจุดไข่ปลา
     const isCurrentYear = parseInt(year) === currentThaiYear;
-    const completeCount = isCurrentYear ? monthCount - 1 : monthCount;
-    const trend = linearTrend(opdData.slice(0, completeCount), monthCount);
 
     const columnData = opdData.map((y, i) =>
         isCurrentYear && i === monthCount - 1
@@ -264,9 +244,7 @@ async function loadChart() {
         },
 
         subtitle: {
-            text: trend
-                ? 'เส้นแนวโน้มคำนวณจากเดือนที่ครบแล้ว' + (isCurrentYear ? ' · แท่งสีอ่อน = เดือนปัจจุบัน (ยังไม่ครบเดือน)' : '')
-                : 'เส้นแนวโน้มจะแสดงเมื่อมีข้อมูลครบอย่างน้อย 2 เดือน · แท่งสีอ่อน = เดือนปัจจุบัน (ยังไม่ครบเดือน)'
+            text: isCurrentYear ? 'แท่งสีอ่อน / เส้นจุดไข่ปลา = เดือนปัจจุบัน (ยังไม่ครบเดือน)' : null
         },
 
         xAxis: {
@@ -282,7 +260,7 @@ async function loadChart() {
         },
 
         legend: {
-            enabled: !!trend
+            enabled: true
         },
 
         credits: {
@@ -308,15 +286,17 @@ async function loadChart() {
                     fontSize: '17px',
                 }
             }
-        }].concat(trend ? [{
-            type: 'line',
-            name: 'เส้นแนวโน้ม',
+        }, {
+            // เส้นแนวโน้ม: ลากต่อกันทุกเดือนตามยอดจริง
+            type: 'spline',
+            name: 'แนวโน้ม',
             color: '#c2410c',
-            dashStyle: 'Dash',
             lineWidth: 3,
-            marker: { enabled: false },
-            data: trend
-        }] : [])
+            marker: { enabled: true, radius: 5, fillColor: '#fff', lineWidth: 2, lineColor: '#c2410c' },
+            data: columnData.map(p => (typeof p === 'object' ? { y: p.y, partial: true } : p)),
+            zoneAxis: 'x',
+            zones: isCurrentYear ? [{ value: monthCount - 2 }, { dashStyle: 'Dot' }] : []
+        }]
 
     });
 
@@ -611,10 +591,8 @@ function renderOpdExtras(data, isToday) {
         if (p === 0) return ' <span class="opd-delta">(เท่ากัน)</span>';
         return ` <span class="opd-delta ${p > 0 ? 'up' : 'down'}">${p > 0 ? '▲' : '▼'} ${Math.abs(p)}%</span>`;
     };
-    const weekday = THAI_WEEKDAYS[new Date(getSelectedServiceDate() + 'T00:00:00').getDay()];
     document.getElementById('opd-compare').innerHTML =
-        `เมื่อวาน ${fmtN(data.prev_day)}${change(data.prev_day)} · ` +
-        `วัน${weekday}ที่แล้ว ${fmtN(data.prev_week)}${change(data.prev_week)}` +
+        `เทียบเมื่อวาน ${fmtN(data.prev_day)} ครั้ง${change(data.prev_day)}` +
         (isToday ? ' — นับถึงเวลาเดียวกัน' : '');
 
     // % คิดจากนัดที่ไม่ได้ยกเลิก (มา + ไม่มา)
@@ -672,13 +650,13 @@ function renderApptTimeChart(times) {
         `(${Math.round(peak.total * 100 / total)}% ของนัด ${fmtN(total)} ราย) · ไม่นับนัดที่ยกเลิก`;
 
     Highcharts.chart('opd-appt-time-chart', {
-        chart: { type: 'line', height: 320, style: { fontFamily: 'THSarabun' } },
+        chart: { type: 'spline', height: 320, style: { fontFamily: 'THSarabun' } },
         title: { text: null },
         xAxis: { categories: times.map(t => t.time), title: { text: 'เวลานัด (ช่วงละ 30 นาที)' } },
         yAxis: { allowDecimals: false, min: 0, title: { text: 'จำนวนนัด (ราย)' } },
         tooltip: { headerFormat: '<b>{point.key} น.</b><br>', pointFormat: 'นัด <b>{point.y} ราย</b>' },
         plotOptions: {
-            line: {
+            spline: {
                 lineWidth: 3,
                 marker: { enabled: true, radius: 5 },
                 dataLabels: { enabled: true, color: '#000', style: { fontSize: '17px', textOutline: '2px #fff' } }
@@ -692,7 +670,6 @@ function renderApptTimeChart(times) {
 
 function initOpdServiceDateFilter() {
     const input = document.getElementById('opd-service-date');
-    const todayBtn = document.getElementById('opd-service-date-today');
     const title = document.getElementById('opd-selected-date-title');
 
     if (!input) return;
@@ -706,8 +683,19 @@ function initOpdServiceDateFilter() {
     input.max = todayString;
     input.value = todayString;
 
+    const isoOf = d =>
+        d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    const dayButtons = document.querySelectorAll('[data-opd-day]');
+
     function refreshDateSummary() {
         const selected = input.value || todayString;
+
+        setText('opd-service-date-text', formatThaiDate(selected));
+        dayButtons.forEach(b => {
+            const d = new Date(today);
+            d.setDate(d.getDate() - Number(b.dataset.opdDay));
+            b.setAttribute('aria-pressed', String(isoOf(d) === selected));
+        });
 
         if (title) {
             title.textContent =
@@ -732,13 +720,14 @@ function initOpdServiceDateFilter() {
     }, 60000);
 
     input.addEventListener('change', refreshDateSummary);
+    input.addEventListener('click', () => { try { input.showPicker(); } catch (e) { /* เบราว์เซอร์เก่า: ใช้ปฏิทินปกติ */ } });
 
-    if (todayBtn) {
-        todayBtn.addEventListener('click', function () {
-            input.value = todayString;
-            refreshDateSummary();
-        });
-    }
+    dayButtons.forEach(b => b.addEventListener('click', () => {
+        const d = new Date(today);
+        d.setDate(d.getDate() - Number(b.dataset.opdDay));
+        input.value = isoOf(d);
+        refreshDateSummary();
+    }));
 
     refreshDateSummary();
 }
