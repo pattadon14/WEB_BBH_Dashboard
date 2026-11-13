@@ -4,6 +4,7 @@ header('Content-Type: application/json; charset=utf-8');
 
 require_once '../config/database.php';
 require_once '../config/period.php';
+require_once '../config/ward.php';
 
 try {
 
@@ -41,7 +42,7 @@ try {
         valid_wards AS (
             SELECT
                 ward,
-                COALESCE(bedcount, 0) AS bedcount
+                " . ward_bedcount_sql() . " AS bedcount
             FROM ward
             WHERE ward_active = 'Y'
               AND ward NOT IN ('10', '11', '05', '04', '23')

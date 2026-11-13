@@ -4,6 +4,7 @@ header('Content-Type: application/json; charset=utf-8');
 
 require_once '../config/database.php';
 require_once '../config/period.php';
+require_once '../config/ward.php';
 
 try {
 
@@ -16,7 +17,7 @@ try {
     ==========================
     */
 
-    $bedSql = "SELECT SUM(bedcount)
+    $bedSql = "SELECT SUM(" . ward_bedcount_sql() . ")
     AS total_bed
             FROM
                 ward

@@ -6,16 +6,18 @@ error_reporting(E_ALL);
 header('Content-Type: application/json; charset=utf-8');
 
 require_once '../config/database.php';
+require_once '../config/ward.php';
 
 try {
 
+    $beds = ward_bedcount_sql('w');
     $sql = "SELECT
 	w.ward,
 	w.NAME,
-	w.bedcount,
+	$beds AS bedcount,
 	COUNT ( i.an ) AS admitnow,
-	( w.bedcount - COUNT ( i.an ) ) AS available_bed,
-	ROUND( ( COUNT ( i.an ) * 100.0 / NULLIF ( w.bedcount, 0 ) ), 2 ) AS occupancy_rate 
+	( $beds - COUNT ( i.an ) ) AS available_bed,
+	ROUND( ( COUNT ( i.an ) * 100.0 / NULLIF ( $beds, 0 ) ), 2 ) AS occupancy_rate 
 FROM
 	ward w
 	LEFT OUTER JOIN ipt i ON i.ward = w.ward 
@@ -28,7 +30,7 @@ GROUP BY
 	w.NAME,
 	w.bedcount 
 ORDER BY
-	( COUNT ( i.an ) * 1.0 / NULLIF ( w.bedcount, 0 ) ) ASC
+	( COUNT ( i.an ) * 1.0 / NULLIF ( $beds, 0 ) ) ASC
     ";
 
     $stmt =

@@ -5,6 +5,7 @@ error_reporting(E_ALL);
 
 header('Content-Type: application/json; charset=utf-8');
 require_once '../config/database.php';
+require_once '../config/ward.php';
 
 try {
     $ward = trim((string)($_GET['ward'] ?? ''));
@@ -19,7 +20,7 @@ try {
     $sql = "SELECT
                 w.ward,
                 w.name AS ward_name,
-                COALESCE(w.bedcount, 0) AS bedcount,
+                " . ward_bedcount_sql('w') . " AS bedcount,
                 COUNT(i.an) FILTER (WHERE i.dchdate IS NULL) AS current_admit,
                 COUNT(i.an) FILTER (
                     WHERE i.regdate >= CURRENT_DATE

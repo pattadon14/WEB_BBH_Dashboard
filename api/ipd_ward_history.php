@@ -5,6 +5,7 @@ error_reporting(E_ALL);
 
 header('Content-Type: application/json; charset=utf-8');
 require_once '../config/database.php';
+require_once '../config/ward.php';
 
 try {
     $ward = trim((string)($_GET['ward'] ?? ''));
@@ -39,7 +40,7 @@ try {
                 FROM params p
             ),
             ward_info AS (
-                SELECT w.ward, w.name AS ward_name, COALESCE(w.bedcount, 0) AS bedcount
+                SELECT w.ward, w.name AS ward_name, " . ward_bedcount_sql('w') . " AS bedcount
                 FROM ward w
                 INNER JOIN params p ON w.ward::text = p.ward_code
                 LIMIT 1

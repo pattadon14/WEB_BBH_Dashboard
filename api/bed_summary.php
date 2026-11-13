@@ -3,6 +3,7 @@
 header('Content-Type: application/json; charset=utf-8');
 
 require_once '../config/database.php';
+require_once '../config/ward.php';
 
 try {
 
@@ -23,7 +24,7 @@ try {
     // จำนวนเตียงทั้งหมด
     // =========================
     $sql = "SELECT SUM
-	( bedcount ) AS bedcount 
+	( " . ward_bedcount_sql() . " ) AS bedcount
         FROM
             ward 
         WHERE
@@ -40,7 +41,7 @@ try {
     // =========================
     $sql = "SELECT COUNT
 	( * ) AS wtotal,
-	( SELECT SUM ( bedcount ) FROM ward WHERE ward_active = 'Y' AND ward NOT IN ( '10', '11', '05', '04', '23' ) ) - COUNT ( * ) AS wblank 
+	( SELECT SUM ( " . ward_bedcount_sql() . " ) FROM ward WHERE ward_active = 'Y' AND ward NOT IN ( '10', '11', '05', '04', '23' ) ) - COUNT ( * ) AS wblank 
     FROM
         ipt 
     WHERE
