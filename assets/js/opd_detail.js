@@ -642,6 +642,18 @@ function renderOpdExtras(data, isToday) {
     const apptPct = n => apptBase ? Math.round(n * 100 / apptBase) + '%' : '–';
     setText('oapp_success_pct', apptPct(data.oapp_success));
     setText('miss_pct', apptPct(data.miss_today));
+    document.getElementById('appt-progress-bar').style.width = apptPct(data.oapp_success).replace('–', '0%');
+    document.getElementById('appt-progress').setAttribute('aria-label', `มาตามนัด ${apptPct(data.oapp_success)}`);
+
+    // Walk-in + มาตามนัด = ยอดรวม (นิยามใน config/opd.php)
+    const total = data.opd_total_today;
+    const share = n => total ? Math.round(n * 100 / total) + '%' : '0%';
+    document.getElementById('mix-walkin-bar').style.width = share(data.walkin);
+    document.getElementById('mix-appt-bar').style.width = share(data.oapp_success);
+    setText('mix-walkin-pct', share(data.walkin));
+    setText('mix-appt-pct', share(data.oapp_success));
+    document.getElementById('visit-mix-bar').setAttribute('aria-label',
+        `Walk-in ${share(data.walkin)} มาตามนัด ${share(data.oapp_success)} ของทั้งหมด ${fmtN(total)} ครั้ง`);
 
     renderDeptChart(data.depts || []);
     renderApptTimeChart(data.appt_times || []);

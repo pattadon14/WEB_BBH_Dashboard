@@ -96,15 +96,26 @@ include '../templates/sidebar.php';
                                         </div>
 
                                         <div class="horizontal-summary-item walkin-card" data-drill="walkin">
-                                            <span class="opd-ico"><i class="fa-solid fa-person-walking"></i></span>
-                                            <div>
-                                                <div class="summary-title">Walk-in</div>
-                                                <div class="summary-number">
-                                                    <span id="walkin_today">—</span>
-                                                    <span class="summary-unit">ครั้ง</span>
+                                            <div class="walkin-head">
+                                                <span class="opd-ico"><i class="fa-solid fa-person-walking"></i></span>
+                                                <div>
+                                                    <div class="summary-title">Walk-in</div>
+                                                    <div class="todaysummary-sub">มารับบริการโดยไม่มีนัดล่วงหน้า</div>
                                                 </div>
-                                                <div class="todaysummary-sub">
-                                                    มารับบริการโดยไม่มีนัดล่วงหน้า
+                                            </div>
+                                            <div class="summary-number">
+                                                <span id="walkin_today">—</span>
+                                                <span class="summary-unit">ครั้ง</span>
+                                            </div>
+                                            <!-- สัดส่วนของยอดรวม: Walk-in + มาตามนัด = ทั้งหมด -->
+                                            <div class="visit-mix">
+                                                <div class="visit-mix-bar" role="img" id="visit-mix-bar" aria-label="สัดส่วน Walk-in และมาตามนัด">
+                                                    <span class="mix-walkin" id="mix-walkin-bar"></span>
+                                                    <span class="mix-appt" id="mix-appt-bar"></span>
+                                                </div>
+                                                <div class="visit-mix-legend">
+                                                    <span><i class="mix-dot mix-walkin"></i>Walk-in <b id="mix-walkin-pct">–</b></span>
+                                                    <span><i class="mix-dot mix-appt"></i>มาตามนัด <b id="mix-appt-pct">–</b></span>
                                                 </div>
                                             </div>
                                         </div>
@@ -118,8 +129,12 @@ include '../templates/sidebar.php';
 
                                         <div class="appointment-horizontal-card">
                                             <div class="appointment-total" data-drill="appt">
+                                                <span class="appt-total-label">นัดทั้งหมด</span>
                                                 <span id="appoint_today">—</span>
                                                 <small>ราย</small>
+                                                <span class="appt-progress" role="img" id="appt-progress" aria-label="สัดส่วนมาตามนัด">
+                                                    <span id="appt-progress-bar"></span>
+                                                </span>
                                             </div>
 
                                             <div class="appointment-status">
