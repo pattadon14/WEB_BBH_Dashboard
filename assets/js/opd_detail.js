@@ -519,6 +519,9 @@ async function loadOpdTodaySummary() {
                 data.finish_exam
             ).toLocaleString();
 
+        // 4 ช่องรวมได้ยอดรวม — วันที่ผ่านมาแล้วไม่มีสถานะ "รอ" ทุกคนที่ไม่มีบันทึกพบแพทย์อยู่ช่องนี้
+        setText('no_doctor', fmtN(isToday ? data.no_doctor : data.opd_total_today - data.finish_exam));
+
         /*
         =========================
         OPD SUCCESS (มาตามนัด)
@@ -626,8 +629,12 @@ function renderOpdExtras(data, isToday) {
         if (p === 0) return ' <span class="opd-delta">(เท่ากัน)</span>';
         return ` <span class="opd-delta ${p > 0 ? 'up' : 'down'}">${p > 0 ? '▲' : '▼'} ${Math.abs(p)}%</span>`;
     };
+    // เทียบวันเดียวกันของสัปดาห์ก่อน (จันทร์กับจันทร์) — เทียบเมื่อวานไม่ได้ถ้าเมื่อวานเป็นวันหยุด
+    const prev = new Date(getSelectedServiceDate() + 'T00:00:00');
+    prev.setDate(prev.getDate() - 7);
+    const prevLabel = prev.toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'short' });
     document.getElementById('opd-compare').innerHTML =
-        `เทียบเมื่อวาน ${fmtN(data.prev_day)} ครั้ง${change(data.prev_day)}` +
+        `เทียบ${prevLabel} ${fmtN(data.prev_week)} ครั้ง${change(data.prev_week)}` +
         (isToday ? ' — นับถึงเวลาเดียวกัน' : '');
 
     // % คิดจากนัดที่ไม่ได้ยกเลิก (มา + ไม่มา)
@@ -761,6 +768,162 @@ function renderApptTimeChart(times) {
     });
 }
 
+/*
+============================================================
+การไหลของผู้ป่วย / จุดตรวจแพทย์ / นัดรายคลินิก (api/opd_general_today.php)
+และเวลารอเฉลี่ย (api/opd_service_kpi.php?scope=general — นิยามเดียวกับแท็บเวลารอ)
+============================================================
+*/
+
+const emptyBox = (id, text) => { document.getElementById(id).innerHTML = `<p class="text-muted text-center py-5">${text}</p>`; };
+const hh = h => String(h).padStart(2, '0') + ':00';
+
+async function loadOpdGeneralExtras() {
+    const date = getSelectedServiceDate();
+    const isToday = date === getTodayServiceDate();
+    try {
+        const res = await fetch('../api/opd_general_today.php?date=' + encodeURIComponent(date));
+        const data = await res.json();
+        if (!res.ok || data.error) throw new Error(data.error);
+        renderFlowChart(data.hours || []);
+        renderRoomChart(data.rooms || []);
+        renderClinicChart(data.clinics || [], isToday);
+    } catch (e) {
+        console.error('Load OPD general extras:', e);
+    }
+    try {
+        const res = await fetch(`../api/opd_service_kpi.php?scope=general&d1=${encodeURIComponent(date)}&d2=${encodeURIComponent(date)}`);
+        const data = await res.json();
+        if (!res.ok || data.error) throw new Error(data.error);
+        renderWaitList(data, isToday);
+    } catch (e) {
+        console.error('Load OPD wait times:', e);
+        emptyBox('opd-wait-list', 'โหลดเวลารอไม่สำเร็จ');
+    }
+}
+
+// คนเข้ามากกว่าคนได้พบแพทย์ในชั่วโมงไหน = คิวสะสมช่วงนั้น
+function renderFlowChart(hours) {
+    if (!hours.length) {
+        emptyBox('opd-flow-chart', 'ไม่มีผู้มารับบริการในวันที่เลือก');
+        setText('flow-note', '—');
+        return;
+    }
+    const from = hours[0].h, to = hours[hours.length - 1].h;
+    const byH = new Map(hours.map(r => [r.h, r]));
+    const cats = [], arrive = [], seen = [];
+    for (let h = from; h <= to; h++) {
+        cats.push(hh(h));
+        arrive.push(byH.get(h)?.arrive || 0);
+        seen.push(byH.get(h)?.seen || 0);
+    }
+    const peak = arr => arr.reduce((b, v, i) => (v > arr[b] ? i : b), 0);
+    const pa = peak(arrive), ps = peak(seen);
+    setText('flow-note', `มาลงทะเบียนมากสุดช่วง ${cats[pa]} น. (${fmtN(arrive[pa])} ครั้ง) · ` +
+        `พบแพทย์มากสุดช่วง ${cats[ps]} น. (${fmtN(seen[ps])} ครั้ง)`);
+
+    Highcharts.chart('opd-flow-chart', {
+        chart: { type: 'column', height: 400 },   // สูงเท่าแผงเวลารอข้าง ๆ
+        title: { text: null },
+        xAxis: { categories: cats, title: { text: 'ช่วงเวลา (ชั่วโมง)' } },
+        yAxis: { allowDecimals: false, min: 0, title: { text: 'จำนวน (ครั้ง)' } },
+        tooltip: { shared: true, headerFormat: '<b>{point.key} น.</b><br>' },
+        plotOptions: { column: { borderRadius: 4, groupPadding: 0.12, pointPadding: 0.04,
+            dataLabels: { enabled: true, color: '#000', style: { fontSize: '15px', textOutline: 'none' } } } },
+        legend: { itemStyle: { fontSize: '17px' } },
+        credits: { enabled: false },
+        series: [
+            { name: 'มาลงทะเบียน', color: '#2563eb', data: arrive },
+            { name: 'พบแพทย์', color: '#16a34a', data: seen }
+        ]
+    });
+}
+
+function renderRoomChart(rooms) {
+    if (!rooms.length) {
+        emptyBox('opd-room-chart', 'ยังไม่มีบันทึกพบแพทย์ในวันที่เลือก');
+        return;
+    }
+    const TOP = 12;
+    const points = rooms.slice(0, TOP).map(r => ({ name: r.name.replace(/^\d+\s*/, ''), y: r.seen, wait: r.wait }));
+    const rest = rooms.slice(TOP);
+    if (rest.length) {
+        points.push({ name: `จุดอื่นๆ (${rest.length} จุด)`, y: rest.reduce((s, r) => s + r.seen, 0), wait: null, color: OTHER_COLOR });
+    }
+    Highcharts.chart('opd-room-chart', {
+        chart: { type: 'bar', height: Math.max(260, points.length * 34 + 80) },
+        title: { text: null },
+        xAxis: { type: 'category', labels: { style: BAR_LABEL_STYLE } },
+        yAxis: { allowDecimals: false, maxPadding: 0.3, title: { text: 'จำนวนที่ตรวจ (ครั้ง)' } },
+        tooltip: {
+            pointFormatter() {
+                return `ตรวจ <b>${fmtN(this.y)} ครั้ง</b>` + (this.wait != null ? `<br>รอแพทย์เฉลี่ย ${this.wait} นาที` : '');
+            }
+        },
+        plotOptions: { bar: { borderRadius: 4, dataLabels: { ...BAR_DATA_LABELS,
+            formatter() { return fmtN(this.y) + (this.point.wait != null ? ` (${this.point.wait} นาที)` : ''); } } } },
+        credits: { enabled: false },
+        legend: { enabled: false },
+        series: [{ name: 'จุดตรวจ', color: '#2563eb', data: points }]
+    });
+}
+
+function renderClinicChart(clinics, isToday) {
+    const missLabel = isToday ? 'ยังไม่มา' : 'ไม่มาตามนัด';
+    if (!clinics.length) {
+        emptyBox('opd-clinic-chart', 'ไม่มีนัดในวันที่เลือก');
+        setText('clinic-note', '—');
+        return;
+    }
+    const rows = clinics.map(c => ({ ...c, total: c.came + c.miss })).sort((a, b) => b.total - a.total);
+    const TOP = 10;
+    const shown = rows.slice(0, TOP);
+    const rest = rows.slice(TOP);
+    if (rest.length) {
+        shown.push({ name: `คลินิกอื่นๆ (${rest.length} คลินิก)`, came: rest.reduce((s, c) => s + c.came, 0),
+            miss: rest.reduce((s, c) => s + c.miss, 0) });
+    }
+    const worst = rows.filter(c => c.total >= 10).sort((a, b) => b.miss / b.total - a.miss / a.total)[0];
+    setText('clinic-note', `เรียงตามจำนวนนัด · ${missLabel} = นัดที่ยังไม่มีการมารับบริการ` +
+        (worst && worst.miss ? ` · ${missLabel}สัดส่วนสูงสุด: ${worst.name} ${Math.round(worst.miss * 100 / worst.total)}%` : ''));
+
+    Highcharts.chart('opd-clinic-chart', {
+        chart: { type: 'bar', height: Math.max(260, shown.length * 34 + 110) },
+        title: { text: null },
+        xAxis: { categories: shown.map(c => c.name), labels: { style: BAR_LABEL_STYLE } },
+        yAxis: { allowDecimals: false, reversedStacks: false, title: { text: 'จำนวน (ราย)' } },
+        tooltip: { shared: true },
+        plotOptions: { bar: { stacking: 'normal', borderRadius: 3, borderWidth: 2, borderColor: '#fff',
+            dataLabels: { enabled: true, color: '#fff', style: { fontSize: '15px', textOutline: 'none' },
+                filter: { property: 'y', operator: '>', value: 4 } } } },
+        legend: { itemStyle: { fontSize: '17px' } },
+        credits: { enabled: false },
+        series: [
+            { name: 'มาตามนัด', color: '#16a34a', data: shown.map(c => c.came) },
+            { name: missLabel, color: '#dc2626', data: shown.map(c => c.miss) }
+        ]
+    });
+}
+
+function renderWaitList(data, isToday) {
+    const steps = (data.steps || []).filter(s => s.avg != null);
+    setText('wait-note', `ค่าเฉลี่ย${isToday ? 'วันนี้' : 'ของวันที่เลือก'} ${fmtN(data.kpi?.visits)} ครั้ง` +
+        ' (ไม่รวม Admit) · ปรับทุก 5 นาที');
+    if (!steps.length) {
+        emptyBox('opd-wait-list', 'ยังไม่มีบันทึกเวลา');
+        return;
+    }
+    document.getElementById('opd-wait-list').innerHTML = steps.map(s => {
+        const over = s.avg > s.target;
+        return `<div class="opd-wait-row${over ? ' over' : ''}">
+            <span class="opd-wait-name">${escHtml(s.label)}</span>
+            <span class="opd-wait-val">${s.avg} <small>นาที (เป้า ≤ ${s.target})</small></span>
+            <div class="opd-wait-bar" role="img" aria-label="ทันเป้า ${s.ok_pct ?? 0}%"><span style="width:${s.ok_pct ?? 0}%"></span></div>
+            <span class="opd-wait-sub">${over ? '▲ เกินเป้า · ' : '✓ ตามเป้า · '}ทันเป้า ${s.ok_pct ?? 0}% จาก ${fmtN(s.n)} ราย</span>
+        </div>`;
+    }).join('');
+}
+
 function initOpdServiceDateFilter() {
     const input = document.getElementById('opd-service-date');
     const title = document.getElementById('opd-selected-date-title');
@@ -802,6 +965,7 @@ function initOpdServiceDateFilter() {
 
         loadOpdTodaySummary();
         loadPttypeChart();
+        loadOpdGeneralExtras();
     }
 
     // รีเฟรชอัตโนมัติเฉพาะเมื่อดูวันนี้ — วันย้อนหลังตัวเลขไม่เปลี่ยนแล้ว
@@ -809,8 +973,13 @@ function initOpdServiceDateFilter() {
         if ((input.value || todayString) === getTodayServiceDate()) {
             loadOpdTodaySummary();
             loadPttypeChart();
+            loadOpdGeneralExtras();
         }
     }, 60000);
+
+    // ปุ่ม "ดูรายละเอียดที่แท็บเวลารอ" สลับไปแท็บนั้น
+    document.querySelectorAll('[data-goto-tab]').forEach(b => b.addEventListener('click', () =>
+        document.querySelector(`[data-opd-tab="${b.dataset.gotoTab}"]`)?.click()));
 
     input.addEventListener('change', refreshDateSummary);
     input.addEventListener('click', () => { try { input.showPicker(); } catch (e) { /* เบราว์เซอร์เก่า: ใช้ปฏิทินปกติ */ } });
@@ -1121,7 +1290,8 @@ const DRILL_TITLES = {
     all: 'ผู้มารับบริการทั้งหมด', new: 'ผู้ป่วยใหม่', old: 'ผู้ป่วยเก่า', walkin: 'Walk-in',
     appt: 'นัดหมายทั้งหมด', appt_came: 'มาตามนัด', appt_miss: 'ยังไม่มา / ไม่มาตามนัด',
     night: 'ก่อนเวลาราชการ (20:01–07:59 น.)', morning: 'ในเวลาราชการ (08:00–15:59 น.)', evening: 'นอกเวลาราชการ (16:00–20:00 น.)',
-    wait_triage: 'รอซักประวัติ', wait_exam: 'รอตรวจ', finish: 'ตรวจเสร็จแล้ว', admit: 'Admit', refer: 'Refer ส่งต่อ',
+    wait_triage: 'รอซักประวัติ', wait_exam: 'รอตรวจ', finish: 'ตรวจเสร็จแล้ว', no_doctor: 'ไม่มีบันทึกพบแพทย์', not_seen: 'ไม่มีบันทึกพบแพทย์',
+    admit: 'Admit', refer: 'Refer ส่งต่อ',
     dept: 'แผนก', payer: 'สิทธิ์', nation: 'สัญชาติ'
 };
 
@@ -1148,6 +1318,7 @@ async function openDrill(type, key, label) {
     const isToday = date === getTodayServiceDate();
     // วันที่ผ่านมาแล้วการ์ดรอซักประวัติ/รอตรวจแสดง "—" จึงไม่เปิดรายชื่อ
     if (!isToday && (type === 'wait_triage' || type === 'wait_exam')) return;
+    if (!isToday && type === 'no_doctor') type = 'not_seen';
 
     const title = key ? `${DRILL_TITLES[type]}: ${label || key}` : DRILL_TITLES[type];
     setText('opd-drill-title', title);

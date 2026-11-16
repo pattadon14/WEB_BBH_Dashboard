@@ -31,23 +31,28 @@ if (!$d || $d->format('Y-m-d') !== $date) {
 $type = $_GET['type'] ?? '';
 $key  = trim((string)($_GET['key'] ?? ''));
 
-$APPT_CLINICS = "'004','011','049','074','083','106','111','113','116','118','119','123','129','131',
-                 '001','014','020','030','076','084','085','087','097','107','114','120','126','128','130','132'";
 $EXIT_DEPS = "'014','053','083','200','225','234','025','203','204','076','131','176','199','206'";
 $IN_SERVICE = "(o.an IS NULL AND o.cur_dep IS DISTINCT FROM '999')";
+$WAIT_TRIAGE = "$IN_SERVICE AND st.doctor_at IS NULL AND st.screen_at IS NULL";
+$WAIT_EXAM = "$IN_SERVICE AND st.doctor_at IS NULL AND st.screen_at IS NOT NULL AND o.cur_dep NOT IN ($EXIT_DEPS)";
+// นัดที่มาแล้วผ่าน visit ชุด OPD ของวันนั้น (นิยามเดียวกับ opd_appt_came_sql ใน config/opd.php)
+$APPT_CAME = "oa.visit_vn IN (SELECT o2.vn FROM ovst o2 WHERE o2.vstdate = :d AND o2.main_dep IN (" . opd_main_dep_sql() . "))";
+$APPT_MISS = opd_appt_miss_sql(':d');
 
 // เงื่อนไขเพิ่มของแต่ละ type (ข้อความคงที่ทั้งหมด ค่าจากผู้ใช้ผ่าน :key เท่านั้น)
 $VISIT_FILTERS = [
     'all'         => 'TRUE',
     'new'         => 'p.firstday = o.vstdate',
     'old'         => 'p.firstday IS DISTINCT FROM o.vstdate',
-    'walkin'      => 'NOT EXISTS (SELECT 1 FROM oapp oa2 WHERE oa2.visit_vn = o.vn)',
+    'walkin'      => 'NOT ' . opd_appt_came_sql(),
     'night'       => "(o.vsttime > '20:00:00' OR o.vsttime < '08:00:00')",
     'morning'     => "(o.vsttime >= '08:00:00' AND o.vsttime < '16:00:00')",
     'evening'     => "(o.vsttime >= '16:00:00' AND o.vsttime <= '20:00:00')",
-    'wait_triage' => "$IN_SERVICE AND st.doctor_at IS NULL AND st.screen_at IS NULL",
-    'wait_exam'   => "$IN_SERVICE AND st.doctor_at IS NULL AND st.screen_at IS NOT NULL AND o.cur_dep NOT IN ($EXIT_DEPS)",
+    'wait_triage' => $WAIT_TRIAGE,
+    'wait_exam'   => $WAIT_EXAM,
     'finish'      => 'st.doctor_at IS NOT NULL',
+    'no_doctor'   => "st.doctor_at IS NULL AND NOT COALESCE(($WAIT_TRIAGE) OR ($WAIT_EXAM), FALSE)",
+    'not_seen'    => 'st.doctor_at IS NULL',   // วันที่ผ่านมาแล้ว: การ์ด "ไม่มีบันทึกพบแพทย์" = ยอดรวม − ตรวจเสร็จ
     'admit'       => "COALESCE(o.an, '') <> ''",
     'refer'       => 'EXISTS (SELECT 1 FROM referout r WHERE r.vn = o.vn)',
     'dept'        => 'COALESCE(k.department, o.main_dep) = :key',
@@ -55,9 +60,9 @@ $VISIT_FILTERS = [
     'nation'      => "COALESCE(n.name, 'ไม่ระบุ') = :key",
 ];
 $APPT_FILTERS = [
-    'appt'      => 'TRUE',
-    'appt_came' => "COALESCE(oa.visit_vn, '') <> ''",
-    'appt_miss' => "COALESCE(oa.visit_vn, '') = '' AND oa.oapp_status_id IS DISTINCT FROM 4",
+    'appt'      => "(($APPT_CAME) OR ($APPT_MISS))",
+    'appt_came' => $APPT_CAME,
+    'appt_miss' => $APPT_MISS,
 ];
 
 $needsKey = in_array($type, ['dept', 'payer', 'nation'], true);
@@ -116,7 +121,9 @@ try {
             ORDER BY o.vsttime, o.hn";
         $kind = 'visit';
     } else {
-        $sql = "SELECT
+        // 1 แถวต่อ 1 visit ที่มาตามนัด / 1 คนที่ยังไม่มา (นัดแรก) — จำนวนแถวตรงกับตัวเลขบนการ์ด
+        $sql = "SELECT * FROM (
+            SELECT DISTINCT ON (COALESCE(NULLIF(oa.visit_vn, ''), 'hn:' || oa.hn))
                 oa.hn,
                 TRIM(COALESCE(p.pname, '') || COALESCE(p.fname, '') || ' ' || COALESCE(p.lname, '')) AS name,
                 TO_CHAR(oa.nexttime, 'HH24:MI')              AS appt_time,
@@ -128,19 +135,18 @@ try {
                 END                                          AS status,
                 TO_CHAR(v.vsttime, 'HH24:MI')                AS vsttime,
                 COALESCE(pt.name, v.pttype)                  AS pttype,
-                COALESCE(n.name, 'ไม่ระบุ')                  AS nation
+                COALESCE(n.name, 'ไม่ระบุ')                  AS nation,
+                oa.nexttime                                  AS sort_time
             FROM oapp oa
             LEFT JOIN clinic cl     ON cl.clinic = oa.clinic
             LEFT JOIN patient p     ON p.hn = oa.hn
             LEFT JOIN ovst v        ON v.vn = oa.visit_vn
             LEFT JOIN pttype pt     ON pt.pttype = v.pttype
             LEFT JOIN nationality n ON n.nationality = p.nationality
-            WHERE oa.nextdate = :d
-              AND cl.active_status = 'Y'
-              AND (p.death = 'N' OR p.death IS NULL)
-              AND oa.clinic IN ($APPT_CLINICS)
-              AND {$APPT_FILTERS[$type]}
-            ORDER BY oa.nexttime NULLS LAST, oa.hn";
+            WHERE {$APPT_FILTERS[$type]}
+            ORDER BY COALESCE(NULLIF(oa.visit_vn, ''), 'hn:' || oa.hn), oa.nexttime NULLS LAST
+        ) a
+        ORDER BY sort_time NULLS LAST, hn";
         $kind = 'appt';
     }
 
@@ -149,6 +155,7 @@ try {
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     foreach ($rows as &$r) {
+        unset($r['sort_time']);
         foreach (['wait_screen', 'wait_doctor'] as $f) {
             if (array_key_exists($f, $r)) {
                 $r[$f] = ($r[$f] === null || (int)$r[$f] < 0) ? null : (int)$r[$f];

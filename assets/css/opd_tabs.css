@@ -381,6 +381,34 @@
 #opd-tab-general .opd-summary-horizontal .exam-horizontal-card.exam-card .summary-number { color: #5b0fd8; }
 #opd-tab-general .opd-summary-horizontal .exam-horizontal-card.finish-card .summary-title,
 #opd-tab-general .opd-summary-horizontal .exam-horizontal-card.finish-card .summary-number { color: #146c43; }
+/* ไม่มีบันทึกพบแพทย์: เทา ไม่แย่งสายตาจาก 3 สถานะหลัก */
+#opd-tab-general .opd-summary-horizontal .exam-horizontal-card.nodr-card { background: #e9edf0; }
+#opd-tab-general .opd-summary-horizontal .exam-horizontal-card.nodr-card .summary-title,
+#opd-tab-general .opd-summary-horizontal .exam-horizontal-card.nodr-card .summary-number { color: #44525e; }
+
+/* เวลารอเฉลี่ย: แถวละขั้น ค่าเฉลี่ยเทียบเป้า + แถบ % ที่ทันเป้า */
+.opd-wait-list { display: flex; flex-direction: column; gap: 12px; padding: 6px 0 10px; }
+.opd-wait-row { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 2px 10px; }
+.opd-wait-name { font-size: 1.35rem; color: #24332d; }
+.opd-wait-val { font-size: 1.8rem; font-weight: bold; color: #146c43; white-space: nowrap; }
+.opd-wait-val small { font-size: 1.1rem; font-weight: normal; color: #5c6f68; }
+.opd-wait-row.over .opd-wait-val { color: #b42318; }
+.opd-wait-bar { grid-column: 1 / -1; height: 8px; border-radius: 4px; background: #e6ece9; overflow: hidden; }
+.opd-wait-bar span { display: block; height: 100%; border-radius: 4px; background: #198754; }
+.opd-wait-row.over .opd-wait-bar span { background: #d9534f; }
+.opd-wait-sub { grid-column: 1 / -1; font-size: 1.1rem; color: #5c6f68; }
+.opd-wait-more {
+    width: 100%;
+    margin: 4px 0 8px;
+    padding: 8px 10px;
+    border: 1px solid #d9cdf7;
+    border-radius: 10px;
+    background: #f6f1ff;
+    color: #5b21b6;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+.opd-wait-more:hover, .opd-wait-more:focus-visible { background: #7c3aed; color: #fff; }
 
 /* ระยะห่างตัวเลข–หน่วยนับเท่ากันทุกการ์ด (เดิม 0–10px ตามช่องว่างใน HTML) */
 #opd-tab-general .opd-summary-horizontal :is(.opd-summary-main-number, .appointment-total, .time-count, .summary-number) {

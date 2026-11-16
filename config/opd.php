@@ -16,3 +16,21 @@ function opd_main_dep_sql(): string
 {
     return "'" . implode("','", OPD_MAIN_DEPS) . "'";
 }
+
+// นัดหมายของ OPD ชุดเดียวกับ visit (ไม่ใช้รายการรหัสคลินิก) — Walk-in + มาตามนัด = ยอดรวมเสมอ
+//  - มาตามนัด = visit ชุด OPD ที่ผูกกับนัด (oapp.visit_vn) นับเป็น visit
+//  - ยังไม่มา = นัดของวันนั้นที่แผนกปลายทาง (oapp.depcode) อยู่ในชุด OPD ยังไม่มี visit ไม่ยกเลิก (status 4)
+//    ผู้ป่วยไม่เสียชีวิต — oapp.depcode ตรงกลุ่มกับแผนกที่มาจริง 98.7% (ตรวจนัด 2–16 พ.ย. 2569)
+function opd_appt_came_sql(string $vn = 'o.vn'): string
+{
+    return "EXISTS (SELECT 1 FROM oapp oa_c WHERE oa_c.visit_vn = $vn)";
+}
+
+function opd_appt_miss_sql(string $date, string $a = 'oa'): string
+{
+    return "$a.nextdate = $date
+        AND COALESCE($a.visit_vn, '') = ''
+        AND $a.oapp_status_id IS DISTINCT FROM 4
+        AND $a.depcode IN (" . opd_main_dep_sql() . ")
+        AND NOT EXISTS (SELECT 1 FROM patient pd WHERE pd.hn = $a.hn AND pd.death IS NOT NULL AND pd.death <> 'N')";
+}

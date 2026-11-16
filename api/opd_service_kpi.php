@@ -18,6 +18,7 @@
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/opd_flow_lib.php';
+require_once __DIR__ . '/../config/opd.php';
 
 const SK_MAX_GAP = 360;
 const SK_MAX_TOTAL = 600;
@@ -137,7 +138,9 @@ $days = (int) round((strtotime($d2) - strtotime($d1)) / 86400) + 1;
 $p2 = date('Y-m-d', strtotime("$d1 -1 day"));
 $p1 = date('Y-m-d', strtotime("$p2 -" . ($days - 1) . " days"));
 
-$cacheFile = __DIR__ . "/../storage/cache/opd_service_kpi_v2_{$d1}_{$d2}.json";
+// scope=general = เฉพาะ visit แผนกตรวจโรคทั่วไป (config/opd.php) ใช้ในแท็บตรวจโรคทั่วไป
+$general = ($_GET['scope'] ?? '') === 'general';
+$cacheFile = __DIR__ . "/../storage/cache/opd_service_kpi_v2_{$d1}_{$d2}" . ($general ? '_general' : '') . ".json";
 $ttl = $d2 === $today ? 300 : 3600;
 if (is_file($cacheFile) && time() - filemtime($cacheFile) < $ttl) {
     header('Content-Type: application/json; charset=utf-8');
@@ -150,8 +153,10 @@ try {
     $deps = flow_deps($conn);
     // ผู้ป่วยไม่ได้มา รพ. (Telemed, PCU, ส่งยาไปรษณีย์) — ตัดด้วยกฎเดียวกับ 3D Monitor · บ้านบึงไม่ได้ใช้ pt_subtype
     $remote = flow_remote_deps($deps);
-    $inHosp = fn($rs) => array_values(array_filter($rs, fn($r) => !in_array((string) $r['md'], $remote, true)));
-    $all = sk_rows($conn, $deps, $d1, $d2);
+    $inHosp = fn($rs) => array_values(array_filter($rs, fn($r) => !in_array((string) $r['md'], $remote, true)
+        && (!$general || in_array((string) $r['md'], OPD_MAIN_DEPS, true))));
+    $inScope = fn($rs) => $general ? array_filter($rs, fn($r) => in_array((string) $r['md'], OPD_MAIN_DEPS, true)) : $rs;
+    $all = $inScope(sk_rows($conn, $deps, $d1, $d2));
     $rows = $inHosp($all);
     $remoteN = sk_sum($all)['count'] - sk_sum($rows)['count'];
     $cur = sk_sum($rows);

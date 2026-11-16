@@ -23,10 +23,10 @@ try {
     =========================
     */
 
+    // นัดหมาย: นิยามใน config/opd.php — มาตามนัด = ยอดรวม − Walk-in, ยังไม่มา นับเป็นคน
     $sql_summary = "SELECT
             opd.total                   AS opd_total_today,
-            appt.total_appointment      AS appointment_total,
-            appt.came                   AS oapp_success,
+            opd.total - opd.walkin      AS oapp_success,
             appt.not_came               AS miss_today,
             opd.walkin                  AS walkin_total,
             opd.night                   AS before_time,
@@ -34,36 +34,16 @@ try {
             opd.evening                 AS after_time
         FROM
             (
-                SELECT
-                    COUNT(*) AS total_appointment,
-                    COUNT(CASE
-                        WHEN oa.visit_vn IS NOT NULL
-                         AND oa.visit_vn <> ''
-                        THEN 1
-                    END) AS came,
-                    -- ไม่นับนัดที่ยกเลิกแล้ว (oapp_status_id 4)
-                    COUNT(CASE
-                        WHEN (oa.visit_vn IS NULL OR oa.visit_vn = '')
-                         AND oa.oapp_status_id IS DISTINCT FROM 4
-                        THEN 1
-                    END) AS not_came
+                SELECT COUNT(DISTINCT oa.hn) AS not_came
                 FROM oapp oa
-                LEFT JOIN clinic cl ON cl.clinic = oa.clinic
-                LEFT JOIN patient p  ON p.hn      = oa.hn
-                WHERE oa.nextdate       = :targetDate
-                  AND cl.active_status  = 'Y'
-                  AND (p.death = 'N' OR p.death IS NULL)
-                  AND oa.clinic IN (
-                        '004','011','049','074','083','106','111','113','116','118','119','123','129','131',
-						'001','014','020','030','076','084','085','087','097','107','114','120','126','128','130','132'
-                  )
+                WHERE " . opd_appt_miss_sql(':targetDate') . "
             ) appt,
             (
                 SELECT
                     COUNT(*) AS total,
                     -- Walk-in = visit ที่ไม่ถูกผูกกับนัดใดเลย (นับ visit ชุดเดียวกับยอดรวม)
                     COUNT(CASE
-                        WHEN NOT EXISTS (SELECT 1 FROM oapp oa2 WHERE oa2.visit_vn = ovst.vn)
+                        WHEN NOT " . opd_appt_came_sql('ovst.vn') . "
                         THEN 1
                     END) AS walkin,
                     COUNT(CASE
@@ -94,7 +74,6 @@ try {
     if (!$result) {
         $result = [
             'opd_total_today'    => 0,
-            'appointment_total'  => 0,
             'oapp_success'       => 0,
             'miss_today'         => 0,
             'walkin_total'       => 0,
@@ -167,14 +146,14 @@ try {
 
     /*
     ==========================
-    เทียบกับเมื่อวาน
-    ถ้าเลือกวันนี้ นับเมื่อวานถึงเวลาเดียวกับตอนนี้ (เวลาของฐานข้อมูล) จึงเทียบกันได้ระหว่างวัน
+    เทียบกับวันเดียวกันของสัปดาห์ก่อน (จันทร์เทียบจันทร์ — เทียบเมื่อวานไม่ได้เพราะวันหยุดยอดต่างกันมาก)
+    ถ้าเลือกวันนี้ นับถึงเวลาเดียวกับตอนนี้ (เวลาของฐานข้อมูล) จึงเทียบกันได้ระหว่างวัน
     ==========================
     */
 
-    $sql_compare = "SELECT COUNT(*) AS prev_day
+    $sql_compare = "SELECT COUNT(*) AS prev_week
         FROM ovst
-        WHERE vstdate = CAST(:targetDate AS date) - 1
+        WHERE vstdate = CAST(:targetDate AS date) - 7
           AND main_dep IN (" . opd_main_dep_sql() . ")
           AND (CAST(:targetDate AS date) <> CURRENT_DATE OR vsttime <= LOCALTIME)
     ";
@@ -236,31 +215,33 @@ try {
 
     /*
     ==========================
-    การกระจายเวลานัด (oapp.nexttime) — นัดชุดเดียวกับการ์ดนัดหมาย ไม่นับนัดที่ยกเลิก
-    ปัดลงเป็นช่วงละ 30 นาที (08:01, 08:02 รวมเข้าช่วง 08:00)
+    การกระจายเวลานัด (oapp.nexttime) — ชุดเดียวกับการ์ดนัดหมาย (มาตามนัด 1 visit + ยังไม่มา 1 คน = 1 ราย
+    ใช้เวลานัดแรกถ้ามีหลายนัด) ผลรวม = ตัวเลขบนการ์ด · ปัดลงเป็นช่วงละ 30 นาที (08:01, 08:02 รวมเข้าช่วง 08:00)
     ==========================
     */
 
     $sql_appt_times = "SELECT
-            COALESCE(TO_CHAR(oa.nexttime - (EXTRACT(MINUTE FROM oa.nexttime)::int % 30) * INTERVAL '1 minute', 'HH24:MI'), 'ไม่ระบุ') AS time,
-            COUNT(*)                                            AS total
-        FROM oapp oa
-        LEFT JOIN clinic cl ON cl.clinic = oa.clinic
-        LEFT JOIN patient p  ON p.hn      = oa.hn
-        WHERE oa.nextdate       = :targetDate
-          AND cl.active_status  = 'Y'
-          AND (p.death = 'N' OR p.death IS NULL)
-          AND oa.oapp_status_id IS DISTINCT FROM 4
-          AND oa.clinic IN (
-                '004','011','049','074','083','106','111','113','116','118','119','123','129','131',
-                '001','014','020','030','076','084','085','087','097','107','114','120','126','128','130','132'
-          )
+            COALESCE(TO_CHAR(t - (EXTRACT(MINUTE FROM t)::int % 30) * INTERVAL '1 minute', 'HH24:MI'), 'ไม่ระบุ') AS time,
+            COUNT(*) AS total
+        FROM (
+            SELECT MIN(oa.nexttime) AS t
+            FROM oapp oa
+            JOIN ovst o ON o.vn = oa.visit_vn
+            WHERE o.vstdate = :d1
+              AND o.main_dep IN (" . opd_main_dep_sql() . ")
+            GROUP BY oa.visit_vn
+            UNION ALL
+            SELECT MIN(oa.nexttime)
+            FROM oapp oa
+            WHERE " . opd_appt_miss_sql(':d2') . "
+            GROUP BY oa.hn
+        ) x
         GROUP BY 1
         ORDER BY 1
     ";
 
     $stmt = $conn->prepare($sql_appt_times);
-    $stmt->execute([':targetDate' => $targetDate]);
+    $stmt->execute([':d1' => $targetDate, ':d2' => $targetDate]);
     $appt_times = array_map(
         fn($r) => ['time' => $r['time'], 'total' => (int)$r['total']],
         $stmt->fetchAll(PDO::FETCH_ASSOC)
@@ -274,7 +255,7 @@ try {
 
     echo json_encode([
         'opd_total_today'   => (int)$result['opd_total_today'],
-        'appoint_today'     => (int)$result['appointment_total'],
+        'appoint_today'     => (int)$result['oapp_success'] + (int)$result['miss_today'],
         'oapp_success'      => (int)$result['oapp_success'],
         'miss_today'        => (int)$result['miss_today'],
         'walkin'            => (int)$result['walkin_total'],
@@ -284,11 +265,13 @@ try {
         'wait_triage'       => (int)$status['wait_triage'],
         'wait_exam'         => (int)$status['wait_exam'],
         'finish_exam'       => (int)$status['finish_exam'],
+        // ไม่มีบันทึกพบแพทย์และไม่ได้รออยู่ (กลับบ้าน/Admit/อยู่ห้องยา-การเงิน) — ให้ 4 ช่องสถานะรวมได้ยอดรวม
+        'no_doctor'         => (int)$result['opd_total_today'] - (int)$status['wait_triage'] - (int)$status['wait_exam'] - (int)$status['finish_exam'],
         'total_people'      => (int)$extra['total_people'],
         'new_patient'       => (int)$extra['new_patient'],
         'admit'             => (int)$extra['admit'],
         'refer'             => (int)$extra['refer'],
-        'prev_day'          => (int)$compare['prev_day'],
+        'prev_week'         => (int)$compare['prev_week'],
         'depts'             => $depts,
         'nations'           => $nations,
         'appt_times'        => $appt_times,

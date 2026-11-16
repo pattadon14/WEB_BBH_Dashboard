@@ -225,6 +225,19 @@ include '../templates/sidebar.php';
                                                     <span class="summary-unit">ครั้ง</span>
                                                 </div>
                                             </div>
+
+                                            <!-- ส่วนที่เหลือ ให้ 4 ช่องรวมได้ยอดรวม -->
+                                            <div class="exam-horizontal-card nodr-card" data-drill="no_doctor"
+                                                title="กลับบ้าน / Admit / อยู่ห้องยา–การเงิน โดยไม่มีบันทึกเวลาพบแพทย์ (เช่น รับยาเดิม ตรวจแล็บ หรือลืมกดเวลา)">
+                                                <div class="summary-title">
+                                                    <span class="opd-ico"><i class="fa-solid fa-user-clock"></i></span>
+                                                    ไม่มีบันทึกพบแพทย์
+                                                </div>
+                                                <div class="summary-number">
+                                                    <span id="no_doctor">—</span>
+                                                    <span class="summary-unit">ครั้ง</span>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         <div class="opd-mini-pair">
@@ -254,6 +267,64 @@ include '../templates/sidebar.php';
                                         <span id="opd-day-title">ข้อมูลผู้มารับบริการวันนี้</span>
                                     </h2>
                                     <div class="opd-day-sub">เปลี่ยนวันที่ได้จากตัวกรองด้านบน · นับเป็นครั้งที่มารับบริการ</div>
+                                </div>
+
+                                <!-- การไหลของผู้ป่วย + เวลารอ (api/opd_general_today.php, api/opd_service_kpi.php?scope=general) -->
+                                <div class="row">
+                                    <div class="col-xl-8 mb-3">
+                                        <section class="opd-panel opd-panel--green">
+                                            <header class="opd-panel-head">
+                                                <span class="opd-panel-icon"><i class="fa-solid fa-chart-column"></i></span>
+                                                <div>
+                                                    <h3 class="opd-panel-title">ผู้ป่วยเข้า – พบแพทย์ รายชั่วโมง</h3>
+                                                    <p class="opd-panel-sub" id="flow-note">—</p>
+                                                </div>
+                                            </header>
+                                            <div id="opd-flow-chart"></div>
+                                        </section>
+                                    </div>
+                                    <div class="col-xl-4 mb-3">
+                                        <section class="opd-panel opd-panel--violet">
+                                            <header class="opd-panel-head">
+                                                <span class="opd-panel-icon"><i class="fa-solid fa-stopwatch"></i></span>
+                                                <div>
+                                                    <h3 class="opd-panel-title">เวลารอเฉลี่ย</h3>
+                                                    <p class="opd-panel-sub" id="wait-note">—</p>
+                                                </div>
+                                            </header>
+                                            <div id="opd-wait-list" class="opd-wait-list"></div>
+                                            <button type="button" class="opd-wait-more" data-goto-tab="quality">
+                                                ดูรายละเอียดที่แท็บเวลารอ &amp; คุณภาพบริการ <i class="fa-solid fa-arrow-right"></i>
+                                            </button>
+                                        </section>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-xl-6 mb-3">
+                                        <section class="opd-panel opd-panel--blue">
+                                            <header class="opd-panel-head">
+                                                <span class="opd-panel-icon"><i class="fa-solid fa-user-doctor"></i></span>
+                                                <div>
+                                                    <h3 class="opd-panel-title">จุดตรวจของแพทย์</h3>
+                                                    <p class="opd-panel-sub">จำนวนที่ตรวจ · ตัวเลขในวงเล็บ = รอแพทย์เฉลี่ยหลังซักประวัติ (นาที)</p>
+                                                </div>
+                                            </header>
+                                            <div id="opd-room-chart"></div>
+                                        </section>
+                                    </div>
+                                    <div class="col-xl-6 mb-3">
+                                        <section class="opd-panel opd-panel--amber">
+                                            <header class="opd-panel-head">
+                                                <span class="opd-panel-icon"><i class="fa-solid fa-calendar-xmark"></i></span>
+                                                <div>
+                                                    <h3 class="opd-panel-title">นัดหมายรายคลินิก</h3>
+                                                    <p class="opd-panel-sub" id="clinic-note">—</p>
+                                                </div>
+                                            </header>
+                                            <div id="opd-clinic-chart"></div>
+                                        </section>
+                                    </div>
                                 </div>
 
                                 <div class="row">
