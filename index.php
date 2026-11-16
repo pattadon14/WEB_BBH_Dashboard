@@ -9,7 +9,7 @@ include 'templates/sidebar.php';
 
 ?>
 
-<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/index.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/index.css?v=<?= filemtime(__DIR__ . '/assets/css/index.css') ?>">
 
 <div class="content-wrapper home-dash">
 
@@ -72,10 +72,10 @@ include 'templates/sidebar.php';
 
                         <a href="pages/opd_monitor.php"
                            class="opd-monitor-launch"
-                           title="เปิด OPD Real-time 3D Monitor"
-                           aria-label="เปิด OPD Real-time 3D Monitor">
-                            <i class="fa-solid fa-cube"></i>
-                            <span>3D Monitor</span>
+                           title="เปิด OPD Real-time Monitor"
+                           aria-label="เปิด OPD Real-time Monitor">
+                            <i class="fa-solid fa-tower-broadcast"></i>
+                            <span>Real-time Monitor</span>
                         </a>
 
                         <a href="pages/opd_detail.php" class="small-box-footer">

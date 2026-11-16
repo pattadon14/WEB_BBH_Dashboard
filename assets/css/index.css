@@ -112,7 +112,7 @@
     font-size: 1.9rem;
 }
 
-/* ปุ่มเปิด 3D Monitor เป็น pill ใต้ไอคอน OPD (ย้ายมาจาก opd_monitor.css ซึ่งตอนนี้ใช้เฉพาะหน้า monitor) */
+/* ปุ่มเปิด Real-time Monitor เป็น pill ข้างไอคอน OPD (ย้ายมาจาก opd_monitor.css ซึ่งตอนนี้ใช้เฉพาะหน้า monitor) */
 .home-dash .opd-monitor-card .inner {
     padding-right: 96px;
 }
@@ -138,9 +138,10 @@
     box-shadow: 0 8px 18px rgba(25, 135, 84, .28);
 }
 
+/* วางแถวเดียวกับตัวเลข ทางซ้ายของไอคอน (แถวนี้มีแค่ตัวเลข จึงไม่ทับชื่อการ์ด) */
 .home-dash .opd-monitor-launch {
-    top: 90px;
-    right: 18px;
+    top: 32px;
+    right: 90px;
     width: auto;
     height: 34px;
     gap: 6px;
@@ -154,6 +155,18 @@
 
 .home-dash .opd-monitor-launch i {
     font-size: 1rem;
+    animation: opd-live-pulse 2s ease-in-out infinite;
+}
+
+/* ไอคอนกระพริบเบา ๆ บอกว่าเป็นข้อมูลสด — ปิดเมื่อผู้ใช้ตั้งลดการเคลื่อนไหว */
+@keyframes opd-live-pulse {
+    50% { opacity: .45; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .home-dash .opd-monitor-launch i {
+        animation: none;
+    }
 }
 
 /* ปุ่ม "รายละเอียด" เป็นแถบจางสีเขียว เข้มขึ้นเมื่อชี้ — ไม่แย่งสายตาจากตัวเลข */
@@ -396,7 +409,10 @@
         border-radius: 12px;
     }
 
-    /* จอเล็ก: ปุ่ม 3D Monitor เหลือแค่ไอคอน ไม่ทับชื่อการ์ด */
+}
+
+/* จอเล็ก และจอที่การ์ด 3 ใบแคบ (992–1299px): ปุ่ม Real-time Monitor เหลือแค่ไอคอน ไม่ทับตัวเลข */
+@media (max-width: 576px), (min-width: 992px) and (max-width: 1299.98px) {
     .home-dash .opd-monitor-launch {
         width: 34px;
         padding: 0;
