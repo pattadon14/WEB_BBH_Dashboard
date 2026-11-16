@@ -2,10 +2,11 @@
 
 header('Content-Type: application/json; charset=utf-8');
 
-require_once '../config/cache.php';
-api_cache_by_date('opd_pttype_today'); // คำตอบเดียวกันทุกจอ รีเฟรชทุก 60 วินาที
-require_once '../config/database.php';
 require_once '../config/opd.php';
+require_once '../config/cache.php';
+$scope = opd_scope(); // ?scope=general (ตรวจโรคทั่วไป) | special (คลินิกพิเศษ)
+api_cache_by_date("opd_pttype_today_$scope"); // คำตอบเดียวกันทุกจอ รีเฟรชทุก 60 วินาที
+require_once '../config/database.php';
 
 try {
 
@@ -29,7 +30,7 @@ try {
         ON pt.pttype = ov.pttype
 
     WHERE ov.vstdate = :targetDate
-      AND ov.main_dep IN (" . opd_main_dep_sql() . ")
+      AND ov.main_dep IN (" . opd_dep_sql($scope) . ")
 
     GROUP BY
         ov.pttype,

@@ -1,7 +1,7 @@
 <?php
 /*
- * รายชื่อผู้ป่วยเบื้องหลังตัวเลขในแท็บตรวจโรคทั่วไป (opd_detail.php)
- * GET api/opd_visit_list.php?date=YYYY-MM-DD&type=<ชนิด>[&key=<ค่า>]
+ * รายชื่อผู้ป่วยเบื้องหลังตัวเลขในแท็บตรวจโรคทั่วไป/คลินิกพิเศษ (opd_detail.php)
+ * GET api/opd_visit_list.php?date=YYYY-MM-DD&type=<ชนิด>[&key=<ค่า>][&scope=general|special]
  *
  * ข้อมูลส่วนบุคคล (PDPA): ต้อง login Provider ID · ไม่ cache ลงดิสก์
  * เงื่อนไขแต่ละ type ต้องตรงกับที่ใช้นับใน opd_visit_today.php (ถ้าแก้ที่หนึ่ง ให้แก้อีกที่ด้วย)
@@ -19,6 +19,7 @@ if (!provider_is_logged_in()) {
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/opd.php';
+$scope = opd_scope(); // ?scope=general (ตรวจโรคทั่วไป) | special (คลินิกพิเศษ)
 
 $date = $_GET['date'] ?? date('Y-m-d');
 $d = DateTime::createFromFormat('Y-m-d', $date);
@@ -36,8 +37,8 @@ $IN_SERVICE = "(o.an IS NULL AND o.cur_dep IS DISTINCT FROM '999')";
 $WAIT_TRIAGE = "$IN_SERVICE AND st.doctor_at IS NULL AND st.screen_at IS NULL";
 $WAIT_EXAM = "$IN_SERVICE AND st.doctor_at IS NULL AND st.screen_at IS NOT NULL AND o.cur_dep NOT IN ($EXIT_DEPS)";
 // นัดที่มาแล้วผ่าน visit ชุด OPD ของวันนั้น (นิยามเดียวกับ opd_appt_came_sql ใน config/opd.php)
-$APPT_CAME = "oa.visit_vn IN (SELECT o2.vn FROM ovst o2 WHERE o2.vstdate = :d AND o2.main_dep IN (" . opd_main_dep_sql() . "))";
-$APPT_MISS = opd_appt_miss_sql(':d');
+$APPT_CAME = "oa.visit_vn IN (SELECT o2.vn FROM ovst o2 WHERE o2.vstdate = :d AND o2.main_dep IN (" . opd_dep_sql($scope) . "))";
+$APPT_MISS = opd_appt_miss_sql(':d', $scope);
 
 // เงื่อนไขเพิ่มของแต่ละ type (ข้อความคงที่ทั้งหมด ค่าจากผู้ใช้ผ่าน :key เท่านั้น)
 $VISIT_FILTERS = [
@@ -116,7 +117,7 @@ try {
                 WHERE s.vn = o.vn
             ) st ON TRUE
             WHERE o.vstdate = :d
-              AND o.main_dep IN (" . opd_main_dep_sql() . ")
+              AND o.main_dep IN (" . opd_dep_sql($scope) . ")
               AND {$VISIT_FILTERS[$type]}
             ORDER BY o.vsttime, o.hn";
         $kind = 'visit';

@@ -2,10 +2,11 @@
 
 header('Content-Type: application/json; charset=utf-8');
 
-require_once '../config/cache.php';
-api_cache_by_date('opd_visit_today'); // คำตอบเดียวกันทุกจอ รีเฟรชทุก 60 วินาที
-require_once '../config/database.php';
 require_once '../config/opd.php';
+require_once '../config/cache.php';
+$scope = opd_scope(); // ?scope=general (ตรวจโรคทั่วไป) | special (คลินิกพิเศษ)
+api_cache_by_date("opd_visit_today_$scope"); // คำตอบเดียวกันทุกจอ รีเฟรชทุก 60 วินาที
+require_once '../config/database.php';
 
 try {
 
@@ -36,7 +37,7 @@ try {
             (
                 SELECT COUNT(DISTINCT oa.hn) AS not_came
                 FROM oapp oa
-                WHERE " . opd_appt_miss_sql(':targetDate') . "
+                WHERE " . opd_appt_miss_sql(':targetDate', $scope) . "
             ) appt,
             (
                 SELECT
@@ -63,7 +64,7 @@ try {
                     END) AS evening
                 FROM ovst
                 WHERE vstdate = :targetDate
-                  AND main_dep IN (" . opd_main_dep_sql() . ")
+                  AND main_dep IN (" . opd_dep_sql($scope) . ")
             ) opd
     ";
 
@@ -112,7 +113,7 @@ try {
                         WHERE s.vn = o.vn AND s.ovst_service_time_type_code = 'OPD-DOCTOR') AS doctor
             FROM ovst o
             WHERE o.vstdate = :targetDate
-              AND o.main_dep IN (" . opd_main_dep_sql() . ")
+              AND o.main_dep IN (" . opd_dep_sql($scope) . ")
         ) v
     ";
 
@@ -137,7 +138,7 @@ try {
         FROM ovst o
         LEFT JOIN patient p ON p.hn = o.hn
         WHERE o.vstdate = :targetDate
-          AND o.main_dep IN (" . opd_main_dep_sql() . ")
+          AND o.main_dep IN (" . opd_dep_sql($scope) . ")
     ";
 
     $stmt = $conn->prepare($sql_extra);
@@ -154,7 +155,7 @@ try {
     $sql_compare = "SELECT COUNT(*) AS prev_week
         FROM ovst
         WHERE vstdate = CAST(:targetDate AS date) - 7
-          AND main_dep IN (" . opd_main_dep_sql() . ")
+          AND main_dep IN (" . opd_dep_sql($scope) . ")
           AND (CAST(:targetDate AS date) <> CURRENT_DATE OR vsttime <= LOCALTIME)
     ";
 
@@ -174,7 +175,7 @@ try {
         FROM ovst o
         LEFT JOIN kskdepartment k ON k.depcode = o.main_dep
         WHERE o.vstdate = :targetDate
-          AND o.main_dep IN (" . opd_main_dep_sql() . ")
+          AND o.main_dep IN (" . opd_dep_sql($scope) . ")
         GROUP BY 1
         ORDER BY 2 DESC
     ";
@@ -201,7 +202,7 @@ try {
         LEFT JOIN patient p     ON p.hn = o.hn
         LEFT JOIN nationality n ON n.nationality = p.nationality
         WHERE o.vstdate = :targetDate
-          AND o.main_dep IN (" . opd_main_dep_sql() . ")
+          AND o.main_dep IN (" . opd_dep_sql($scope) . ")
         GROUP BY 1
         ORDER BY 2 DESC
     ";
@@ -228,12 +229,12 @@ try {
             FROM oapp oa
             JOIN ovst o ON o.vn = oa.visit_vn
             WHERE o.vstdate = :d1
-              AND o.main_dep IN (" . opd_main_dep_sql() . ")
+              AND o.main_dep IN (" . opd_dep_sql($scope) . ")
             GROUP BY oa.visit_vn
             UNION ALL
             SELECT MIN(oa.nexttime)
             FROM oapp oa
-            WHERE " . opd_appt_miss_sql(':d2') . "
+            WHERE " . opd_appt_miss_sql(':d2', $scope) . "
             GROUP BY oa.hn
         ) x
         GROUP BY 1

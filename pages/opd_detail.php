@@ -24,7 +24,8 @@ include '../templates/sidebar.php';
                     ตรวจโรคทั่วไป
                 </button>
 
-                <button class="opd-page-tab" type="button" role="tab" aria-selected="false" data-opd-tab="special">
+                <!-- คลินิคพิเศษใช้แผง/layout เดียวกับตรวจโรคทั่วไป เปลี่ยนแค่ชุดแผนก (?scope=special) -->
+                <button class="opd-page-tab" type="button" role="tab" aria-selected="false" data-opd-tab="special" data-opd-panel="general">
                     <i class="fa-solid fa-hospital-user"></i>
                     คลินิคพิเศษ
                 </button>
@@ -399,7 +400,7 @@ include '../templates/sidebar.php';
                         </div>
                     </div>
 
-                    <!-- ข้อมูลตามปีงบประมาณ (ใช้ตัวเลือกปีงบ) -->
+                    <!-- ข้อมูลตามปีงบประมาณ (ใช้ตัวเลือกปีงบ) — OPD ทั้งหมด (ทั่วไป + คลินิคพิเศษ) เหมือนการ์ดหน้าหลัก แสดงเหมือนกันทั้ง 2 แท็บ -->
                     <div class="col-12">
                         <div class="card shadow-sm mb-3">
                             <div class="opd-chart">
@@ -408,6 +409,7 @@ include '../templates/sidebar.php';
                                         <h2 class="mb-1 text-success" style="font-weight:bold;">
                                             <i class="fa-solid fa-chart-column"></i>
                                             ข้อมูลตามปีงบประมาณ
+                                            <small class="opd-fy-scope">ผู้ป่วยนอกทั้งหมด (ตรวจโรคทั่วไป + คลินิคพิเศษ)</small>
                                         </h2>
                                         <div id="budget-date-text" class="text-success fs-5"></div>
                                     </div>
@@ -505,138 +507,6 @@ include '../templates/sidebar.php';
                 <div class="opd-drill-body" id="opd-drill-body"></div>
                 <nav class="opd-drill-pager" id="opd-drill-pager" aria-label="เปลี่ยนหน้ารายชื่อ"></nav>
             </dialog>
-
-            <!-- =====================================================
-                 TAB 2 : คลินิคพิเศษ
-            ====================================================== -->
-            <div class="opd-tab-panel" id="opd-tab-special" role="tabpanel" hidden>
-
-                <div class="row">
-                    <div class="col-12 mb-3">
-                        <div class="card shadow-sm opd-summary-horizontal special-clinic-summary">
-                            <div class="card-body">
-
-                                <div class="opd-summary-main">
-                                    <div class="opd-summary-main-icon">
-                                        <i class="fa-solid fa-hospital-user"></i>
-                                    </div>
-
-                                    <div class="opd-summary-main-info">
-                                        <div class="opd-summary-title">
-                                            ผู้มารับบริการตรวจโรคคลินิคพิเศษวันนี้
-                                        </div>
-                                        <div class="opd-summary-total-label">
-                                            จำนวนผู้มารับบริการ
-                                        </div>
-                                    </div>
-
-                                    <div class="opd-summary-main-number special-total-number">
-                                        <span id="special_total">—</span>
-                                        <small>คน</small>
-                                    </div>
-                                </div>
-
-                                <div class="special-clinic-grid">
-
-                                    <div class="special-clinic-section">
-                                        <div class="summary-section-title">
-                                            <i class="fa-solid fa-calendar-days"></i>
-                                            นัดหมายวันนี้
-                                        </div>
-
-                                        <div class="special-appointment-card">
-                                            <div class="special-appointment-total">
-                                                <span id="special_appointment">—</span>
-                                                <small>คน</small>
-                                            </div>
-
-                                            <div class="special-appointment-result">
-                                                <div class="special-result-item came">
-                                                    <div class="special-result-label">
-                                                        <i class="fa-solid fa-square-check"></i>
-                                                        มาตามนัด
-                                                    </div>
-                                                    <div class="special-result-number">
-                                                        <span id="special_came">—</span>
-                                                        <small>คน</small>
-                                                    </div>
-                                                </div>
-
-                                                <div class="special-result-divider"></div>
-
-                                                <div class="special-result-item miss">
-                                                    <div class="special-result-label">
-                                                        <i class="fa-solid fa-square-xmark"></i>
-                                                        ไม่มาตามนัด
-                                                    </div>
-                                                    <div class="special-result-number">
-                                                        <span id="special_not_came">—</span>
-                                                        <small>คน</small>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="special-clinic-section">
-                                        <div class="summary-section-title">
-                                            <i class="fa-solid fa-stethoscope"></i>
-                                            สถานะการตรวจ
-                                        </div>
-
-                                        <div class="special-status-list">
-                                            <div class="special-status-item status-triage">
-                                                <div class="special-status-icon"><i class="fa-solid fa-user-nurse"></i>
-                                                </div>
-                                                <div class="special-status-info">
-                                                    <div class="special-status-name">รอซักประวัติ</div>
-                                                    <div class="special-status-description">รอซักประวัติและคัดกรอง</div>
-                                                </div>
-                                                <div class="special-status-count"><span
-                                                        id="special_wait_triage">—</span><small>คน</small></div>
-                                            </div>
-
-                                            <div class="special-status-item status-exam">
-                                                <div class="special-status-icon"><i class="fa-solid fa-stethoscope"></i>
-                                                </div>
-                                                <div class="special-status-info">
-                                                    <div class="special-status-name">รอตรวจ</div>
-                                                    <div class="special-status-description">กำลังรอพบแพทย์</div>
-                                                </div>
-                                                <div class="special-status-count"><span
-                                                        id="special_wait_exam">—</span><small>คน</small></div>
-                                            </div>
-
-                                            <div class="special-status-item status-finish">
-                                                <div class="special-status-icon"><i
-                                                        class="fa-solid fa-circle-check"></i></div>
-                                                <div class="special-status-info">
-                                                    <div class="special-status-name">ตรวจเสร็จแล้ว</div>
-                                                    <div class="special-status-description">ตรวจเสร็จและออกจากระบบแล้ว
-                                                    </div>
-                                                </div>
-                                                <div class="special-status-count"><span
-                                                        id="special_finish_exam">—</span><small>คน</small></div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-
-                                <div class="special-clinic-placeholder mt-4">
-                                    <i class="fa-solid fa-chart-line"></i>
-                                    <div>
-                                        <strong>พื้นที่สำหรับข้อมูลคลินิคพิเศษเพิ่มเติม</strong>
-                                        <div>สามารถเพิ่มกราฟ / ตารางของคลินิคพิเศษในขั้นตอนถัดไปได้</div>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
 
             <!-- =====================================================
                  TAB 3 : เวลารอ & คุณภาพบริการ (api/opd_service_kpi.php)
@@ -754,6 +624,7 @@ include '../templates/sidebar.php';
     tabs.forEach(tab => {
         tab.addEventListener('click', function() {
             const target = this.dataset.opdTab;
+            const panelName = this.dataset.opdPanel || target;
 
             tabs.forEach(item => {
                 const active = item === this;
@@ -762,7 +633,7 @@ include '../templates/sidebar.php';
             });
 
             panels.forEach(panel => {
-                const active = panel.id === 'opd-tab-' + target;
+                const active = panel.id === 'opd-tab-' + panelName;
                 panel.classList.toggle('active', active);
                 panel.hidden = !active;
             });

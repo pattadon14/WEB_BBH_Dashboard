@@ -65,6 +65,12 @@ function getTodayServiceDate() {
         String(today.getDate()).padStart(2, '0');
 }
 
+// แท็บตรวจโรคทั่วไป/คลินิคพิเศษใช้แผงเดียวกัน — opdScope = ชุดแผนกที่กำลังดู (config/opd.php)
+// ผลที่กลับมาหลังสลับแท็บแล้ว (scope ไม่ตรง) ทิ้งไป ไม่ให้ตัวเลขแท็บเก่าทับแท็บใหม่
+let opdScope = 'general';
+const SCOPE_NAMES = { general: 'ตรวจโรคทั่วไป', special: 'คลินิคพิเศษ' };
+const opdQs = () => `date=${encodeURIComponent(getSelectedServiceDate())}&scope=${opdScope}`;
+
 async function loadChart() {
 
     const year =
@@ -316,11 +322,13 @@ loadChart();
 
 async function loadPttypeChart(){
 
+    const scope = opdScope;
     const response =
-        await fetch('../api/opd_pttype_today.php?date=' + encodeURIComponent(getSelectedServiceDate()));
+        await fetch('../api/opd_pttype_today.php?' + opdQs());
 
     const data =
         await response.json();
+    if (scope !== opdScope) return;
 
     if (!Array.isArray(data)) {
         console.error('pttype API error:', data && data.error);
@@ -421,13 +429,15 @@ async function loadOpdTodaySummary() {
 
     try {
 
+        const scope = opdScope;
         const response =
             await fetch(
-                '../api/opd_visit_today.php?date=' + encodeURIComponent(getSelectedServiceDate())
+                '../api/opd_visit_today.php?' + opdQs()
             );
 
         const data =
             await response.json();
+        if (scope !== opdScope) return;
 
         /*
         =========================
@@ -783,7 +793,7 @@ function renderApptTimeChart(times) {
 /*
 ============================================================
 การไหลของผู้ป่วย / จุดตรวจแพทย์ / นัดรายคลินิก (api/opd_general_today.php)
-และเวลารอเฉลี่ย (api/opd_service_kpi.php?scope=general — นิยามเดียวกับแท็บเวลารอ)
+และเวลารอเฉลี่ย (api/opd_service_kpi.php?scope=general|special — นิยามเดียวกับแท็บเวลารอ)
 ============================================================
 */
 
@@ -793,10 +803,12 @@ const hh = h => String(h).padStart(2, '0') + ':00';
 async function loadOpdGeneralExtras() {
     const date = getSelectedServiceDate();
     const isToday = date === getTodayServiceDate();
+    const scope = opdScope;
     try {
-        const res = await fetch('../api/opd_general_today.php?date=' + encodeURIComponent(date));
+        const res = await fetch('../api/opd_general_today.php?' + opdQs());
         const data = await res.json();
         if (!res.ok || data.error) throw new Error(data.error);
+        if (scope !== opdScope) return;
         renderFlowChart(data.hours || []);
         renderRoomChart(data.rooms || []);
         renderClinicChart(data.clinics || [], isToday);
@@ -804,9 +816,10 @@ async function loadOpdGeneralExtras() {
         console.error('Load OPD general extras:', e);
     }
     try {
-        const res = await fetch(`../api/opd_service_kpi.php?scope=general&d1=${encodeURIComponent(date)}&d2=${encodeURIComponent(date)}`);
+        const res = await fetch(`../api/opd_service_kpi.php?scope=${scope}&d1=${encodeURIComponent(date)}&d2=${encodeURIComponent(date)}`);
         const data = await res.json();
         if (!res.ok || data.error) throw new Error(data.error);
+        if (scope !== opdScope) return;
         renderWaitList(data, isToday);
     } catch (e) {
         console.error('Load OPD wait times:', e);
@@ -967,7 +980,7 @@ function initOpdServiceDateFilter() {
 
         if (title) {
             title.textContent =
-                'ผู้มารับบริการตรวจโรคทั่วไป วันที่ ' +
+                'ผู้มารับบริการ' + SCOPE_NAMES[opdScope] + ' วันที่ ' +
                 formatThaiDate(selected);
         }
 
@@ -992,6 +1005,14 @@ function initOpdServiceDateFilter() {
     // ปุ่ม "ดูรายละเอียดที่แท็บเวลารอ" สลับไปแท็บนั้น
     document.querySelectorAll('[data-goto-tab]').forEach(b => b.addEventListener('click', () =>
         document.querySelector(`[data-opd-tab="${b.dataset.gotoTab}"]`)?.click()));
+
+    // สลับตรวจโรคทั่วไป ↔ คลินิคพิเศษ: แผงเดิม โหลดข้อมูลชุดแผนกใหม่ (วันที่ที่เลือกไว้คงเดิม)
+    window.addEventListener('opdTabChanged', e => {
+        const tab = e.detail.tab;
+        if (!SCOPE_NAMES[tab] || tab === opdScope) return;
+        opdScope = tab;
+        refreshDateSummary();
+    });
 
     input.addEventListener('change', refreshDateSummary);
     input.addEventListener('click', () => { try { input.showPicker(); } catch (e) { /* เบราว์เซอร์เก่า: ใช้ปฏิทินปกติ */ } });
@@ -1334,7 +1355,7 @@ async function openDrill(type, key, label) {
 
     const title = key ? `${DRILL_TITLES[type]}: ${label || key}` : DRILL_TITLES[type];
     setText('opd-drill-title', title);
-    setText('opd-drill-sub', 'วันที่ ' + formatThaiDate(date));
+    setText('opd-drill-sub', SCOPE_NAMES[opdScope] + ' · วันที่ ' + formatThaiDate(date));
     setText('opd-drill-count', '');
     document.getElementById('opd-drill-q').value = '';
     document.getElementById('opd-drill-export').disabled = true;
@@ -1345,7 +1366,7 @@ async function openDrill(type, key, label) {
     if (!dlg.open) dlg.showModal();
 
     try {
-        const qs = new URLSearchParams({ date, type });
+        const qs = new URLSearchParams({ date, type, scope: opdScope });
         if (key) qs.set('key', key);
         const res = await fetch('../api/opd_visit_list.php?' + qs);
         const data = await res.json();
@@ -1357,7 +1378,7 @@ async function openDrill(type, key, label) {
 
         const people = new Set(data.rows.map(r => r.hn)).size;
         const unit = data.kind === 'appt' ? 'ราย' : 'ครั้ง';
-        setText('opd-drill-sub', `วันที่ ${formatThaiDate(date)} · ${fmtN(data.rows.length)} ${unit} (${fmtN(people)} คน)`);
+        setText('opd-drill-sub', `${SCOPE_NAMES[opdScope]} · วันที่ ${formatThaiDate(date)} · ${fmtN(data.rows.length)} ${unit} (${fmtN(people)} คน)`);
         document.getElementById('opd-drill-export').disabled = !data.rows.length;
         renderDrillTable();
 

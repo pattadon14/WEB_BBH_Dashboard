@@ -69,22 +69,10 @@
             if (!tabName || !isProviderLoggedIn) return false;
 
             const tabButton = document.querySelector('[data-opd-tab="' + tabName + '"]');
-            const tabPanel = document.getElementById('opd-tab-' + tabName);
+            if (!tabButton) return false;
 
-            if (!tabButton || !tabPanel) return false;
-
-            document.querySelectorAll('.opd-page-tab').forEach(function (button) {
-                const active = button.getAttribute('data-opd-tab') === tabName;
-                button.classList.toggle('active', active);
-                button.setAttribute('aria-selected', active ? 'true' : 'false');
-            });
-
-            document.querySelectorAll('.opd-tab-panel').forEach(function (panel) {
-                const active = panel.id === 'opd-tab-' + tabName;
-                panel.classList.toggle('active', active);
-                panel.hidden = !active;
-            });
-
+            // กดปุ่มแท็บแทน — ใช้ตัวสลับแท็บของหน้า opd_detail (คลินิคพิเศษใช้แผงเดียวกับตรวจโรคทั่วไป และโหลดข้อมูลใหม่)
+            tabButton.click();
             return true;
         }
 

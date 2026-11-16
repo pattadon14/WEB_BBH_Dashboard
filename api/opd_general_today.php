@@ -1,7 +1,7 @@
 <?php
 /*
- * ข้อมูลเสริมแท็บตรวจโรคทั่วไป (opd_detail.php) — GET api/opd_general_today.php?date=YYYY-MM-DD
- * visit ชุดเดียวกับ opd_visit_today.php (ovst.main_dep ใน OPD_MAIN_DEPS) · ไม่มีข้อมูลรายบุคคล
+ * ข้อมูลเสริมแท็บตรวจโรคทั่วไป/คลินิกพิเศษ (opd_detail.php) — GET api/opd_general_today.php?date=YYYY-MM-DD&scope=general|special
+ * visit ชุดเดียวกับ opd_visit_today.php (ovst.main_dep ในชุดของแท็บ config/opd.php) · ไม่มีข้อมูลรายบุคคล
  *  - hours : ต่อชั่วโมง มาลงทะเบียน (ovst.vsttime) / พบแพทย์ (OPD-DOCTOR ครั้งแรกของ visit ในวันนั้น)
  *  - rooms : จุดที่บันทึกพบแพทย์ครั้งแรก (ovst_service_time.depcode) จำนวนที่ตรวจ + รอแพทย์เฉลี่ย
  *            รอแพทย์ = ซักประวัติครั้งแรกก่อนพบแพทย์ → พบแพทย์ นับเฉพาะ 0–360 นาที (กฎเดียวกับ opd_service_kpi.php)
@@ -10,10 +10,11 @@
 
 header('Content-Type: application/json; charset=utf-8');
 
-require_once '../config/cache.php';
-api_cache_by_date('opd_general_today'); // คำตอบเดียวกันทุกจอ รีเฟรชทุก 60 วินาที
-require_once '../config/database.php';
 require_once '../config/opd.php';
+require_once '../config/cache.php';
+$scope = opd_scope(); // ?scope=general (ตรวจโรคทั่วไป) | special (คลินิกพิเศษ)
+api_cache_by_date("opd_general_today_$scope"); // คำตอบเดียวกันทุกจอ รีเฟรชทุก 60 วินาที
+require_once '../config/database.php';
 
 $date = $_GET['date'] ?? date('Y-m-d');
 $d = DateTime::createFromFormat('Y-m-d', $date);
@@ -23,7 +24,7 @@ if (!$d || $d->format('Y-m-d') !== $date) {
     exit;
 }
 
-$deps = opd_main_dep_sql();
+$deps = opd_dep_sql($scope);
 // เวลาพบแพทย์/ซักประวัติครั้งแรกต่อ visit (ซักประวัติต้องก่อนพบแพทย์ — ตัดการซักที่จุด Exit หลังตรวจ)
 $visits = "
     WITH v AS (
@@ -69,7 +70,7 @@ try {
     $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $came = "oa.visit_vn IN (SELECT o2.vn FROM ovst o2 WHERE o2.vstdate = :d1 AND o2.main_dep IN ($deps))";
-    $miss = opd_appt_miss_sql(':d2');
+    $miss = opd_appt_miss_sql(':d2', $scope);
     $stmt = $conn->prepare("
         SELECT COALESCE(cl.name, oa.clinic, 'ไม่ระบุคลินิก') AS name,
                COUNT(DISTINCT oa.visit_vn) FILTER (WHERE COALESCE(oa.visit_vn, '') <> '')::int AS came,

@@ -138,9 +138,9 @@ $days = (int) round((strtotime($d2) - strtotime($d1)) / 86400) + 1;
 $p2 = date('Y-m-d', strtotime("$d1 -1 day"));
 $p1 = date('Y-m-d', strtotime("$p2 -" . ($days - 1) . " days"));
 
-// scope=general = เฉพาะ visit แผนกตรวจโรคทั่วไป (config/opd.php) ใช้ในแท็บตรวจโรคทั่วไป
-$general = ($_GET['scope'] ?? '') === 'general';
-$cacheFile = __DIR__ . "/../storage/cache/opd_service_kpi_v2_{$d1}_{$d2}" . ($general ? '_general' : '') . ".json";
+// scope=general|special = เฉพาะ visit ของแท็บนั้น (config/opd.php) · ไม่ส่ง = ทุกแผนก (แท็บเวลารอ)
+$scopeDeps = in_array($_GET['scope'] ?? '', ['general', 'special'], true) ? opd_dep_list($_GET['scope']) : null;
+$cacheFile = __DIR__ . "/../storage/cache/opd_service_kpi_v2_{$d1}_{$d2}" . ($scopeDeps ? '_' . $_GET['scope'] : '') . ".json";
 $ttl = $d2 === $today ? 300 : 3600;
 if (is_file($cacheFile) && time() - filemtime($cacheFile) < $ttl) {
     header('Content-Type: application/json; charset=utf-8');
@@ -153,9 +153,8 @@ try {
     $deps = flow_deps($conn);
     // ผู้ป่วยไม่ได้มา รพ. (Telemed, PCU, ส่งยาไปรษณีย์) — ตัดด้วยกฎเดียวกับ 3D Monitor · บ้านบึงไม่ได้ใช้ pt_subtype
     $remote = flow_remote_deps($deps);
-    $inHosp = fn($rs) => array_values(array_filter($rs, fn($r) => !in_array((string) $r['md'], $remote, true)
-        && (!$general || in_array((string) $r['md'], OPD_MAIN_DEPS, true))));
-    $inScope = fn($rs) => $general ? array_filter($rs, fn($r) => in_array((string) $r['md'], OPD_MAIN_DEPS, true)) : $rs;
+    $inScope = fn($rs) => $scopeDeps ? array_filter($rs, fn($r) => in_array((string) $r['md'], $scopeDeps, true)) : $rs;
+    $inHosp = fn($rs) => array_values(array_filter($inScope($rs), fn($r) => !in_array((string) $r['md'], $remote, true)));
     $all = $inScope(sk_rows($conn, $deps, $d1, $d2));
     $rows = $inHosp($all);
     $remoteN = sk_sum($all)['count'] - sk_sum($rows)['count'];
