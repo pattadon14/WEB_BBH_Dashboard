@@ -61,7 +61,7 @@ function loadDashboard() {
 }
 
 loadDashboard();
-setInterval(loadDashboard, 30000);
+bbhPoll(loadDashboard, 60000); // API มี cache 60 วินาที รีเฟรชถี่กว่านี้ไม่ได้ข้อมูลใหม่
 
 /*
 ============================================================
@@ -299,4 +299,4 @@ document.getElementById('hm-toggle')?.addEventListener('click', () => {
 });
 
 loadHeatmap();
-setInterval(loadHeatmap, 3 * 60 * 1000); // refresh ทุก 3 นาที
+bbhPoll(loadHeatmap, 3 * 60 * 1000); // refresh ทุก 3 นาที

@@ -839,7 +839,7 @@ async function loadWardBed() {
 
 loadWardBed();
 
-setInterval(
+bbhPoll(
     loadWardBed,
     60000
 );
@@ -895,7 +895,7 @@ async function loadBedSummary() {
 
 loadBedSummary();
 
-setInterval(
+bbhPoll(
     loadBedSummary,
     60000
 );
@@ -960,7 +960,7 @@ async function loadServiceSummary() {
 
 loadServiceSummary();
 
-setInterval(
+bbhPoll(
     loadServiceSummary,
     60000
 );

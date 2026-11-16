@@ -805,7 +805,7 @@ function initOpdServiceDateFilter() {
     }
 
     // รีเฟรชอัตโนมัติเฉพาะเมื่อดูวันนี้ — วันย้อนหลังตัวเลขไม่เปลี่ยนแล้ว
-    setInterval(() => {
+    bbhPoll(() => {
         if ((input.value || todayString) === getTodayServiceDate()) {
             loadOpdTodaySummary();
             loadPttypeChart();

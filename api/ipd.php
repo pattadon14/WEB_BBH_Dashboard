@@ -1,5 +1,7 @@
 <?php
 
+require_once '../config/cache.php';
+api_cache('home_ipd'); // คำตอบเดียวกันทุกจอ รีเฟรชทุก 60 วินาที
 require_once '../config/database.php';
 
 header('Content-Type: application/json');

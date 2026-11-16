@@ -130,6 +130,19 @@ require_once __DIR__ . '/../config/app.php';
         }
     </style>
 
+    <script>
+        // รีเฟรชข้อมูลอัตโนมัติเฉพาะตอนแท็บเปิดดูอยู่ (ย่อ/สลับแท็บ/ล็อกจอ = หยุดดึงข้อมูล ลดภาระฐานข้อมูล HOSxP)
+        // กลับมาดูหลังหายไปนานกว่า 1 รอบ จะโหลดใหม่ทันที
+        window.bbhPoll = function (fn, ms) {
+            let last = Date.now();
+            const run = () => { last = Date.now(); fn(); };
+            setInterval(() => { if (!document.hidden && Date.now() - last >= ms - 1000) run(); }, ms);
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden && Date.now() - last >= ms) run();
+            });
+        };
+    </script>
+
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed">

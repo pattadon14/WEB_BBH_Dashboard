@@ -2,6 +2,8 @@
 
 header('Content-Type: application/json; charset=utf-8');
 
+require_once '../config/cache.php';
+api_cache_by_date('opd_visit_today'); // คำตอบเดียวกันทุกจอ รีเฟรชทุก 60 วินาที
 require_once '../config/database.php';
 require_once '../config/opd.php';
 

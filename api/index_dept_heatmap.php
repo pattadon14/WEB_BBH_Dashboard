@@ -2,6 +2,8 @@
 
 header('Content-Type: application/json; charset=utf-8');
 
+require_once '../config/cache.php';
+api_cache('home_dept_heatmap'); // คำตอบเดียวกันทุกจอ รีเฟรชทุก 60 วินาที
 require_once '../config/database.php';
 
 try {
