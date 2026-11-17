@@ -99,6 +99,8 @@ button { cursor: pointer; }
 }
 .search input {
     flex: 1;
+    align-self: stretch;   /* แตะได้ทั้งความสูงกล่อง (มือถือ/แท็บเล็ต) */
+    min-width: 0;
     border: 0;
     outline: 0;
     background: transparent;
@@ -438,7 +440,12 @@ body.is-live .pmain { display: flex; flex-direction: column; gap: 2px; }
 /* ---------- จอเล็ก ---------- */
 @media (max-width: 1100px) {
     .legend { display: none; }
-    .kpis { grid-template-columns: repeat(2, 150px); }
+    /* แท็บเล็ตแนวนอน/โน้ตบุ๊กจอเล็ก: 4 คอลัมน์แคบลง (2 คอลัมน์สูงจนทับปุ่มซูมกลางจอซ้าย) */
+    .kpis { grid-template-columns: repeat(4, 116px); gap: 6px; }
+    .kpi { padding: 8px 10px; min-width: 0; }
+    .kpi small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .kpi b { font-size: 1.35rem; }
+    .kpi .chip { display: none; }
 }
 
 @media (max-width: 900px) {
@@ -450,7 +457,8 @@ body.is-live .pmain { display: flex; flex-direction: column; gap: 2px; }
     .clockcard b { font-size: 1.1rem; }
     .clockcard .date { display: none; }
     .kpis { top: 118px; grid-template-columns: repeat(4, 1fr); right: 12px; gap: 6px; }
-    .kpi { padding: 6px 8px; }
+    .kpi { padding: 6px 8px; min-width: 0; }
+    .kpi small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }   /* การ์ดสูงเท่ากันทุกใบ */
     .kpi b { font-size: 1.2rem; }
     .kpi span, .kpi-sm { display: none; }
     .kpi .chip { display: none; }

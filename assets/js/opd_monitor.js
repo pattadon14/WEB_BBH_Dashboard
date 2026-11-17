@@ -782,12 +782,13 @@
     var boxes = [];
     areas.forEach(function (a) {
       if (a.L.room && cam.k < 16) return;            // ห้องตรวจ: ป้ายเมื่อซูมเข้า (ยอดรวมอยู่ที่ ห้องตรวจแพทย์)
+      if (W < 900 && cam.k < 10 && !(a.n + roomsIn(a))) return;   // จอแคบ: ป้ายเฉพาะจุดที่มีคน จนกว่าจะซูมเข้า
       var b = measureLabel(a, fs);
       b.a = a;
       var p = P(a.x + a.w * 0.5, a.y + 0.2, 3.0);
       if (a.L.room) p = P(a.x + a.w * 0.5, a.y + a.d, 0.6);
       b.ax = p[0]; b.ay = p[1];
-      b.x = p[0] - b.w / 2; b.y = p[1] - b.h - 6;
+      b.x = Math.max(6, Math.min(W - b.w - 6, p[0] - b.w / 2)); b.y = p[1] - b.h - 6;   // ไม่ล้นขอบจอ
       boxes.push(b);
     });
     boxes.sort(function (p, q) { return q.ay - p.ay; });
@@ -802,7 +803,7 @@
         if (!hit) break;
         b.y = hit.y - b.h - 4;
       }
-      placed.push(b);
+      if (b.y >= labelTop) placed.push(b);   // จอแคบ: ป้ายที่ดันขึ้นจนทับการ์ดตัวเลข → ซ่อนไว้ ซูมเข้าเพื่อดู
     });
     placed.forEach(function (b) {
       ctx.strokeStyle = 'rgba(15,42,92,.16)'; ctx.lineWidth = 1;
@@ -814,7 +815,7 @@
   function labelName(a) { return a.L.short && cam.k < 24 ? a.L.short : a.name; }
   function measureLabel(a, fs) {
     var served = roomsServed(a);
-    var name = labelName(a) + (served ? ' · ตรวจแล้ว ' + served : '');
+    var name = labelName(a) + (served && W >= 900 ? ' · ตรวจแล้ว ' + served : '');   // จอแคบ: ตัดส่วนท้ายให้ป้ายสั้น
     var n = a.n + roomsIn(a);
     var cnt = n + ' คน';
     ctx.font = '500 ' + fs + 'px Kanit, sans-serif';   // น้ำหนักเดียวกับตอนวาด (renderLabel) ให้ความกว้างพอดี
@@ -962,7 +963,8 @@
   function fit() {
     zoomGoal = null;
     var mob = W < 900, b = bounds();
-    var padL = mob ? 10 : 80, padR = mob ? 10 : 400, padT = mob ? 200 : 210, padB = mob ? 160 : 170;
+    // มือถือ/แท็บเล็ตแนวตั้ง: วางผังต่ำลงให้ป้ายจุดบริการที่ซ้อนขึ้นด้านบนไม่ทับการ์ดตัวเลข
+    var padL = mob ? 10 : 80, padR = mob ? 10 : 400, padT = mob ? Math.min(320, H * 0.38) : 210, padB = mob ? 170 : 170;
     var aw = Math.max(100, W - padL - padR), ah = Math.max(100, H - padT - padB);
     cam.k = Math.max(2, Math.min(aw / (b[2] - b[0]), ah / (b[3] - b[1])));
     cam.ox = padL + (aw - (b[2] - b[0]) * cam.k) / 2 - b[0] * cam.k;
@@ -1004,9 +1006,12 @@
     var sx = (x - y) * C30, sy = (x + y) * S30;
     tweenCam({ k: target, ox: cx - sx * target, oy: cy - sy * target }, 550);
   }
+  var labelTop = -1e9;   // ขอบบนสุดที่ป้ายจุดบริการวางได้ (จอแคบ = ใต้การ์ดตัวเลข)
   function resize() {
     DPR = window.devicePixelRatio || 1;
     W = window.innerWidth; H = window.innerHeight;
+    var kp = document.querySelector('.kpis');
+    labelTop = W < 900 && kp ? kp.getBoundingClientRect().bottom + 6 : -1e9;
     canvas.width = W * DPR; canvas.height = H * DPR;
     layoutPlayer();
     zoomGoal = null;

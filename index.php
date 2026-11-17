@@ -137,7 +137,7 @@ include 'templates/sidebar.php';
                     </div>
 
                 </div>
-                <div class="col-lg-4 col-md-6 col-12 mb-2">
+                <div class="col-lg-4 col-md-12 col-12 mb-2"><!-- แท็บเล็ต: การ์ด ER เต็มแถว ไม่เหลือช่องว่าง -->
 
                     <div class="small-box elevation-3">
 
