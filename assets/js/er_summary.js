@@ -1,0 +1,79 @@
+/* การ์ดสรุปผู้รับบริการ ER รายวัน (pages/ER_detail.php) — ข้อมูลจาก api/er_today_summary.php
+ * ตัวเลือกวันที่แยกจากตัวกรองช่วงเวลาของกราฟด้านล่าง เหมือนการ์ดสรุปหน้า OPD
+ * ดูวันนี้: รีเฟรชทุก 60 วินาที (bbhPoll ใน templates/header.php) */
+(function () {
+    'use strict';
+
+    const $ = id => document.getElementById(id);
+    const input = $('er-date');
+    if (!input) return;
+
+    const TH_MONTHS = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+        'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+    const iso = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    const thai = s => { const [y, m, d] = s.split('-').map(Number); return `${d} ${TH_MONTHS[m - 1]} ${y + 543}`; };
+    const fmt = n => Number(n || 0).toLocaleString();
+    const today = () => iso(new Date());
+    const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return iso(d); };
+    const buttons = document.querySelectorAll('[data-er-day]');
+
+    input.max = today();
+    input.value = today();
+
+    let seq = 0;   // ผลที่กลับมาช้ากว่าการเปลี่ยนวันที่รอบหลัง ทิ้งไป
+    async function load() {
+        const date = input.value || today(), isToday = date === today(), my = ++seq;
+
+        $('er-date-text').textContent = thai(date);
+        $('er-day-title').textContent = 'ผู้มารับบริการ ER ' + (isToday ? 'วันนี้' : 'วันที่ ' + thai(date));
+        buttons.forEach(b => b.setAttribute('aria-pressed', String(daysAgo(Number(b.dataset.erDay)) === date)));
+
+        let data;
+        try {
+            data = await (await fetch('../api/er_today_summary.php?date=' + encodeURIComponent(date), { cache: 'no-store' })).json();
+        } catch (e) {
+            data = { error: 'โหลดข้อมูลไม่สำเร็จ' };
+        }
+        if (my !== seq) return;
+        if (data.error) { $('er-compare').textContent = data.error; return; }
+
+        const map = {
+            'er-total': data.total, 'er-people': data.people, 'er-ems': data.ems, 'er-refer-in': data.refer_in,
+            'er-l12': data.l1 + data.l2,
+            'er-pt-emergency': data.pt_emergency, 'er-pt-accident': data.pt_accident,
+            'er-pt-general': data.pt_general, 'er-pt-service': data.pt_service,
+            'er-shift-night': data.shift_night, 'er-shift-morning': data.shift_morning, 'er-shift-evening': data.shift_evening,
+            'er-home': data.home, 'er-gone': data.gone, 'er-no-dch': data.no_dch, 'er-other-dch': data.other_dch,
+            'er-admit': data.admit, 'er-refer': data.refer
+        };
+        Object.keys(map).forEach(id => { $(id).textContent = fmt(map[id]); });
+
+        // แถบสัดส่วนระดับ 1–5 / Black / ไม่ระบุ — Black กับไม่ระบุซ่อนจากคำอธิบายเมื่อเป็น 0
+        const share = n => data.total ? (n * 100 / data.total) + '%' : '0%';
+        [1, 2, 3, 4, 5, 6, 0].forEach(l => {
+            $('er-bar-' + l).style.width = share(data['l' + l]);
+            $('er-l' + l).textContent = fmt(data['l' + l]);
+        });
+        $('er-lg-6').hidden = !data.l6;
+        $('er-lg-0').hidden = !data.l0;
+        $('er-level-bar').setAttribute('aria-label', [1, 2, 3, 4, 5].map(l => `ระดับ ${l} ${fmt(data['l' + l])}`).join(' · ') +
+            ` จากทั้งหมด ${fmt(data.total)} ครั้ง`);
+
+        // เทียบวันเดียวกันของสัปดาห์ก่อน (เหมือนหน้า OPD) — มากกว่า ▲ เขียว / น้อยกว่า ▼ แดง
+        const prev = new Date(date + 'T00:00:00');
+        prev.setDate(prev.getDate() - 7);
+        const label = prev.toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'short' });
+        let delta = '';
+        if (data.prev_week) {
+            const p = Math.round((data.total - data.prev_week) * 100 / data.prev_week);
+            delta = p === 0 ? ' <span class="opd-delta">(เท่ากัน)</span>'
+                : ` <span class="opd-delta ${p > 0 ? 'up' : 'down'}">${p > 0 ? '▲' : '▼'} ${Math.abs(p)}%</span>`;
+        }
+        $('er-compare').innerHTML = `เทียบ${label} ${fmt(data.prev_week)} ครั้ง${delta}` + (isToday ? ' — นับถึงเวลาเดียวกัน' : '');
+    }
+
+    input.addEventListener('change', load);
+    buttons.forEach(b => b.addEventListener('click', () => { input.value = daysAgo(Number(b.dataset.erDay)); load(); }));
+    bbhPoll(() => { if ((input.value || today()) === today()) load(); }, 60000);
+    load();
+})();

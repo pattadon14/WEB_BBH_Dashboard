@@ -4,6 +4,7 @@ header('Content-Type: application/json; charset=utf-8');
 
 require_once '../config/database.php';
 require_once '../config/period.php';
+require_once '../config/er.php';
 
 try {
 
@@ -32,28 +33,22 @@ try {
 
     /*
     ==========================
-    Query: ระดับความเร่งด่วน 1–5 (นิยามเดียวกับต้นแบบ er-dashboard: LEVEL ใน queries.py)
-      = er_emergency_level_id ถ้าว่าง (20% ที่บ้านบึง) ใช้ export_code ของ er_emergency_type (ลง 99%)
+    Query: ระดับความเร่งด่วน (ER_LEVEL_SQL ใน config/er.php — ตรงกับต้นแบบ er-dashboard)
       แยก Black (er_emergency_type 6) ไว้เป็นแท่งของตัวเอง — ต้นแบบนับรวมในระดับ 5
-      ไม่มีทั้ง 2 ช่อง = "ไม่ระบุระดับ" (แสดงไว้ ไม่ตัดทิ้งเงียบ ๆ)
+      ไม่มีระดับเลย = "ไม่ระบุระดับ" (แสดงไว้ ไม่ตัดทิ้งเงียบ ๆ)
     ==========================
     */
 
+    $level = ER_LEVEL_SQL;
     $sql = "
         SELECT
-            CASE
-                WHEN er.er_emergency_type = 6 THEN 6
-                ELSE COALESCE(
-                    er.er_emergency_level_id,
-                    CASE WHEN et.export_code ~ '^[0-9]+$' THEN LEAST(et.export_code::integer, 5) END
-                )
-            END       AS level_id,
+            $level    AS level_id,
             COUNT(*)  AS total
-        FROM er_regist er
+        FROM er_regist e
         LEFT JOIN er_emergency_type et
-            ON et.er_emergency_type = er.er_emergency_type
+            ON et.er_emergency_type = e.er_emergency_type
         WHERE
-            er.vstdate BETWEEN :startDate AND :endDate
+            e.vstdate BETWEEN :startDate AND :endDate
         GROUP BY 1
     ";
 

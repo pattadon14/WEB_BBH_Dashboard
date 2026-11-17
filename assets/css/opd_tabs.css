@@ -296,38 +296,38 @@
 }
 
 /* =========================================================
-   ตรวจโรคทั่วไป: ขยายตัวอักษร (THSarabun ตัวเล็กกว่าฟอนต์ทั่วไป)
+   ตรวจโรคทั่วไป: ขยายตัวอักษร (THSarabun ตัวเล็กกว่าฟอนต์ทั่วไป) (ใช้ร่วมกับการ์ดสรุปหน้า ER: #er-summary)
 ========================================================= */
-#opd-tab-general .opd-summary-main .opd-summary-total-label { font-size: 1.5rem; }
-#opd-tab-general .summary-section-title { font-size: 1.6rem; }
-#opd-tab-general .horizontal-summary-item { height: auto; }
-#opd-tab-general .horizontal-summary-item .summary-title { font-size: 1.6rem; }
-#opd-tab-general .horizontal-summary-item .summary-number { font-size: 2.8rem; }
-#opd-tab-general .horizontal-summary-item .todaysummary-sub { font-size: 1.25rem; }
-#opd-tab-general .appointment-total small { font-size: 1.3rem; }
-#opd-tab-general .appointment-status-item div { font-size: 1.3rem; }
-#opd-tab-general .appointment-status-item strong { font-size: 2rem; }
-#opd-tab-general .appointment-status-item small { font-size: 1.15rem; white-space: nowrap; }
-#opd-tab-general .time-horizontal-card .time-label { font-size: 1.3rem; }
-#opd-tab-general .time-horizontal-card .time-range { font-size: 1.05rem; color: #5c6670; }
-#opd-tab-general .time-horizontal-card .time-count { font-size: 1.7rem; }
-#opd-tab-general .time-horizontal-card .time-count small { font-size: 1.05rem; }
-#opd-tab-general .opd-summary-horizontal .exam-horizontal-card .summary-title { font-size: 1.35rem; }
-#opd-tab-general .opd-summary-horizontal .exam-horizontal-card .summary-number { font-size: 1.75rem; }
-#opd-tab-general .opd-summary-horizontal .exam-horizontal-card .summary-unit { font-size: 1.15rem; }
-#opd-tab-general .opd-summary-horizontal .opd-mini-pair .summary-title { font-size: 1.25rem; }
-#opd-tab-general .opd-summary-horizontal .opd-mini-pair .summary-number { font-size: 1.55rem; }
-#opd-tab-general .chart-title { font-size: 1.6rem; color: #198754; font-weight: bold; }
+:is(#opd-tab-general, #er-summary) .opd-summary-main .opd-summary-total-label { font-size: 1.5rem; }
+:is(#opd-tab-general, #er-summary) .summary-section-title { font-size: 1.6rem; }
+:is(#opd-tab-general, #er-summary) .horizontal-summary-item { height: auto; }
+:is(#opd-tab-general, #er-summary) .horizontal-summary-item .summary-title { font-size: 1.6rem; }
+:is(#opd-tab-general, #er-summary) .horizontal-summary-item .summary-number { font-size: 2.8rem; }
+:is(#opd-tab-general, #er-summary) .horizontal-summary-item .todaysummary-sub { font-size: 1.25rem; }
+:is(#opd-tab-general, #er-summary) .appointment-total small { font-size: 1.3rem; }
+:is(#opd-tab-general, #er-summary) .appointment-status-item div { font-size: 1.3rem; }
+:is(#opd-tab-general, #er-summary) .appointment-status-item strong { font-size: 2rem; }
+:is(#opd-tab-general, #er-summary) .appointment-status-item small { font-size: 1.15rem; white-space: nowrap; }
+:is(#opd-tab-general, #er-summary) .time-horizontal-card .time-label { font-size: 1.3rem; }
+:is(#opd-tab-general, #er-summary) .time-horizontal-card .time-range { font-size: 1.05rem; color: #5c6670; }
+:is(#opd-tab-general, #er-summary) .time-horizontal-card .time-count { font-size: 1.7rem; }
+:is(#opd-tab-general, #er-summary) .time-horizontal-card .time-count small { font-size: 1.05rem; }
+:is(#opd-tab-general, #er-summary) .opd-summary-horizontal .exam-horizontal-card .summary-title { font-size: 1.35rem; }
+:is(#opd-tab-general, #er-summary) .opd-summary-horizontal .exam-horizontal-card .summary-number { font-size: 1.75rem; }
+:is(#opd-tab-general, #er-summary) .opd-summary-horizontal .exam-horizontal-card .summary-unit { font-size: 1.15rem; }
+:is(#opd-tab-general, #er-summary) .opd-summary-horizontal .opd-mini-pair .summary-title { font-size: 1.25rem; }
+:is(#opd-tab-general, #er-summary) .opd-summary-horizontal .opd-mini-pair .summary-number { font-size: 1.55rem; }
+:is(#opd-tab-general, #er-summary) .chart-title { font-size: 1.6rem; color: #198754; font-weight: bold; }
 
 /* =========================================================
    ตรวจโรคทั่วไป: การ์ดสรุป — ไม่มีแถบสีขอบซ้าย ใช้พื้นสีเข้มขึ้น
    และไอคอนอยู่ในกล่องสี่เหลี่ยมมุมมนด้านซ้ายแบบเดียวกันทุกการ์ด
 ========================================================= */
-#opd-tab-general .opd-summary-horizontal .horizontal-summary-item,
-#opd-tab-general .opd-summary-horizontal .exam-horizontal-card { border-left: 0; }
+:is(#opd-tab-general, #er-summary) .opd-summary-horizontal .horizontal-summary-item,
+:is(#opd-tab-general, #er-summary) .opd-summary-horizontal .exam-horizontal-card { border-left: 0; }
 
-#opd-tab-general .opd-ico,
-#opd-tab-general .time-horizontal-card .time-icon {
+:is(#opd-tab-general, #er-summary) .opd-ico,
+:is(#opd-tab-general, #er-summary) .time-horizontal-card .time-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -339,13 +339,13 @@
     font-size: 1.15rem;
 }
 
-#opd-tab-general .opd-summary-horizontal .exam-horizontal-card .summary-title {
+:is(#opd-tab-general, #er-summary) .opd-summary-horizontal .exam-horizontal-card .summary-title {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-#opd-tab-general .opd-summary-horizontal .walkin-card {
+:is(#opd-tab-general, #er-summary) .opd-summary-horizontal .walkin-card {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
@@ -354,24 +354,24 @@
     gap: 14px;
     background: #dde9ff;
 }
-#opd-tab-general .walkin-card .opd-ico { width: 54px; height: 54px; border-radius: 14px; font-size: 1.6rem; color: #0b5ed7; }
-#opd-tab-general .walkin-card .summary-title,
-#opd-tab-general .walkin-card .summary-number { color: #0b5ed7; }
-#opd-tab-general .walkin-card .todaysummary-sub { color: #3f4f63; }
+:is(#opd-tab-general, #er-summary) .walkin-card .opd-ico { width: 54px; height: 54px; border-radius: 14px; font-size: 1.6rem; color: #0b5ed7; }
+:is(#opd-tab-general, #er-summary) .walkin-card .summary-title,
+:is(#opd-tab-general, #er-summary) .walkin-card .summary-number { color: #0b5ed7; }
+:is(#opd-tab-general, #er-summary) .walkin-card .todaysummary-sub { color: #3f4f63; }
 
 /* Walk-in: หัว (ไอคอน+ชื่อ) / ตัวเลข / แถบสัดส่วน กระจายเต็มความสูงของช่อง ไม่เหลือที่ว่างกลางการ์ด */
-#opd-tab-general .opd-summary-horizontal .walkin-card {
+:is(#opd-tab-general, #er-summary) .opd-summary-horizontal .walkin-card {
     flex-direction: column;
     align-items: stretch;
     justify-content: space-between;
     gap: 12px;
     padding: 18px 20px;
 }
-#opd-tab-general .walkin-card .walkin-head { display: flex; align-items: center; gap: 14px; }
-#opd-tab-general .walkin-card .walkin-head .summary-title { margin-bottom: 2px; line-height: 1.1; }
-#opd-tab-general .walkin-card .todaysummary-sub { line-height: 1.25; }
-#opd-tab-general .opd-summary-horizontal .walkin-card .summary-number { font-size: 3.4rem; line-height: 1; margin-top: auto; }
-#opd-tab-general .opd-summary-horizontal .walkin-card .summary-unit { font-size: 1.3rem; }
+:is(#opd-tab-general, #er-summary) .walkin-card .walkin-head { display: flex; align-items: center; gap: 14px; }
+:is(#opd-tab-general, #er-summary) .walkin-card .walkin-head .summary-title { margin-bottom: 2px; line-height: 1.1; }
+:is(#opd-tab-general, #er-summary) .walkin-card .todaysummary-sub { line-height: 1.25; }
+:is(#opd-tab-general, #er-summary) .opd-summary-horizontal .walkin-card .summary-number { font-size: 3.4rem; line-height: 1; margin-top: auto; }
+:is(#opd-tab-general, #er-summary) .opd-summary-horizontal .walkin-card .summary-unit { font-size: 1.3rem; }
 
 .visit-mix-bar {
     display: flex;
@@ -396,14 +396,14 @@
 .mix-dot { display: inline-block; width: 10px; height: 10px; margin-right: 5px; border-radius: 50%; vertical-align: 1px; }
 
 /* นัดหมาย: ยอดรวม + แถบ % มาแล้ว ด้านบน (สูงตามเนื้อหา) แล้วให้ช่องมา/ยังไม่มาเต็มที่เหลือ */
-#opd-tab-general .opd-summary-horizontal .appointment-total {
+:is(#opd-tab-general, #er-summary) .opd-summary-horizontal .appointment-total {
     flex: none;
     padding: 16px 20px 14px;
     gap: 2px 6px;
 }
-#opd-tab-general .appointment-total .appt-total-label { flex-basis: 100%; text-align: center; font-size: 1.3rem; color: #3f5f50; }
-#opd-tab-general .appointment-total #appoint_today { font-size: 3rem; line-height: 1.1; }
-#opd-tab-general .appointment-total .appt-progress {
+:is(#opd-tab-general, #er-summary) .appointment-total .appt-total-label { flex-basis: 100%; text-align: center; font-size: 1.3rem; color: #3f5f50; }
+:is(#opd-tab-general, #er-summary) .appointment-total #appoint_today { font-size: 3rem; line-height: 1.1; }
+:is(#opd-tab-general, #er-summary) .appointment-total .appt-progress {
     flex-basis: 100%;
     display: flex;
     height: 10px;
@@ -412,10 +412,10 @@
     border-radius: 5px;
     background: #f3c9cd;
 }
-#opd-tab-general .appointment-total .appt-progress span { height: 100%; background: #198754; transition: width .4s ease; }
-#opd-tab-general .opd-summary-horizontal .appointment-horizontal-card .appointment-status { flex: 1; }
+:is(#opd-tab-general, #er-summary) .appointment-total .appt-progress span { height: 100%; background: #198754; transition: width .4s ease; }
+:is(#opd-tab-general, #er-summary) .opd-summary-horizontal .appointment-horizontal-card .appointment-status { flex: 1; }
 /* ชื่อบรรทัดบน · ตัวเลขกับ "ราย · %" บรรทัดเดียวกัน กึ่งกลางช่อง */
-#opd-tab-general .appointment-status-item {
+:is(#opd-tab-general, #er-summary) .appointment-status-item {
     display: flex;
     flex-wrap: wrap;
     align-content: center;
@@ -423,35 +423,41 @@
     justify-content: center;
     gap: 4px 6px;
 }
-#opd-tab-general .appointment-status-item > div { flex-basis: 100%; }
-#opd-tab-general .appointment-status-item :is(strong, small) { margin: 0; line-height: 1.1; }
+:is(#opd-tab-general, #er-summary) .appointment-status-item > div { flex-basis: 100%; }
+:is(#opd-tab-general, #er-summary) .appointment-status-item :is(strong, small) { margin: 0; line-height: 1.1; }
 
-#opd-tab-general .opd-mini-pair .summary-title i { font-size: 1rem; margin-right: 4px; }
+:is(#opd-tab-general, #er-summary) .opd-mini-pair .summary-title i { font-size: 1rem; margin-right: 4px; }
 
-#opd-tab-general .appointment-horizontal-card { background: #e4f2ea; border-color: #c9e5d5; }
-#opd-tab-general .appointment-status,
-#opd-tab-general .appointment-status-item:first-child { border-color: #c9e5d5; }
+:is(#opd-tab-general, #er-summary) .appointment-horizontal-card { background: #e4f2ea; border-color: #c9e5d5; }
+:is(#opd-tab-general, #er-summary) .appointment-status,
+:is(#opd-tab-general, #er-summary) .appointment-status-item:first-child { border-color: #c9e5d5; }
 
-#opd-tab-general .time-night   { background: #dfe6f1; }
-#opd-tab-general .time-morning { background: #fbefc4; }
-#opd-tab-general .time-evening { background: #ffdfc7; }
+:is(#opd-tab-general, #er-summary) .time-night   { background: #dfe6f1; }
+:is(#opd-tab-general, #er-summary) .time-morning { background: #fbefc4; }
+:is(#opd-tab-general, #er-summary) .time-evening { background: #ffdfc7; }
 
-#opd-tab-general .opd-summary-horizontal .exam-horizontal-card.wait-card   { background: #d6f1f8; }
-#opd-tab-general .opd-summary-horizontal .exam-horizontal-card.exam-card   { background: #e9ddff; }
-#opd-tab-general .opd-summary-horizontal .exam-horizontal-card.finish-card { background: #d8efe2; }
-#opd-tab-general .opd-summary-horizontal .exam-horizontal-card.admit-card  { background: #ffe6c7; }
-#opd-tab-general .opd-summary-horizontal .exam-horizontal-card.refer-card  { background: #f9d9dc; }
+:is(#opd-tab-general, #er-summary) .opd-summary-horizontal .exam-horizontal-card.wait-card   { background: #d6f1f8; }
+:is(#opd-tab-general, #er-summary) .opd-summary-horizontal .exam-horizontal-card.exam-card   { background: #e9ddff; }
+:is(#opd-tab-general, #er-summary) .opd-summary-horizontal .exam-horizontal-card.finish-card { background: #d8efe2; }
+:is(#opd-tab-general, #er-summary) .opd-summary-horizontal .exam-horizontal-card.admit-card  { background: #ffe6c7; }
+:is(#opd-tab-general, #er-summary) .opd-summary-horizontal .exam-horizontal-card.refer-card  { background: #f9d9dc; }
 /* ตัวอักษรเข้มขึ้นให้อ่านได้บนพื้นที่เข้มขึ้น */
-#opd-tab-general .opd-summary-horizontal .exam-horizontal-card.wait-card .summary-title,
-#opd-tab-general .opd-summary-horizontal .exam-horizontal-card.wait-card .summary-number { color: #08788f; }
-#opd-tab-general .opd-summary-horizontal .exam-horizontal-card.exam-card .summary-title,
-#opd-tab-general .opd-summary-horizontal .exam-horizontal-card.exam-card .summary-number { color: #5b0fd8; }
-#opd-tab-general .opd-summary-horizontal .exam-horizontal-card.finish-card .summary-title,
-#opd-tab-general .opd-summary-horizontal .exam-horizontal-card.finish-card .summary-number { color: #146c43; }
+:is(#opd-tab-general, #er-summary) .opd-summary-horizontal .exam-horizontal-card.wait-card .summary-title,
+:is(#opd-tab-general, #er-summary) .opd-summary-horizontal .exam-horizontal-card.wait-card .summary-number { color: #08788f; }
+:is(#opd-tab-general, #er-summary) .opd-summary-horizontal .exam-horizontal-card.exam-card .summary-title,
+:is(#opd-tab-general, #er-summary) .opd-summary-horizontal .exam-horizontal-card.exam-card .summary-number { color: #5b0fd8; }
+:is(#opd-tab-general, #er-summary) .opd-summary-horizontal .exam-horizontal-card.finish-card .summary-title,
+:is(#opd-tab-general, #er-summary) .opd-summary-horizontal .exam-horizontal-card.finish-card .summary-number { color: #146c43; }
 /* ไม่มีบันทึกพบแพทย์: เทา ไม่แย่งสายตาจาก 3 สถานะหลัก */
-#opd-tab-general .opd-summary-horizontal .exam-horizontal-card.nodr-card { background: #e9edf0; }
-#opd-tab-general .opd-summary-horizontal .exam-horizontal-card.nodr-card .summary-title,
-#opd-tab-general .opd-summary-horizontal .exam-horizontal-card.nodr-card .summary-number { color: #44525e; }
+:is(#opd-tab-general, #er-summary) .opd-summary-horizontal .exam-horizontal-card.nodr-card { background: #e9edf0; }
+:is(#opd-tab-general, #er-summary) .opd-summary-horizontal .exam-horizontal-card.nodr-card .summary-title,
+:is(#opd-tab-general, #er-summary) .opd-summary-horizontal .exam-horizontal-card.nodr-card .summary-number { color: #44525e; }
+
+/* หน้า ER: การ์ดระดับวิกฤต/ฉุกเฉิน (โทนแดง) + แถบสัดส่วนระดับความเร่งด่วน (สีเดียวกับกราฟ Triage) */
+#er-summary .opd-summary-horizontal .walkin-card.er-crit-card { background: #fde2e2; }
+#er-summary .opd-summary-horizontal .walkin-card.er-crit-card :is(.opd-ico, .summary-title, .summary-number) { color: #b42318; }
+#er-summary .er-level-legend { flex-wrap: wrap; justify-content: flex-start; gap: 2px 12px; font-size: 1.1rem; }
+#er-summary .opd-summary-main-icon { color: #b42318; }
 
 .opd-fy-scope { display: block; margin-top: 2px; font-size: 1.15rem; font-weight: normal; color: #5c6f68; }
 
