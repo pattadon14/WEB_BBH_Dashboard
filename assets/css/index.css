@@ -432,3 +432,90 @@
     background: #f1f4f2;
     color: var(--bbh-muted);
 }
+
+/* =========================================================
+   Popup รายละเอียดบริการ (การ์ดสถิติการใช้บริการอื่นๆ) — ต่อยอดจาก .opd-drill ใน opd_tabs.css
+========================================================= */
+.home-dash .service-item { cursor: pointer; }
+.home-dash .service-item:focus-visible { outline: none; box-shadow: var(--bbh-ring); }
+
+.svc-detail { width: min(1180px, calc(100vw - 32px)); }
+.svc-detail-scroll { flex: 1; min-height: 0; overflow: auto; }
+.svc-detail .opd-drill-body { overflow: visible; }
+.svc-detail .opd-drill-head h3 i { margin-right: 6px; }
+
+.svc-kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    padding: 14px 20px 0;
+}
+.svc-kpi {
+    padding: 12px 14px;
+    border: 1px solid var(--bbh-border);
+    border-radius: 12px;
+    background: #f8fbf9;
+    font-size: 1.15rem;
+    color: var(--bbh-muted);
+}
+.svc-kpi span:first-child { display: block; margin-bottom: 2px; }
+.svc-kpi strong { font-size: 1.9rem; color: var(--bbh-text); font-variant-numeric: tabular-nums; }
+.svc-trend { margin-left: 4px; white-space: nowrap; color: var(--bbh-text); }
+
+.svc-panels {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    gap: 12px;
+    padding: 12px 20px;
+}
+.svc-panel {
+    min-width: 0;
+    padding: 12px 14px;
+    border: 1px solid var(--bbh-border);
+    border-radius: 12px;
+}
+.svc-panel h4, .svc-list-title {
+    margin: 0 0 8px;
+    font-size: 1.35rem;
+    font-weight: bold;
+    color: var(--bbh-green);
+}
+.svc-panel h4 small { font-weight: normal; font-size: 1rem; color: var(--bbh-muted); }
+.svc-list-title { padding: 6px 20px 0; }
+
+.svc-groups { list-style: none; margin: 0; padding: 0; }
+.svc-groups li {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(60px, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 6px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+}
+.svc-groups li[data-group] { cursor: pointer; }
+.svc-groups li[data-group]:hover { background: #f3faf6; }
+.svc-groups li[data-group]:focus-visible { outline: none; box-shadow: var(--bbh-ring); }
+.svc-group-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--bbh-text); }
+.svc-group-bar { height: 10px; border-radius: 5px; background: #eef2ef; overflow: hidden; }
+.svc-group-bar i { display: block; height: 100%; border-radius: 5px; background: var(--bbh-green); }
+.svc-group-n { min-width: 2.5em; text-align: right; font-weight: bold; font-variant-numeric: tabular-nums; }
+.svc-groups-more { margin: 6px 6px 0; font-size: 1rem; color: var(--bbh-muted); }
+
+.svc-login {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    padding: 6px 16px;
+    border-radius: 10px;
+    background: var(--bbh-green);
+    color: #fff;
+}
+.svc-login:hover { color: #fff; filter: brightness(1.08); }
+
+@media (max-width: 768px) {
+    .svc-panels { grid-template-columns: 1fr; padding: 12px 16px; }
+    .svc-kpis { padding: 12px 16px 0; }
+    .svc-list-title { padding: 6px 16px 0; }
+}

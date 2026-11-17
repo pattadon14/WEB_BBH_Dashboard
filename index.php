@@ -676,12 +676,41 @@ include 'templates/sidebar.php';
 
     </section>
 
+    <!-- รายละเอียดเมื่อคลิกบริการในการ์ด "สถิติการใช้บริการอื่นๆ วันนี้" (assets/js/service_detail.js · รายชื่อต้อง login) -->
+    <dialog class="opd-drill svc-detail" id="svc-detail" aria-labelledby="svc-detail-title">
+        <header class="opd-drill-head">
+            <div>
+                <h3 id="svc-detail-title">รายละเอียดบริการ</h3>
+                <p id="svc-detail-sub"></p>
+            </div>
+            <button type="button" class="opd-drill-close" id="svc-detail-close" aria-label="ปิด"><i class="fa-solid fa-xmark"></i></button>
+        </header>
+        <div class="svc-detail-scroll">
+            <div class="svc-detail-summary" id="svc-detail-summary"></div>
+            <div class="svc-detail-list" id="svc-detail-list" hidden>
+                <h4 class="svc-list-title">รายชื่อผู้รับบริการ</h4>
+                <div class="opd-drill-tools">
+                    <label class="opd-drill-search">
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                        <input type="search" id="svc-detail-q" placeholder="ค้นหา HN / ชื่อ / แผนก / สิทธิ์ / รายการ" aria-label="ค้นหาในรายชื่อ">
+                    </label>
+                    <span class="opd-drill-count" id="svc-detail-count" aria-live="polite"></span>
+                    <button type="button" class="opd-drill-export" id="svc-detail-export"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
+                </div>
+                <div class="opd-drill-filters" id="svc-detail-filters"></div>
+                <div class="opd-drill-body" id="svc-detail-body"></div>
+                <nav class="opd-drill-pager" id="svc-detail-pager" aria-label="เปลี่ยนหน้ารายชื่อ"></nav>
+            </div>
+        </div>
+    </dialog>
+
 </div>
 
 <!-- Highcharts เก็บไว้ในเว็บเอง (assets/lib) ไม่โหลดจาก code.highcharts.com: CDN นั้นปฏิเสธคำขอที่ไม่มี Referer และเปลี่ยนเวอร์ชันเองได้ -->
 <script src="assets/lib/highcharts/13.1.1/highcharts.js"></script>
 <script src="assets/lib/highcharts/13.1.1/modules/heatmap.js"></script>
 <script src="assets/js/dashboard.js"></script>
+<script src="assets/js/service_detail.js?v=<?= filemtime(__DIR__ . '/assets/js/service_detail.js') ?>"></script>
 <script>
 // เรียกหลังโหลดข้อมูลสำเร็จเท่านั้น ถ้า API ล่ม เวลาจะค้างไว้ที่ครั้งล่าสุดที่ได้ข้อมูลจริง
 function markUpdated() {
