@@ -482,63 +482,45 @@
     ctx.textAlign = 'left';
   }
 
-  // หุ่นการ์ตูนหัวโต (chibi) วาดด้วยวงกลม/สี่เหลี่ยมมุมมนล้วน ไม่มี gradient/เงา — เบาเครื่องแม้มีหลายร้อยตัว
-  // o: shirt, pants, hair, long (ผมยาว), sit, walk (เฟสการเดิน หรือ null), face (วาดหน้าเมื่อซูมพอ)
-  var SKIN = '#f6cfa8', INK = 'rgba(30,41,59,.6)';
+  // หุ่นแบบ "หมุด" (peg) ตามภาพตัวอย่าง: ตัวทรงแคปซูลสีเสื้อ ฐานสีกางเกง หัวกลมมีไฮไลต์ ไม่มีหน้า
+  // วาดด้วย path ธรรมดาไม่กี่ชิ้น ไม่มี gradient — เบาเครื่องแม้มีหลายร้อยตัว
+  // o: shirt, pants, sit, walk (เฟสการเดิน หรือ null)
+  var SKIN = '#f2c7a0', INK = 'rgba(30,41,59,.45)';
+  function capsule(x, top, bottom, w) {   // ด้านบนโค้งครึ่งวงกลม ด้านล่างมนเล็กน้อย
+    var r = w / 2, rb = Math.min(w * 0.18, (bottom - top) / 3);
+    ctx.beginPath();
+    ctx.moveTo(x - r, top + r);
+    ctx.arc(x, top + r, r, Math.PI, 0);
+    ctx.lineTo(x + r, bottom - rb);
+    ctx.quadraticCurveTo(x + r, bottom, x + r - rb, bottom);
+    ctx.lineTo(x - r + rb, bottom);
+    ctx.quadraticCurveTo(x - r, bottom, x - r, bottom - rb);
+    ctx.closePath();
+  }
   function drawChibi(x, by, k, o) {
     var z0 = o.sit ? 0.42 : 0;
-    var bob = o.walk !== null ? Math.abs(Math.sin(o.walk)) * 0.06 * k : 0;   // เด้งขึ้นลงตอนเดิน
+    var walking = o.walk !== null;
+    var bob = walking ? Math.abs(Math.sin(o.walk)) * 0.05 * k : 0;           // เด้งขึ้นลงตอนเดิน
+    var sway = walking ? Math.sin(o.walk) * 0.025 * k : 0;                     // โยกซ้ายขวาเล็กน้อย
     var Y = function (z) { return by - bob - (z0 * cam.k + (z - z0) * k) * ZK; };
-    var lw = Math.max(1, 0.035 * k);
-    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    // ขา (สั้น ป้อม)
-    ctx.strokeStyle = o.pants; ctx.lineWidth = 0.16 * k;
-    ctx.beginPath();
-    if (o.sit) {
-      ctx.moveTo(x - 0.09 * k, Y(0.46)); ctx.lineTo(x - 0.09 * k, by - 0.04 * k);
-      ctx.moveTo(x + 0.09 * k, Y(0.46)); ctx.lineTo(x + 0.09 * k, by - 0.04 * k);
-    } else {
-      var sw = o.walk !== null ? Math.sin(o.walk) * 0.08 * k : 0;
-      ctx.moveTo(x - 0.09 * k, Y(0.3)); ctx.lineTo(x - 0.09 * k + sw, Y(0.05));
-      ctx.moveTo(x + 0.09 * k, Y(0.3)); ctx.lineTo(x + 0.09 * k - sw, Y(0.05));
-    }
-    ctx.stroke();
-    // ตัว (ทรงแคปซูล) + แขนกลม ๆ
-    var bB = o.sit ? 0.42 : 0.24, bT = bB + 0.42, bw = 0.48 * k;
-    ctx.fillStyle = o.shirt; ctx.strokeStyle = INK; ctx.lineWidth = lw;
-    roundRect(x - bw / 2, Y(bT), bw, Y(bB) - Y(bT), bw * 0.42); ctx.fill(); ctx.stroke();
-    var arm = o.walk !== null && !o.sit ? Math.sin(o.walk) * 0.05 * k : 0;
+    var bw = 0.36 * k, top = o.sit ? 1.0 : 1.0, lw = Math.max(1, 0.03 * k);
+    var bTop = Y(top), bBot = o.sit ? Y(z0) : by - bob;
+    ctx.lineWidth = lw; ctx.strokeStyle = INK;
+    // ฐาน/ขา (สีกางเกง = เพศ) แล้วตัวสีเสื้อ (= ความเร่งด่วน) ทับด้านบน
+    ctx.fillStyle = o.pants;
+    capsule(x, bTop, bBot, bw); ctx.fill(); ctx.stroke();
+    var shirtBot = o.sit ? Y(z0 + 0.12) : Y(0.32);
+    ctx.fillStyle = o.shirt;
+    capsule(x + sway * 0.4, bTop, shirtBot, bw); ctx.fill(); ctx.stroke();
+    // แสงสะท้อนด้านซ้าย ให้ดูเป็นทรงกลม 3 มิติ
+    ctx.fillStyle = 'rgba(255,255,255,.32)';
+    roundRect(x - bw * 0.36 + sway * 0.4, bTop + bw * 0.35, bw * 0.16, (shirtBot - bTop) - bw * 0.55, bw * 0.08); ctx.fill();
+    // หัวกลม
+    var hr = 0.19 * k, hx = x + sway, hy = bTop - hr * 0.72;
     ctx.fillStyle = SKIN;
-    ctx.beginPath();
-    ctx.arc(x - bw / 2 - 0.02 * k, Y(bB + 0.2) - arm, 0.075 * k, 0, 7);
-    ctx.arc(x + bw / 2 + 0.02 * k, Y(bB + 0.2) + arm, 0.075 * k, 0, 7);
-    ctx.fill();
-    // หัวโต
-    var hr = 0.3 * k, hy = Y(bT + 0.25);
-    if (o.long) {   // ผมยาวด้านหลังหัว
-      ctx.fillStyle = o.hair;
-      roundRect(x - hr * 1.08, hy - hr * 0.5, hr * 2.16, hr * 1.75, hr * 0.9); ctx.fill();
-    }
-    ctx.fillStyle = SKIN; ctx.strokeStyle = INK;
-    ctx.beginPath(); ctx.arc(x, hy, hr, 0, 7); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = o.hair;   // ผมด้านบน + หน้าม้า
-    ctx.beginPath(); ctx.arc(x, hy - 0.02 * k, hr * 1.03, Math.PI * 0.94, Math.PI * 2.06); ctx.fill();
-    if (o.face) {
-      ctx.fillStyle = '#1f2937';
-      ctx.beginPath();
-      ctx.ellipse(x - 0.1 * k, hy + 0.06 * k, 0.032 * k, 0.045 * k, 0, 0, 7);
-      ctx.ellipse(x + 0.1 * k, hy + 0.06 * k, 0.032 * k, 0.045 * k, 0, 0, 7);
-      ctx.fill();
-      ctx.fillStyle = 'rgba(244,114,182,.45)';   // แก้มแดง
-      ctx.beginPath();
-      ctx.arc(x - 0.18 * k, hy + 0.14 * k, 0.05 * k, 0, 7);
-      ctx.arc(x + 0.18 * k, hy + 0.14 * k, 0.05 * k, 0, 7);
-      ctx.fill();
-      if (k >= 14) {   // ยิ้มเมื่อซูมใกล้
-        ctx.strokeStyle = '#7c2d12'; ctx.lineWidth = Math.max(1, 0.025 * k);
-        ctx.beginPath(); ctx.arc(x, hy + 0.12 * k, 0.05 * k, Math.PI * 0.2, Math.PI * 0.8); ctx.stroke();
-      }
-    }
+    ctx.beginPath(); ctx.arc(hx, hy, hr, 0, 7); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,.55)';
+    ctx.beginPath(); ctx.arc(hx - hr * 0.35, hy - hr * 0.38, hr * 0.28, 0, 7); ctx.fill();
     return { hy: hy, hr: hr };
   }
 
@@ -556,8 +538,7 @@
     }
     var h = drawChibi(x, base[1], k, {
       shirt: shirt, pants: pants, sit: p.sit && !p.walking,
-      hair: p.u === 6 ? '#cbd5e1' : '#3b2f2a', long: p.g === 2,
-      walk: p.walking ? performance.now() / 95 + p.ph : null, face: k >= 9
+      walk: p.walking ? performance.now() / 95 + p.ph : null
     });
     var hy = h.hy, hr = h.hr;
     ctx.globalAlpha = 1;
@@ -581,11 +562,11 @@
     }
   }
 
-  // แพทย์ในห้องตรวจ: หุ่นแบบเดียวกัน เสื้อกาวน์ขาว กางเกงกรมท่า นั่งหลังโต๊ะ
+  // แพทย์ในห้องตรวจ: หุ่นแบบเดียวกัน เสื้อกาวน์ขาว ฐานเขียวเข้ม นั่งหลังโต๊ะ
   function drawDoctor(a) {
     var b = P(a.x + a.w / 2, a.y + a.d - 0.8, 0), k = cam.k * 1.1;
     if (k < 5) return;
-    drawChibi(b[0], b[1], k, { shirt: '#ffffff', pants: '#1e3a8a', hair: '#1d2433', long: false, sit: true, walk: null, face: k >= 9 });
+    drawChibi(b[0], b[1], k, { shirt: '#ffffff', pants: '#0f766e', sit: true, walk: null });
   }
 
   // พื้นแต่ละจุดผสมสีความหนาแน่น (เขียว/เหลือง/แดง) ให้เห็นความแออัดจากระยะไกล
