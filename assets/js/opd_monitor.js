@@ -21,33 +21,33 @@
   // wait = จุดรอหน้าห้องของห้องตรวจนี้, door = ทางเข้าเฉพาะ (ไม่ใช้ประตูอาคาร), node = จุดบนทางเดิน (NODES) หน้าประตู
   // cap = ที่นั่งรอจริงของบ้านบึง (แจ้งโดยหน่วยงาน 4 พ.ย. 2569) · queue = ยืนต่อแถว ไม่มีเก้าอี้ ไม่คิดความหนาแน่น
   var BLD = {
-    OPD: { name: 'อาคารผู้ป่วยนอก', r: [54, 129, 72, 44], door: [119, 173], node: 'OPD', sign: [90, 175.5] },
+    OPD: { name: 'อาคารผู้ป่วยนอก', r: [48, 129, 72, 44], door: [113, 173], node: 'OPD', sign: [84, 175.5] },
     ERB: { name: 'อาคารอุบัติเหตุฉุกเฉิน', r: [130, 129, 54, 44], door: [144, 173], node: 'ERB', sign: [152, 175.5] },
-    ARI: { name: 'อาคาร ARI', r: [86, 208, 22, 14], door: [108, 216], node: 'ARI', sign: [110, 224] },
-    // แพทย์แผนไทย/กายภาพ = อาคาร 2 หลังฝั่งตรงข้ามถนนลาดยาง (หน่วยงานยืนยัน 17 พ.ย. 2569) · ขยับเข้าใกล้อาคารหลัก
-    TTM: { name: 'อาคารแพทย์แผนไทย', r: [197, 104, 14, 20], door: [197, 114], node: 'TTM', sign: [212.5, 118] },
-    PT:  { name: 'อาคารกายภาพบำบัด', r: [197, 80, 14, 20], door: [197, 90], node: 'PT', sign: [212.5, 94] }
+    ARI: { name: 'อาคาร ARI', r: [86, 218, 22, 14], door: [89, 218], node: 'ARI', sign: [110, 230] },
+    // แพทย์แผนไทย/กายภาพ = อาคาร 2 หลังฝั่งตรงข้ามถนนลาดยาง ตรงข้ามอาคารอุบัติเหตุ (ตำแหน่งตามที่หน่วยงานชี้ 17 พ.ย. 2569)
+    TTM: { name: 'อาคารแพทย์แผนไทย', r: [199, 160, 14, 20], door: [199, 170], node: 'TTM', sign: [214.5, 174] },
+    PT:  { name: 'อาคารกายภาพบำบัด', r: [199, 132, 14, 20], door: [199, 142], node: 'PT', sign: [214.5, 146] }
   };
   var LAYOUT = {
     // อาคารผู้ป่วยนอก: บริการร่วมฝั่งอาคารอุบัติเหตุ · ฝั่ง walk-in (ติดถนน) · ฝั่งผู้ป่วยนัด (ด้านใน)
-    REG:  { b: 'OPD', r: [112, 161, 14, 12], kind: 'hall', counter: true, queue: true },
-    CASH: { b: 'OPD', r: [112, 147, 14, 12], kind: 'rx', counter: true, cap: 21 },    // ห้องยา + การเงิน OPD รวม 42
-    RX:   { b: 'OPD', r: [112, 129, 14, 16], kind: 'rx', counter: true, cap: 21 },
-    SCRW: { b: 'OPD', r: [92, 159, 18, 14], kind: 'walk', counter: true, cap: 64 },
-    DRWW: { b: 'OPD', r: [54, 165, 36, 8], kind: 'walk', cap: 15 },                    // ห้อง 1–5 ห้องละ 3
-    R1:   { b: 'OPD', r: [54, 159, 7.2, 6],   kind: 'room', room: true, wait: 'DRWW', short: 'ห้อง 1' },
-    R2:   { b: 'OPD', r: [61.2, 159, 7.2, 6], kind: 'room', room: true, wait: 'DRWW', short: 'ห้อง 2' },
-    R3:   { b: 'OPD', r: [68.4, 159, 7.2, 6], kind: 'room', room: true, wait: 'DRWW', short: 'ห้อง 3' },
-    R4:   { b: 'OPD', r: [75.6, 159, 7.2, 6], kind: 'room', room: true, wait: 'DRWW', short: 'ห้อง 4' },
-    R5:   { b: 'OPD', r: [82.8, 159, 7.2, 6], kind: 'room', room: true, wait: 'DRWW', short: 'ห้อง 5' },
-    PED:  { b: 'OPD', r: [54, 147, 26, 10], kind: 'ped', counter: true, cap: 20 },    // ซักประวัติ + รอพบแพทย์เด็ก
-    R6:   { b: 'OPD', r: [80, 147, 10, 10], kind: 'room', room: true, wait: 'PED', short: 'ห้อง 6 เด็ก' },
-    SCRA: { b: 'OPD', r: [92, 131, 18, 14], kind: 'appt', counter: true, cap: 36 },
-    DRWA: { b: 'OPD', r: [54, 137, 36, 8], kind: 'appt', cap: 12 },                    // ห้อง 7–10 ห้องละ 3
-    R7:   { b: 'OPD', r: [54, 131, 9, 6], kind: 'roomA', room: true, wait: 'DRWA', short: 'ห้อง 7' },
-    R8:   { b: 'OPD', r: [63, 131, 9, 6], kind: 'roomA', room: true, wait: 'DRWA', short: 'ห้อง 8' },
-    R9:   { b: 'OPD', r: [72, 131, 9, 6], kind: 'roomA', room: true, wait: 'DRWA', short: 'ห้อง 9' },
-    R10:  { b: 'OPD', r: [81, 131, 9, 6], kind: 'roomA', room: true, wait: 'DRWA', short: 'ห้อง 10' },
+    REG:  { b: 'OPD', r: [106, 161, 14, 12], kind: 'hall', counter: true, queue: true },
+    CASH: { b: 'OPD', r: [106, 147, 14, 12], kind: 'rx', counter: true, cap: 21 },    // ห้องยา + การเงิน OPD รวม 42
+    RX:   { b: 'OPD', r: [106, 129, 14, 16], kind: 'rx', counter: true, cap: 21 },
+    SCRW: { b: 'OPD', r: [86, 159, 18, 14], kind: 'walk', counter: true, cap: 64 },
+    DRWW: { b: 'OPD', r: [48, 165, 36, 8], kind: 'walk', cap: 15 },                    // ห้อง 1–5 ห้องละ 3
+    R1:   { b: 'OPD', r: [48, 159, 7.2, 6],   kind: 'room', room: true, wait: 'DRWW', short: 'ห้อง 1' },
+    R2:   { b: 'OPD', r: [55.2, 159, 7.2, 6], kind: 'room', room: true, wait: 'DRWW', short: 'ห้อง 2' },
+    R3:   { b: 'OPD', r: [62.4, 159, 7.2, 6], kind: 'room', room: true, wait: 'DRWW', short: 'ห้อง 3' },
+    R4:   { b: 'OPD', r: [69.6, 159, 7.2, 6], kind: 'room', room: true, wait: 'DRWW', short: 'ห้อง 4' },
+    R5:   { b: 'OPD', r: [76.8, 159, 7.2, 6], kind: 'room', room: true, wait: 'DRWW', short: 'ห้อง 5' },
+    PED:  { b: 'OPD', r: [48, 147, 26, 10], kind: 'ped', counter: true, cap: 20 },    // ซักประวัติ + รอพบแพทย์เด็ก
+    R6:   { b: 'OPD', r: [74, 147, 10, 10], kind: 'room', room: true, wait: 'PED', short: 'ห้อง 6 เด็ก' },
+    SCRA: { b: 'OPD', r: [86, 131, 18, 14], kind: 'appt', counter: true, cap: 36 },
+    DRWA: { b: 'OPD', r: [48, 137, 36, 8], kind: 'appt', cap: 12 },                    // ห้อง 7–10 ห้องละ 3
+    R7:   { b: 'OPD', r: [48, 131, 9, 6], kind: 'roomA', room: true, wait: 'DRWA', short: 'ห้อง 7' },
+    R8:   { b: 'OPD', r: [57, 131, 9, 6], kind: 'roomA', room: true, wait: 'DRWA', short: 'ห้อง 8' },
+    R9:   { b: 'OPD', r: [66, 131, 9, 6], kind: 'roomA', room: true, wait: 'DRWA', short: 'ห้อง 9' },
+    R10:  { b: 'OPD', r: [75, 131, 9, 6], kind: 'roomA', room: true, wait: 'DRWA', short: 'ห้อง 10' },
     // อาคารอุบัติเหตุฉุกเฉิน
     DENT: { b: 'ERB', r: [130, 155, 28, 18], kind: 'room2', counter: true, cap: 40 },
     // shortcut: ที่นั่งห้องทำแผลยังไม่ได้รับแจ้ง ใช้ 10 ไปก่อน — แก้เมื่อหน่วยงานแจ้งจำนวนจริง
@@ -58,54 +58,58 @@
     // คัดกรอง 8 + รอแพทย์ 4 + เตียงรอแพทย์ ~7 + Observe 4 · ประตูฝั่งถนน (มุขยื่นในแผนผัง)
     ER:   { b: 'ERB', r: [158, 143, 26, 30], kind: 'er', door: [171, 173], node: 'ERD', cap: 23 },
     // อาคารแยก
-    ARI:  { b: 'ARI', r: [86, 208, 22, 14], kind: 'er', counter: true, cap: 38 },     // รอซักประวัติ 12 + รอแพทย์/การเงิน/ยา 26
-    TTM:  { b: 'TTM', r: [197, 104, 14, 20], kind: 'ttm', counter: true, cap: 4 },
-    PT:   { b: 'PT',  r: [197, 80, 14, 20], kind: 'room2', counter: true, cap: 6 }
+    ARI:  { b: 'ARI', r: [86, 218, 22, 14], kind: 'er', counter: true, cap: 38 },     // รอซักประวัติ 12 + รอแพทย์/การเงิน/ยา 26
+    TTM:  { b: 'TTM', r: [199, 160, 14, 20], kind: 'ttm', counter: true, cap: 4 },
+    PT:   { b: 'PT',  r: [199, 132, 14, 20], kind: 'room2', counter: true, cap: 6 }
   };
   // โซนในอาคารผู้ป่วยนอก (เส้นประ + ป้ายบนพื้น)
   var ZONES = [
-    { name: 'ฝั่ง Walk-in', r: [54, 147, 57, 26], c: '#1f9d6a' },
-    { name: 'ฝั่งผู้ป่วยนัด', r: [54, 129.5, 57, 17], c: '#2563eb' }
+    { name: 'ฝั่ง Walk-in', r: [48, 147, 57, 26], c: '#1f9d6a' },
+    { name: 'ฝั่งผู้ป่วยนัด', r: [48, 129.5, 57, 17], c: '#2563eb' }
   ];
   var DECOR = [
-    { name: 'ห้องเจ้าหน้าที่', r: [92, 147, 18, 10], kind: 'decor' },
+    { name: 'ห้องเจ้าหน้าที่', r: [86, 147, 18, 10], kind: 'decor' },
     { name: 'ห้องเจ้าหน้าที่', r: [172, 129, 12, 14], kind: 'decor' }
   ];
-  // ถนน (เทาเข้ม) · ทางเท้า/ลาน (เทาอ่อน) · LANE = เส้นแบ่งเลนถนนลาดยาง
-  var ROADS = [
-    [188, 60, 6, 180],        // ถนนลาดยางด้านล่างของแผนผัง ปลาย y = 240 คือทางเข้า รพ.
-    [10, 178, 178, 6]         // ถนนเลียบอาคารผู้ป่วยนอก
-  ];
-  var LANE = [191, 60, 180];
-  // ทางเท้า: หน้าอาคารผู้ป่วยนอก/อุบัติเหตุ · ริมถนนลาดยาง · ทางเดินไปอาคาร ARI · ทางเข้าแผนไทย/กายภาพ
-  var WALKS = [[54, 173, 134, 5], [184, 70, 4, 108], [184, 184, 4, 56], [108, 184, 4, 34], [194, 111.5, 3, 5], [194, 87.5, 3, 5]];
-  // ทางเดินของหุ่น: กราฟจุดบนทางเท้า/ถนน — เดินตามเส้นที่สั้นที่สุด (route) · S = ทางเข้า รพ.
-  var NODES = {
-    S: [186, 240], A: [186, 181], W: [186, 175.5], ERD: [171, 175.5], ERB: [144, 175.5], OPD: [119, 175.5],
-    K: [110, 181], ARI: [110, 216], TTM: [186, 114], PT: [186, 90]
-  };
-  var EDGES = [['S', 'A'], ['A', 'W'], ['W', 'ERD'], ['ERD', 'ERB'], ['ERB', 'OPD'], ['A', 'K'], ['K', 'ARI'], ['W', 'TTM'], ['TTM', 'PT']];
-  // อาคารอื่นในแผนผัง (ไม่มีจุดบริการ): รูปหลายเหลี่ยม [x, y], สูง h, สี c = [หลังคา, ผนังซ้าย, ผนังขวา]
-  function stadium(x0, x1, y0, y1) {
+  // ทางเดินเชื่อม (มีหลังคา) อาคารผู้ป่วยนอก ↔ อาคารอุบัติเหตุ — ย้ายระหว่าง 2 อาคารเดินผ่านทางนี้ ไม่ออกถนน
+  var BRIDGE = { r: [120, 150, 10, 4], a: 'OPD', b: 'ERB', pts: [[118.5, 152], [120, 152], [130, 152], [131.5, 152]] };
+  function stadium(x0, x1, y0, y1) {   // สี่เหลี่ยมหัวมน (ปลายครึ่งวงกลมทางแกน x)
     var r = (y1 - y0) / 2, cy = y0 + r, pts = [];
     for (var i = 0; i <= 8; i++) { var t = Math.PI / 2 + i * Math.PI / 8; pts.push([x0 + r + r * Math.cos(t), cy + r * Math.sin(t)]); }
     for (var j = 0; j <= 8; j++) { var u = -Math.PI / 2 + j * Math.PI / 8; pts.push([x1 - r + r * Math.cos(u), cy + r * Math.sin(u)]); }
     return pts;
   }
+  // ถนน (เทาเข้ม) · วงเวียนรอบหอพระ (RING ถนน, ISLAND เกาะกลางสนามหญ้า) · LANES = เส้นประกลางถนน
+  var ROADS = [
+    [188, 60, 6, 180],        // ถนนลาดยางด้านล่างของแผนผัง ปลาย y = 240 คือทางเข้า รพ.
+    [10, 178, 178, 6]         // ถนนเลียบอาคารผู้ป่วยนอก (ผ่านด้านบนของวงเวียน)
+  ];
+  var RING = stadium(54, 112, 178, 210), ISLAND = stadium(60, 106, 184, 204);
+  var RING_LANE = stadium(57, 109, 181, 207);
+  var LANES = [[[191, 60], [191, 240]], [[10, 181], [70, 181]], [[96, 181], [188, 181]], RING_LANE.concat([RING_LANE[0]])];
+  // ทางเท้า: หน้าอาคารผู้ป่วยนอก/อุบัติเหตุ · ริมถนนลาดยาง · วงเวียน → อาคาร ARI · ทางเข้าแผนไทย/กายภาพ
+  var WALKS = [[48, 173, 140, 5], [184, 70, 4, 108], [184, 184, 4, 56], [87, 209, 4, 9], [194, 139.5, 5, 5], [194, 167.5, 5, 5]];
+  // ทางเดินของหุ่น: กราฟจุดบนทางเท้า/ถนน — เดินตามเส้นที่สั้นที่สุด (route) · S = ทางเข้า รพ. · K–R3 = ตามวงเวียน
+  var NODES = {
+    S: [186, 240], A: [186, 181], W: [186, 175.5], ERD: [171, 175.5], ERB: [144, 175.5], OPD: [113, 175.5],
+    K: [100, 181], R1: [109, 194], R2: [105, 203], R3: [89, 207], ARI: [89, 214], TTM: [186, 170], PT: [186, 142]
+  };
+  var EDGES = [['S', 'A'], ['A', 'W'], ['W', 'ERD'], ['ERD', 'ERB'], ['ERB', 'OPD'], ['A', 'K'], ['K', 'R1'], ['R1', 'R2'],
+    ['R2', 'R3'], ['R3', 'ARI'], ['W', 'TTM'], ['TTM', 'PT']];
+  // อาคารอื่นในแผนผัง (ไม่มีจุดบริการ): รูปหลายเหลี่ยม [x, y], สูง h, สี c = [หลังคา, ผนังซ้าย, ผนังขวา]
   var GREY = ['#dfe5ea', '#c3ced8', '#aebbc7'], GOLD = ['#f3d98b', '#dcb75a', '#c79f3f'];
   var SITE = [
-    { name: 'อาคารจอดรถ', h: 3.2, c: GREY, sign: [82, 236],
-      pts: [[44, 206], [74, 206], [74, 228], [80, 228], [80, 240], [44, 240]] },
+    { name: 'อาคารจอดรถ', h: 3.2, c: GREY, sign: [78, 246],
+      pts: [[40, 216], [70, 216], [70, 238], [76, 238], [76, 250], [40, 250]] },
     { name: 'อาคารอเนกประสงค์', h: 2.8, c: GREY, sign: [46, 196], pts: [[12, 187], [44, 187], [44, 203], [12, 203]] },
-    { name: 'หอพระ', h: 1.2, c: GOLD, sign: [82, 202], pts: stadium(70, 94, 188, 200) }
+    { name: 'หอพระ', h: 1.2, c: GOLD, sign: [83, 201.5], pts: stadium(71, 95, 188, 200) }
   ];
-  // ป้ายทางเข้า รพ. (กำแพงป้ายชื่อ + จอภาพด้านบน + พุ่มไม้) และศาลพระพรหม — โมเดล 3D วาดใน drawGate / drawShrine
-  var GATE = { x: 181.5, y0: 207, y1: 217 };
-  var SHRINE = { x: 178, y: 192, sign: [174.5, 191] };
-  var TREES = [[48, 191], [113, 191], [124, 191], [20, 140], [36, 150], [20, 160], [40, 134], [44, 168],
+  // ป้ายทางเข้า รพ. (กำแพงป้ายชื่อ + จอภาพด้านบน + พุ่มไม้) — โมเดล 3D วาดใน drawGate
+  var GATE = { x: 181.3, y0: 198, y1: 214 };
+  var TREES = [[48, 191], [124, 191], [20, 140], [36, 150], [20, 160], [40, 134], [40, 168],
     [140, 20], [156, 38], [170, 58], [142, 76], [168, 96], [148, 112], [176, 120], [130, 50], [112, 100], [92, 112],
-    [84, 230], [96, 232], [112, 228], [124, 210], [140, 200], [156, 205], [168, 222], [150, 230], [26, 214], [30, 230]];
-  for (var ty = 130; ty <= 230; ty += 10) TREES.push([197, ty]);   // ริมถนนลาดยางฝั่งตรงข้าม
+    [26, 214], [30, 230], [82, 256], [100, 240], [116, 236], [124, 214], [118, 200], [140, 200], [156, 205], [168, 222], [150, 230]];
+  for (var ty = 190; ty <= 230; ty += 10) TREES.push([197, ty]);   // ริมถนนลาดยางฝั่งตรงข้าม
   // สีพื้นเข้มพอให้แยกห้องได้ชัดบนจอใหญ่ แต่ยังอ่อนกว่าหุ่น
   var FLOOR = {
     hall: '#e8edf2', lab: '#e3dbf7', room: '#d6e5fa', rx: '#d3eedf', xray: '#d9e2ee',
@@ -252,7 +256,12 @@
     return ROUTES[key].slice();   // p.path ถูก shift ระหว่างเดิน — ห้ามแชร์ array
   }
   // ย้ายอาคาร: ออกประตูจุด a → ทางเดิน → เข้าประตูจุด b
-  function link(a, b) { return [a.door].concat(route(a.node, b.node), [b.door]); }
+  // ระหว่างอาคารผู้ป่วยนอก ↔ อุบัติเหตุ: เดินผ่านทางเดินเชื่อม (BRIDGE)
+  function link(a, b) {
+    if (a.L.b === BRIDGE.a && b.L.b === BRIDGE.b) return BRIDGE.pts.slice();
+    if (a.L.b === BRIDGE.b && b.L.b === BRIDGE.a) return BRIDGE.pts.slice().reverse();
+    return [a.door].concat(route(a.node, b.node), [b.door]);
+  }
 
   function step(dt) {
     var T = state.T;
@@ -459,7 +468,7 @@
     var BACK = { h: 2.6, t: 0.35, face: '#edf1f4', side: '#d0d9e1', cap: WALL_TOP };
     var FRONT = { h: 0.45, t: 0.3, face: '#cbd5de', side: '#b6c3cf', cap: WALL_TOP };
     Object.keys(BLD).forEach(function (id) {
-      var r = BLD[id].r, doors = [BLD[id].door];
+      var r = BLD[id].r, doors = [BLD[id].door, BRIDGE.pts[1], BRIDGE.pts[2]];
       areas.forEach(function (a) { if (a.L.b === id && a.L.door) doors.push(a.L.door); });
       wallX(r[0], r[0] + r[2], r[1], BACK, doors);
       wallY(r[1], r[1] + r[3], r[0], BACK, doors);
@@ -468,11 +477,18 @@
       var sg = BLD[id].sign;
       statics.push({ k: sg[0] + sg[1] + 0.5, draw: function () { drawSign(BLD[id].name, sg[0], sg[1]); } });
     });
-    SITE.concat([{ name: 'ศาลพระพรหม', sign: SHRINE.sign }]).forEach(function (s) {
+    SITE.forEach(function (s) {
       statics.push({ k: s.sign[0] + s.sign[1] + 0.5, draw: function () { drawSign(s.name, s.sign[0], s.sign[1], 'rgba(100,116,139,.92)'); } });
     });
-    statics.push({ k: GATE.x + 1 + (GATE.y0 + GATE.y1) / 2, draw: drawGate });
-    statics.push({ k: SHRINE.x + SHRINE.y + 1.6, draw: drawShrine });
+    statics.push({ k: GATE.x + 1.2 + (GATE.y0 + GATE.y1) / 2, draw: drawGate });
+    // หลังคาทางเดินเชื่อม: เสา 4 ต้น + หลังคาโปร่งแสง (ยังเห็นคนที่เดินอยู่ข้างใต้)
+    var br = BRIDGE.r;
+    statics.push({ k: br[0] + br[2] + br[1] + br[3], draw: function () {
+      [[0.1, 0.1], [br[2] - 0.3, 0.1], [0.1, br[3] - 0.3], [br[2] - 0.3, br[3] - 0.3]].forEach(function (o) {
+        box(br[0] + o[0], br[1] + o[1], 0, 0.2, 0.2, 2.4, '#cbd5e1', '#94a3b8', '#7c8ca3');
+      });
+      box(br[0], br[1] - 0.3, 2.4, br[2], br[3] + 0.6, 0.2, 'rgba(110,190,160,.55)', 'rgba(21,128,61,.6)', 'rgba(21,128,61,.5)');
+    } });
     function onEdge(a) {   // ผนังห้องที่ทับผนังนอกอาคาร ไม่ต้องวาดซ้ำ
       var r = (BLD[a.L.b] || {}).r || [-1, -1];
       return { x: Math.abs(a.y - r[1]) < 0.01, y: Math.abs(a.x - r[0]) < 0.01 };
@@ -562,47 +578,29 @@
     fn();
     ctx.restore();
   }
-  // ยอดแหลมฐานสี่เหลี่ยม (เห็น 2 ด้านที่หันหาผู้ชม)
-  function pyramid(cx, cy, z, h, H, left, right) {
-    poly([[cx + h, cy - h, z], [cx + h, cy + h, z], [cx, cy, z + H]], right, right, 0.6);
-    poly([[cx - h, cy + h, z], [cx + h, cy + h, z], [cx, cy, z + H]], left, left, 0.6);
-  }
-  // ป้ายทางเข้า รพ. ตามภาพถ่าย: กำแพงป้ายสีครีมชื่อ รพ. · เสาคู่ + จอภาพกรอบทองด้านบน · พุ่มไม้ด้านหน้า
+  // ป้ายทางเข้า รพ. ตามภาพถ่าย: กำแพงป้ายสีครีมชื่อ รพ. (สูง 2.4 ม.) · เสาคู่ + จอภาพกรอบทองด้านบน (ยอดสูง ~9 ม.) · พุ่มไม้ด้านหน้า
   function drawGate() {
-    var g = GATE, L = g.y1 - g.y0, fx = g.x + 1;
-    box(g.x + 0.35, g.y0 + 1.2, 1.6, 0.3, 0.3, 0.9, '#6b7280', '#4b5563', '#374151');
-    box(g.x + 0.35, g.y1 - 1.5, 1.6, 0.3, 0.3, 0.9, '#6b7280', '#4b5563', '#374151');
-    box(g.x, g.y0, 0, 1, L, 1.6, '#f3e9d2', '#e2d2ac', '#efe3c4');
-    box(g.x + 0.25, g.y0 + 0.6, 2.5, 0.5, L - 1.2, 3.3, '#1f2937', '#111827', '#0b0f19');
-    if (cam.k >= 6) {
-      onFaceX(fx, g.y1, 1.6, function () {
-        ctx.font = '600 17px Kanit, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#5b4a2e'; ctx.fillText('โรงพยาบาลบ้านบึง', L * 10, 12);
+    var g = GATE, L = g.y1 - g.y0, T = 1.2, fx = g.x + T, wh = 2.4, sz = 3.6, sh = 5.2;
+    var POST = ['#6b7280', '#4b5563', '#374151'];
+    box(g.x + 0.45, g.y0 + 2, wh, 0.35, 0.35, sz - wh, POST[0], POST[1], POST[2]);
+    box(g.x + 0.45, g.y1 - 2.35, wh, 0.35, 0.35, sz - wh, POST[0], POST[1], POST[2]);
+    box(g.x, g.y0, 0, T, L, wh, '#f3e9d2', '#e2d2ac', '#efe3c4');
+    box(g.x + 0.35, g.y0 + 1, sz, 0.5, L - 2, sh, '#1f2937', '#111827', '#0b0f19');
+    if (cam.k >= 4) {
+      onFaceX(fx, g.y1, wh, function () {
+        ctx.font = '600 28px Kanit, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#5b4a2e'; ctx.fillText('โรงพยาบาลบ้านบึง', L * 10, 20);
       });
-      onFaceX(g.x + 0.75, g.y1 - 0.6, 5.8, function () {
-        var w = (L - 1.2) * 20, h = 66;
-        ctx.strokeStyle = '#c9a227'; ctx.lineWidth = 3; ctx.strokeRect(4, 4, w - 8, h - 8);
-        ctx.strokeStyle = 'rgba(201,162,39,.5)'; ctx.lineWidth = 1; ctx.strokeRect(9, 9, w - 18, h - 18);
-        var gr = ctx.createRadialGradient(w / 2, h / 2, 2, w / 2, h / 2, 24);
+      onFaceX(g.x + 0.85, g.y1 - 1, sz + sh, function () {
+        var w = (L - 2) * 20, h = sh * 20;
+        ctx.strokeStyle = '#c9a227'; ctx.lineWidth = 5; ctx.strokeRect(6, 6, w - 12, h - 12);
+        ctx.strokeStyle = 'rgba(201,162,39,.5)'; ctx.lineWidth = 1.5; ctx.strokeRect(14, 14, w - 28, h - 28);
+        var gr = ctx.createRadialGradient(w / 2, h / 2, 3, w / 2, h / 2, 38);
         gr.addColorStop(0, '#e0f2fe'); gr.addColorStop(1, '#5aa5c0');
-        ctx.fillStyle = gr; ctx.beginPath(); ctx.ellipse(w / 2, h / 2, 17, 22, 0, 0, 7); ctx.fill();
+        ctx.fillStyle = gr; ctx.beginPath(); ctx.ellipse(w / 2, h / 2, 27, 35, 0, 0, 7); ctx.fill();
       });
     }
-    for (var y = g.y0 + 0.3; y < g.y1 - 1; y += 1.5) box(fx + 0.15, y, 0, 0.9, 1.3, 0.4,'#4ade80', '#16a34a', '#15803d');
-  }
-  // ศาลพระพรหม: ฐาน 2 ชั้น · เสาแท่น · ศาลเสา 4 ต้นมีองค์พระพรหมสีทอง · หลังคาแดงยอดทอง (สูงราว 4.4 เมตร)
-  function drawShrine() {
-    var x = SHRINE.x, y = SHRINE.y, G = ['#f3d98b', '#dcb75a', '#c79f3f'];
-    box(x - 1.6, y - 1.6, 0, 3.2, 3.2, 0.3, '#e7e2d6', '#cfc8b8', '#bdb5a3');
-    box(x - 1.2, y - 1.2, 0.3, 2.4, 2.4, 0.3, '#f1ece0', '#d8d1c0', '#c6bead');
-    box(x - 0.35, y - 0.35, 0.6, 0.7, 0.7, 1.4, '#f8f5ee', '#e2dccd', '#cfc8b6');
-    box(x - 0.75, y - 0.75, 2.0, 1.5, 1.5, 0.15, G[0], G[1], G[2]);
-    function post(dx, dy) { box(x + dx, y + dy, 2.15, 0.15, 0.15, 0.9, G[0], G[1], G[2]); }
-    post(-0.6, -0.6); post(0.45, -0.6); post(-0.6, 0.45);
-    box(x - 0.2, y - 0.2, 2.15, 0.4, 0.4, 0.6, '#fbbf24', '#d97706', '#b45309');
-    post(0.45, 0.45);
-    pyramid(x, y, 3.05, 0.95, 0.45, '#dc2626', '#b91c1c');
-    pyramid(x, y, 3.3, 0.4, 1.1, G[1], G[2]);
+    for (var y = g.y0 + 0.4; y < g.y1 - 1.4; y += 1.8) box(fx + 0.15, y, 0, 1.1, 1.6, 0.5, '#4ade80', '#16a34a', '#15803d');
   }
 
   // หุ่นแบบ "หมุด" (peg) ตามภาพตัวอย่าง: ตัวทรงแคปซูลสีเสื้อ ฐานสีกางเกง หัวกลมมีไฮไลต์ ไม่มีหน้า
@@ -704,9 +702,20 @@
     ctx.clearRect(0, 0, W, H);
     ctx.fillStyle = '#e9efeb'; ctx.fillRect(0, 0, W, H);
 
-    ROADS.forEach(function (r) { rect(r[0], r[1], r[2], r[3], 0, '#b9c3cd'); });
-    for (var m = LANE[1] + 1; m < LANE[1] + LANE[2] - 2; m += 4) rect(LANE[0] - 0.12, m, 0.25, 2, 0, '#ffffff');
-    WALKS.forEach(function (w) { rect(w[0], w[1], w[2], w[3], 0, '#d3dae1'); });
+    var ROAD_C = '#b9c3cd', z0 = function (p) { return [p[0], p[1], 0]; };
+    ROADS.forEach(function (r) { rect(r[0], r[1], r[2], r[3], 0, ROAD_C); });
+    poly(RING.map(z0), ROAD_C);
+    poly(ISLAND.map(z0), '#cfe6d3', '#9ec9a8', 1);
+    // เส้นประกลางถนนทุกเส้น (ความยาวขีดตามระยะซูม)
+    ctx.strokeStyle = 'rgba(255,255,255,.95)'; ctx.lineWidth = Math.max(1, cam.k * 0.16);
+    ctx.setLineDash([cam.k * 1.5, cam.k * 1.5]);
+    LANES.forEach(function (ln) {
+      ctx.beginPath();
+      ln.forEach(function (p, i) { var s = P(p[0], p[1], 0.01); if (i) ctx.lineTo(s[0], s[1]); else ctx.moveTo(s[0], s[1]); });
+      ctx.stroke();
+    });
+    ctx.setLineDash([]);
+    WALKS.concat([BRIDGE.r]).forEach(function (w) { rect(w[0], w[1], w[2], w[3], 0, '#d3dae1'); });
     SITE.forEach(function (s) { prism(s.pts, s.h, s.c); });
     Object.keys(BLD).forEach(function (id) {
       var b = BLD[id].r;
@@ -943,7 +952,7 @@
   // มุมมองเริ่มต้น: อาคารที่มีจุดบริการทั้งหมด + ป้ายทางเข้า
   function bounds() {
     var xs = [], ys = [];
-    Object.keys(BLD).map(function (k) { return BLD[k].r; }).concat([[GATE.x, GATE.y0, 1, GATE.y1 - GATE.y0]]).forEach(function (b) {
+    Object.keys(BLD).map(function (k) { return BLD[k].r; }).concat([[GATE.x, GATE.y0, 1.2, GATE.y1 - GATE.y0]]).forEach(function (b) {
       [[b[0], b[1]], [b[0] + b[2], b[1]], [b[0], b[1] + b[3]], [b[0] + b[2], b[1] + b[3]]].forEach(function (c) {
         xs.push((c[0] - c[1]) * C30); ys.push((c[0] + c[1]) * S30);
       });
