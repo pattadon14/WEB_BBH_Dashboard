@@ -639,6 +639,23 @@ include 'templates/sidebar.php';
 
                                             </div>
 
+                                            <div class="service-item">
+
+                                                <div class="service-name">
+
+                                                    <i class="fa-solid fa-scale-balanced"></i>
+                                                    ศูนย์พิทักษ์สิทธิ์
+
+                                                </div>
+
+                                                <div class="service-total" id="rights_total">
+
+                                                    Loading...
+
+                                                </div>
+
+                                            </div>
+
                                         </div>
 
                                     </div>
@@ -943,6 +960,9 @@ async function loadServiceSummary() {
 
     document.getElementById('ct_total').innerHTML =
         data.ct_total + ' ราย';
+
+    document.getElementById('rights_total').innerHTML =
+        data.rights_total + ' ราย';
 
     // เรียงมากไปน้อย และทำให้รายการที่เป็น 0 เป็นสีเทา ให้เห็นบริการที่มีผู้ใช้ก่อน (sort แบบ stable: เท่ากันคงลำดับเดิม)
     const serviceBox = document.getElementById('service-container');

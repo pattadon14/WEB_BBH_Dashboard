@@ -283,6 +283,21 @@ try {
 
     /*
     =========================
+    ศูนย์พิทักษ์สิทธิ์ (แผนก 096) — ไม่นับในยอด OPD (config/opd.php)
+    นับ visit ที่ผ่าน 096 วันนี้ รวมที่ถูกส่งต่อมาจากจุดอื่น (opd_dep_queue)
+    =========================
+    */
+
+    $rights_total = $conn->query("SELECT COUNT(*)
+        FROM ovst o
+        WHERE o.vstdate = CURRENT_DATE
+        AND (o.main_dep = '096' OR o.cur_dep = '096'
+             OR EXISTS (SELECT 1 FROM opd_dep_queue q
+                        WHERE q.vn = o.vn AND q.depcode = '096'))
+    ")->fetchColumn();
+
+    /*
+    =========================
     อัลตราซาวด์
     =========================
     */
@@ -368,6 +383,8 @@ try {
             (int)$hemo_total,
         'wound_total' =>
             (int)$wound_total,
+        'rights_total' =>
+            (int)$rights_total,
         'us_total' =>
             (int)$us_total,
         'lab_total' =>
