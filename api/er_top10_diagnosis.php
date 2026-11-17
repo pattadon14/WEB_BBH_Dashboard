@@ -19,7 +19,7 @@ try {
     */
 
     $cacheDir  = __DIR__ . '/../storage/cache/';
-    $cacheFile = $cacheDir . 'er_top10_dx_' . $p['key'] . '.json';
+    $cacheFile = $cacheDir . 'er_top10_dx_v2_' . $p['key'] . '.json';
     $cacheTTL  = 30 * 60; // 30 นาที
 
     if (
@@ -54,6 +54,10 @@ try {
         WHERE
             er.vstdate BETWEEN :startDate::date AND :endDate::date
             AND COALESCE(v.pdx, '') != ''
+            -- ไม่นับงานบริการ (er_pt_type 4 ทำแผล/ฉีดยา/ใบรับรองแพทย์, 5 ห้องทำแผลเวรเช้า)
+            -- และโรคหลักรหัส Z (ทำแผล ตัดไหม วัคซีน ติดตามอาการ ~10% ของ ER) — ตรงกับต้นแบบ er-dashboard
+            AND COALESCE(er.er_pt_type, 0) NOT IN (4, 5)
+            AND v.pdx NOT LIKE 'Z%'
         GROUP BY
             v.pdx,
             i.name,
@@ -107,10 +111,11 @@ try {
 
     echo $json;
 
+} catch (InvalidArgumentException $e) {
+    http_response_code(400);   // ช่วงวันที่ผิด — ข้อความของเราเอง แสดงได้
+    echo json_encode(['error' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
 } catch (Exception $e) {
-
-    echo json_encode([
-        'error' => $e->getMessage()
-    ]);
-
+    error_log('er_top10_diagnosis: ' . $e->getMessage());   // ไม่ส่งรายละเอียดฐานข้อมูลออกไปหน้าเว็บ
+    http_response_code(500);
+    echo json_encode(['error' => 'โหลดข้อมูลไม่สำเร็จ'], JSON_UNESCAPED_UNICODE);
 }

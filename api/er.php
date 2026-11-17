@@ -33,9 +33,7 @@ try {
     echo json_encode($result);
 
 } catch (PDOException $e) {
-
-    echo json_encode([
-        'error' => $e->getMessage()
-    ]);
-
+    error_log('er: ' . $e->getMessage());   // ไม่ส่งรายละเอียดฐานข้อมูลออกไปหน้าเว็บ
+    http_response_code(500);
+    echo json_encode(['error' => 'โหลดข้อมูลไม่สำเร็จ'], JSON_UNESCAPED_UNICODE);
 }

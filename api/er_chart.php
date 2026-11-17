@@ -136,10 +136,11 @@ try {
 
     echo $json;
 
+} catch (InvalidArgumentException $e) {
+    http_response_code(400);   // ช่วงวันที่ผิด — ข้อความของเราเอง แสดงได้
+    echo json_encode(['error' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
 } catch (Exception $e) {
-
-    echo json_encode([
-        'error' => $e->getMessage()
-    ]);
-
+    error_log('er_chart: ' . $e->getMessage());   // ไม่ส่งรายละเอียดฐานข้อมูลออกไปหน้าเว็บ
+    http_response_code(500);
+    echo json_encode(['error' => 'โหลดข้อมูลไม่สำเร็จ'], JSON_UNESCAPED_UNICODE);
 }
