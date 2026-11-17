@@ -17,7 +17,7 @@ html, body {
     margin: 0;
     height: 100%;
     overflow: hidden;
-    background: #f6f8f7;
+    background: #e9efeb;
     color: var(--ink);
     font-family: 'Kanit', 'Sarabun', system-ui, sans-serif;
     font-size: 15px;
@@ -149,12 +149,12 @@ button { cursor: pointer; }
     left: 12px;
     z-index: 4;
     display: grid;
-    grid-template-columns: repeat(4, 135px);
+    grid-template-columns: repeat(4, 150px);
     gap: 8px;
 }
 .kpi { padding: 10px 14px; }
 .kpi small { display: block; color: var(--muted); font-size: .78rem; }
-.kpi b { font-size: 1.7rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.kpi b { font-size: 1.7rem; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .kpi span { color: var(--muted); font-size: .78rem; margin-left: 4px; }
 .kpi-sm { grid-column: span 2; display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; padding: 8px 14px; }
 .kpi-sm small { flex-basis: 100%; }
@@ -166,6 +166,7 @@ button { cursor: pointer; }
     border-radius: 999px;
     margin-left: 6px;
     vertical-align: middle;
+    white-space: nowrap;
     background: #dcf5e7;
     color: #15803d;
 }
@@ -237,20 +238,21 @@ button { cursor: pointer; }
 .panel {
     position: fixed;
     right: 12px;
-    bottom: 128px;
+    bottom: var(--pb, 128px);
     width: 380px;
-    max-height: calc(100vh - 560px);
+    max-height: calc(100vh - 432px - var(--pb, 128px));
     min-height: 160px;
     overflow: auto;
     z-index: 4;
     padding: 12px 14px;
 }
-.panel h3 { margin: 0 0 6px; font-size: .9rem; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.panel h3 { margin: 0 0 6px; font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 8px; }
 .tag { background: var(--g); color: #fff; font-size: .72rem; padding: 2px 10px; border-radius: 999px; }
 .arow {
     display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 2px 8px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: 1px 10px;
     width: 100%;
     padding: 6px 4px;
     border: 0;
@@ -259,13 +261,14 @@ button { cursor: pointer; }
     border-radius: 8px;
 }
 .arow:hover { background: #f5faf7; }
-.arow .n { font-weight: 500; }
-.arow .v { color: var(--muted); font-size: .8rem; text-align: right; font-variant-numeric: tabular-nums; }
+.arow .n { overflow: hidden; font-size: .92rem; font-weight: 500; white-space: nowrap; text-overflow: ellipsis; }
+.arow .c { font-size: .92rem; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.arow .v { grid-column: 1 / -1; overflow: hidden; color: var(--muted); font-size: .76rem; white-space: nowrap; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
 .arow .trk { grid-column: 1 / -1; height: 4px; background: #edf2ef; border-radius: 4px; overflow: hidden; }
 .arow .trk i { display: block; height: 100%; width: 0; border-radius: 4px; transition: width .4s ease; }
-.remote { color: var(--muted); font-size: .76rem; margin-top: 4px; }
+.remote { color: var(--muted); font-size: .78rem; margin-top: 4px; }
 
-.panel .bhead { margin: 8px 4px 2px; padding-bottom: 2px; border-bottom: 1px solid var(--line); color: var(--g); font-size: .74rem; font-weight: 600; }
+.panel .bhead { margin: 8px 4px 2px; padding-bottom: 2px; border-bottom: 1px solid var(--line); color: var(--g); font-size: .8rem; font-weight: 600; }
 .panel .bhead:first-child { margin-top: 0; }
 
 /* ---------- ติดตามผู้ป่วยรายคน ---------- */
@@ -309,7 +312,7 @@ button { cursor: pointer; }
 .legend {
     position: fixed;
     left: 12px;
-    bottom: 128px;
+    bottom: var(--pb, 128px);
     z-index: 3;
     width: min(560px, calc(100vw - 430px));
     padding: 12px 16px;
@@ -346,7 +349,7 @@ button { cursor: pointer; }
 .pmain { flex: 1; min-width: 0; }
 .prow { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .chips { display: flex; gap: 8px; flex-wrap: wrap; }
-.chip2 { border: 1px solid var(--line); border-radius: 999px; padding: 2px 12px; font-size: .78rem; }
+.chip2 { border: 1px solid var(--line); border-radius: 999px; padding: 2px 12px; font-size: .82rem; white-space: nowrap; }
 .chip2 i { color: var(--g); }
 .ptime { font-weight: 600; font-variant-numeric: tabular-nums; }
 #timeline { display: block; width: 100%; height: 44px; margin: 4px 0; cursor: pointer; touch-action: none; }
@@ -359,7 +362,13 @@ button { cursor: pointer; }
     color: #475467;
 }
 .speeds button.on { background: var(--g); border-color: var(--g); color: #fff; font-weight: 600; }
-.note { color: var(--muted); font-size: .78rem; flex: 1; }
+.note { color: var(--muted); font-size: .8rem; flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+/* ข้อมูลสด: ไม่ต้องเลื่อนเวลา — ซ่อนกราฟ/ความเร็ว เหลือปุ่มเล่นย้อนหลัง + ตัวเลขสั้น ๆ */
+body.is-live #timeline, body.is-live .speeds, body.is-live .ptime { display: none; }
+body.is-live .player { right: auto; max-width: calc(100vw - 420px); padding: 8px 18px 8px 10px; }
+body.is-live .play { width: 44px; height: 44px; font-size: 1rem; }
+body.is-live .pmain { display: flex; flex-direction: column; gap: 2px; }
 
 /* ---------- tooltip ---------- */
 .tip {
@@ -429,7 +438,7 @@ button { cursor: pointer; }
 /* ---------- จอเล็ก ---------- */
 @media (max-width: 1100px) {
     .legend { display: none; }
-    .kpis { grid-template-columns: repeat(2, 135px); }
+    .kpis { grid-template-columns: repeat(2, 150px); }
 }
 
 @media (max-width: 900px) {
@@ -452,6 +461,7 @@ button { cursor: pointer; }
     .player { padding: 8px 10px; gap: 10px; }
     .play { width: 44px; height: 44px; }
     .chips, .note { display: none; }
+    body.is-live .player { right: auto; max-width: none; padding: 6px; }
     .speeds button { padding: 2px 6px; }
 }
 
