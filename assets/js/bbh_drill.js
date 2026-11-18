@@ -1,14 +1,17 @@
 /* หน้าต่างรายชื่อผู้ป่วยเบื้องหลังตัวเลขบนการ์ด (ใช้ที่หน้า ER) — <dialog> + ค้นหา + ตัวกรอง + แบ่งหน้า + Export CSV
- * หน้าตาใช้ class .opd-drill* ของ assets/css/opd_tabs.css (หน้าต่างเดียวกับรายชื่อหน้า OPD)
+ * ใช้ที่หน้า OPD (opd_detail.js) และ ER (er_summary.js) · หน้าตาใช้ class .opd-drill* ของ assets/css/opd_tabs.css
  *
  * bbhDrill.open({
  *   title, sub,            // หัวหน้าต่าง
  *   url,                   // API ที่คืน { rows: [...] } หรือ { error } (ต้อง login — API ตรวจเอง)
- *   cols: [[key, หัวคอลัมน์], ...],
- *   filters: [[key, ชื่อตัวกรอง], ...],
+ *   cols: [[key, หัวคอลัมน์], ...]          หรือ data => [...] ถ้าคอลัมน์ขึ้นกับผลที่ได้ (เช่น รายการนัด / visit)
+ *   filters: [[key, ชื่อตัวกรอง], ...]      หรือ data => [...]
+ *   mapRows: data => rows,                 (ไม่ใส่ = data.rows) เติมฟิลด์ที่คำนวณได้ เพื่อใช้กรอง/ค้นหา
+ *   placeholder: 'ค้นหา …',               searchKeys: [key, ...] (ไม่ใส่ = ทุกคอลัมน์)
+ *   exportCols: [[key, หัว], ...]          (ไม่ใส่ = cols)
  *   cell: (row, key) => html | undefined,   // แสดงเซลล์พิเศษ (ค่าที่คืนต้อง escape เองด้วย bbhDrill.esc)
  *   unit: 'ครั้ง', file: 'ER_xxx.csv',
- *   summary: rows => ข้อความต่อท้ายหัวรอง เช่น "12 ครั้ง (11 คน)"
+ *   summary: (rows, data) => ข้อความต่อท้ายหัวรอง เช่น "12 ครั้ง (11 คน)"
  * })
  */
 window.bbhDrill = (function () {
@@ -70,6 +73,7 @@ window.bbhDrill = (function () {
         el.sub.textContent = opts.sub || '';
         el.count.textContent = '';
         el.q.value = '';
+        el.q.placeholder = opts.placeholder || 'ค้นหา HN / ชื่อ';
         el.export.disabled = true;
         el.filters.innerHTML = '';
         el.pager.innerHTML = '';
@@ -81,9 +85,11 @@ window.bbhDrill = (function () {
             const data = await res.json();
             if (!res.ok || data.error) throw new Error(data.error || 'โหลดรายชื่อไม่สำเร็จ');
             if (my !== seq) return;   // เปิดรายการอื่นไปแล้ว
-            state.rows = data.rows;
-            if (opts.summary) el.sub.textContent = (opts.sub ? opts.sub + ' · ' : '') + opts.summary(data.rows);
-            el.export.disabled = !data.rows.length;
+            const pick = v => typeof v === 'function' ? v(data) : v;
+            state.opts = { ...opts, cols: pick(opts.cols), filters: pick(opts.filters) || [] };
+            state.rows = opts.mapRows ? opts.mapRows(data) : data.rows;
+            if (opts.summary) el.sub.textContent = (opts.sub ? opts.sub + ' · ' : '') + opts.summary(state.rows, data);
+            el.export.disabled = !state.rows.length;
             renderFilters();
             render();
         } catch (e) {
@@ -94,7 +100,7 @@ window.bbhDrill = (function () {
 
     // ตัวเลือกสร้างจากข้อมูลจริงของรายการนั้น เรียงตามจำนวนมากไปน้อย · มีค่าเดียวไม่ต้องแสดง
     function renderFilters() {
-        el.filters.innerHTML = (state.opts.filters || []).map(([k, label]) => {
+        el.filters.innerHTML = state.opts.filters.map(([k, label]) => {
             const counts = new Map();
             state.rows.forEach(r => { const v = String(r[k] ?? ''); if (v) counts.set(v, (counts.get(v) || 0) + 1); });
             if (counts.size < 2) return '';

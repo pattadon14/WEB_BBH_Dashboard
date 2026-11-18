@@ -483,28 +483,6 @@ include '../templates/sidebar.php';
 
             </div>
 
-            <!-- รายชื่อผู้ป่วยเมื่อคลิกตัวเลข (ข้อมูลจาก api/opd_visit_list.php ต้อง login) -->
-            <dialog class="opd-drill" id="opd-drill" aria-labelledby="opd-drill-title">
-                <header class="opd-drill-head">
-                    <div>
-                        <h3 id="opd-drill-title">รายชื่อผู้ป่วย</h3>
-                        <p id="opd-drill-sub"></p>
-                    </div>
-                    <button type="button" class="opd-drill-close" id="opd-drill-close" aria-label="ปิด"><i class="fa-solid fa-xmark"></i></button>
-                </header>
-                <div class="opd-drill-tools">
-                    <label class="opd-drill-search">
-                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                        <input type="search" id="opd-drill-q" placeholder="ค้นหา HN / ชื่อ / แผนก / สิทธิ์" aria-label="ค้นหาในรายชื่อ">
-                    </label>
-                    <span class="opd-drill-count" id="opd-drill-count" aria-live="polite"></span>
-                    <button type="button" class="opd-drill-export" id="opd-drill-export"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
-                </div>
-                <div class="opd-drill-filters" id="opd-drill-filters"></div>
-                <div class="opd-drill-body" id="opd-drill-body"></div>
-                <nav class="opd-drill-pager" id="opd-drill-pager" aria-label="เปลี่ยนหน้ารายชื่อ"></nav>
-            </dialog>
-
             <!-- =====================================================
                  TAB 3 : เวลารอ & คุณภาพบริการ (api/opd_service_kpi.php)
             ====================================================== -->
@@ -606,6 +584,7 @@ include '../templates/sidebar.php';
 
 <script src="<?= BASE_URL ?>assets/lib/highcharts/13.1.1/highcharts.js"></script>
 <script>window.BBH_CURRENT_FISCAL_YEAR = <?= $currentYear ?>;</script>
+<script src="<?= BASE_URL ?>assets/js/bbh_drill.js?v=<?= filemtime(__DIR__ . '/../assets/js/bbh_drill.js') ?>"></script>
 <script src="<?= BASE_URL ?>assets/js/opd_detail.js?v=<?= filemtime(__DIR__ . '/../assets/js/opd_detail.js') ?>"></script>
 <script src="<?= BASE_URL ?>assets/js/opd_quality.js?v=<?= filemtime(__DIR__ . '/../assets/js/opd_quality.js') ?>"></script>
 
