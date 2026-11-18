@@ -5,6 +5,8 @@
  *
  * ข้อมูลส่วนบุคคล (PDPA): ต้อง login Provider ID · ไม่ cache ลงดิสก์
  * เงื่อนไขแต่ละ type ต้องตรงกับที่ใช้นับใน opd_visit_today.php (ถ้าแก้ที่หนึ่ง ให้แก้อีกที่ด้วย)
+ * admit_ward = ward ของ ipt (ผ่าน ovst.an) · refer_to = รพ.ปลายทางจาก referout.refer_hospcode
+ *   (บาง visit มี referout มากกว่า 1 แถว ราว 21 visit / 90 วัน → รวมชื่อในช่องเดียว ไม่เพิ่มแถว)
  */
 
 require_once __DIR__ . '/../auth/provider.php';
@@ -102,7 +104,12 @@ try {
                 (EXTRACT(EPOCH FROM st.screen_at - (o.vstdate + o.vsttime)) / 60)::int AS wait_screen,
                 (EXTRACT(EPOCH FROM st.doctor_at - st.screen_at) / 60)::int           AS wait_doctor,
                 (p.firstday = o.vstdate)                     AS is_new,
-                COALESCE(o.an, '') <> ''                     AS is_admit
+                COALESCE(o.an, '') <> ''                     AS is_admit,
+                (SELECT COALESCE(w.name, i.ward) FROM ipt i LEFT JOIN ward w ON w.ward = i.ward
+                  WHERE i.an = o.an LIMIT 1)                 AS admit_ward,
+                (SELECT STRING_AGG(DISTINCT COALESCE(h.name, r.refer_hospcode), ', ')
+                   FROM referout r LEFT JOIN hospcode h ON h.hospcode = r.refer_hospcode
+                  WHERE r.vn = o.vn)                         AS refer_to
             FROM ovst o
             LEFT JOIN patient p        ON p.hn = o.hn
             LEFT JOIN kskdepartment k  ON k.depcode = o.main_dep

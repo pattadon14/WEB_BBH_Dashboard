@@ -1343,6 +1343,14 @@ const VISIT_EXPORT = [
     ['pttype', 'สิทธิ์'], ['nation', 'สัญชาติ'], ['screen_at', 'ซักประวัติ'], ['wait_screen', 'รอซักประวัติ (นาที)'],
     ['doctor_at', 'พบแพทย์'], ['wait_doctor', 'รอแพทย์ (นาที)']
 ];
+// Admit / Refer: คอลัมน์ "อยู่ที่" เปลี่ยนเป็นปลายทาง (api ส่ง admit_ward / refer_to) · ชื่อ รพ. ย่อเฉพาะตอนแสดง
+const shortHosp = v => String(v).replace(/โรงพยาบาลส่งเสริมสุขภาพตำบล/g, 'รพ.สต.').replace(/โรงพยาบาล/g, 'รพ.');
+const DEST_COL = {
+    admit: ['admit_ward', 'Admit ไปที่', { max: '13em' }],
+    refer: ['refer_to', 'ส่งต่อไปที่', { display: shortHosp, max: '16em' }]
+};
+const withDest = (list, type) => DEST_COL[type] ? list.map(c => c[0] === 'cur_dep' ? DEST_COL[type] : c) : list;
+
 const APPT_COLS = [
     ['hn', 'HN', NW], ['name', 'ชื่อ-สกุล', NW], ['appt_time', 'เวลานัด', NW], ['clinic', 'คลินิก', { short: true, max: '13em' }],
     ['status', 'สถานะ', NW], ['vsttime', 'เวลามา', NW], ['pttype', 'สิทธิ์', { short: true, max: '13em' }], ['nation', 'สัญชาติ', NW]
@@ -1388,9 +1396,9 @@ function openDrill(type, key, label) {
         sub: SCOPE_NAMES[opdScope] + ' · วันที่ ' + formatThaiDate(date),
         url: '../api/opd_visit_list.php?' + qs,
         placeholder: 'ค้นหา HN / ชื่อ / แผนก / สิทธิ์',
-        cols: data => data.kind === 'appt' ? APPT_COLS : VISIT_COLS,
-        exportCols: data => data.kind === 'appt' ? APPT_COLS : VISIT_EXPORT,
-        filters: data => DRILL_FILTERS[data.kind],
+        cols: data => data.kind === 'appt' ? APPT_COLS : withDest(VISIT_COLS, type),
+        exportCols: data => data.kind === 'appt' ? APPT_COLS : withDest(VISIT_EXPORT, type),
+        filters: data => data.kind === 'appt' ? DRILL_FILTERS.appt : withDest(DRILL_FILTERS.visit, type),
         mapRows: data => data.rows.map(r => ({ ...r, ptkind: r.is_new ? 'ผู้ป่วยใหม่' : 'ผู้ป่วยเก่า' })),
         cell: drillCell,
         file: `OPD_${type}_${date}.csv`,

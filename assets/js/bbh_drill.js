@@ -9,6 +9,7 @@
  *           { nowrap: true }   ไม่ตัดบรรทัด (ชื่อ, HN, เวลา)
  *           { short: true }    ตัดรหัสนำหน้าออก เช่น "115 จุดซักประวัติ" → "จุดซักประวัติ", "77- บ้านบึง UC" → "บ้านบึง UC"
  *           { max: '12em' }    ยาวเกินตัดด้วย … (ชี้ดู/แตะเพื่อดูข้อความเต็ม)
+ *           { display: v => … } ย่อข้อความเฉพาะตอนแสดง เช่น 'โรงพยาบาล' → 'รพ.'
  *   filters: [[key, ชื่อตัวกรอง], ...]      หรือ data => [...]
  *   mapRows: data => rows,                 (ไม่ใส่ = data.rows) เติมฟิลด์ที่คำนวณได้ เพื่อใช้กรอง/ค้นหา
  *   placeholder: 'ค้นหา …',               searchKeys: [key, ...] (ไม่ใส่ = ทุกคอลัมน์)
@@ -117,7 +118,7 @@ window.bbhDrill = (function () {
             state.rows.forEach(r => { const v = String(r[k] ?? ''); if (v) counts.set(v, (counts.get(v) || 0) + 1); });
             if (counts.size < 2) return '';
             const opts = [...counts].sort((a, b) => b[1] - a[1])
-                .map(([v, n]) => `<option value="${esc(v)}">${esc(colOpt(k).short ? stripCode(v) : v)} (${fmt(n)})</option>`).join('');
+                .map(([v, n]) => `<option value="${esc(v)}">${esc(colOpt(k).display ? colOpt(k).display(v) : colOpt(k).short ? stripCode(v) : v)} (${fmt(n)})</option>`).join('');
             return `<label class="opd-drill-filter"><span>${esc(label)}</span>
                 <select data-filter="${esc(k)}"><option value="">ทั้งหมด</option>${opts}</select></label>`;
         }).join('');
@@ -145,7 +146,7 @@ window.bbhDrill = (function () {
         if (custom !== undefined) return custom;
         const v = r[k];
         if (v === null || v === undefined || v === '') return '<span class="text-muted">–</span>';
-        const text = o.short ? stripCode(v) : String(v);
+        const text = o.display ? o.display(v) : o.short ? stripCode(v) : String(v);
         if (!o.max) return esc(text);
         return `<span class="bbh-clip" style="max-width:${esc(o.max)}" title="${esc(v)}">${esc(text)}</span>`;
     }
