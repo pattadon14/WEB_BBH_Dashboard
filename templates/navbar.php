@@ -44,6 +44,14 @@ foreach (($_SESSION['provider_auth']['organization'] ?? []) as $organization) {
     <?php endif; ?>
 
     <ul class="navbar-nav ms-auto align-items-center">
+        <li class="nav-item">
+            <button type="button" class="theme-toggle" data-theme-toggle onclick="bbhToggleTheme()"
+                aria-label="โหมดมืด" title="สลับโหมดสว่าง / มืด" aria-pressed="false">
+                <i class="fa-solid fa-moon theme-icon-dark" aria-hidden="true"></i>
+                <i class="fa-solid fa-sun theme-icon-light" aria-hidden="true"></i>
+            </button>
+            <script>document.currentScript.previousElementSibling.setAttribute('aria-pressed', String(document.documentElement.getAttribute('data-theme') === 'dark'));</script>
+        </li>
         <li class="nav-item mr-3">
             <a href="https://docs.google.com/forms/d/e/1FAIpQLScKGR0_xvvq1uHqdwm3Npj0y6tEAZq0o5KEp9tQaufokUWzwg/viewform?usp=dialog" target="_blank" class="feedback-btn">
                 <i class="fas fa-comment-dots"></i>

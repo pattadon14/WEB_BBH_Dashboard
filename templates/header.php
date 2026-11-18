@@ -17,6 +17,25 @@ require_once __DIR__ . '/../config/app.php';
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>Dashboard BBH</title>
+
+    <script>
+        // ธีมสว่าง/มืด: ตั้งก่อนโหลด CSS เพื่อไม่ให้หน้ากระพริบเป็นสีขาว
+        // ยังไม่เคยเลือก = ตามการตั้งค่าเครื่อง · เลือกแล้วจำไว้ในเครื่องนั้น (localStorage)
+        (function () {
+            var t = null;
+            try { t = localStorage.getItem('bbh-theme'); } catch (e) {}
+            if (t !== 'light' && t !== 'dark') t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', t);
+            document.documentElement.setAttribute('data-bs-theme', t);   // ตาราง/ฟอร์ม/dropdown ของ Bootstrap 5.3 (AdminLTE 4)
+        })();
+        window.bbhToggleTheme = function () {
+            var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            document.documentElement.setAttribute('data-bs-theme', next);
+            try { localStorage.setItem('bbh-theme', next); } catch (e) {}
+            document.querySelectorAll('[data-theme-toggle]').forEach(function (b) { b.setAttribute('aria-pressed', String(next === 'dark')); });
+        };
+    </script>
     <!-- ไอคอนแท็บ = ไอคอนเดียวกับเว็บหลัก รพ. (WordPress Site Icon ที่ /favicon.ico ของโดเมนหลัก)
          ใช้ URL เต็มเพื่อให้เครื่องทดสอบ (localhost) เห็นเหมือนเว็บจริง และเปลี่ยนตามเมื่อเว็บหลักเปลี่ยนไอคอน -->
     <link rel="icon" href="https://banbunghospital.moph.go.th/favicon.ico">
@@ -41,6 +60,10 @@ require_once __DIR__ . '/../config/app.php';
 
     <!-- ธีมกลางทุกหน้า (โหลดท้ายสุด) -->
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/theme.css?v=<?= filemtime(__DIR__ . '/../assets/css/theme.css') ?>">
+
+    <!-- โหมดมืด: dark.generated.css สร้างจาก tools/build_dark_css.mjs · dark.css = ปรับด้วยมือ (ทำงานเฉพาะ html[data-theme="dark"]) -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/dark.generated.css?v=<?= filemtime(__DIR__ . '/../assets/css/dark.generated.css') ?>">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/dark.css?v=<?= filemtime(__DIR__ . '/../assets/css/dark.css') ?>">
 
     <style>
         /* =========================================================

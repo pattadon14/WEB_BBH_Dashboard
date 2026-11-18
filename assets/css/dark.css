@@ -1,0 +1,180 @@
+/* =========================================================
+   BBH theme: ปุ่มสลับธีม + โหมดมืดส่วนที่ปรับด้วยมือ
+   โหลดถัดจาก dark.generated.css (สร้างจาก tools/build_dark_css.mjs)
+   ทุกกฎโหมดมืดอยู่ใต้ html[data-theme="dark"] → โหมดสว่างไม่เปลี่ยน
+========================================================= */
+
+/* ---------- ปุ่มสลับธีม (ทั้งสองโหมด) ---------- */
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+    border: 1px solid rgba(25, 135, 84, .25);
+    border-radius: 50%;
+    background: #ffffff;
+    color: #146c43;
+    font-size: 1.05rem;
+    cursor: pointer;
+    transition: background-color .2s ease, color .2s ease, border-color .2s ease;
+}
+
+.theme-toggle:hover,
+.theme-toggle:focus-visible {
+    background: #eef7f2;
+}
+
+.theme-toggle .theme-icon-light { display: none; }
+html[data-theme="dark"] .theme-toggle .theme-icon-dark { display: none; }
+html[data-theme="dark"] .theme-toggle .theme-icon-light { display: inline; }
+
+@media (max-width: 768px) {
+    .theme-toggle { width: 38px; height: 38px; margin-right: 0; }
+}
+
+/* ---------- โหมดมืด: พื้นฐาน ---------- */
+html[data-theme="dark"] {
+    color-scheme: dark;          /* scrollbar, ช่องกรอก, ปฏิทินของ browser เป็นโทนมืด */
+    --bbh-bg: #121614;
+    --bbh-surface: #1a201d;
+    --bbh-border: #2c3631;
+    --bbh-text: #e4ece7;
+    --bbh-muted: #a7b5ae;
+    --bbh-green-50: #1d2a23;
+    --bbh-green-100: #26392e;
+    --bbh-green-700: #8fdcb0;
+    --bbh-shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 4px 14px rgba(0, 0, 0, .35);
+    --bbh-shadow-hover: 0 2px 6px rgba(0, 0, 0, .45), 0 12px 28px rgba(0, 0, 0, .45);
+    /* สีเขียวเข้มที่ใช้เป็น "ตัวอักษร" → เขียวสว่างบนพื้นมืด (สีเขียวที่เป็นพื้นปุ่มคงเดิม) */
+    --bbh-green-dark: #8fdcb0;
+    --bbh-green-soft: #1d2a23;
+    --ipd-green-dark: #8fdcb0;
+    /* Highcharts อ่านตัวแปรเหล่านี้ (custom.css ตั้งเป็นโทนสว่างไว้) */
+    --highcharts-background-color: #1a201d;
+    --highcharts-neutral-color-80: #d8e0db;
+    --highcharts-neutral-color-60: #aab6b0;
+    --highcharts-neutral-color-40: #7d8a84;
+    --highcharts-neutral-color-20: #3a4640;
+    --highcharts-neutral-color-10: #2c3631;
+    --highcharts-neutral-color-5: #222a26;
+    --highcharts-neutral-color-3: #1d2420;
+}
+
+/* เหรียญทอง/เงิน/ทองแดง (สีพื้นสว่าง) ใช้ตัวเลขสีเข้มเหมือนเดิม */
+html[data-theme="dark"] .rank-badge[style*="#FFD700"],
+html[data-theme="dark"] .rank-badge[style*="#C0C0C0"],
+html[data-theme="dark"] .rank-badge[style*="#CD7F32"] {
+    color: #1f1f1f !important;
+}
+
+html[data-theme="dark"] body {
+    background: var(--bbh-bg);
+    color: var(--bbh-text);
+}
+
+html[data-theme="dark"] .content-wrapper {
+    background: linear-gradient(180deg, #16201b 0, var(--bbh-bg) 280px) !important;
+}
+
+html[data-theme="dark"] .theme-toggle {
+    border-color: #2c3631;
+    background: #1a201d;
+    color: #ffd76a;
+}
+
+html[data-theme="dark"] .theme-toggle:hover,
+html[data-theme="dark"] .theme-toggle:focus-visible {
+    background: #26302b;
+}
+
+/* ---------- AdminLTE / Bootstrap ทั่วไป ---------- */
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .card-header,
+html[data-theme="dark"] .card-footer,
+html[data-theme="dark"] .bg-white,
+html[data-theme="dark"] .bg-light,
+html[data-theme="dark"] .modal-content,
+html[data-theme="dark"] .dropdown-menu,
+html[data-theme="dark"] .list-group-item {
+    background-color: var(--bbh-surface) !important;
+    color: var(--bbh-text);
+    border-color: var(--bbh-border);
+}
+
+html[data-theme="dark"] .text-dark { color: var(--bbh-text) !important; }
+html[data-theme="dark"] .text-muted,
+html[data-theme="dark"] .text-secondary { color: var(--bbh-muted) !important; }
+html[data-theme="dark"] .text-success { color: #6fd39b !important; }
+html[data-theme="dark"] .text-danger { color: #ff8a8a !important; }
+html[data-theme="dark"] .text-warning { color: #f5c04f !important; }
+html[data-theme="dark"] .text-info { color: #6fd0e3 !important; }
+html[data-theme="dark"] .text-primary { color: #8db4ff !important; }
+
+html[data-theme="dark"] hr,
+html[data-theme="dark"] .border,
+html[data-theme="dark"] .border-top,
+html[data-theme="dark"] .border-bottom { border-color: var(--bbh-border) !important; }
+
+html[data-theme="dark"] .table { color: var(--bbh-text); }
+html[data-theme="dark"] .table thead th { background: #1f2a24; color: #8fdcb0; border-bottom-color: var(--bbh-border); }
+html[data-theme="dark"] .table td,
+html[data-theme="dark"] .table th { border-color: #26302b; }
+html[data-theme="dark"] .table-hover tbody tr:hover,
+html[data-theme="dark"] .table tbody tr:hover { background: #202923; color: var(--bbh-text); }
+html[data-theme="dark"] .table-striped tbody tr:nth-of-type(odd) { background: rgba(255, 255, 255, .03); }
+
+html[data-theme="dark"] .form-control,
+html[data-theme="dark"] .custom-select,
+html[data-theme="dark"] select,
+html[data-theme="dark"] input[type="date"],
+html[data-theme="dark"] input[type="text"],
+html[data-theme="dark"] input[type="search"] {
+    background-color: #151a17 !important;
+    color: var(--bbh-text) !important;
+    border-color: #35423b !important;
+}
+
+html[data-theme="dark"] .form-control::placeholder,
+html[data-theme="dark"] input::placeholder { color: #8d9b94; }
+
+html[data-theme="dark"] .progress { background: #26302b; }
+
+/* dialog ของเว็บ (รายชื่อผู้ป่วย, ประวัติ Ward, กรุณาเข้าสู่ระบบ) */
+html[data-theme="dark"] dialog { color: var(--bbh-text); }
+
+/* โลโก้มีพื้นขาว — วางบนแผ่นสว่างเล็ก ๆ ให้อ่านออกเหมือนเดิม */
+html[data-theme="dark"] .brand-logo,
+html[data-theme="dark"] .bbh-sidebar-logo,
+html[data-theme="dark"] .bbh-guest-access-logo { background: #ffffff; border-radius: 10px; }
+
+/* ---------- Highcharts ---------- */
+html[data-theme="dark"] .highcharts-background { fill: transparent !important; }
+html[data-theme="dark"] .highcharts-title,
+html[data-theme="dark"] .highcharts-title tspan { fill: var(--bbh-text) !important; color: var(--bbh-text) !important; }
+html[data-theme="dark"] .highcharts-subtitle,
+html[data-theme="dark"] .highcharts-axis-title,
+html[data-theme="dark"] .highcharts-axis-labels text,
+html[data-theme="dark"] .highcharts-legend-item text,
+html[data-theme="dark"] .highcharts-legend-item tspan { fill: var(--bbh-muted) !important; color: var(--bbh-muted) !important; }
+html[data-theme="dark"] .highcharts-legend-item-hidden text { fill: #5b6660 !important; }
+html[data-theme="dark"] .highcharts-grid-line { stroke: #26302b !important; }
+html[data-theme="dark"] .highcharts-axis-line,
+html[data-theme="dark"] .highcharts-tick { stroke: #3a4640 !important; }
+html[data-theme="dark"] .highcharts-tooltip-box,
+html[data-theme="dark"] .highcharts-tooltip > span { fill: #1f2723 !important; background: #1f2723 !important; stroke: #3a4640 !important; }
+html[data-theme="dark"] .highcharts-tooltip text,
+html[data-theme="dark"] .highcharts-tooltip tspan,
+html[data-theme="dark"] .highcharts-tooltip span { fill: var(--bbh-text) !important; color: var(--bbh-text) !important; }
+/* ตัวเลขบนแท่ง: เส้นขอบตัวอักษรใช้สีพื้นมืดแทนขาว */
+html[data-theme="dark"] .highcharts-data-label text,
+html[data-theme="dark"] .highcharts-data-label tspan { fill: var(--bbh-text) !important; }
+html[data-theme="dark"] .highcharts-data-label .highcharts-text-outline { stroke: var(--bbh-surface) !important; fill: var(--bbh-surface) !important; }
+html[data-theme="dark"] .highcharts-data-label span,
+html[data-theme="dark"] .highcharts-data-label div { color: var(--bbh-text) !important; }
+html[data-theme="dark"] .highcharts-plot-border,
+html[data-theme="dark"] .highcharts-plot-background { fill: transparent !important; }
+html[data-theme="dark"] .highcharts-point { stroke: var(--bbh-surface); }
+html[data-theme="dark"] .highcharts-credits { fill: #6f7c76 !important; }
+html[data-theme="dark"] .highcharts-heatmap-series .highcharts-point { stroke: var(--bbh-surface) !important; }
