@@ -39,7 +39,7 @@ foreach (($_SESSION['provider_auth']['organization'] ?? []) as $organization) {
         <div class="live-status" id="live-status" role="status" aria-live="polite">
             <span class="live-dot" aria-hidden="true"></span>
             <span class="live-label">LIVE</span>
-            <span id="last-updated">กำลังโหลดข้อมูล...</span>
+            <span id="last-updated">กำลังโหลดข้อมูล…</span>
         </div>
     <?php endif; ?>
 

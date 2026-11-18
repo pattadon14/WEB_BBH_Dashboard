@@ -44,8 +44,8 @@
 
 .oq-lv { display: inline-block; padding: 1px 10px; border-radius: 10px; font-size: .95rem; white-space: nowrap; }
 .oq-lv-high { background: #fde8e8; color: #c62828; }
-.oq-lv-mid { background: #fff4de; color: #b26a00; }
-.oq-lv-ok { background: #e6f5ec; color: #1e8e5a; }
+.oq-lv-mid { background: #fff4de; color: #8a5300; }
+.oq-lv-ok { background: #e6f5ec; color: #146c43; }
 
 @media (max-width: 576px) {
     .oq-controls, .oq-seg, .oq-range { width: 100%; }

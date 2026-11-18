@@ -107,7 +107,7 @@ body {
     padding: 0 8px;
     border-radius: 999px;
     background: #eef2f0;
-    color: #6b7c75;
+    color: var(--bbh-muted);
     font-size: .8em;
     white-space: nowrap;
 }

@@ -463,7 +463,7 @@ include '../templates/sidebar.php';
                                                 <tr>
                                                     <td colspan="6" class="text-center text-muted py-4">
                                                         <i class="fa-solid fa-spinner fa-spin me-2"></i>
-                                                        กำลังโหลดข้อมูล...
+                                                        กำลังโหลดข้อมูล…
                                                     </td>
                                                 </tr>
                                             </tbody>
