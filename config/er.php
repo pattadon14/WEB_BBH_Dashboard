@@ -26,3 +26,9 @@ const ER_DCH_SQL = "CASE
 
 // วิธีมาถึง (ovst.ovstist): EMS = 09 FR / 10 BLS / 11 ALS · 04 = รับส่งต่อจากสถานพยาบาลอื่น
 const ER_EMS_CODES = "('09', '10', '11')";
+
+// Refer in (รับส่งต่อจากสถานพยาบาลอื่น) = ลงวิธีมา 04 หรือ มีใบรับส่งต่อใน referin ของ visit นี้ (ต้องมี alias o = ovst)
+// ข้อมูลจริง 30 วัน (ER 4,999 visit): ovstist 04 = 35, referin = 41, ซ้อนกัน 29 → รวม 47
+// มีใบ referin แต่วิธีมาไม่ใช่ 04 ได้ เช่น ALS / ญาตินำมา — ใช้อย่างใดอย่างหนึ่งจะนับขาด
+// Refer out = ผลจำหน่าย 2 ใน ER_DCH_SQL (er_dch_type 2 หรือ referout จากจุด ER)
+const ER_REFER_IN_SQL = "(o.ovstist = '04' OR EXISTS (SELECT 1 FROM referin ri WHERE ri.vn = e.vn))";

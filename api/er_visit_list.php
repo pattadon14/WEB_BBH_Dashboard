@@ -36,7 +36,7 @@ $ems = ER_EMS_CODES;
 $FILTERS = [
     'all'           => 'TRUE',
     'ems'           => "x.ovstist IN $ems",
-    'refer_in'      => "x.ovstist = '04'",
+    'refer_in'      => 'x.refer_in',
     'l12'           => 'x.lvl IN (1, 2)',
     'pt_emergency'  => 'x.pt = 1',
     'pt_accident'   => 'x.pt = 2',
@@ -64,9 +64,11 @@ if (!isset($FILTERS[$type])) {
 const ER_PT_NAMES = [1 => 'ฉุกเฉิน', 2 => 'อุบัติเหตุ', 3 => 'ตรวจโรคทั่วไป', 4 => 'รับบริการอื่น', 5 => 'ห้องทำแผลเวรเช้า'];
 
 $level = ER_LEVEL_SQL;
+$refIn = ER_REFER_IN_SQL;
 $dch   = ER_DCH_SQL;
 // หมายเหตุ SQL (คอมเมนต์ไว้นอก SQL — การเชื่อมต่อเป็น WIN874 ส่งอักขระอย่าง → · ไม่ได้):
 // ประเภทผู้ป่วย: ชื่อในตาราง er_pt_type ยาวและถูกตัดกลางคำ จึงใช้ชื่อสั้นชุดเดียวกับการ์ด (ER_PT_NAMES)
+// refer_from: รพ.ต้นทางจากใบรับส่งต่อ (referin) · ลงวิธีมา 04 แต่ไม่มีใบ referin จะว่าง
 // admit_ward / refer_to: ward ที่ Admit (ipt ของ visit) / รพ.ปลายทาง (referout ทุกจุดของ visit รวมในช่องเดียว) — ชุดเดียวกับ opd_visit_list.php
 // d2d: door-to-doctor (นาที) จาก er_regist.door_to_doctor_second — แสดงเฉพาะ 1 วินาที–24 ชม.
 //      0 = ไม่ได้บันทึก (ข้อมูลจริง 30 วัน: 0 มี 1,713 แถว มีเวลาแพทย์แค่ 6 แถว) · มีค่าจริงราว 17% ของ visit
@@ -74,7 +76,7 @@ $dch   = ER_DCH_SQL;
 try {
     $sql = "
         SELECT x.hn, x.name, x.age, x.enter_at, x.lvl, x.pt AS pt_code, x.arrival, x.dch, x.dch_name,
-               x.pdx, x.diag_th, x.diag_en, x.d2d, x.admit_ward, x.refer_to
+               x.pdx, x.diag_th, x.diag_en, x.d2d, x.admit_ward, x.refer_to, x.refer_from
         FROM (
             SELECT
                 $level                                          AS lvl,
@@ -83,6 +85,7 @@ try {
                 EXTRACT(HOUR FROM e.enter_er_time)              AS h,
                 o.hn,
                 o.ovstist,
+                $refIn                                          AS refer_in,
                 TRIM(COALESCE(p.pname, '') || COALESCE(p.fname, '') || ' ' || COALESCE(p.lname, '')) AS name,
                 v.age_y                                         AS age,
                 TO_CHAR(e.enter_er_time, 'HH24:MI')             AS enter_at,
@@ -98,7 +101,10 @@ try {
                   WHERE i.vn = e.vn LIMIT 1)                    AS admit_ward,
                 (SELECT STRING_AGG(DISTINCT COALESCE(h.name, r.refer_hospcode), ', ')
                    FROM referout r LEFT JOIN hospcode h ON h.hospcode = r.refer_hospcode
-                  WHERE r.vn = e.vn)                            AS refer_to
+                  WHERE r.vn = e.vn)                            AS refer_to,
+                (SELECT STRING_AGG(DISTINCT COALESCE(h.name, ri.refer_hospcode), ', ')
+                   FROM referin ri LEFT JOIN hospcode h ON h.hospcode = ri.refer_hospcode
+                  WHERE ri.vn = e.vn)                           AS refer_from
             FROM er_regist e
             LEFT JOIN ovst o               ON o.vn = e.vn
             LEFT JOIN vn_stat v            ON v.vn = e.vn

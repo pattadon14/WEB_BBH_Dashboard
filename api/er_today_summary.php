@@ -26,6 +26,7 @@ try {
     $level = ER_LEVEL_SQL;
     $dch   = ER_DCH_SQL;
     $ems   = ER_EMS_CODES;
+    $refIn = ER_REFER_IN_SQL;
 
     $sql = "
         SELECT
@@ -51,7 +52,7 @@ try {
             COUNT(*) FILTER (WHERE x.dch IN (6, 7, 8))      AS gone,
             COUNT(*) FILTER (WHERE x.dch IS NULL)           AS no_dch,
             COUNT(*) FILTER (WHERE x.ovstist IN $ems)       AS ems,
-            COUNT(*) FILTER (WHERE x.ovstist = '04')        AS refer_in
+            COUNT(*) FILTER (WHERE x.refer_in)              AS refer_in
         FROM (
             SELECT
                 $level                                      AS lvl,
@@ -59,7 +60,8 @@ try {
                 e.er_pt_type                                AS pt,
                 EXTRACT(HOUR FROM e.enter_er_time)          AS h,   -- เวรเดียวกับกราฟช่วงเวลา (08:00 / 16:00)
                 o.hn,
-                o.ovstist
+                o.ovstist,
+                $refIn                                      AS refer_in
             FROM er_regist e
             LEFT JOIN ovst o ON o.vn = e.vn
             LEFT JOIN er_emergency_type et ON et.er_emergency_type = e.er_emergency_type

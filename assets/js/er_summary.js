@@ -44,7 +44,7 @@
             'er-pt-general': data.pt_general, 'er-pt-service': data.pt_service,
             'er-shift-night': data.shift_night, 'er-shift-morning': data.shift_morning, 'er-shift-evening': data.shift_evening,
             'er-home': data.home, 'er-gone': data.gone, 'er-no-dch': data.no_dch, 'er-other-dch': data.other_dch,
-            'er-admit': data.admit, 'er-refer': data.refer
+            'er-admit': data.admit, 'er-refer': data.refer, 'er-refer-out': data.refer
         };
         Object.keys(map).forEach(id => { $(id).textContent = fmt(map[id]); });
 
@@ -74,12 +74,12 @@
 
     /* คลิกการ์ด/ตัวเลข → รายชื่อผู้ป่วย (api/er_visit_list.php · ต้อง login · เงื่อนไขเดียวกับตัวเลขบนการ์ด) */
     const DRILL_TITLES = {
-        all: 'ผู้มารับบริการ ER ทั้งหมด', ems: 'EMS นำส่ง', refer_in: 'รับส่งต่อจากสถานพยาบาลอื่น',
+        all: 'ผู้มารับบริการ ER ทั้งหมด', ems: 'EMS นำส่ง', refer_in: 'Refer in — รับส่งต่อจากสถานพยาบาลอื่น',
         l12: 'วิกฤต / ฉุกเฉิน (ระดับ 1–2)',
         pt_emergency: 'ผู้ป่วยฉุกเฉิน', pt_accident: 'ผู้ป่วยอุบัติเหตุ', pt_general: 'ผู้ป่วยตรวจโรคทั่วไป', pt_service: 'ผู้ป่วยรับบริการอื่น',
         shift_night: 'เวรดึก (00:00–07:59 น.)', shift_morning: 'เวรเช้า (08:00–15:59 น.)', shift_evening: 'เวรบ่าย (16:00–23:59 น.)',
         home: 'กลับบ้าน', gone: 'ไม่รอตรวจ / หนีกลับ / ปฏิเสธการรักษา', no_dch: 'ยังไม่ลงผลจำหน่าย', other_dch: 'ผลจำหน่ายอื่น ๆ',
-        admit: 'Admit', refer: 'Refer ส่งต่อ'
+        admit: 'Admit', refer: 'Refer out — ส่งต่อไปสถานพยาบาลอื่น'
     };
     // ตัวเลือกคอลัมน์ (bbh_drill.js) แบบเดียวกับหน้า OPD: nowrap = บรรทัดเดียว · max = ยาวเกินตัด … (ชี้/แตะดูเต็ม) · display = ย่อเฉพาะตอนแสดง
     const NW = { nowrap: true };
@@ -91,12 +91,14 @@
         ['dx', 'การวินิจฉัย', { max: '13em', display: v => v.split(' / ')[0] }],
         ['d2d', 'Door-to-Doctor', { nowrap: true, display: v => v + ' น.' }], ['dch', 'ผลจำหน่าย', NW]
     ];
-    // Admit / Refer: ผลจำหน่ายเป็นค่าเดียวกันทั้งรายการ → แสดงปลายทางแทน
+    // คอลัมน์ที่ค่าเหมือนกันทั้งรายการ → แสดงข้อมูลที่บอกมากกว่าแทน [คอลัมน์ที่ถูกแทน, คอลัมน์ใหม่]
+    //   Admit / Refer out: ผลจำหน่าย → ปลายทาง · Refer in: วิธีมา → รพ.ต้นทาง (ใบ referin)
     const DEST_COL = {
-        admit: ['admit_ward', 'Admit ไปที่', { max: '13em' }],
-        refer: ['refer_to', 'ส่งต่อไปที่', { display: shortHosp, max: '16em' }]
+        admit:    ['dch', ['admit_ward', 'Admit ไปที่', { max: '13em' }]],
+        refer:    ['dch', ['refer_to', 'ส่งต่อไปที่', { display: shortHosp, max: '16em' }]],
+        refer_in: ['arrival', ['refer_from', 'รับจาก', { display: shortHosp, max: '16em' }]]
     };
-    const withDest = (list, type) => DEST_COL[type] ? list.map(c => c[0] === 'dch' ? DEST_COL[type] : c) : list;
+    const withDest = (list, type) => DEST_COL[type] ? list.map(c => c[0] === DEST_COL[type][0] ? DEST_COL[type][1] : c) : list;
     // Export: ค่าเต็ม หน่วยอยู่ที่หัวคอลัมน์ แยกรหัส/ชื่อโรค
     const EXPORT_COLS = [
         ['enter_at', 'เข้า ER'], ['hn', 'HN'], ['name', 'ชื่อ-สกุล'], ['age', 'อายุ (ปี)'], ['lvl', 'ระดับ'], ['pt', 'ประเภท'],
@@ -128,10 +130,10 @@
             sub: 'วันที่ ' + thai(date),
             url: '../api/er_visit_list.php?' + new URLSearchParams({ date, type }),
             cols: withDest(COLS, type),
-            exportCols: EXPORT_COLS.concat(DEST_COL[type] ? [DEST_COL[type].slice(0, 2)] : []),
+            exportCols: EXPORT_COLS.concat(DEST_COL[type] ? [DEST_COL[type][1].slice(0, 2)] : []),
             mapRows: data => data.rows.map(withDx),
             placeholder: 'ค้นหา HN / ชื่อ / การวินิจฉัย',
-            searchKeys: ['hn', 'name', 'dx', 'arrival', 'dch', 'admit_ward', 'refer_to'],
+            searchKeys: ['hn', 'name', 'dx', 'arrival', 'dch', 'admit_ward', 'refer_to', 'refer_from'],
             filters: withDest([['lvl', 'ระดับ'], ['pt', 'ประเภท'], ['arrival', 'วิธีมา'], ['dch', 'ผลจำหน่าย']], type),
             cell: drillCell,
             file: `ER_${type}_${date}.csv`,

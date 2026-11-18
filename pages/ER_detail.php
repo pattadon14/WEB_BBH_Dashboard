@@ -59,7 +59,6 @@ include '../templates/sidebar.php';
                                 </div>
                                 <div class="opd-summary-newold">
                                     <span class="newpt" data-drill="ems" title="ovstist 09 FR / 10 BLS / 11 ALS">EMS นำส่ง <strong id="er-ems">—</strong> ราย</span>
-                                    <span class="oldpt" data-drill="refer_in" title="รับส่งต่อจากสถานพยาบาลอื่น (ovstist 04)">รับส่งต่อ <strong id="er-refer-in">—</strong> ราย</span>
                                 </div>
                             </div>
                         </div>
@@ -102,6 +101,24 @@ include '../templates/sidebar.php';
                                             <span id="er-lg-6"><i class="mix-dot er-tri er-tri-6" aria-hidden="true"></i>Black <b id="er-l6">–</b></span>
                                             <span id="er-lg-0"><i class="mix-dot er-tri er-tri-0" aria-hidden="true"></i>ไม่ระบุ <b id="er-l0">–</b></span>
                                         </div>
+                                    </div>
+                                </div>
+
+                                <!-- การส่งต่อ: Refer in = วิธีมา 04 หรือมีใบ referin · Refer out = ผลจำหน่าย Refer (config/er.php) -->
+                                <div class="summary-section-title er-refer-title">
+                                    <i class="fa-solid fa-right-left"></i>
+                                    การส่งต่อ (Refer)
+                                </div>
+                                <div class="opd-mini-pair er-refer-pair">
+                                    <div class="exam-horizontal-card refer-in-card" data-drill="refer_in" title="Refer in: รับส่งต่อจากสถานพยาบาลอื่น">
+                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-truck-arrow-right fa-flip-horizontal"></i></span>
+                                        <div class="summary-title">Refer in</div>
+                                        <div class="summary-number"><span id="er-refer-in">—</span> <span class="summary-unit">ราย</span></div>
+                                    </div>
+                                    <div class="exam-horizontal-card refer-card" data-drill="refer" title="Refer out: ส่งต่อไปสถานพยาบาลอื่น">
+                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-truck-medical"></i></span>
+                                        <div class="summary-title">Refer out</div>
+                                        <div class="summary-number"><span id="er-refer-out">—</span> <span class="summary-unit">ราย</span></div>
                                     </div>
                                 </div>
                             </div>
@@ -204,7 +221,7 @@ include '../templates/sidebar.php';
                                     </div>
                                     <div class="exam-horizontal-card refer-card" data-drill="refer">
                                         <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-truck-medical"></i></span>
-                                        <div class="summary-title">Refer ส่งต่อ</div>
+                                        <div class="summary-title">Refer out</div>
                                         <div class="summary-number"><span id="er-refer">—</span> <span class="summary-unit">ครั้ง</span></div>
                                     </div>
                                 </div>

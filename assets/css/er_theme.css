@@ -43,6 +43,10 @@
     --st-surface: var(--er-row-bg);
     --st-line: #f5dcd9;
 }
+/* กลุ่มการส่งต่อใต้การ์ดวิกฤต (ช่องแรก) */
+:root .er-theme #er-summary #er-summary-card .er-refer-title { margin: 16px 0 8px; }
+:root .er-theme #er-summary #er-summary-card .er-refer-pair { margin-top: 0; }
+
 /* ทุกแถวโทนแดง ยกเว้น "รับบริการอื่น" / "อื่น ๆ" เป็นเทา ไม่แย่งสายตา */
 :root .er-theme #er-summary #er-summary-card :is(.time-horizontal-card, .exam-horizontal-card):not(.nodr-card) {
     --st-accent-text: var(--er-text);
