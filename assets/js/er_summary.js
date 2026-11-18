@@ -90,10 +90,12 @@
         grid.innerHTML = data.items.map(it => {
             const p = pct(it.within, it.timed);
             const avg = it.avg === null ? null : it.avg.toLocaleString(undefined, { maximumFractionDigits: 1 });
+            const late = it.avg !== null && it.avg > it.target;
             return row({
-                cls: 'er-tri-' + it.level, key: `<span class="er-lvl">ระดับ ${it.level}</span>`, sub: `เป้า ${it.target_label}`,
-                avg, late: it.avg !== null && it.avg > it.target,
-                meter: it.timed ? { p, label: `ทันเป้า ${p}%` } : null,
+                cls: 'er-tri-' + it.level, icon: `<span class="er-ico er-lvl-chip" aria-hidden="true">${it.level}</span>`,
+                key: `ระดับ ${it.level}`, sub: `เป้า ${it.target_label}`,
+                avg, late,
+                meter: it.timed ? { p, label: `ทันเป้า ${p}%`, cls: late ? 'is-bad' : 'is-good' } : null,
                 line: it.timed ? `ทันเป้า ${fmt(it.within)} จาก ${fmt(it.timed)} ราย (${p}%)` : (it.n ? 'ยังไม่มีเวลาพบแพทย์' : 'ไม่มีผู้ป่วย')
             });
         }).join('');
@@ -104,9 +106,9 @@
     /* แถวตัวชี้วัดเวลา (Door-to-Doctor / LOS): ชื่อ + เกณฑ์ | ค่าเฉลี่ย | แถบสัดส่วน + คำอธิบาย */
     const pct = (a, b) => b ? Math.round(a * 100 / b) : 0;
     const row = o => `<div class="er-row ${o.cls || ''}">
-            <div class="er-row-key">${o.key}<small>${o.sub}</small></div>
-            <div class="er-row-num">${o.avg === null ? '<b>—</b>' : `<small>เฉลี่ย</small> <b>${o.avg}</b> <small>นาที</small>`}${o.late ? ' <span class="er-flag">เกินเป้า</span>' : ''}</div>
-            <div class="er-row-bar">${o.meter ? `<div class="er-meter" role="img" aria-label="${o.meter.label}"><span style="width:${o.meter.p}%"></span></div>` : ''}<small>${o.line}</small></div>
+            <div class="er-row-key">${o.icon || ''}<span>${o.key}</span><small>${o.sub}</small></div>
+            <div class="er-row-num">${o.avg === null ? '<b>—</b>' : `<small>เฉลี่ย</small> <b>${o.avg}</b> <small>นาที</small>`}${o.late ? ' <span class="er-flag"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> เกินเป้า</span>' : ''}</div>
+            <div class="er-row-bar">${o.meter ? `<div class="er-meter ${o.meter.cls || ''}" role="img" aria-label="${o.meter.label}"><span style="width:${o.meter.p}%"></span></div>` : ''}<small>${o.line}</small></div>
         </div>`;
 
     /* สถานะ ER ตอนนี้ (เฉพาะวันนี้) + LOS / เข้า ER ถึง Admit / Refer ของวันที่เลือก */
@@ -133,16 +135,19 @@
         }
 
         const L = data.los, b = data.boarding_min;
+        const ico = (c, i) => `<span class="er-ico er-c-${c}" aria-hidden="true"><i class="fa-solid fa-${i}"></i></span>`;
         const ttd = (name, x) => row({
+            icon: name === 'Admit' ? ico('blue', 'bed-pulse') : ico('teal', 'truck-medical'),
             key: `เข้า ER ถึง ${name}`, sub: `เกณฑ์ ≤ ${b} นาที`, avg: x.avg === null ? null : fmt(x.avg),
             late: x.avg !== null && x.avg > b,
-            meter: x.n ? { p: pct(x.over, x.n), label: `รอเกิน ${pct(x.over, x.n)}%` } : null,
+            meter: x.n ? { p: pct(x.over, x.n), label: `รอเกิน ${pct(x.over, x.n)}%`, cls: 'is-warn' } : null,
             line: x.n ? `รอเกิน ${b} นาที ${fmt(x.over)} จาก ${fmt(x.n)} ราย (${pct(x.over, x.n)}%)` : `ไม่มี${name}`
         });
         grid.innerHTML = row({
+            icon: ico('amber', 'hourglass-half'),
             key: 'อยู่ใน ER ทั้งหมด', sub: L.median === null ? 'ยังไม่มีข้อมูล' : `มัธยฐาน ${fmt(L.median)} นาที`,
             avg: L.avg === null ? null : fmt(L.avg),
-            meter: L.timed ? { p: pct(L.over4h, L.timed), label: `เกิน 4 ชม. ${pct(L.over4h, L.timed)}%` } : null,
+            meter: L.timed ? { p: pct(L.over4h, L.timed), label: `เกิน 4 ชม. ${pct(L.over4h, L.timed)}%`, cls: 'is-warn' } : null,
             line: L.timed ? `เกิน 4 ชม. ${fmt(L.over4h)} ราย, เกิน 6 ชม. ${fmt(L.over6h)} ราย` : 'ยังไม่มีเวลาออกจาก ER'
         }) + ttd('Admit', data.admit) + ttd('Refer', data.refer);
         note.textContent = `มีเวลาออกจาก ER ${fmt(L.timed)} จาก ${fmt(L.n)} ราย (${pct(L.timed, L.n)}%) ไม่นับงานบริการทำแผลและฉีดยา. Admit และ Refer นับถึงเวลาลงทะเบียน Admit หรือส่งต่อ`;

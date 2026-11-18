@@ -34,6 +34,19 @@
     --er-on-mast-veil: #b63a33;    /* แดงอ่อนกว่าแถบหัว (ทึบ) สำหรับปุ่ม/ป้ายบนแถบ */
     --er-on-mast-rule: rgba(255, 255, 255, .3);
 
+    /* สีตามความหมาย (ไอคอนในชิป + แถบ) — คู่ ตัวอักษร/พื้นอ่อน ผ่าน 4.5:1 ทุกคู่ · โหมดมืดแปลงตามชื่อ (-text / -tint) */
+    --er-red-text: #b42318;    --er-red-tint: #fdecea;      /* ฉุกเฉิน/วิกฤต */
+    --er-orange-text: #b93e0b; --er-orange-tint: #fdede4;   /* อุบัติเหตุ, เกินเวลา */
+    --er-amber-text: #92580a;  --er-amber-tint: #fdf2dc;    /* รอ, เวรเช้า */
+    --er-green-text: #157a3a;  --er-green-tint: #e5f5ea;    /* กลับบ้าน, ทันเป้า */
+    --er-teal-text: #0f716a;   --er-teal-tint: #dcf3f0;     /* ส่งต่อ */
+    --er-blue-text: #1d4fc4;   --er-blue-tint: #e7eefd;     /* ตรวจทั่วไป, Admit */
+    --er-indigo-text: #4338ca; --er-indigo-tint: #ecebfd;   /* เวรดึก, Refer รวม */
+    --er-slate-text: #4a5566;  --er-slate-tint: #eef1f5;    /* บริการอื่น, ยังไม่ลงผล */
+    --er-good-fill: #1f9d55;   /* แถบทันเป้า */
+    --er-bad-fill: #d0342c;    /* แถบเกินเป้า */
+    --er-warn-fill: #e07b12;   /* แถบสัดส่วนที่เกินเกณฑ์เวลา */
+
     /* ส่วนประกอบกลางที่ใช้ token เขียวของเว็บ (ตัวกรองช่วงเวลา, ปีงบ, ช่องวันที่) เปลี่ยนเป็นแดงในหน้านี้ */
     --bbh-green: var(--er-solid);
     --bbh-green-dark: var(--er-text);
@@ -43,19 +56,35 @@
 }
 
 :root .content-wrapper.er-theme { background: var(--er-canvas) !important; color: var(--er-ink-text); }
-.er-theme .er-page { max-width: 1680px; margin: 0 auto; padding: 16px 16px 32px; }
+.er-theme .er-page { max-width: 1680px; margin: 0 auto; padding: 16px 16px 32px; font-size: 1.3rem; }
 
 /* ---------- แผง (ชั้นเดียว ไม่มีการ์ดซ้อนการ์ด) ---------- */
 .er-theme .er-panel {
     background: var(--er-page-bg); border: 1px solid var(--er-card-line); border-radius: 16px;
     padding: 20px 24px; margin-bottom: 16px; min-width: 0;
 }
-.er-theme .er-h2 { margin: 0 0 12px; font-size: 2.1rem; font-weight: 700; line-height: 1.25; color: var(--er-ink-text); overflow-wrap: break-word; min-width: 0; }
-.er-theme .er-h3 { margin: 0 0 8px; font-size: 1.68rem; font-weight: 700; color: var(--er-ink-text); }
+.er-theme .er-h2 { margin: 0 0 12px; font-size: 1.68rem; font-weight: 700; line-height: 1.25; color: var(--er-ink-text); overflow-wrap: break-word; min-width: 0; }
+.er-theme .er-h3 { margin: 0 0 8px; font-size: 1.34rem; font-weight: 700; color: var(--er-ink-text); }
 .er-theme .er-h3-gap { margin-top: 24px; }
-.er-theme .er-note { margin: 12px 0 0; font-size: 1.425rem; color: var(--er-muted-text); }
+.er-theme .er-note { margin: 12px 0 0; font-size: 1.14rem; color: var(--er-muted-text); }
 .er-theme .er-split { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 16px; }
 .er-theme .er-split .er-panel { margin-bottom: 0; }
+
+/* ---------- ชิปไอคอนตามความหมาย (ไอคอนประกอบข้อความ จึง aria-hidden) ---------- */
+.er-theme .er-c-red    { --c-text: var(--er-red-text);    --c-tint: var(--er-red-tint); }
+.er-theme .er-c-orange { --c-text: var(--er-orange-text); --c-tint: var(--er-orange-tint); }
+.er-theme .er-c-amber  { --c-text: var(--er-amber-text);  --c-tint: var(--er-amber-tint); }
+.er-theme .er-c-green  { --c-text: var(--er-green-text);  --c-tint: var(--er-green-tint); }
+.er-theme .er-c-teal   { --c-text: var(--er-teal-text);   --c-tint: var(--er-teal-tint); }
+.er-theme .er-c-blue   { --c-text: var(--er-blue-text);   --c-tint: var(--er-blue-tint); }
+.er-theme .er-c-indigo { --c-text: var(--er-indigo-text); --c-tint: var(--er-indigo-tint); }
+.er-theme .er-c-slate  { --c-text: var(--er-slate-text);  --c-tint: var(--er-slate-tint); }
+.er-theme .er-ico {
+    display: inline-flex; align-items: center; justify-content: center; flex: none;
+    width: 1.75em; height: 1.75em; border-radius: 8px; font-size: .85em;
+    background: var(--c-tint); color: var(--c-text);
+}
+.er-theme .er-h2, .er-theme .er-h3 { display: flex; align-items: center; gap: 10px; }
 
 /* ---------- แถบหัวแดง: วันที่ ยอดรวม สถานะตอนนี้ ---------- */
 .er-theme .er-mast {
@@ -64,23 +93,25 @@
 }
 .er-theme .er-mast-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 16px; }
 .er-theme .er-mast-heading { min-width: 0; }
-.er-theme .er-mast-title { margin: 0; font-size: 2.85rem; font-weight: 700; line-height: 1.2; color: var(--er-on-mast); overflow-wrap: break-word; }
+.er-theme .er-mast-title { margin: 0; font-size: 2.28rem; font-weight: 700; line-height: 1.2; color: var(--er-on-mast); overflow-wrap: break-word; }
 .er-theme .er-mast-sub { margin: 4px 0 0; color: var(--er-on-mast-dim); }
 :root .er-theme .er-mast .opd-delta { color: var(--er-on-mast); font-weight: 700; }
 .er-theme .er-mast-body { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 32px; align-items: end; margin-top: 20px; }
-.er-theme .er-mast-number { display: inline-flex; align-items: baseline; gap: 8px; font-size: 6.75rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; cursor: pointer; border-radius: 8px; }
-.er-theme .er-mast-number small { font-size: 2.1rem; font-weight: 400; color: var(--er-on-mast-dim); }
+.er-theme .er-mast-number { display: inline-flex; align-items: baseline; gap: 8px; font-size: 5.4rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; cursor: pointer; border-radius: 8px; }
+.er-theme .er-mast-number small { font-size: 1.68rem; font-weight: 400; color: var(--er-on-mast-dim); }
 .er-theme .er-mast-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-top: 8px; color: var(--er-on-mast-dim); }
 .er-theme .er-mast-meta b { color: var(--er-on-mast); font-variant-numeric: tabular-nums; }
 .er-theme .er-mast-chip { padding: 2px 12px; border: 1px solid var(--er-on-mast-rule); border-radius: 999px; background: var(--er-on-mast-veil); color: var(--er-on-mast); cursor: pointer; }
 .er-theme .er-now { padding-left: 32px; border-left: 1px solid var(--er-on-mast-rule); min-width: 0; }
 .er-theme .er-now[hidden] { display: none; }
-.er-theme .er-now-title { margin: 0 0 8px; font-size: 1.575rem; font-weight: 700; color: var(--er-on-mast); }
+.er-theme .er-now-title { margin: 0 0 8px; font-size: 1.26rem; font-weight: 700; color: var(--er-on-mast); }
 .er-theme .er-now-at { font-weight: 400; color: var(--er-on-mast-dim); }
 .er-theme .er-now-items { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px 24px; }
 .er-theme .er-now-item { display: flex; flex-direction: column; min-width: 0; }
-.er-theme .er-now-item b { font-size: 3.3rem; line-height: 1.1; font-variant-numeric: tabular-nums; color: var(--er-on-mast); overflow-wrap: break-word; }
+.er-theme .er-now-item b { font-size: 2.64rem; line-height: 1.1; font-variant-numeric: tabular-nums; color: var(--er-on-mast); overflow-wrap: break-word; }
 .er-theme .er-now-item span { color: var(--er-on-mast-dim); }
+.er-theme .er-now-item span i, .er-theme .er-mast-chip i, .er-theme .er-mast-meta > span > i { margin-right: 6px; color: var(--er-on-mast); }
+.er-theme .er-h2 .er-ico { font-size: .8em; }
 
 /* ตัวเลือกวันนี้/เมื่อวาน + กล่องวันที่บนแถบแดง (opd_quality.css) */
 :root .er-theme .er-mast .oq-seg { background: var(--er-on-mast-veil); border-color: var(--er-on-mast-rule); }
@@ -97,15 +128,24 @@
     gap: 16px; align-items: center; padding: 12px 0; border-top: 1px solid var(--er-line);
 }
 .er-theme .er-row:first-child { border-top: 0; padding-top: 4px; }
-.er-theme .er-row small { display: block; font-size: 1.38rem; font-weight: 400; color: var(--er-muted-text); }
+.er-theme .er-row small { display: block; font-size: 1.1rem; font-weight: 400; color: var(--er-muted-text); }
 .er-theme .er-row-key { font-weight: 700; color: var(--er-ink-text); min-width: 0; }
 .er-theme .er-row-num { color: var(--er-ink-text); }
 .er-theme .er-row-num small { display: inline; }
-.er-theme .er-row-num b { font-size: 2.85rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.er-theme .er-row-num b { font-size: 2.28rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .er-theme .er-row-bar small { margin-top: 4px; font-variant-numeric: tabular-nums; }
-.er-theme .er-flag { display: inline-block; padding: 0 8px; border-radius: 999px; background: var(--er-tint); color: var(--er-text); font-size: 1.32rem; font-weight: 700; white-space: nowrap; }
+.er-theme .er-flag { display: inline-block; padding: 0 8px; border-radius: 999px; background: var(--er-tint); color: var(--er-text); font-size: 1.06rem; font-weight: 700; white-space: nowrap; }
 .er-theme .er-meter { height: 6px; border-radius: 999px; background: var(--er-tint); overflow: hidden; }
 .er-theme .er-meter span { display: block; height: 100%; background: var(--er-solid); }
+/* สีแถบตามผล: ทันเป้า = เขียว · เกินเป้า = แดง · สัดส่วนที่เกินเกณฑ์เวลา = ส้ม (มีข้อความกำกับเสมอ ไม่พึ่งสีอย่างเดียว) */
+.er-theme .er-meter.is-good span { background: var(--er-good-fill); }
+.er-theme .er-meter.is-bad span { background: var(--er-bad-fill); }
+.er-theme .er-meter.is-warn span { background: var(--er-warn-fill); }
+/* ชิปเลขระดับ Triage: พื้นสีระดับ ตัวเลขสีที่อ่านได้บนพื้นนั้น */
+.er-theme .er-ico.er-lvl-chip { background: var(--lvl); color: var(--lvl-on, var(--er-on-solid)); box-shadow: inset 0 0 0 1px var(--lvl-ring, transparent); font-weight: 700; font-size: 1em; }
+.er-tri-3 { --lvl-on: #3b2f00; }
+.er-tri-4 { --lvl-on: #142605; }
+.er-tri-5 { --lvl-on: #2a1a19; }
 
 /* ---------- ผู้ป่วยของวันที่เลือก: 4 คอลัมน์ รายการแบบแถว ---------- */
 .er-theme .er-cols { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px 32px; }
@@ -118,14 +158,18 @@
 .er-theme .er-stat + .er-stat { border-top: 1px solid var(--er-line); }
 .er-theme .er-stat:hover { background: var(--er-wash); }
 .er-theme .er-stat:active { background: var(--er-tint); }
+.er-theme .er-stat { align-items: center; }
+/* ชื่อแถว: ชิปไอคอน (2 บรรทัด) | ชื่อ + คำอธิบายย่อย */
+.er-theme :is(.er-stat-label, .er-row-key) { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 10px; align-items: center; }
+.er-theme :is(.er-stat-label, .er-row-key) > .er-ico { grid-row: span 2; }
 .er-theme .er-stat-label { color: var(--er-ink-text); min-width: 0; }
-.er-theme .er-stat-label small { display: block; font-size: 1.35rem; color: var(--er-muted-text); }
+.er-theme .er-stat-label small { display: block; font-size: 1.08rem; color: var(--er-muted-text); }
 .er-theme .er-stat-value { color: var(--er-muted-text); white-space: nowrap; }
-.er-theme .er-stat-value b { margin-right: 4px; font-size: 2.25rem; color: var(--er-ink-text); font-variant-numeric: tabular-nums; }
-.er-theme .er-stat-lead .er-stat-value b { font-size: 3.3rem; color: var(--er-text); }
+.er-theme .er-stat-value b { margin-right: 4px; font-size: 1.8rem; color: var(--er-ink-text); font-variant-numeric: tabular-nums; }
+.er-theme .er-stat-lead .er-stat-value b { font-size: 2.64rem; color: var(--er-text); }
 .er-theme .er-mix-bar { display: flex; gap: 2px; height: 10px; margin: 8px 0; border-radius: 999px; overflow: hidden; background: var(--er-tint); }
 .er-theme .er-mix-bar span { min-width: 0; }
-.er-theme .er-mix-legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 1.425rem; color: var(--er-muted-text); }
+.er-theme .er-mix-legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 1.14rem; color: var(--er-muted-text); }
 .er-theme .er-mix-legend b { color: var(--er-ink-text); font-variant-numeric: tabular-nums; }
 .er-theme .er-dot { display: inline-block; width: 10px; height: 10px; margin-right: 4px; border-radius: 50%; vertical-align: middle; }
 :root .er-theme #er-summary [data-drill]:focus-visible { outline: 2px solid var(--er-solid); outline-offset: 2px; }
@@ -159,7 +203,7 @@
 @media (max-width: 575.98px) {
     .er-theme .er-page { padding-top: 8px; padding-inline: 12px; }
     .er-theme .er-mast, .er-theme .er-panel { padding: 16px; border-radius: 12px; }
-    .er-theme .er-mast-number { font-size: 5.25rem; }
+    .er-theme .er-mast-number { font-size: 4.2rem; }
     .er-theme .er-now-items { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .er-theme .er-cols { grid-template-columns: minmax(0, 1fr); }
     .er-theme .er-row { grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; }

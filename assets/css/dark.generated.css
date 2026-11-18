@@ -524,6 +524,22 @@ html[data-theme="dark"] .er-theme {
     --er-row-bg: #181717;
     --er-page-bg: #161616;
     --er-on-mast-rule: rgba(56, 56, 56, 0.3);
+    --er-red-text: #ffa698;
+    --er-red-tint: #1f1918;
+    --er-orange-text: #fba489;
+    --er-orange-tint: #1f1916;
+    --er-amber-text: #f1b06f;
+    --er-amber-tint: #1d1911;
+    --er-green-text: #7dd892;
+    --er-green-tint: #161c18;
+    --er-teal-text: #7fd3ca;
+    --er-teal-tint: #141e1d;
+    --er-blue-text: #a8c4fa;
+    --er-blue-tint: #191b21;
+    --er-indigo-text: #b7c1fc;
+    --er-indigo-tint: #1b1b22;
+    --er-slate-text: #bac7db;
+    --er-slate-tint: #191a1c;
 }
 html[data-theme="dark"] body:has(.er-theme) {
     --er-nav-text: #ffa698;
