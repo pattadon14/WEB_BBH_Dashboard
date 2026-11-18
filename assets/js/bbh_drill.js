@@ -4,7 +4,11 @@
  * bbhDrill.open({
  *   title, sub,            // หัวหน้าต่าง
  *   url,                   // API ที่คืน { rows: [...] } หรือ { error } (ต้อง login — API ตรวจเอง)
- *   cols: [[key, หัวคอลัมน์], ...]          หรือ data => [...] ถ้าคอลัมน์ขึ้นกับผลที่ได้ (เช่น รายการนัด / visit)
+ *   cols: [[key, หัวคอลัมน์, ตัวเลือก?], ...] หรือ data => [...] ถ้าคอลัมน์ขึ้นกับผลที่ได้ (เช่น รายการนัด / visit)
+ *         ตัวเลือกการแสดงผล (ไม่กระทบค่าที่ค้นหา/กรอง/Export):
+ *           { nowrap: true }   ไม่ตัดบรรทัด (ชื่อ, HN, เวลา)
+ *           { short: true }    ตัดรหัสนำหน้าออก เช่น "115 จุดซักประวัติ" → "จุดซักประวัติ", "77- บ้านบึง UC" → "บ้านบึง UC"
+ *           { max: '12em' }    ยาวเกินตัดด้วย … (ชี้ดู/แตะเพื่อดูข้อความเต็ม)
  *   filters: [[key, ชื่อตัวกรอง], ...]      หรือ data => [...]
  *   mapRows: data => rows,                 (ไม่ใส่ = data.rows) เติมฟิลด์ที่คำนวณได้ เพื่อใช้กรอง/ค้นหา
  *   placeholder: 'ค้นหา …',               searchKeys: [key, ...] (ไม่ใส่ = ทุกคอลัมน์)
@@ -20,6 +24,9 @@ window.bbhDrill = (function () {
     const PAGE_SIZE = 50;
     const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const fmt = n => Number(n || 0).toLocaleString();
+    // รหัสนำหน้าชื่อจาก HOSxP: "115 ", "77- ", "5." — ชื่อเต็มยังอยู่ใน tooltip / ค้นหา / Export
+    const stripCode = v => String(v ?? '').replace(/^\s*\d+(?:\s*[-.]\s*|\s+)(?=\D)/, '');
+    const colOpt = k => ((state.opts.cols || []).find(c => c[0] === k) || [])[2] || {};
     let dlg, el = {}, state = { rows: [], opts: null, page: 1 }, seq = 0;
 
     function build() {
@@ -63,6 +70,11 @@ window.bbhDrill = (function () {
             render();
         });
         el.export.addEventListener('click', exportCsv);
+        // ข้อความที่ถูกตัด (…) แตะ/คลิกเพื่อดูเต็ม — จอสัมผัสไม่มี tooltip
+        el.body.addEventListener('click', e => {
+            const c = e.target.closest('.bbh-clip');
+            if (c) c.classList.toggle('is-open');
+        });
     }
 
     async function open(opts) {
@@ -86,7 +98,7 @@ window.bbhDrill = (function () {
             if (!res.ok || data.error) throw new Error(data.error || 'โหลดรายชื่อไม่สำเร็จ');
             if (my !== seq) return;   // เปิดรายการอื่นไปแล้ว
             const pick = v => typeof v === 'function' ? v(data) : v;
-            state.opts = { ...opts, cols: pick(opts.cols), filters: pick(opts.filters) || [] };
+            state.opts = { ...opts, cols: pick(opts.cols), filters: pick(opts.filters) || [], exportCols: pick(opts.exportCols) };
             state.rows = opts.mapRows ? opts.mapRows(data) : data.rows;
             if (opts.summary) el.sub.textContent = (opts.sub ? opts.sub + ' · ' : '') + opts.summary(state.rows, data);
             el.export.disabled = !state.rows.length;
@@ -105,7 +117,7 @@ window.bbhDrill = (function () {
             state.rows.forEach(r => { const v = String(r[k] ?? ''); if (v) counts.set(v, (counts.get(v) || 0) + 1); });
             if (counts.size < 2) return '';
             const opts = [...counts].sort((a, b) => b[1] - a[1])
-                .map(([v, n]) => `<option value="${esc(v)}">${esc(v)} (${fmt(n)})</option>`).join('');
+                .map(([v, n]) => `<option value="${esc(v)}">${esc(colOpt(k).short ? stripCode(v) : v)} (${fmt(n)})</option>`).join('');
             return `<label class="opd-drill-filter"><span>${esc(label)}</span>
                 <select data-filter="${esc(k)}"><option value="">ทั้งหมด</option>${opts}</select></label>`;
         }).join('');
@@ -128,11 +140,14 @@ window.bbhDrill = (function () {
         return out;
     }
 
-    function cellHtml(r, k) {
+    function cellHtml(r, k, o) {
         const custom = state.opts.cell && state.opts.cell(r, k);
         if (custom !== undefined) return custom;
         const v = r[k];
-        return v === null || v === undefined || v === '' ? '<span class="text-muted">–</span>' : esc(v);
+        if (v === null || v === undefined || v === '') return '<span class="text-muted">–</span>';
+        const text = o.short ? stripCode(v) : String(v);
+        if (!o.max) return esc(text);
+        return `<span class="bbh-clip" style="max-width:${esc(o.max)}" title="${esc(v)}">${esc(text)}</span>`;
     }
 
     function render() {
@@ -155,7 +170,7 @@ window.bbhDrill = (function () {
             <table class="opd-drill-table">
                 <thead><tr><th>#</th>${cols.map(([, t]) => `<th>${esc(t)}</th>`).join('')}</tr></thead>
                 <tbody>${pageRows.map((r, i) =>
-                    `<tr><td>${start + i + 1}</td>${cols.map(([k]) => `<td>${cellHtml(r, k)}</td>`).join('')}</tr>`).join('')}</tbody>
+                    `<tr><td>${start + i + 1}</td>${cols.map(([k, , o = {}]) => `<td${o.nowrap || o.max ? ' class="nw"' : ''}>${cellHtml(r, k, o)}</td>`).join('')}</tr>`).join('')}</tbody>
             </table>`;
         el.body.scrollTop = 0;
 

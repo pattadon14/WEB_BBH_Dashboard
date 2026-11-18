@@ -788,6 +788,14 @@
     vertical-align: middle;
 }
 .opd-drill-table td { padding: 7px 10px; border-bottom: 1px solid #e3ebe6; text-align: center; vertical-align: middle; }
+/* หัวคอลัมน์บรรทัดเดียว · คอลัมน์ที่ตั้ง nowrap/max ใน bbh_drill.js ไม่ตัดบรรทัด (ตารางเลื่อนแนวนอนใน .opd-drill-body แทน) */
+.opd-drill-table th { white-space: nowrap; }
+.opd-drill-table td.nw { white-space: nowrap; }
+/* ข้อความยาวตัดด้วย … ชี้ดู tooltip หรือแตะเพื่อขยายเต็ม */
+.bbh-clip { display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; cursor: pointer; }
+.bbh-clip.is-open { max-width: none !important; white-space: normal; overflow: visible; }
+/* เวลา + เวลารอ ในช่องเดียว (เช่น 07:56 รอ 117 น.) */
+.bbh-wait { margin-left: 4px; font-size: .9em; color: #5c6f68; }
 .opd-drill-table tbody tr:nth-child(even) { background: #f6faf8; }
 .opd-drill-table tbody tr:hover { background: #e9f5ef; }
 .opd-drill-table td:nth-child(-n+2),

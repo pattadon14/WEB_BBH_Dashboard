@@ -1329,14 +1329,23 @@ const DRILL_TITLES = {
     dept: 'แผนก', payer: 'สิทธิ์', nation: 'สัญชาติ'
 };
 
+// ตัวเลือกคอลัมน์ (bbh_drill.js): nowrap = บรรทัดเดียว · short = ตัดรหัสนำหน้า "115 " / "77- " · max = ยาวเกินตัดด้วย …
+const NW = { nowrap: true };
 const VISIT_COLS = [
+    ['hn', 'HN', NW], ['name', 'ชื่อ-สกุล', NW], ['vsttime', 'เวลามา', NW],
+    ['main_dep', 'แผนกที่ลงทะเบียน', { short: true, max: '13em' }], ['cur_dep', 'อยู่ที่', { short: true, max: '10em' }],
+    ['pttype', 'สิทธิ์', { short: true, max: '13em' }], ['nation', 'สัญชาติ', NW],
+    // เวลา + เวลารอรวมช่องเดียว (Export ยังแยกคอลัมน์ตามเดิม — VISIT_EXPORT)
+    ['screen_at', 'ซักประวัติ', NW], ['doctor_at', 'พบแพทย์', NW]
+];
+const VISIT_EXPORT = [
     ['hn', 'HN'], ['name', 'ชื่อ-สกุล'], ['vsttime', 'เวลามา'], ['main_dep', 'แผนกที่ลงทะเบียน'], ['cur_dep', 'อยู่ที่'],
     ['pttype', 'สิทธิ์'], ['nation', 'สัญชาติ'], ['screen_at', 'ซักประวัติ'], ['wait_screen', 'รอซักประวัติ (นาที)'],
     ['doctor_at', 'พบแพทย์'], ['wait_doctor', 'รอแพทย์ (นาที)']
 ];
 const APPT_COLS = [
-    ['hn', 'HN'], ['name', 'ชื่อ-สกุล'], ['appt_time', 'เวลานัด'], ['clinic', 'คลินิก'], ['status', 'สถานะ'],
-    ['vsttime', 'เวลามา'], ['pttype', 'สิทธิ์'], ['nation', 'สัญชาติ']
+    ['hn', 'HN', NW], ['name', 'ชื่อ-สกุล', NW], ['appt_time', 'เวลานัด', NW], ['clinic', 'คลินิก', { short: true, max: '13em' }],
+    ['status', 'สถานะ', NW], ['vsttime', 'เวลามา', NW], ['pttype', 'สิทธิ์', { short: true, max: '13em' }], ['nation', 'สัญชาติ', NW]
 ];
 
 // ตัวกรองแบบเลือกในหน้าต่างรายชื่อ (ตัวเลือกสร้างจากข้อมูลจริงของรายการนั้น)
@@ -1353,6 +1362,12 @@ function drillCell(r, k) {
     if (k === 'status') {
         const cls = r.status === 'มาตามนัด' ? 'came' : r.status === 'ยกเลิกนัด' ? 'cancel' : 'miss';
         return `<span class="opd-drill-status ${cls}">${escHtml(r.status)}</span>`;
+    }
+    // ซักประวัติ / พบแพทย์: เวลา + "รอ n น." ต่อท้าย (ค่ารอติดลบ/ว่างไม่แสดง)
+    const waitKey = { screen_at: 'wait_screen', doctor_at: 'wait_doctor' }[k];
+    if (waitKey && r[k]) {
+        const w = r[waitKey];
+        return escHtml(r[k]) + (w !== null && w !== undefined && w >= 0 ? `<span class="bbh-wait">รอ ${fmtN(w)} น.</span>` : '');
     }
     return undefined;
 }
@@ -1374,6 +1389,7 @@ function openDrill(type, key, label) {
         url: '../api/opd_visit_list.php?' + qs,
         placeholder: 'ค้นหา HN / ชื่อ / แผนก / สิทธิ์',
         cols: data => data.kind === 'appt' ? APPT_COLS : VISIT_COLS,
+        exportCols: data => data.kind === 'appt' ? APPT_COLS : VISIT_EXPORT,
         filters: data => DRILL_FILTERS[data.kind],
         mapRows: data => data.rows.map(r => ({ ...r, ptkind: r.is_new ? 'ผู้ป่วยใหม่' : 'ผู้ป่วยเก่า' })),
         cell: drillCell,

@@ -1287,6 +1287,9 @@ html[data-theme="dark"] .opd-drill-table th {
 html[data-theme="dark"] .opd-drill-table td {
     border-bottom: 1px solid #333a36;
 }
+html[data-theme="dark"] .bbh-wait {
+    color: #afc4bc;
+}
 html[data-theme="dark"] .opd-drill-table tbody tr:nth-child(even) {
     background: #171818;
 }
