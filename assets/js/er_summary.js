@@ -28,6 +28,8 @@
         $('er-day-title').textContent = 'ผู้มารับบริการ ER ' + (isToday ? 'วันนี้' : 'วันที่ ' + thai(date));
         buttons.forEach(b => b.setAttribute('aria-pressed', String(daysAgo(Number(b.dataset.erDay)) === date)));
 
+        loadD2D(date, my);
+
         let data;
         try {
             data = await (await fetch('../api/er_today_summary.php?date=' + encodeURIComponent(date), { cache: 'no-store' })).json();
@@ -70,6 +72,34 @@
                 : ` <span class="opd-delta ${p > 0 ? 'up' : 'down'}">${p > 0 ? '▲' : '▼'} ${Math.abs(p)}%</span>`;
         }
         $('er-compare').innerHTML = `เทียบ${label} ${fmt(data.prev_week)} ครั้ง${delta}` + (isToday ? ' — นับถึงเวลาเดียวกัน' : '');
+    }
+
+    /* Door-to-Doctor แยกตามระดับ: เฉลี่ย (นาที) + ทันเป้า (จากรายที่มีเวลาพบแพทย์) */
+    async function loadD2D(date, my) {
+        const grid = $('er-d2d-grid'), note = $('er-d2d-note');
+        let data;
+        try {
+            data = await (await fetch('../api/er_d2d.php?date=' + encodeURIComponent(date), { cache: 'no-store' })).json();
+        } catch (e) {
+            data = { error: 'โหลดข้อมูลไม่สำเร็จ' };
+        }
+        if (my !== seq) return;
+        if (data.error) { grid.innerHTML = ''; note.textContent = data.error; return; }
+
+        const pct = (a, b) => b ? Math.round(a * 100 / b) : 0;
+        grid.innerHTML = data.items.map(it => {
+            const p = pct(it.within, it.timed);
+            const avg = it.avg === null ? '—' : it.avg.toLocaleString(undefined, { maximumFractionDigits: 1 });
+            const late = it.avg !== null && it.avg > it.target;
+            return `<div class="er-d2d-tile er-tri-${it.level}">
+                <div class="er-d2d-head"><span class="er-lvl">ระดับ ${it.level}</span><span class="er-d2d-target">เป้า ${it.target_label}</span></div>
+                <div class="er-d2d-avg"><span class="er-d2d-label">เฉลี่ย</span> <b>${avg}</b> <span class="er-d2d-label">นาที</span>${late ? ' <span class="er-d2d-late">เกินเป้า</span>' : ''}</div>
+                <div class="er-d2d-meter" role="img" aria-label="ทันเป้า ${p}%"><span style="width:${p}%"></span></div>
+                <div class="er-d2d-within">${it.timed ? `ทันเป้า ${fmt(it.within)} จาก ${fmt(it.timed)} ราย (${p}%)` : (it.n ? 'ยังไม่มีเวลาพบแพทย์' : 'ไม่มีผู้ป่วย')}</div>
+            </div>`;
+        }).join('');
+        const n = data.items.reduce((s, it) => s + it.n, 0), t = data.items.reduce((s, it) => s + it.timed, 0);
+        note.textContent = `มีเวลาพบแพทย์ ${fmt(t)} จาก ${fmt(n)} ราย (${pct(t, n)}%) · ใช้เวลาที่เร็วที่สุดของ กดเริ่มตรวจ / สั่ง Lab / X-ray / สั่งยา / บันทึกรายงานแพทย์ใน HPI · ไม่รวม Black`;
     }
 
     /* คลิกการ์ด/ตัวเลข → รายชื่อผู้ป่วย (api/er_visit_list.php · ต้อง login · เงื่อนไขเดียวกับตัวเลขบนการ์ด) */

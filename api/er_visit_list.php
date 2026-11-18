@@ -67,17 +67,19 @@ const ER_PT_NAMES = [1 => 'ฉุกเฉิน', 2 => 'อุบัติเ�
 $level = ER_LEVEL_SQL;
 $refIn = ER_REFER_IN_SQL;
 $dch   = ER_DCH_SQL;
+$d2d   = ER_D2D_SQL;
+$hpi   = ER_D2D_HPI_SQL;
 // หมายเหตุ SQL (คอมเมนต์ไว้นอก SQL — การเชื่อมต่อเป็น WIN874 ส่งอักขระอย่าง → · ไม่ได้):
 // ประเภทผู้ป่วย: ชื่อในตาราง er_pt_type ยาวและถูกตัดกลางคำ จึงใช้ชื่อสั้นชุดเดียวกับการ์ด (ER_PT_NAMES)
 // refer_from: รพ.ต้นทางจากใบรับส่งต่อ (referin) · ลงวิธีมา 04 แต่ไม่มีใบ referin จะว่าง
 // admit_ward / refer_to: ward ที่ Admit (ipt ของ visit) / รพ.ปลายทาง (referout ทุกจุดของ visit รวมในช่องเดียว) — ชุดเดียวกับ opd_visit_list.php
-// d2d: door-to-doctor (นาที) จาก er_regist.door_to_doctor_second — แสดงเฉพาะ 1 วินาที–24 ชม.
-//      0 = ไม่ได้บันทึก (ข้อมูลจริง 30 วัน: 0 มี 1,713 แถว มีเวลาแพทย์แค่ 6 แถว) · มีค่าจริงราว 17% ของ visit
+// d2d: door-to-doctor (นาที) = ER_D2D_SQL + er_hpi_minutes() ใน config/er.php (ชุดเดียวกับ api/er_d2d.php)
+//      ไม่ใช้ door_to_doctor_second (ลงแค่ราว 17% ของ visit)
 
 try {
     $sql = "
         SELECT x.hn, x.name, x.age, x.enter_at, x.lvl, x.pt AS pt_code, x.arrival, x.dch, x.dch_name,
-               x.pdx, x.diag_th, x.diag_en, x.d2d, x.admit_ward, x.refer_to, x.refer_from, x.refer_in
+               x.pdx, x.diag_th, x.diag_en, x.d2d, x.enter_ts, x.hpi, x.admit_ward, x.refer_to, x.refer_from, x.refer_in
         FROM (
             SELECT
                 $level                                          AS lvl,
@@ -96,8 +98,9 @@ try {
                 v.pdx,
                 NULLIF(TRIM(i.tname), '')                       AS diag_th,
                 i.name                                          AS diag_en,
-                CASE WHEN e.door_to_doctor_second BETWEEN 1 AND 86400
-                     THEN ROUND(e.door_to_doctor_second / 60.0)::int END AS d2d,
+                $d2d                                            AS d2d,
+                e.enter_er_time                                 AS enter_ts,
+                $hpi                                            AS hpi,
                 (SELECT COALESCE(w.name, i.ward) FROM ipt i LEFT JOIN ward w ON w.ward = i.ward
                   WHERE i.vn = e.vn LIMIT 1)                    AS admit_ward,
                 (SELECT STRING_AGG(DISTINCT COALESCE(h.name, r.refer_hospcode), ', ')
@@ -114,6 +117,8 @@ try {
             LEFT JOIN ovstist ist          ON ist.ovstist = o.ovstist
             LEFT JOIN er_dch_type dt       ON dt.er_dch_type = e.er_dch_type
             LEFT JOIN icd101 i             ON i.code = v.pdx
+            LEFT JOIN service_time s       ON s.vn = e.vn
+            LEFT JOIN opdscreen sc         ON sc.vn = e.vn
             WHERE e.vstdate = :d
         ) x
         WHERE {$FILTERS[$type]}
@@ -138,7 +143,11 @@ try {
         $out = $dchCode === 2;
         $r['ref_dir'] = $in && $out ? 'in+out' : ($in ? 'in' : ($out ? 'out' : null));
         unset($r['refer_in']);
-        $r['d2d'] = $r['d2d'] === null ? null : (int)$r['d2d'];
+        // Door-to-Doctor นิยามเดียวกับ api/er_d2d.php: เร็วที่สุดของแหล่งใน SQL กับเวลาใน HPI
+        $m = $r['d2d'] === null ? null : (int)$r['d2d'];
+        $h = $r['enter_ts'] === null ? null : er_hpi_minutes($r['enter_ts'], $r['hpi']);
+        $r['d2d'] = $h !== null && ($m === null || $h < $m) ? $h : $m;
+        unset($r['enter_ts'], $r['hpi']);
         return $r;
     }, $st->fetchAll(PDO::FETCH_ASSOC));
 

@@ -521,6 +521,7 @@ html[data-theme="dark"] .er-theme {
     --er-row-bg: #181717;
     --er-page-bg: #161616;
     --er-card-line: #463230;
+    --er-muted-text: #e3bcb8;
 }
 html[data-theme="dark"] body:has(.er-theme) {
     --er-nav-text: #ffa698;

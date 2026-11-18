@@ -228,6 +228,16 @@ include '../templates/sidebar.php';
                             </div>
 
                         </div>
+
+                        <!-- Door-to-Doctor แยกตามระดับ (api/er_d2d.php · นิยามใน config/er.php) — วันเดียวกับการ์ดด้านบน -->
+                        <div class="er-d2d">
+                            <div class="summary-section-title" id="er-d2d-title">
+                                <i class="fa-solid fa-user-doctor"></i>
+                                เวลาเข้า ER ถึงพบแพทย์ (Door-to-Doctor)
+                            </div>
+                            <div class="er-d2d-grid" id="er-d2d-grid" aria-labelledby="er-d2d-title" aria-live="polite"></div>
+                            <div class="er-d2d-note" id="er-d2d-note"></div>
+                        </div>
                     </div>
                 </div>
             </div>
