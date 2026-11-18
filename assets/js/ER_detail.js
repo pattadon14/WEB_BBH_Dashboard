@@ -188,6 +188,7 @@ const seriesData = data.map(d => ({
     y:     d.y,
     color: d.color,
     name:  d.name,
+    ...(d.border ? { borderColor: d.border, borderWidth: 1 } : {}),   // ระดับ 5 สีขาว
 }));
 
 Highcharts.chart('er-triage-chart', {

@@ -20,7 +20,7 @@ try {
     */
 
     $cacheDir  = __DIR__ . '/../storage/cache/';
-    $cacheFile = $cacheDir . 'er_triage_v3_' . $p['key'] . '.json';
+    $cacheFile = $cacheDir . 'er_triage_v4_' . $p['key'] . '.json';
     $cacheTTL  = 5 * 60;
 
     if (
@@ -69,13 +69,14 @@ try {
     */
 
     $triageConfig = [
-        1 => ['label' => 'Resuscitation (กู้ชีพทันที)', 'color' => '#f01a1a'],
-        2 => ['label' => 'Emergency (ฉุกเฉินด่วน)',     'color' => '#dc35b2'],
-        3 => ['label' => 'Urgent (ด่วนมาก)',            'color' => '#13a142'],
-        4 => ['label' => 'Semi Urgent (ด่วน)',          'color' => '#07c5ff'],
-        5 => ['label' => 'Non Urgent (รอได้)',          'color' => '#6c757d'],
-        6 => ['label' => 'Black (เสียชีวิต)',           'color' => '#343a40'],
-        0 => ['label' => 'ไม่ระบุระดับ',                'color' => '#cbd5e1'],
+        // ชื่อและสีตามป้ายจำแนกผู้ป่วยหน้าห้อง ER (แดง / ชมพู / เหลือง / เขียว / ขาว) — ชุดเดียวกับ .er-tri-* ใน assets/css/er_theme.css
+        1 => ['label' => '1 Resuscitation (ฉุกเฉินวิกฤต)',     'color' => '#dc2626'],
+        2 => ['label' => '2 Emergency (เจ็บป่วยรุนแรง)',      'color' => '#c2389a'],
+        3 => ['label' => '3 Urgency (ฉุกเฉินเร่งด่วน)',        'color' => '#facc15'],
+        4 => ['label' => '4 Semi-Urgency (ฉุกเฉินไม่รุนแรง)', 'color' => '#65a30d'],
+        5 => ['label' => '5 Non-Urgency (ผู้ป่วยทั่วไป)',     'color' => '#ffffff', 'border' => '#9ca3af'],
+        6 => ['label' => 'Black (เสียชีวิต)',                 'color' => '#343a40'],
+        0 => ['label' => 'ไม่ระบุระดับ',                      'color' => '#d1d5db'],
     ];
 
     // เรียงจากรุนแรงมากไปน้อย ไม่ระบุไว้ท้ายสุด
@@ -95,6 +96,7 @@ try {
             'id'    => $id,
             'name'  => $config['label'],
             'color' => $config['color'],
+            'border' => $config['border'] ?? null,   // ระดับ 5 สีขาว ต้องมีขอบให้เห็นแท่งกราฟ
             'y'     => (int)$row['total'],
         ];
 

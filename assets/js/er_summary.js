@@ -81,27 +81,45 @@
         home: 'กลับบ้าน', gone: 'ไม่รอตรวจ / หนีกลับ / ปฏิเสธการรักษา', no_dch: 'ยังไม่ลงผลจำหน่าย', other_dch: 'ผลจำหน่ายอื่น ๆ',
         admit: 'Admit', refer: 'Refer ส่งต่อ'
     };
+    // ตัวเลือกคอลัมน์ (bbh_drill.js) แบบเดียวกับหน้า OPD: nowrap = บรรทัดเดียว · max = ยาวเกินตัด … (ชี้/แตะดูเต็ม) · display = ย่อเฉพาะตอนแสดง
+    const NW = { nowrap: true };
+    const shortHosp = v => String(v).replace(/โรงพยาบาลส่งเสริมสุขภาพตำบล/g, 'รพ.สต.').replace(/โรงพยาบาล/g, 'รพ.');
     const COLS = [
-        ['enter_at', 'เข้า ER'], ['hn', 'HN'], ['name', 'ชื่อ-สกุล'], ['age', 'อายุ (ปี)'], ['lvl', 'ระดับ'],
-        ['pt', 'ประเภท'], ['arrival', 'วิธีมา'], ['dx', 'การวินิจฉัย'], ['d2d', 'Door-to-Doctor (นาที)'], ['dch', 'ผลจำหน่าย']
+        ['enter_at', 'เข้า ER', NW], ['hn', 'HN', NW], ['name', 'ชื่อ-สกุล', NW], ['age', 'อายุ', { nowrap: true, display: v => v + ' ปี' }],
+        ['lvl', 'ระดับ', NW], ['pt', 'ประเภท', NW], ['arrival', 'วิธีมา', { max: '8em' }],
+        // การวินิจฉัยบรรทัดเดียว: "รหัส ชื่อไทย" · ชื่ออังกฤษอยู่ใน tooltip / แตะดู (ค่าเต็ม "… / English")
+        ['dx', 'การวินิจฉัย', { max: '13em', display: v => v.split(' / ')[0] }],
+        ['d2d', 'Door-to-Doctor', { nowrap: true, display: v => v + ' น.' }], ['dch', 'ผลจำหน่าย', NW]
     ];
-    const EXPORT_COLS = COLS.filter(([k]) => k !== 'dx').concat([['pdx', 'ICD-10'], ['diag_th', 'ชื่อโรค (ไทย)'], ['diag_en', 'ชื่อโรค (อังกฤษ)']]);
+    // Admit / Refer: ผลจำหน่ายเป็นค่าเดียวกันทั้งรายการ → แสดงปลายทางแทน
+    const DEST_COL = {
+        admit: ['admit_ward', 'Admit ไปที่', { max: '13em' }],
+        refer: ['refer_to', 'ส่งต่อไปที่', { display: shortHosp, max: '16em' }]
+    };
+    const withDest = (list, type) => DEST_COL[type] ? list.map(c => c[0] === 'dch' ? DEST_COL[type] : c) : list;
+    // Export: ค่าเต็ม หน่วยอยู่ที่หัวคอลัมน์ แยกรหัส/ชื่อโรค
+    const EXPORT_COLS = [
+        ['enter_at', 'เข้า ER'], ['hn', 'HN'], ['name', 'ชื่อ-สกุล'], ['age', 'อายุ (ปี)'], ['lvl', 'ระดับ'], ['pt', 'ประเภท'],
+        ['arrival', 'วิธีมา'], ['pdx', 'ICD-10'], ['diag_th', 'ชื่อโรค (ไทย)'], ['diag_en', 'ชื่อโรค (อังกฤษ)'],
+        ['d2d', 'Door-to-Doctor (นาที)'], ['dch', 'ผลจำหน่าย']
+    ];
     const esc = bbhDrill.esc;
 
+    // ป้ายระดับ: จุดสีตามป้ายจำแนกผู้ป่วยของ รพ. (.er-tri-* ใน er_theme.css)
     function drillCell(r, k) {
         if (k === 'lvl') {
-            const m = /^ระดับ (\d)$/.exec(r.lvl) || (r.lvl === 'Black' ? [0, 6] : null);
-            return `<span class="er-lvl${m ? ' er-lvl-' + m[1] : ''}">${esc(r.lvl)}</span>`;
+            const m = /^ระดับ (\d)$/.exec(r.lvl);
+            const n = m ? m[1] : r.lvl === 'Black' ? '6' : '0';
+            return `<span class="er-lvl er-tri-${n}">${esc(r.lvl)}</span>`;
         }
-        if (k === 'dx') {
-            if (!r.pdx) return '<span class="text-muted">–</span>';
-            const name = r.diag_th || r.diag_en || '';
-            const en = r.diag_th && r.diag_en && r.diag_th !== r.diag_en ? `<div class="diag-en">${esc(r.diag_en)}</div>` : '';
-            return `<div class="er-dx"><div><span class="er-dx-code">${esc(r.pdx)}</span> ${esc(name)}</div>${en}</div>`;
-        }
-        return undefined;   // ค่าปกติ
+        return undefined;   // ค่าปกติ (bbh_drill.js จัดการตามตัวเลือกคอลัมน์)
     }
 
+    const withDx = r => ({
+        ...r,
+        dx: r.pdx ? [`${r.pdx} ${r.diag_th || r.diag_en || ''}`.trim(), r.diag_th && r.diag_en && r.diag_th !== r.diag_en ? r.diag_en : '']
+            .filter(Boolean).join(' / ') : null
+    });
     function openDrill(type) {
         if (!DRILL_TITLES[type]) return;
         const date = input.value || today();
@@ -109,10 +127,12 @@
             title: DRILL_TITLES[type],
             sub: 'วันที่ ' + thai(date),
             url: '../api/er_visit_list.php?' + new URLSearchParams({ date, type }),
-            cols: COLS,
-            exportCols: EXPORT_COLS,
-            searchKeys: ['hn', 'name', 'pdx', 'diag_th', 'diag_en', 'arrival', 'dch'],
-            filters: [['lvl', 'ระดับ'], ['pt', 'ประเภท'], ['arrival', 'วิธีมา'], ['dch', 'ผลจำหน่าย']],
+            cols: withDest(COLS, type),
+            exportCols: EXPORT_COLS.concat(DEST_COL[type] ? [DEST_COL[type].slice(0, 2)] : []),
+            mapRows: data => data.rows.map(withDx),
+            placeholder: 'ค้นหา HN / ชื่อ / การวินิจฉัย',
+            searchKeys: ['hn', 'name', 'dx', 'arrival', 'dch', 'admit_ward', 'refer_to'],
+            filters: withDest([['lvl', 'ระดับ'], ['pt', 'ประเภท'], ['arrival', 'วิธีมา'], ['dch', 'ผลจำหน่าย']], type),
             cell: drillCell,
             file: `ER_${type}_${date}.csv`,
             summary: rows => `${fmt(rows.length)} ครั้ง (${fmt(new Set(rows.map(r => r.hn)).size)} คน)`

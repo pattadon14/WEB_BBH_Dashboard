@@ -3,7 +3,7 @@
    กฎที่เปลี่ยนสีส่วนประกอบเดิมขึ้นต้นด้วย :root ให้ชนะกฎโหมดมืด (html[data-theme="dark"] …) ด้วย — สีมาจาก token ด้านล่างซึ่งมีค่าโหมดมืดของตัวเอง
    ชื่อ token ตั้งตามบทบาทให้ tools/build_dark_css.mjs แปลงโหมดมืดได้เอง:
    --er-text = ตัวอักษร/ไอคอน · --er-tint, --er-wash = พื้นอ่อน · --er-line = เส้นขอบ · --er-solid = พื้นปุ่ม (ตัวอักษรขาว)
-   สีที่มีความหมายคงเดิม: แถบ/จุดระดับ Triage, ▲▼ เทียบสัปดาห์ก่อน, สีกราฟ
+   สีที่มีความหมายไม่ใช้ธีมแดง: ระดับ Triage (ตามป้ายของ รพ. ท้ายไฟล์), ▲▼ เทียบสัปดาห์ก่อน, สีกราฟ
 ========================================================= */
 :root .er-theme {
     --er-text: #b42318;         /* แดงบนพื้นขาว 6.5:1 */
@@ -84,17 +84,21 @@
 :root .er-theme .opd-drill-table tbody tr:nth-child(even) { background: var(--er-row-bg); }
 :root .er-theme .opd-drill-table tbody tr:hover { background: var(--er-wash); }
 
-/* ป้ายในตารางรายชื่อ: ระดับ Triage (สีเดียวกับแถบระดับบนการ์ด) + ผลจำหน่าย */
-.er-lvl { --lvl: #cbd5e1; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
-.er-lvl::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--lvl); }
-.er-lvl-1 { --lvl: #f01a1a; }
-.er-lvl-2 { --lvl: #dc35b2; }
-.er-lvl-3 { --lvl: #13a142; }
-.er-lvl-4 { --lvl: #07c5ff; }
-.er-lvl-5 { --lvl: #6c757d; }
-.er-lvl-6 { --lvl: #343a40; }
-.er-dx-code { font-weight: 700; }
-.er-dx { text-align: left; }
 :root .er-theme .opd-drill-table th { background: var(--er-wash); color: var(--er-text); }
-/* คอลัมน์สั้นไม่ตัดบรรทัด (ชื่อ, ประเภท, วิธีมา, ผลจำหน่าย) ให้คอลัมน์การวินิจฉัยรับความกว้างที่เหลือ · จอแคบเลื่อนตารางแนวนอนใน .opd-drill-body */
-:root .er-theme .opd-drill-table td:is(:nth-child(4), :nth-child(7), :nth-child(8), :last-child) { white-space: nowrap; }
+
+/* ---------- สีระดับความเร่งด่วน (Triage) ตามป้ายจำแนกผู้ป่วยหน้าห้อง ER ของ รพ. ----------
+   1 แดง (Resuscitation) · 2 ชมพู (Emergency) · 3 เหลือง (Urgency) · 4 เขียว (Semi-Urgency) · 5 ขาว (Non-Urgency)
+   ไม่ระบุ = เทาอ่อน · Black (6, ไม่มีในป้าย) = ดำ
+   ใช้ตัวแปร --lvl (ไม่ใช่ style="background:…") เพื่อให้ build_dark_css.mjs ไม่แปลงสี — สีระดับต้องเหมือนกันทั้งสองโหมด
+   ใช้กับ: แถบ/จุดบนการ์ด (.er-tri) และป้ายในหน้าต่างรายชื่อ (.er-lvl) · กราฟใช้สีชุดเดียวกันจาก api/er_triage.php */
+.er-tri-1 { --lvl: #dc2626; }
+.er-tri-2 { --lvl: #c2389a; }
+.er-tri-3 { --lvl: #facc15; }
+.er-tri-4 { --lvl: #65a30d; }
+.er-tri-5 { --lvl: #ffffff; --lvl-ring: #9ca3af; }   /* ขาว: ขอบเทาให้เห็นบนพื้นขาว */
+.er-tri-6 { --lvl: #343a40; }
+.er-tri-0 { --lvl: #d1d5db; }
+.er-tri { background: var(--lvl); box-shadow: inset 0 0 0 1px var(--lvl-ring, transparent); }
+
+.er-lvl { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+.er-lvl::before { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--lvl); box-shadow: inset 0 0 0 1px var(--lvl-ring, transparent); }

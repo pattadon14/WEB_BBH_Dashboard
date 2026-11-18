@@ -85,22 +85,22 @@ include '../templates/sidebar.php';
                                     </div>
                                     <div class="visit-mix">
                                         <div class="visit-mix-bar" role="img" id="er-level-bar" aria-label="สัดส่วนระดับความเร่งด่วน">
-                                            <span id="er-bar-1" style="background:#f01a1a"></span>
-                                            <span id="er-bar-2" style="background:#dc35b2"></span>
-                                            <span id="er-bar-3" style="background:#13a142"></span>
-                                            <span id="er-bar-4" style="background:#07c5ff"></span>
-                                            <span id="er-bar-5" style="background:#6c757d"></span>
-                                            <span id="er-bar-6" style="background:#343a40"></span>
-                                            <span id="er-bar-0" style="background:#cbd5e1"></span>
+                                            <span id="er-bar-1" class="er-tri er-tri-1"></span>
+                                            <span id="er-bar-2" class="er-tri er-tri-2"></span>
+                                            <span id="er-bar-3" class="er-tri er-tri-3"></span>
+                                            <span id="er-bar-4" class="er-tri er-tri-4"></span>
+                                            <span id="er-bar-5" class="er-tri er-tri-5"></span>
+                                            <span id="er-bar-6" class="er-tri er-tri-6"></span>
+                                            <span id="er-bar-0" class="er-tri er-tri-0"></span>
                                         </div>
                                         <div class="visit-mix-legend er-level-legend">
-                                            <span><i class="mix-dot" style="background:#f01a1a"></i>ระดับ 1 <b id="er-l1">–</b></span>
-                                            <span><i class="mix-dot" style="background:#dc35b2"></i>ระดับ 2 <b id="er-l2">–</b></span>
-                                            <span><i class="mix-dot" style="background:#13a142"></i>ระดับ 3 <b id="er-l3">–</b></span>
-                                            <span><i class="mix-dot" style="background:#07c5ff"></i>ระดับ 4 <b id="er-l4">–</b></span>
-                                            <span><i class="mix-dot" style="background:#6c757d"></i>ระดับ 5 <b id="er-l5">–</b></span>
-                                            <span id="er-lg-6"><i class="mix-dot" style="background:#343a40"></i>Black <b id="er-l6">–</b></span>
-                                            <span id="er-lg-0"><i class="mix-dot" style="background:#cbd5e1"></i>ไม่ระบุ <b id="er-l0">–</b></span>
+                                            <span><i class="mix-dot er-tri er-tri-1" aria-hidden="true"></i>ระดับ 1 <b id="er-l1">–</b></span>
+                                            <span><i class="mix-dot er-tri er-tri-2" aria-hidden="true"></i>ระดับ 2 <b id="er-l2">–</b></span>
+                                            <span><i class="mix-dot er-tri er-tri-3" aria-hidden="true"></i>ระดับ 3 <b id="er-l3">–</b></span>
+                                            <span><i class="mix-dot er-tri er-tri-4" aria-hidden="true"></i>ระดับ 4 <b id="er-l4">–</b></span>
+                                            <span><i class="mix-dot er-tri er-tri-5" aria-hidden="true"></i>ระดับ 5 <b id="er-l5">–</b></span>
+                                            <span id="er-lg-6"><i class="mix-dot er-tri er-tri-6" aria-hidden="true"></i>Black <b id="er-l6">–</b></span>
+                                            <span id="er-lg-0"><i class="mix-dot er-tri er-tri-0" aria-hidden="true"></i>ไม่ระบุ <b id="er-l0">–</b></span>
                                         </div>
                                     </div>
                                 </div>

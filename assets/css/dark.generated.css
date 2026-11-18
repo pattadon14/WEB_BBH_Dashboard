@@ -1,5 +1,5 @@
 /* ไฟล์สร้างอัตโนมัติจาก tools/build_dark_css.mjs — ห้ามแก้ตรง ๆ (แก้ใน dark.css แทน)
- * แหล่ง: 18 ชุด CSS + style="…" 10 แบบ */
+ * แหล่ง: 18 ชุด CSS + style="…" 8 แบบ */
 
 /* ---- assets/css/custom.css ---- */
 html[data-theme="dark"] body {
@@ -1956,14 +1956,6 @@ html[data-theme="dark"] [style*="color: #c2410c"] {
 html[data-theme="dark"] [style*="color:#b02a37"],
 html[data-theme="dark"] [style*="color: #b02a37"] {
     color: #fba7a5 !important;
-}
-html[data-theme="dark"] [style*="background:#07c5ff"],
-html[data-theme="dark"] [style*="background: #07c5ff"] {
-    background: #083444 !important;
-}
-html[data-theme="dark"] [style*="background:#cbd5e1"],
-html[data-theme="dark"] [style*="background: #cbd5e1"] {
-    background: #202429 !important;
 }
 html[data-theme="dark"] [style*="color:#2563eb"],
 html[data-theme="dark"] [style*="color: #2563eb"] {

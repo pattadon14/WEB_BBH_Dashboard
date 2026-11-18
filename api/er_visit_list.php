@@ -67,13 +67,14 @@ $level = ER_LEVEL_SQL;
 $dch   = ER_DCH_SQL;
 // หมายเหตุ SQL (คอมเมนต์ไว้นอก SQL — การเชื่อมต่อเป็น WIN874 ส่งอักขระอย่าง → · ไม่ได้):
 // ประเภทผู้ป่วย: ชื่อในตาราง er_pt_type ยาวและถูกตัดกลางคำ จึงใช้ชื่อสั้นชุดเดียวกับการ์ด (ER_PT_NAMES)
+// admit_ward / refer_to: ward ที่ Admit (ipt ของ visit) / รพ.ปลายทาง (referout ทุกจุดของ visit รวมในช่องเดียว) — ชุดเดียวกับ opd_visit_list.php
 // d2d: door-to-doctor (นาที) จาก er_regist.door_to_doctor_second — แสดงเฉพาะ 1 วินาที–24 ชม.
 //      0 = ไม่ได้บันทึก (ข้อมูลจริง 30 วัน: 0 มี 1,713 แถว มีเวลาแพทย์แค่ 6 แถว) · มีค่าจริงราว 17% ของ visit
 
 try {
     $sql = "
         SELECT x.hn, x.name, x.age, x.enter_at, x.lvl, x.pt AS pt_code, x.arrival, x.dch, x.dch_name,
-               x.pdx, x.diag_th, x.diag_en, x.d2d
+               x.pdx, x.diag_th, x.diag_en, x.d2d, x.admit_ward, x.refer_to
         FROM (
             SELECT
                 $level                                          AS lvl,
@@ -92,7 +93,12 @@ try {
                 NULLIF(TRIM(i.tname), '')                       AS diag_th,
                 i.name                                          AS diag_en,
                 CASE WHEN e.door_to_doctor_second BETWEEN 1 AND 86400
-                     THEN ROUND(e.door_to_doctor_second / 60.0)::int END AS d2d
+                     THEN ROUND(e.door_to_doctor_second / 60.0)::int END AS d2d,
+                (SELECT COALESCE(w.name, i.ward) FROM ipt i LEFT JOIN ward w ON w.ward = i.ward
+                  WHERE i.vn = e.vn LIMIT 1)                    AS admit_ward,
+                (SELECT STRING_AGG(DISTINCT COALESCE(h.name, r.refer_hospcode), ', ')
+                   FROM referout r LEFT JOIN hospcode h ON h.hospcode = r.refer_hospcode
+                  WHERE r.vn = e.vn)                            AS refer_to
             FROM er_regist e
             LEFT JOIN ovst o               ON o.vn = e.vn
             LEFT JOIN vn_stat v            ON v.vn = e.vn
