@@ -25,18 +25,19 @@ require_once __DIR__ . '/../config/app.php';
 
     <!-- AdminLTE -->
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/AdminLTE/dist/css/adminlte.min.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/custom.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/sidebar.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/ipd_ward_detail.css">
+    <!-- ?v= เวลาแก้ไฟล์ — ผู้ใช้ได้ CSS ใหม่ทันทีหลัง git pull ไม่ค้าง cache -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/custom.css?v=<?= filemtime(__DIR__ . '/../assets/css/custom.css') ?>">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/sidebar.css?v=<?= filemtime(__DIR__ . '/../assets/css/sidebar.css') ?>">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/ipd_ward_detail.css?v=<?= filemtime(__DIR__ . '/../assets/css/ipd_ward_detail.css') ?>">
 
     <!-- Font Awesome 6 (รองรับ class แบบ fas/far ของ v5 ด้วย) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <!-- OPD page styles -->
-    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_tabs.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_tabs.css?v=<?= filemtime(__DIR__ . '/../assets/css/opd_tabs.css') ?>">
 
     <!-- Login styles -->
-    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/login.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/login.css?v=<?= filemtime(__DIR__ . '/../assets/css/login.css') ?>">
 
     <!-- ธีมกลางทุกหน้า (โหลดท้ายสุด) -->
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/theme.css?v=<?= filemtime(__DIR__ . '/../assets/css/theme.css') ?>">

@@ -336,7 +336,11 @@
 
     /* อัปเดต Insight จากข้อมูลชุดเดียวกับกราฟ เพื่อให้เปลี่ยนตามปีงบประมาณที่เลือก */
     window.bbhUpdateHistoryInsight = function(data) {
-        if (!Array.isArray(data) || !data.length) return;
+        if (!Array.isArray(data) || !data.length) {
+            // ไม่มีข้อมูล/โหลดไม่ได้: ล้างตัวเลขของปีก่อนหน้า ไม่ให้ค้างอยู่
+            ['ins-admit','ins-avg','ins-occ','ins-max','ins-min'].forEach(function(id){ setText(id,'-'); });
+            return;
+        }
 
         var admits=data.map(function(x){return Number(x.admit_count)||0;});
         var occ=data.map(function(x){return Number(x.occupancy_rate)||0;});

@@ -1,5 +1,8 @@
 <?php
 
+require_once __DIR__ . '/../auth/provider.php';
+provider_require_login_page();   // ยังไม่ login → กลับหน้าแรก
+
 include '../templates/header.php';
 include '../templates/navbar.php';
 include '../templates/sidebar.php';

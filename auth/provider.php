@@ -121,6 +121,16 @@ function provider_is_logged_in(): bool
     return !empty($_SESSION['provider_auth']['provider_id']);
 }
 
+/* หน้ารายละเอียดที่ต้อง login: ยังไม่ login → กลับหน้าแรก (ตรวจฝั่ง server ไม่พึ่ง JavaScript)
+ * เรียกก่อนส่ง HTML ใด ๆ ออกไป */
+function provider_require_login_page(): void
+{
+    if (!provider_is_logged_in()) {
+        header('Location: ' . BASE_URL . 'index.php', true, 302);
+        exit;
+    }
+}
+
 function provider_logout(): void
 {
     $_SESSION = [];

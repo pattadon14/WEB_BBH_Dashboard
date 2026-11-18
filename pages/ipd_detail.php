@@ -1,5 +1,8 @@
 <?php
 
+require_once __DIR__ . '/../auth/provider.php';
+provider_require_login_page();   // ยังไม่ login → กลับหน้าแรก
+
 include '../templates/header.php';
 include '../templates/navbar.php';
 include '../templates/sidebar.php';
@@ -243,11 +246,11 @@ include '../templates/sidebar.php';
 </div>
 
 <!-- HIGHCHART -->
-<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/ipd_detail.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/ipd_detail.css?v=<?= filemtime(__DIR__ . '/../assets/css/ipd_detail.css') ?>">
 <script src="<?= BASE_URL ?>assets/lib/highcharts/13.1.1/highcharts.js"></script>
 <script>window.BBH_CURRENT_FISCAL_YEAR = <?= $currentYear ?>;</script>
 <script src="<?= BASE_URL ?>assets/js/period_filter.js?v=<?= filemtime(__DIR__ . '/../assets/js/period_filter.js') ?>"></script>
-<script src="<?= BASE_URL ?>assets/js/ipd_detail.js"></script>
+<script src="<?= BASE_URL ?>assets/js/ipd_detail.js?v=<?= filemtime(__DIR__ . '/../assets/js/ipd_detail.js') ?>"></script>
 
 <?php
 

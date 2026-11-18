@@ -709,7 +709,7 @@ include 'templates/sidebar.php';
 <!-- Highcharts เก็บไว้ในเว็บเอง (assets/lib) ไม่โหลดจาก code.highcharts.com: CDN นั้นปฏิเสธคำขอที่ไม่มี Referer และเปลี่ยนเวอร์ชันเองได้ -->
 <script src="assets/lib/highcharts/13.1.1/highcharts.js"></script>
 <script src="assets/lib/highcharts/13.1.1/modules/heatmap.js"></script>
-<script src="assets/js/dashboard.js"></script>
+<script src="assets/js/dashboard.js?v=<?= filemtime(__DIR__ . '/assets/js/dashboard.js') ?>"></script>
 <script src="assets/js/service_detail.js?v=<?= filemtime(__DIR__ . '/assets/js/service_detail.js') ?>"></script>
 <script>
 // เรียกหลังโหลดข้อมูลสำเร็จเท่านั้น ถ้า API ล่ม เวลาจะค้างไว้ที่ครั้งล่าสุดที่ได้ข้อมูลจริง
@@ -822,7 +822,7 @@ async function loadWardBed() {
 
             <div class="col-xl-6 col-lg-6 col-12 mb-2">
 
-                <div class="ward-card border-${colorClass}">
+                <div class="ward-card border-${colorClass}" tabindex="0" role="link">
 
                     <div class="ward-icon text-${colorClass}">
 

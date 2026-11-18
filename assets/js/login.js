@@ -1,82 +1,12 @@
 /* =========================================================
-   BBH DASHBOARD - HOSxP LOGIN MODAL
-   ใช้การควบคุม Modal โดยตรง เพื่อให้เปิด/ปิดได้แน่นอน
+   BBH DASHBOARD - GUEST ACCESS (ผู้ที่ยังไม่ login Provider ID)
+   หน้าต่าง "กรุณาเข้าสู่ระบบก่อน" + การคลิกการ์ด Ward หน้าแรก
 ========================================================= */
 (function () {
-    function initHosxpLoginModal() {
-        var loginButton = document.getElementById('hosxp-login-btn');
-        var modal = document.getElementById('hosxpLoginModal');
-
-        if (!loginButton || !modal) return;
-
-        var backdrop = null;
-
-        function createBackdrop() {
-            if (backdrop) return;
-
-            backdrop = document.createElement('div');
-            backdrop.className = 'hosxp-modal-backdrop';
-            backdrop.setAttribute('aria-hidden', 'true');
-            document.body.appendChild(backdrop);
-
-            backdrop.addEventListener('click', closeModal);
-        }
-
-        function openModal(event) {
-            if (event) event.preventDefault();
-
-            createBackdrop();
-
-            modal.classList.add('hosxp-modal-show');
-            modal.setAttribute('aria-hidden', 'false');
-            document.body.classList.add('hosxp-modal-open');
-
-            var username = document.getElementById('hosxp-username');
-            if (username) {
-                setTimeout(function () {
-                    username.focus();
-                }, 100);
-            }
-        }
-
-        function closeModal(event) {
-            if (event) event.preventDefault();
-
-            modal.classList.remove('hosxp-modal-show');
-            modal.setAttribute('aria-hidden', 'true');
-            document.body.classList.remove('hosxp-modal-open');
-
-            if (backdrop) {
-                backdrop.remove();
-                backdrop = null;
-            }
-        }
-
-        loginButton.addEventListener('click', openModal);
-
-        /* ปุ่ม X และปุ่มยกเลิก */
-        modal.querySelectorAll('[data-dismiss="modal"], .hosxp-login-close').forEach(function (button) {
-            button.addEventListener('click', closeModal);
-        });
-
-        /* กด ESC เพื่อปิด */
-        document.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape' && modal.classList.contains('hosxp-modal-show')) {
-                closeModal(event);
-            }
-        });
-
-        /* ป้องกัน Bootstrap modal event เดิมมารบกวนการควบคุมของเรา */
-        modal.addEventListener('click', function (event) {
-            if (event.target === modal) {
-                closeModal(event);
-            }
-        });
-    }
-
     function initGuestAccessPopup() {
-        var isGuest = !!document.querySelector('.custom-navbar .login-btn');
-        if (!isGuest) return;
+        var loginLink = document.querySelector('.custom-navbar .login-btn');
+        if (!loginLink) return;
+        var loginHref = loginLink.getAttribute('href');
 
         var popup = null;
 
@@ -86,10 +16,17 @@
             var style = document.createElement('style');
             style.id = 'bbh-guest-access-popup-style';
             style.textContent = `
+                /* <dialog> เต็มจอเป็นพื้นหลังมืด — browser ดูแล focus และ Esc */
                 .bbh-guest-access-backdrop {
                     position: fixed;
                     inset: 0;
                     z-index: 1100;
+                    width: 100%;
+                    height: 100%;
+                    max-width: none;
+                    max-height: none;
+                    margin: 0;
+                    border: 0;
                     display: none;
                     align-items: center;
                     justify-content: center;
@@ -99,12 +36,16 @@
                     -webkit-backdrop-filter: blur(3px);
                 }
 
-                .bbh-guest-access-backdrop.is-open {
+                .bbh-guest-access-backdrop[open] {
                     display: flex;
                 }
 
+                .bbh-guest-access-backdrop::backdrop {
+                    background: transparent;
+                }
+
                 .bbh-guest-access-popup {
-                    width: min(430px, 94vw);
+                    width: min(430px, 100%);
                     border: 1px solid #dce8e2;
                     border-radius: 16px;
                     background: #fff;
@@ -165,32 +106,41 @@
                 }
 
                 .bbh-guest-access-btn {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
                     min-width: 125px;
-                    min-height: 42px;
+                    min-height: 44px;
                     padding: 8px 16px;
                     border-radius: 8px;
                     font-size: 16px;
                     font-weight: 700;
+                    text-decoration: none;
                     cursor: pointer;
-                    transition: all .16s ease;
+                    transition: background-color .16s ease, border-color .16s ease, color .16s ease, transform .16s ease;
                 }
 
-                .bbh-guest-access-login {
+                .bbh-guest-access-login,
+                .bbh-guest-access-login:visited {
                     border: 1px solid #198754;
                     background: #198754;
                     color: #fff;
                 }
 
-                .bbh-guest-access-login:hover {
+                .bbh-guest-access-login:hover,
+                .bbh-guest-access-login:focus-visible {
                     border-color: #147447;
                     background: #147447;
+                    color: #fff;
+                    text-decoration: none;
                     transform: translateY(-1px);
                 }
 
                 .bbh-guest-access-cancel {
                     border: 1px solid #d8e0dc;
                     background: #fff;
-                    color: #68757d;
+                    color: #5b6773;
                 }
 
                 .bbh-guest-access-cancel:hover {
@@ -227,18 +177,19 @@
             var navLogo = document.querySelector('.custom-navbar .brand-logo');
             var logoSrc = navLogo ? navLogo.src.replace('logo-bbh-mark.png', 'logo-bbh.png') : '';
 
-            popup = document.createElement('div');
+            popup = document.createElement('dialog');
             popup.className = 'bbh-guest-access-backdrop';
-            popup.setAttribute('aria-hidden', 'true');
+            popup.setAttribute('aria-labelledby', 'bbh-guest-access-title');
+            popup.setAttribute('aria-describedby', 'bbh-guest-access-message');
             popup.innerHTML = `
-                <div class="bbh-guest-access-popup" role="dialog" aria-modal="true" aria-labelledby="bbh-guest-access-title">
+                <div class="bbh-guest-access-popup">
                     ${logoSrc ? `<img class="bbh-guest-access-logo" src="${logoSrc}" alt="โรงพยาบาลบ้านบึง จังหวัดชลบุรี" width="150" height="113">` : `<div class="bbh-guest-access-icon"><i class="fas fa-lock"></i></div>`}
                     <div class="bbh-guest-access-body">
                         <h3 class="bbh-guest-access-title" id="bbh-guest-access-title">กรุณาเข้าสู่ระบบก่อน</h3>
-                        <p class="bbh-guest-access-message">ข้อมูลส่วนนี้สำหรับผู้ใช้งานที่เข้าสู่ระบบ Provider ID เท่านั้น<br>กรุณาเข้าสู่ระบบเพื่อดูรายละเอียดเพิ่มเติม</p>
+                        <p class="bbh-guest-access-message" id="bbh-guest-access-message">ข้อมูลส่วนนี้สำหรับผู้ใช้งานที่เข้าสู่ระบบ Provider ID เท่านั้น<br>กรุณาเข้าสู่ระบบเพื่อดูรายละเอียดเพิ่มเติม</p>
                         <div class="bbh-guest-access-actions">
                             <button type="button" class="bbh-guest-access-btn bbh-guest-access-cancel">ยกเลิก</button>
-                            <button type="button" class="bbh-guest-access-btn bbh-guest-access-login"><i class="fas fa-sign-in-alt"></i> เข้าสู่ระบบ</button>
+                            <a class="bbh-guest-access-btn bbh-guest-access-login" href="${loginHref}" autofocus><i class="fas fa-sign-in-alt" aria-hidden="true"></i> เข้าสู่ระบบ</a>
                         </div>
                     </div>
                 </div>
@@ -250,27 +201,26 @@
                 if (event.target === popup || event.target.closest('.bbh-guest-access-cancel')) {
                     closePopup();
                 }
-
-                if (event.target.closest('.bbh-guest-access-login')) {
-                    closePopup();
-                    var loginButton = document.getElementById('hosxp-login-btn');
-                    if (loginButton) loginButton.click();
-                }
+            });
+            // ปิดด้วย Esc / ยกเลิก / คลิกพื้นหลัง: ล้างสถานะและคืน focus ให้สิ่งที่เปิดหน้าต่าง
+            popup.addEventListener('close', function () {
+                document.body.classList.remove('bbh-guest-popup-open');
+                if (opener && document.contains(opener)) opener.focus();
             });
         }
 
+        var opener = null;
+
         function openPopup() {
             createPopup();
-            popup.classList.add('is-open');
-            popup.setAttribute('aria-hidden', 'false');
+            if (popup.open) return;
+            opener = document.activeElement;
+            popup.showModal();
             document.body.classList.add('bbh-guest-popup-open');
         }
 
         function closePopup() {
-            if (!popup) return;
-            popup.classList.remove('is-open');
-            popup.setAttribute('aria-hidden', 'true');
-            document.body.classList.remove('bbh-guest-popup-open');
+            if (popup && popup.open) popup.close();
         }
 
         injectStyles();
@@ -287,12 +237,6 @@
             event.stopImmediatePropagation();
             openPopup();
         }, true);
-
-        document.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape' && popup && popup.classList.contains('is-open')) {
-                closePopup();
-            }
-        });
     }
 
     function applyProviderAccessUI() {
@@ -303,9 +247,9 @@
 
         if (!isGuest) return;
 
-        /* Guest: ซ่อนปุ่ม "รายละเอียด" บนหน้า Index */
+        /* Guest: ปุ่มท้ายการ์ดบอกว่าต้อง login (คลิก/Enter เปิดหน้าต่างเข้าสู่ระบบ — ใช้คีย์บอร์ดได้) */
         document.querySelectorAll('.small-box-footer').forEach(function (link) {
-            link.style.display = 'none';
+            link.innerHTML = '<i class="fas fa-lock" aria-hidden="true"></i> เข้าสู่ระบบเพื่อดูรายละเอียด';
         });
 
         /* Guest: หากเข้าหน้ารายละเอียดโดยตรง ให้กลับไปหน้า Index */
@@ -322,6 +266,15 @@
          * และไม่ต้องแก้โครงสร้าง Card เดิม
          */
         if (!document.getElementById('ward-container')) return;
+
+        /* Enter / Space บนการ์ด Ward (tabindex="0" ใน index.php) = คลิก */
+        document.addEventListener('keydown', function (event) {
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+            var card = event.target.closest && event.target.closest('.ward-card');
+            if (!card || event.target !== card) return;
+            event.preventDefault();
+            card.click();
+        });
 
         document.addEventListener('click', async function (event) {
             var card = event.target.closest('.ward-card');
@@ -428,7 +381,6 @@
     }
 
     function init() {
-        initHosxpLoginModal();
         applyProviderAccessUI();
         initGuestAccessPopup();
         initIpdWardCards();

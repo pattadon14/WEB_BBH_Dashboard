@@ -128,6 +128,40 @@
     font-size: .92rem;
 }
 
+/* ปุ่มเข้าสู่ระบบในการ์ดล็อก — ไม่ให้ผู้ใช้เจอทางตัน */
+.bbh-sidebar-guest-lock-card .bbh-sidebar-guest-login {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 44px;
+    margin-top: 16px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: #198754;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color .2s ease, transform .2s ease;
+}
+
+.bbh-sidebar-guest-lock-card .bbh-sidebar-guest-login i {
+    display: inline;
+    margin: 0;
+    font-size: 1rem;
+    color: inherit;
+}
+
+.bbh-sidebar-guest-lock-card .bbh-sidebar-guest-login:hover,
+.bbh-sidebar-guest-lock-card .bbh-sidebar-guest-login:focus-visible {
+    background: #146c43;
+    color: #fff;
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
 .bbh-sidebar-section-title {
     padding: 10px 12px 6px;
     color: #198754;

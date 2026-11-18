@@ -1,5 +1,8 @@
 <?php
 
+require_once __DIR__ . '/../auth/provider.php';
+provider_require_login_page();   // ยังไม่ login → กลับหน้าแรก
+
 include '../templates/header.php';
 include '../templates/navbar.php';
 include '../templates/sidebar.php';
@@ -386,7 +389,7 @@ include '../templates/sidebar.php';
 <script src="<?= BASE_URL ?>assets/lib/highcharts/13.1.1/highcharts.js"></script>
 <script>window.BBH_CURRENT_FISCAL_YEAR = <?= $currentYear ?>;</script>
 <script src="<?= BASE_URL ?>assets/js/period_filter.js?v=<?= filemtime(__DIR__ . '/../assets/js/period_filter.js') ?>"></script>
-<script src="<?= BASE_URL ?>assets/js/ER_detail.js"></script>
+<script src="<?= BASE_URL ?>assets/js/ER_detail.js?v=<?= filemtime(__DIR__ . '/../assets/js/ER_detail.js') ?>"></script>
 <script src="<?= BASE_URL ?>assets/js/er_summary.js?v=<?= filemtime(__DIR__ . '/../assets/js/er_summary.js') ?>"></script>
 
 <?php include '../templates/footer.php'; ?>

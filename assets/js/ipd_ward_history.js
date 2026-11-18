@@ -36,18 +36,21 @@
                 min-width:150px; min-height:42px; padding:8px 16px;
                 border:1px solid #198754; border-radius:8px; background:#fff; color:#198754;
                 font-size:16px; font-weight:700; box-shadow:0 2px 7px rgba(31,45,61,.08);
-                transition:all .18s ease; cursor:pointer;
+                transition:background-color .18s ease, color .18s ease, box-shadow .18s ease, transform .18s ease; cursor:pointer;
             }
             .ipd-ward-page .ipd-history-trigger:hover,
-            .ipd-ward-page .ipd-history-trigger:focus {
+            .ipd-ward-page .ipd-history-trigger:focus-visible {
                 background:#198754; color:#fff; box-shadow:0 4px 12px rgba(25,135,84,.22);
-                transform:translateY(-1px); outline:none;
+                transform:translateY(-1px);
             }
+            /* <dialog> เต็มจอ ทำหน้าที่เป็นพื้นหลังมืด — browser ดูแล focus ให้อยู่ในหน้าต่าง และปิดด้วย Esc */
             .bbh-history-modal-backdrop {
-                position:fixed; inset:0; z-index:1050; display:none; align-items:center; justify-content:center;
+                position:fixed; inset:0; z-index:1050; width:100%; height:100%; max-width:none; max-height:none;
+                margin:0; border:0; display:none; align-items:center; justify-content:center;
                 padding:22px; background:rgba(21,34,43,.48); backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px);
             }
-            .bbh-history-modal-backdrop.is-open { display:flex; }
+            .bbh-history-modal-backdrop[open] { display:flex; }
+            .bbh-history-modal-backdrop::backdrop { background:transparent; }
             .bbh-history-modal {
                 width:min(1180px,96vw); max-height:92vh; display:flex; flex-direction:column; overflow:hidden;
                 border:1px solid #dfe7e3; border-radius:16px; background:#fff;
@@ -64,11 +67,12 @@
             .bbh-history-modal-title { margin:0; color:#147447; font-size:21px; font-weight:700; }
             .bbh-history-modal-subtitle { margin:3px 0 0; color:#5b6773; font-size:15px; }
             .bbh-history-modal-close {
-                width:38px; height:38px; flex:0 0 38px; border:1px solid #d9e1dd; border-radius:8px;
-                background:#fff; color:#68757d; font-size:18px; cursor:pointer; transition:all .15s ease;
+                width:44px; height:44px; flex:0 0 44px; border:1px solid #d9e1dd; border-radius:10px;
+                background:#fff; color:#5b6773; font-size:18px; cursor:pointer;
+                transition:border-color .15s ease, background-color .15s ease, color .15s ease;
             }
             .bbh-history-modal-close:hover,
-            .bbh-history-modal-close:focus { border-color:#dc3545; background:#fff5f6; color:#b02a37; outline:none; }
+            .bbh-history-modal-close:focus-visible { border-color:#dc3545; background:#fff5f6; color:#b02a37; }
             .bbh-history-toolbar {
                 display:flex; align-items:center; justify-content:flex-end; gap:9px;
                 padding:12px 20px; border-bottom:1px solid #edf1ef;
@@ -76,7 +80,7 @@
             .bbh-history-year-label { color:#66727b; font-size:16px; font-weight:600; }
             .bbh-history-year {
                 min-width:165px; height:40px; padding:6px 12px; border:1px solid #198754; border-radius:8px;
-                background:#fff; color:#198754; font-size:16px; font-weight:700; outline:none;
+                background:#fff; color:#146c43; font-size:16px; font-weight:700;
             }
             .bbh-history-tabs {
                 display:flex; gap:4px; padding:10px 20px 0; border-bottom:1px solid #dfe7e3; background:#fff;
@@ -85,16 +89,20 @@
                 border:0; border-bottom:3px solid transparent; border-radius:7px 7px 0 0;
                 padding:10px 18px 9px; background:transparent; color:#66727b; font-size:16px; font-weight:700; cursor:pointer;
             }
-            .bbh-history-tab:hover { background:#f4f8f6; color:#198754; }
-            .bbh-history-tab.active { color:#198754; border-bottom-color:#198754; background:#f8faf9; }
+            .bbh-history-tab:hover { background:#f4f8f6; color:#146c43; }
+            .bbh-history-tab:focus-visible { outline-offset:-3px; }
+            .bbh-history-tab.active { color:#146c43; border-bottom-color:#198754; background:#f8faf9; }
             .bbh-history-panel { min-height:460px; overflow:auto; padding:10px 14px 14px; }
             .bbh-history-panel[hidden] { display:none; }
             .bbh-history-chart { width:100%; height:440px; }
             .bbh-history-loading,
-            .bbh-history-error {
+            .bbh-history-error,
+            .bbh-history-empty {
                 height:440px; display:flex; align-items:center; justify-content:center; color:#5b6773; font-size:17px;
             }
             .bbh-history-error { color:#b02a37; }
+            .bbh-history-empty { flex-direction:column; gap:8px; color:#5b6773; }
+            .bbh-history-empty i { font-size:30px; color:#9aa8a1; }
             body.bbh-history-modal-open { overflow:hidden; }
             @media (max-width:767px) {
                 .bbh-history-modal-backdrop { padding:10px; }
@@ -107,7 +115,7 @@
                 .bbh-history-tab { flex:1; padding:9px 7px; font-size:14px; }
                 .bbh-history-panel { min-height:390px; padding:6px 5px 10px; }
                 .bbh-history-chart { height:390px; }
-                .bbh-history-loading, .bbh-history-error { height:390px; }
+                .bbh-history-loading, .bbh-history-error, .bbh-history-empty { height:390px; }
             }
             @media (max-width:575px) {
                 .ipd-ward-page .ipd-history-trigger-wrap { margin-top:0; }
@@ -128,12 +136,12 @@
         triggerWrap.innerHTML = '<button type="button" class="ipd-history-trigger" id="ipd-history-trigger"><i class="fas fa-chart-column"></i><span>แสดงกราฟสถิติย้อนหลัง</span></button>';
         mainCard.parentNode.insertBefore(triggerWrap, mainCard);
 
-        var backdrop = document.createElement('div');
+        var backdrop = document.createElement('dialog');
         backdrop.id = 'bbh-history-modal-backdrop';
         backdrop.className = 'bbh-history-modal-backdrop';
-        backdrop.setAttribute('aria-hidden', 'true');
+        backdrop.setAttribute('aria-labelledby', 'bbh-history-modal-title');
         backdrop.innerHTML = `
-            <div class="bbh-history-modal" role="dialog" aria-modal="true" aria-labelledby="bbh-history-modal-title">
+            <div class="bbh-history-modal">
                 <div class="bbh-history-modal-head">
                     <div>
                         <h3 class="bbh-history-modal-title" id="bbh-history-modal-title"><i class="fas fa-chart-column"></i> สถิติย้อนหลังของ Ward</h3>
@@ -143,11 +151,11 @@
                 </div>
                 <div class="bbh-history-toolbar">
                     <label class="bbh-history-year-label" for="bbh-history-year">ปีงบประมาณ</label>
-                    <select id="bbh-history-year" class="bbh-history-year" aria-label="เลือกปีงบประมาณ"></select>
+                    <select id="bbh-history-year" class="bbh-history-year"></select>
                 </div>
                 <div class="bbh-history-tabs" role="tablist">
                     <button type="button" class="bbh-history-tab active" id="bbh-tab-admit" role="tab" aria-selected="true" aria-controls="bbh-panel-admit">จำนวนผู้ป่วยรายเดือน</button>
-                    <button type="button" class="bbh-history-tab" id="bbh-tab-occupancy" role="tab" aria-selected="false" aria-controls="bbh-panel-occupancy">อัตราการครองเตียง</button>
+                    <button type="button" class="bbh-history-tab" id="bbh-tab-occupancy" role="tab" aria-selected="false" aria-controls="bbh-panel-occupancy" tabindex="-1">อัตราการครองเตียง</button>
                 </div>
                 <div class="bbh-history-panel" id="bbh-panel-admit" role="tabpanel" aria-labelledby="bbh-tab-admit">
                     <div id="ipd-history-admit" class="bbh-history-chart"><div class="bbh-history-loading">กำลังโหลดข้อมูล…</div></div>
@@ -162,11 +170,22 @@
         document.getElementById('ipd-history-trigger').addEventListener('click', openModal);
         document.getElementById('bbh-history-close').addEventListener('click', closeModal);
         backdrop.addEventListener('click', function (event) { if (event.target === backdrop) closeModal(); });
-        document.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape' && backdrop.classList.contains('is-open')) closeModal();
+        // Esc ปิด <dialog> เอง — ล้างสถานะหน้าและคืน focus ให้ปุ่มที่เปิด ทุกทางที่ปิด
+        backdrop.addEventListener('close', function () {
+            document.body.classList.remove('bbh-history-modal-open');
+            var trigger = document.getElementById('ipd-history-trigger');
+            if (trigger) trigger.focus();
         });
         document.getElementById('bbh-tab-admit').addEventListener('click', function () { switchTab('admit'); });
         document.getElementById('bbh-tab-occupancy').addEventListener('click', function () { switchTab('occupancy'); });
+        // ลูกศรซ้าย/ขวาสลับแท็บ (รูปแบบ tablist มาตรฐาน)
+        backdrop.querySelector('.bbh-history-tabs').addEventListener('keydown', function (event) {
+            if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+            var next = document.getElementById('bbh-tab-admit').classList.contains('active') ? 'occupancy' : 'admit';
+            switchTab(next);
+            document.getElementById('bbh-tab-' + next).focus();
+            event.preventDefault();
+        });
     }
 
     function populateYears() {
@@ -255,7 +274,7 @@
         Highcharts.chart('ipd-history-admit', {
             chart: { type:'column', backgroundColor:'#fff', spacing:[14,18,18,12], style:chartFont() },
             title: { text:'จำนวนผู้ป่วย Admit รายเดือน', style:{ fontSize:'18px', fontWeight:'600' } },
-            subtitle: { text:'ปีงบประมาณ ' + year, style:{ fontSize:'14px', color:'#71808d' } },
+            subtitle: { text:'ปีงบประมาณ ' + year, style:{ fontSize:'14px', color:'#5b6773' } },
             xAxis: { categories:categories, labels:{ style:{ fontSize:'14px' } }, lineColor:'#dfe7e3' },
             yAxis: { min:0, max:axis.max, tickInterval:axis.tick, allowDecimals:false, title:{ text:'จำนวนผู้ป่วย (ราย)', style:{ fontSize:'14px' } }, labels:{ style:{ fontSize:'13px' } }, gridLineColor:'#edf1ef' },
             tooltip: { shared:false, valueSuffix:' ราย', style:{ fontSize:'14px' } },
@@ -273,7 +292,7 @@
         Highcharts.chart('ipd-history-occupancy', {
             chart:{ type:'line', backgroundColor:'#fff', spacing:[14,18,18,12], style:chartFont() },
             title:{ text:'อัตราการครองเตียงรายเดือน', style:{ fontSize:'18px', fontWeight:'600' } },
-            subtitle:{ text:'ปีงบประมาณ ' + year, style:{ fontSize:'14px', color:'#71808d' } },
+            subtitle:{ text:'ปีงบประมาณ ' + year, style:{ fontSize:'14px', color:'#5b6773' } },
             xAxis:{ categories:categories, labels:{ style:{ fontSize:'14px' } }, lineColor:'#dfe7e3' },
             yAxis:{ min:0, max:axis.max, tickInterval:axis.tick, title:{ text:'อัตราครองเตียง (%)', style:{ fontSize:'14px' } }, labels:{ format:'{value}%', style:{ fontSize:'13px' } }, gridLineColor:'#edf1ef' },
             tooltip:{ shared:false, valueDecimals:2, valueSuffix:'%', style:{ fontSize:'14px' } },
@@ -312,11 +331,17 @@
             var json = await response.json();
             if (json.error) throw new Error(json.error);
             var rawData = Array.isArray(json.data) ? json.data : [];
-            if (!rawData.length) throw new Error('ไม่พบข้อมูลย้อนหลัง');
-
             var data = filterAvailableMonths(rawData, year);
 
-            if (!data.length) throw new Error('ยังไม่มีข้อมูลในปีงบประมาณที่เลือก');
+            if (!data.length) {
+                // ไม่มีข้อมูล ≠ โหลดไม่ได้: บอกผู้ใช้ตรง ๆ และล้างตัวเลขสรุปของปีก่อนหน้า
+                var empty = '<div class="bbh-history-empty"><i class="fas fa-calendar-xmark" aria-hidden="true"></i>' +
+                    'ยังไม่มีข้อมูลของ Ward นี้ในปีงบประมาณ ' + year + '<span>ลองเลือกปีงบประมาณอื่น</span></div>';
+                if (admitEl) admitEl.innerHTML = empty;
+                if (occupancyEl) occupancyEl.innerHTML = empty;
+                if (typeof window.bbhUpdateHistoryInsight === 'function') window.bbhUpdateHistoryInsight([]);
+                return;
+            }
 
             historyData = data;
             renderAdmit(data, year);
@@ -325,27 +350,24 @@
             if (typeof window.bbhUpdateHistoryInsight === 'function') window.bbhUpdateHistoryInsight(data);
         } catch (error) {
             console.error('IPD Ward History Error:', error);
-            var message = '<div class="bbh-history-error">ไม่สามารถโหลดข้อมูลสถิติย้อนหลังได้</div>';
+            var message = '<div class="bbh-history-error" role="alert">ไม่สามารถโหลดข้อมูลสถิติย้อนหลังได้ กรุณาลองใหม่อีกครั้ง</div>';
             if (admitEl) admitEl.innerHTML = message;
             if (occupancyEl) occupancyEl.innerHTML = message;
+            if (typeof window.bbhUpdateHistoryInsight === 'function') window.bbhUpdateHistoryInsight([]);
         }
     }
 
     function openModal() {
         var backdrop = document.getElementById('bbh-history-modal-backdrop');
-        if (!backdrop) return;
-        backdrop.classList.add('is-open');
-        backdrop.setAttribute('aria-hidden', 'false');
+        if (!backdrop || backdrop.open) return;
+        backdrop.showModal();   // focus ย้ายเข้าหน้าต่าง, เนื้อหาด้านหลังกด/Tab ไม่ได้
         document.body.classList.add('bbh-history-modal-open');
         loadHistory();
     }
 
     function closeModal() {
         var backdrop = document.getElementById('bbh-history-modal-backdrop');
-        if (!backdrop) return;
-        backdrop.classList.remove('is-open');
-        backdrop.setAttribute('aria-hidden', 'true');
-        document.body.classList.remove('bbh-history-modal-open');
+        if (backdrop && backdrop.open) backdrop.close();   // ล้างสถานะใน handler ของ 'close'
     }
 
     function switchTab(tab) {
@@ -358,6 +380,8 @@
         occupancyTab.classList.toggle('active', !isAdmit);
         admitTab.setAttribute('aria-selected', isAdmit ? 'true' : 'false');
         occupancyTab.setAttribute('aria-selected', isAdmit ? 'false' : 'true');
+        admitTab.tabIndex = isAdmit ? 0 : -1;
+        occupancyTab.tabIndex = isAdmit ? -1 : 0;
         admitPanel.hidden = !isAdmit;
         occupancyPanel.hidden = isAdmit;
         setTimeout(function(){

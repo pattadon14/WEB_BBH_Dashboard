@@ -413,8 +413,11 @@
 
 /* จอเล็ก และจอที่การ์ด 3 ใบแคบ (992–1299px): ปุ่ม Real-time Monitor เหลือแค่ไอคอน ไม่ทับตัวเลข */
 @media (max-width: 576px), (min-width: 992px) and (max-width: 1299.98px) {
+    /* ปุ่มไอคอนอย่างเดียว: ให้ใหญ่พอกดด้วยนิ้ว (44px) */
     .home-dash .opd-monitor-launch {
-        width: 34px;
+        top: 27px;
+        width: 44px;
+        height: 44px;
         padding: 0;
     }
 

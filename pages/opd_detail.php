@@ -2,6 +2,9 @@
 // ป้าย LIVE ใน navbar แบบหน้าแรก — opd_detail.js แสดงเฉพาะตอนเลือกดูข้อมูลวันนี้
 $showLiveStatus = true;
 
+require_once __DIR__ . '/../auth/provider.php';
+provider_require_login_page();   // ยังไม่ login → กลับหน้าแรก
+
 include '../templates/header.php';
 include '../templates/navbar.php';
 include '../templates/sidebar.php';

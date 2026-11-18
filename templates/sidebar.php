@@ -18,16 +18,20 @@ $isProviderLoggedIn = provider_is_logged_in();
     </div>
 
     <?php if (!$isProviderLoggedIn): ?>
-        <div class="bbh-sidebar-guest-lock" aria-hidden="true">
+        <div class="bbh-sidebar-guest-lock">
             <div class="bbh-sidebar-guest-lock-card">
-                <i class="fa-solid fa-lock"></i>
+                <i class="fa-solid fa-lock" aria-hidden="true"></i>
                 <strong>กรุณาเข้าสู่ระบบ</strong>
                 <span>เพื่อดูข้อมูลเพิ่มเติม</span>
+                <a href="<?= BASE_URL ?>auth/provider_login.php" class="bbh-sidebar-guest-login">
+                    <i class="fa-solid fa-id-card" aria-hidden="true"></i> เข้าสู่ระบบด้วย Provider ID
+                </a>
             </div>
         </div>
     <?php endif; ?>
 
-    <div class="bbh-sidebar-body">
+    <?php /* Guest: เมนูใต้ชั้นล็อกกด/Tab ไม่ได้ (inert) — ให้ปุ่มเข้าสู่ระบบเป็นทางเดียว */ ?>
+    <div class="bbh-sidebar-body"<?= $isProviderLoggedIn ? '' : ' inert' ?>>
         <div class="bbh-sidebar-section-title">เมนูหลัก</div>
         <ul class="bbh-sidebar-menu">
             <li>

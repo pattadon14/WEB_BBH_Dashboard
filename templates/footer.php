@@ -20,17 +20,17 @@ if (window.Highcharts) {
 <!-- BBH Sidebar -->
 <script src="<?= BASE_URL ?>assets/js/sidebar.js?v=<?= filemtime(__DIR__ . '/../assets/js/sidebar.js') ?>"></script>
 
-<!-- HOSxP Login Modal -->
-<script src="<?= BASE_URL ?>assets/js/login.js"></script>
+<!-- Guest access (หน้าต่างกรุณาเข้าสู่ระบบ) / Ward card click — ?v= ให้ browser โหลดไฟล์ใหม่ทุกครั้งที่แก้ -->
+<script src="<?= BASE_URL ?>assets/js/login.js?v=<?= filemtime(__DIR__ . '/../assets/js/login.js') ?>"></script>
 
 <!-- IPD Ward Patient Filter / Sort -->
-<script src="<?= BASE_URL ?>assets/js/ipd_ward_filter.js"></script>
+<script src="<?= BASE_URL ?>assets/js/ipd_ward_filter.js?v=<?= filemtime(__DIR__ . '/../assets/js/ipd_ward_filter.js') ?>"></script>
 
 <!-- IPD Ward Historical Statistics -->
-<script src="<?= BASE_URL ?>assets/js/ipd_ward_history.js"></script>
+<script src="<?= BASE_URL ?>assets/js/ipd_ward_history.js?v=<?= filemtime(__DIR__ . '/../assets/js/ipd_ward_history.js') ?>"></script>
 
 <!-- IPD Ward Management / Patient Flow / Export -->
-<script src="<?= BASE_URL ?>assets/js/ipd_ward_management.js"></script>
+<script src="<?= BASE_URL ?>assets/js/ipd_ward_management.js?v=<?= filemtime(__DIR__ . '/../assets/js/ipd_ward_management.js') ?>"></script>
 
 </body>
 

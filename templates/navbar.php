@@ -80,8 +80,6 @@ foreach (($_SESSION['provider_auth']['organization'] ?? []) as $organization) {
                     <i class="fas fa-id-card"></i>
                     <span class="btn-label">เข้าสู่ระบบ</span>
                 </a>
-                <!-- ปุ่มสำรองสำหรับ Guest Access Popup ให้ไปหน้า Login Provider ID โดยตรง -->
-                <a href="<?= BASE_URL ?>auth/provider_login.php" id="hosxp-login-btn" class="d-none" aria-hidden="true" tabindex="-1"></a>
             </li>
         <?php endif; ?>
     </ul>
