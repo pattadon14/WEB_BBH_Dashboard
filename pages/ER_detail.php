@@ -8,441 +8,262 @@ include '../templates/navbar.php';
 include '../templates/sidebar.php';
 
 ?>
-<!-- ตัวเลือกวันที่ในการ์ดสรุป (ปุ่มวันนี้/เมื่อวาน + กล่องวันที่) ใช้ชุดเดียวกับหน้า OPD -->
+<!-- ตัวเลือกวันที่ (opd_quality.css) และหน้าต่างรายชื่อ (opd_tabs.css) ใช้ชุดเดียวกับหน้า OPD -->
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_tabs.css?v=<?= filemtime(__DIR__ . '/../assets/css/opd_tabs.css') ?>">
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_quality.css?v=<?= filemtime(__DIR__ . '/../assets/css/opd_quality.css') ?>">
-<!-- ธีมแดง–ขาวของหน้า ER (ทำงานใต้ .er-theme) -->
+<!-- หน้า ER: ระบบสีแดง–ขาว ทำงานใต้ .er-theme -->
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/er_theme.css?v=<?= filemtime(__DIR__ . '/../assets/css/er_theme.css') ?>">
 
 <div class="content-wrapper er-theme">
 
-    <section class="content pt-3">
+    <section class="content">
 
-        <div class="container-fluid">
+        <div class="er-page">
 
-            <!-- สรุปรายวัน (api/er_today_summary.php · assets/js/er_summary.js) — รูปแบบเดียวกับการ์ดสรุปหน้า OPD -->
-            <div id="er-summary" class="mb-3">
-                <div class="card shadow-sm opd-summary-horizontal" id="er-summary-card">
-                    <div class="card-body">
+            <!-- สรุปรายวัน (api/er_today_summary.php · er_d2d.php · er_los.php · assets/js/er_summary.js)
+                 ทุกตัวเลขที่มี data-drill ต้องอยู่ใน #er-summary (bbhDrill.bind) -->
+            <div id="er-summary">
 
-                        <div class="opd-summary-main">
-                            <div class="opd-summary-main-icon">
-                                <i class="fa-solid fa-truck-medical"></i>
+                <!-- แถบหัวแดง: วันที่ + ยอดรวม + สถานะ ER ตอนนี้ -->
+                <header class="er-mast" id="er-summary-card">
+                    <div class="er-mast-top">
+                        <div class="er-mast-heading">
+                            <h1 class="er-mast-title" id="er-day-title">ผู้มารับบริการ ER วันนี้</h1>
+                            <p class="er-mast-sub" id="er-compare">—</p>
+                        </div>
+
+                        <div class="oq-controls opd-day-filter er-mast-controls">
+                            <div class="oq-seg" role="group" aria-label="เลือกวันด่วน">
+                                <button type="button" data-er-day="0" aria-pressed="true">วันนี้</button>
+                                <button type="button" data-er-day="1" aria-pressed="false">เมื่อวาน</button>
                             </div>
-
-                            <div class="opd-summary-main-info">
-                                <div class="opd-summary-title" id="er-day-title">ผู้มารับบริการ ER วันนี้</div>
-                                <div class="opd-summary-total-label">
-                                    จำนวนผู้มารับบริการ <span id="er-people">—</span> คน
-                                </div>
-                                <div class="opd-summary-compare" id="er-compare">—</div>
+                            <div class="oq-range">
+                                <i class="fa-solid fa-calendar-day" aria-hidden="true"></i>
+                                <label class="oq-date">
+                                    <span id="er-date-text">—</span>
+                                    <input type="date" id="er-date" aria-label="เลือกวันที่">
+                                </label>
                             </div>
+                        </div>
+                    </div>
 
-                            <div class="oq-controls opd-day-filter">
-                                <div class="oq-seg" role="group" aria-label="เลือกวันด่วน">
-                                    <button type="button" data-er-day="0" aria-pressed="true">วันนี้</button>
-                                    <button type="button" data-er-day="1" aria-pressed="false">เมื่อวาน</button>
-                                </div>
-                                <div class="oq-range">
-                                    <i class="fa-solid fa-calendar-day" aria-hidden="true"></i>
-                                    <label class="oq-date">
-                                        <span id="er-date-text">—</span>
-                                        <input type="date" id="er-date" aria-label="เลือกวันที่">
-                                    </label>
-                                </div>
+                    <div class="er-mast-body">
+                        <div class="er-mast-total">
+                            <div class="er-mast-number" data-drill="all">
+                                <span id="er-total">—</span><small>ครั้ง</small>
                             </div>
-
-                            <div class="opd-summary-main-total">
-                                <div class="opd-summary-main-number" data-drill="all">
-                                    <span id="er-total">—</span>
-                                    <small>ครั้ง</small>
-                                </div>
-                                <div class="opd-summary-newold">
-                                    <span class="newpt" data-drill="ems" title="ovstist 09 FR / 10 BLS / 11 ALS">EMS นำส่ง <strong id="er-ems">—</strong> ราย</span>
-                                </div>
+                            <div class="er-mast-meta">
+                                <span>จำนวนผู้มารับบริการ <b id="er-people">—</b> คน</span>
+                                <span class="er-mast-chip" data-drill="ems" title="ovstist 09 FR / 10 BLS / 11 ALS">EMS นำส่ง <b id="er-ems">—</b> ราย</span>
                             </div>
                         </div>
 
-                        <!-- สถานะ ER ตอนนี้ (api/er_los.php · แสดงเฉพาะเมื่อดูวันนี้) -->
+                        <!-- สถานะ ER ตอนนี้ (แสดงเฉพาะเมื่อดูวันนี้) -->
                         <div class="er-now" id="er-now" hidden>
-                            <div class="summary-section-title">
-                                <i class="fa-solid fa-bed-pulse"></i>
-                                สถานะ ER ตอนนี้ <span class="er-now-at" id="er-now-at"></span>
-                            </div>
+                            <h2 class="er-now-title">สถานะ ER ตอนนี้ <span class="er-now-at" id="er-now-at"></span></h2>
                             <div class="er-now-items">
                                 <div class="er-now-item"><b id="er-now-in">—</b><span>อยู่ใน ER (ราย)</span></div>
                                 <div class="er-now-item"><b id="er-now-l12">—</b><span>ระดับ 1–2</span></div>
                                 <div class="er-now-item" title="ยังไม่มีบันทึกการพบแพทย์ (กดเริ่มตรวจ / สั่ง Lab / X-ray / ยา / HPI)"><b id="er-now-wait">—</b><span>ยังไม่พบแพทย์</span></div>
                                 <div class="er-now-item"><b id="er-now-over">—</b><span>อยู่เกิน 4 ชม.</span></div>
-                                <div class="er-now-item"><b id="er-now-long">—</b><span>อยู่นานสุด</span></div>
+                                <div class="er-now-item"><b id="er-now-long">—</b><span>อยู่นานสุด (ชม.:นาที)</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- เวลาให้บริการ: Door-to-Doctor (config/er.php) + ระยะเวลาอยู่ใน ER -->
+                <div class="er-split">
+                    <section class="er-panel" aria-labelledby="er-d2d-title">
+                        <h2 class="er-h2" id="er-d2d-title">เวลาเข้า ER ถึงพบแพทย์ (Door-to-Doctor)</h2>
+                        <div class="er-rows" id="er-d2d-grid" aria-live="polite"></div>
+                        <p class="er-note" id="er-d2d-note">กำลังโหลดข้อมูล…</p>
+                    </section>
+
+                    <section class="er-panel" aria-labelledby="er-los-title">
+                        <h2 class="er-h2" id="er-los-title">ระยะเวลาอยู่ใน ER (Length of Stay)</h2>
+                        <div class="er-rows" id="er-los-grid"></div>
+                        <p class="er-note" id="er-los-note">กำลังโหลดข้อมูล…</p>
+                    </section>
+                </div>
+
+                <!-- ผู้ป่วยของวันที่เลือก: 4 หมวด แต่ละแถวคลิกดูรายชื่อ -->
+                <section class="er-panel" aria-labelledby="er-day-mix">
+                    <h2 class="er-h2" id="er-day-mix">ผู้ป่วยของวันที่เลือก</h2>
+                    <div class="er-cols">
+
+                        <div class="er-col">
+                            <h3 class="er-h3">ระดับความเร่งด่วน</h3>
+                            <div class="er-stat er-stat-lead" data-drill="l12">
+                                <span class="er-stat-label">วิกฤต / ฉุกเฉิน <small>ระดับ 1–2 ต้องพบแพทย์ภายใน 10 นาที</small></span>
+                                <span class="er-stat-value"><b id="er-l12">—</b> ครั้ง</span>
+                            </div>
+                            <div class="er-mix-bar" role="img" id="er-level-bar" aria-label="สัดส่วนระดับความเร่งด่วน">
+                                <span id="er-bar-1" class="er-tri er-tri-1"></span>
+                                <span id="er-bar-2" class="er-tri er-tri-2"></span>
+                                <span id="er-bar-3" class="er-tri er-tri-3"></span>
+                                <span id="er-bar-4" class="er-tri er-tri-4"></span>
+                                <span id="er-bar-5" class="er-tri er-tri-5"></span>
+                                <span id="er-bar-6" class="er-tri er-tri-6"></span>
+                                <span id="er-bar-0" class="er-tri er-tri-0"></span>
+                            </div>
+                            <div class="er-mix-legend">
+                                <span><i class="er-dot er-tri er-tri-1" aria-hidden="true"></i>ระดับ 1 <b id="er-l1">–</b></span>
+                                <span><i class="er-dot er-tri er-tri-2" aria-hidden="true"></i>ระดับ 2 <b id="er-l2">–</b></span>
+                                <span><i class="er-dot er-tri er-tri-3" aria-hidden="true"></i>ระดับ 3 <b id="er-l3">–</b></span>
+                                <span><i class="er-dot er-tri er-tri-4" aria-hidden="true"></i>ระดับ 4 <b id="er-l4">–</b></span>
+                                <span><i class="er-dot er-tri er-tri-5" aria-hidden="true"></i>ระดับ 5 <b id="er-l5">–</b></span>
+                                <span id="er-lg-6"><i class="er-dot er-tri er-tri-6" aria-hidden="true"></i>Black <b id="er-l6">–</b></span>
+                                <span id="er-lg-0"><i class="er-dot er-tri er-tri-0" aria-hidden="true"></i>ไม่ระบุ <b id="er-l0">–</b></span>
+                            </div>
+
+                            <!-- Refer in = วิธีมา 04 หรือมีใบ referin · Refer รวม = in หรือ out (config/er.php) -->
+                            <h3 class="er-h3 er-h3-gap">การส่งต่อ (Refer)</h3>
+                            <div class="er-stat" data-drill="refer_in" title="Refer in: รับส่งต่อจากสถานพยาบาลอื่น">
+                                <span class="er-stat-label">Refer in</span>
+                                <span class="er-stat-value"><b id="er-refer-in">—</b> ราย</span>
+                            </div>
+                            <div class="er-stat" data-drill="refer_all" title="Refer ทั้งหมด: รับเข้า (in) + ส่งออก (out) · visit ที่มีทั้งสองนับครั้งเดียว">
+                                <span class="er-stat-label">Refer รวม</span>
+                                <span class="er-stat-value"><b id="er-refer">—</b> ราย</span>
                             </div>
                         </div>
 
-                        <!-- Door-to-Doctor แยกตามระดับ (api/er_d2d.php · นิยามใน config/er.php) — วันเดียวกับการ์ดด้านบน -->
-                        <div class="er-d2d">
-                            <div class="summary-section-title" id="er-d2d-title">
-                                <i class="fa-solid fa-user-doctor"></i>
-                                เวลาเข้า ER ถึงพบแพทย์ (Door-to-Doctor)
+                        <div class="er-col">
+                            <h3 class="er-h3">ประเภทผู้ป่วย</h3>
+                            <div class="er-stat" data-drill="pt_emergency">
+                                <span class="er-stat-label">ฉุกเฉิน</span>
+                                <span class="er-stat-value"><b id="er-pt-emergency">—</b> ครั้ง</span>
                             </div>
-                            <div class="er-d2d-grid" id="er-d2d-grid" aria-labelledby="er-d2d-title" aria-live="polite"></div>
-                            <div class="er-d2d-note" id="er-d2d-note"></div>
+                            <div class="er-stat" data-drill="pt_accident">
+                                <span class="er-stat-label">อุบัติเหตุ</span>
+                                <span class="er-stat-value"><b id="er-pt-accident">—</b> ครั้ง</span>
+                            </div>
+                            <div class="er-stat" data-drill="pt_general">
+                                <span class="er-stat-label">ตรวจโรคทั่วไป</span>
+                                <span class="er-stat-value"><b id="er-pt-general">—</b> ครั้ง</span>
+                            </div>
+                            <div class="er-stat" data-drill="pt_service" title="ทำแผล ฉีดยา ใบรับรองแพทย์ และห้องทำแผลเวรเช้า">
+                                <span class="er-stat-label">รับบริการอื่น</span>
+                                <span class="er-stat-value"><b id="er-pt-service">—</b> ครั้ง</span>
+                            </div>
                         </div>
 
-                        <!-- ระยะเวลาอยู่ใน ER + เข้า ER ถึง Admit / Refer (api/er_los.php) -->
-                        <div class="er-d2d er-los">
-                            <div class="summary-section-title" id="er-los-title">
-                                <i class="fa-solid fa-hourglass-half"></i>
-                                ระยะเวลาอยู่ใน ER (Length of Stay)
+                        <div class="er-col">
+                            <h3 class="er-h3">แยกตามเวร</h3>
+                            <div class="er-stat" data-drill="shift_night">
+                                <span class="er-stat-label">เวรดึก <small>00:00 – 07:59 น.</small></span>
+                                <span class="er-stat-value"><b id="er-shift-night">—</b> ครั้ง</span>
                             </div>
-                            <div class="er-d2d-grid" id="er-los-grid" aria-labelledby="er-los-title"></div>
-                            <div class="er-d2d-note" id="er-los-note"></div>
+                            <div class="er-stat" data-drill="shift_morning">
+                                <span class="er-stat-label">เวรเช้า <small>08:00 – 15:59 น.</small></span>
+                                <span class="er-stat-value"><b id="er-shift-morning">—</b> ครั้ง</span>
+                            </div>
+                            <div class="er-stat" data-drill="shift_evening">
+                                <span class="er-stat-label">เวรบ่าย <small>16:00 – 23:59 น.</small></span>
+                                <span class="er-stat-value"><b id="er-shift-evening">—</b> ครั้ง</span>
+                            </div>
                         </div>
 
-                        <div class="opd-summary-grid">
-
-                            <div class="opd-summary-section">
-                                <div class="summary-section-title">
-                                    <i class="fa-solid fa-triangle-exclamation"></i>
-                                    ระดับความเร่งด่วน
-                                </div>
-                                <div class="horizontal-summary-item walkin-card er-crit-card" data-drill="l12">
-                                    <div class="walkin-head">
-                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-heart-pulse"></i></span>
-                                        <div>
-                                            <div class="summary-title">วิกฤต / ฉุกเฉิน</div>
-                                            <div class="todaysummary-sub">ระดับ 1–2 ต้องพบแพทย์ภายใน 10 นาที</div>
-                                        </div>
-                                    </div>
-                                    <div class="summary-number">
-                                        <span id="er-l12">—</span>
-                                        <span class="summary-unit">ครั้ง</span>
-                                    </div>
-                                    <div class="visit-mix">
-                                        <div class="visit-mix-bar" role="img" id="er-level-bar" aria-label="สัดส่วนระดับความเร่งด่วน">
-                                            <span id="er-bar-1" class="er-tri er-tri-1"></span>
-                                            <span id="er-bar-2" class="er-tri er-tri-2"></span>
-                                            <span id="er-bar-3" class="er-tri er-tri-3"></span>
-                                            <span id="er-bar-4" class="er-tri er-tri-4"></span>
-                                            <span id="er-bar-5" class="er-tri er-tri-5"></span>
-                                            <span id="er-bar-6" class="er-tri er-tri-6"></span>
-                                            <span id="er-bar-0" class="er-tri er-tri-0"></span>
-                                        </div>
-                                        <div class="visit-mix-legend er-level-legend">
-                                            <span><i class="mix-dot er-tri er-tri-1" aria-hidden="true"></i>ระดับ 1 <b id="er-l1">–</b></span>
-                                            <span><i class="mix-dot er-tri er-tri-2" aria-hidden="true"></i>ระดับ 2 <b id="er-l2">–</b></span>
-                                            <span><i class="mix-dot er-tri er-tri-3" aria-hidden="true"></i>ระดับ 3 <b id="er-l3">–</b></span>
-                                            <span><i class="mix-dot er-tri er-tri-4" aria-hidden="true"></i>ระดับ 4 <b id="er-l4">–</b></span>
-                                            <span><i class="mix-dot er-tri er-tri-5" aria-hidden="true"></i>ระดับ 5 <b id="er-l5">–</b></span>
-                                            <span id="er-lg-6"><i class="mix-dot er-tri er-tri-6" aria-hidden="true"></i>Black <b id="er-l6">–</b></span>
-                                            <span id="er-lg-0"><i class="mix-dot er-tri er-tri-0" aria-hidden="true"></i>ไม่ระบุ <b id="er-l0">–</b></span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- การส่งต่อ: Refer in = วิธีมา 04 หรือมีใบ referin · Refer out = ผลจำหน่าย Refer (config/er.php) -->
-                                <div class="summary-section-title er-refer-title">
-                                    <i class="fa-solid fa-right-left"></i>
-                                    การส่งต่อ (Refer)
-                                </div>
-                                <div class="opd-mini-pair er-refer-pair">
-                                    <div class="exam-horizontal-card refer-in-card" data-drill="refer_in" title="Refer in: รับส่งต่อจากสถานพยาบาลอื่น">
-                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-truck-arrow-right fa-flip-horizontal"></i></span>
-                                        <div class="summary-title">Refer in</div>
-                                        <div class="summary-number"><span id="er-refer-in">—</span> <span class="summary-unit">ราย</span></div>
-                                    </div>
-                                    <div class="exam-horizontal-card refer-card" data-drill="refer_all" title="Refer ทั้งหมด: รับเข้า (in) + ส่งออก (out) · visit ที่มีทั้งสองนับครั้งเดียว">
-                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-right-left"></i></span>
-                                        <div class="summary-title">Refer รวม</div>
-                                        <div class="summary-number"><span id="er-refer">—</span> <span class="summary-unit">ราย</span></div>
-                                    </div>
-                                </div>
+                        <!-- 6 แถวรวมได้ยอดทั้งหมด · Admit/Refer out นับจาก ipt / referout จุด ER ด้วย (config/er.php) -->
+                        <div class="er-col">
+                            <h3 class="er-h3">ผลการจำหน่าย</h3>
+                            <div class="er-stat" data-drill="home">
+                                <span class="er-stat-label">กลับบ้าน</span>
+                                <span class="er-stat-value"><b id="er-home">—</b> ครั้ง</span>
                             </div>
-
-                            <div class="opd-summary-section">
-                                <div class="summary-section-title">
-                                    <i class="fa-solid fa-users"></i>
-                                    ประเภทผู้ป่วย
-                                </div>
-                                <div class="exam-horizontal-group">
-                                    <div class="exam-horizontal-card refer-card" data-drill="pt_emergency">
-                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-heart-pulse"></i></span>
-                                        <div class="summary-title">ฉุกเฉิน</div>
-                                        <div class="summary-number"><span id="er-pt-emergency">—</span> <span class="summary-unit">ครั้ง</span></div>
-                                    </div>
-                                    <div class="exam-horizontal-card admit-card" data-drill="pt_accident">
-                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-car-burst"></i></span>
-                                        <div class="summary-title">อุบัติเหตุ</div>
-                                        <div class="summary-number"><span id="er-pt-accident">—</span> <span class="summary-unit">ครั้ง</span></div>
-                                    </div>
-                                    <div class="exam-horizontal-card wait-card" data-drill="pt_general">
-                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-stethoscope"></i></span>
-                                        <div class="summary-title">ตรวจโรคทั่วไป</div>
-                                        <div class="summary-number"><span id="er-pt-general">—</span> <span class="summary-unit">ครั้ง</span></div>
-                                    </div>
-                                    <div class="exam-horizontal-card nodr-card" data-drill="pt_service" title="ทำแผล ฉีดยา ใบรับรองแพทย์ และห้องทำแผลเวรเช้า">
-                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-syringe"></i></span>
-                                        <div class="summary-title">รับบริการอื่น</div>
-                                        <div class="summary-number"><span id="er-pt-service">—</span> <span class="summary-unit">ครั้ง</span></div>
-                                    </div>
-                                </div>
+                            <div class="er-stat" data-drill="admit">
+                                <span class="er-stat-label">Admit</span>
+                                <span class="er-stat-value"><b id="er-admit">—</b> ครั้ง</span>
                             </div>
-
-                            <div class="opd-summary-section">
-                                <div class="summary-section-title">
-                                    <i class="fa-solid fa-clock"></i>
-                                    แยกตามเวร
-                                </div>
-                                <div class="time-horizontal-group">
-                                    <div class="time-horizontal-card time-night" data-drill="shift_night">
-                                        <div class="time-icon" aria-hidden="true"><i class="fa-solid fa-moon"></i></div>
-                                        <div class="time-info">
-                                            <div class="time-label">เวรดึก</div>
-                                            <div class="time-range">00:00 – 07:59 น.</div>
-                                        </div>
-                                        <div class="time-count"><span id="er-shift-night">—</span><small>ครั้ง</small></div>
-                                    </div>
-                                    <div class="time-horizontal-card time-morning" data-drill="shift_morning">
-                                        <div class="time-icon" aria-hidden="true"><i class="fa-solid fa-sun"></i></div>
-                                        <div class="time-info">
-                                            <div class="time-label">เวรเช้า</div>
-                                            <div class="time-range">08:00 – 15:59 น.</div>
-                                        </div>
-                                        <div class="time-count"><span id="er-shift-morning">—</span><small>ครั้ง</small></div>
-                                    </div>
-                                    <div class="time-horizontal-card time-evening" data-drill="shift_evening">
-                                        <div class="time-icon" aria-hidden="true"><i class="fa-solid fa-cloud-sun"></i></div>
-                                        <div class="time-info">
-                                            <div class="time-label">เวรบ่าย</div>
-                                            <div class="time-range">16:00 – 23:59 น.</div>
-                                        </div>
-                                        <div class="time-count"><span id="er-shift-evening">—</span><small>ครั้ง</small></div>
-                                    </div>
-                                </div>
+                            <div class="er-stat" data-drill="refer" title="Refer out: ส่งต่อไปสถานพยาบาลอื่น">
+                                <span class="er-stat-label">Refer out</span>
+                                <span class="er-stat-value"><b id="er-refer-out">—</b> ครั้ง</span>
                             </div>
-
-                            <div class="opd-summary-section">
-                                <div class="summary-section-title">
-                                    <i class="fa-solid fa-door-open"></i>
-                                    ผลการจำหน่าย
-                                </div>
-                                <!-- 6 ช่องรวมได้ยอดทั้งหมด · Admit/Refer นับจาก ipt / referout จุด ER ด้วย (config/er.php) -->
-                                <div class="exam-horizontal-group">
-                                    <div class="exam-horizontal-card finish-card" data-drill="home">
-                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-house"></i></span>
-                                        <div class="summary-title">กลับบ้าน</div>
-                                        <div class="summary-number"><span id="er-home">—</span> <span class="summary-unit">ครั้ง</span></div>
-                                    </div>
-                                    <div class="exam-horizontal-card exam-card" data-drill="gone" title="ไม่รอตรวจ / หนีกลับ / ปฏิเสธการรักษา">
-                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-person-walking-arrow-right"></i></span>
-                                        <div class="summary-title">ไม่รอตรวจ / หนีกลับ</div>
-                                        <div class="summary-number"><span id="er-gone">—</span> <span class="summary-unit">ครั้ง</span></div>
-                                    </div>
-                                    <div class="exam-horizontal-card wait-card" data-drill="no_dch" title="ยังอยู่ใน ER หรือยังไม่ได้บันทึกผลการจำหน่าย">
-                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-user-clock"></i></span>
-                                        <div class="summary-title">ยังไม่ลงผลจำหน่าย</div>
-                                        <div class="summary-number"><span id="er-no-dch">—</span> <span class="summary-unit">ครั้ง</span></div>
-                                    </div>
-                                    <div class="exam-horizontal-card nodr-card" data-drill="other_dch" title="สังเกตอาการ / เสียชีวิต">
-                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-ellipsis"></i></span>
-                                        <div class="summary-title">อื่น ๆ</div>
-                                        <div class="summary-number"><span id="er-other-dch">—</span> <span class="summary-unit">ครั้ง</span></div>
-                                    </div>
-                                </div>
-                                <div class="opd-mini-pair">
-                                    <div class="exam-horizontal-card admit-card" data-drill="admit">
-                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-bed-pulse"></i></span>
-                                        <div class="summary-title">Admit</div>
-                                        <div class="summary-number"><span id="er-admit">—</span> <span class="summary-unit">ครั้ง</span></div>
-                                    </div>
-                                    <div class="exam-horizontal-card refer-card" data-drill="refer" title="Refer out: ส่งต่อไปสถานพยาบาลอื่น">
-                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-truck-medical"></i></span>
-                                        <div class="summary-title">Refer out</div>
-                                        <div class="summary-number"><span id="er-refer-out">—</span> <span class="summary-unit">ครั้ง</span></div>
-                                    </div>
-                                </div>
+                            <div class="er-stat" data-drill="gone" title="ไม่รอตรวจ / หนีกลับ / ปฏิเสธการรักษา">
+                                <span class="er-stat-label">ไม่รอตรวจ / หนีกลับ</span>
+                                <span class="er-stat-value"><b id="er-gone">—</b> ครั้ง</span>
                             </div>
-
+                            <div class="er-stat" data-drill="no_dch" title="ยังอยู่ใน ER หรือยังไม่ได้บันทึกผลการจำหน่าย">
+                                <span class="er-stat-label">ยังไม่ลงผลจำหน่าย</span>
+                                <span class="er-stat-value"><b id="er-no-dch">—</b> ครั้ง</span>
+                            </div>
+                            <div class="er-stat" data-drill="other_dch" title="สังเกตอาการ / เสียชีวิต">
+                                <span class="er-stat-label">อื่น ๆ</span>
+                                <span class="er-stat-value"><b id="er-other-dch">—</b> ครั้ง</span>
+                            </div>
                         </div>
 
                     </div>
-                </div>
+                </section>
             </div>
 
-            <!-- HEADER -->
-            <div class="card shadow-sm mb-3">
-
-                <div class="opd-chart">
-
-                    <div class="row align-items-center">
-
-                        <!-- TITLE -->
-                        <div class="col-xl-5 col-12">
-
-                            <h2 class="mb-1 text-success" style="font-weight: bold;">
-                                <i class="fa-solid fa-chart-column"></i>
-                                ข้อมูลสถิติ งานอุบัติเหตุและฉุกเฉิน
-                            </h2>
-
-                            <div id="budget-date-text" class="text-success fs-5"></div>
-
-                        </div>
-
-                        <!-- ช่วงเวลา: ปุ่มลัด + ปีงบ + ช่วงวันที่ (assets/js/period_filter.js เติมปุ่มและช่องวันที่) -->
-                        <div class="col-xl-7 col-12">
-
-                            <div id="period-filter" class="bbh-period">
-                            <div class="budget-select-wrapper">
-
-                                <select id="budget-year" class="form-control budget-select">
-                                    <?php
-                                    $currentYear = date('Y') + 543 + (date('n') >= 10 ? 1 : 0);
-                                    for ($y = $currentYear; $y >= 2565; $y--) {
-                                        echo "<option value='$y'>ปีงบประมาณ $y</option>";
-                                    }
-                                    ?>
-                                </select>
-
-                                <i class="fas fa-chevron-down budget-select-icon"></i>
-
-                            </div>
-                            </div>
-
-                        </div>
-
+            <!-- สถิติตามช่วงเวลา: ปุ่มลัด + ปีงบ + ช่วงวันที่ (assets/js/period_filter.js เติมปุ่มและช่องวันที่) -->
+            <section class="er-panel er-stats" aria-labelledby="er-stats-title">
+                <div class="er-stats-head">
+                    <div>
+                        <h2 class="er-h2" id="er-stats-title">สถิติงานอุบัติเหตุและฉุกเฉิน</h2>
+                        <div id="budget-date-text" class="er-note"></div>
                     </div>
 
-                </div>
-
-                <!-- GRAPHS -->
-                <div class="card">
-
-                    <div class="card-body">
-
-                        <div class="row">
-
-                            <!-- Bar Chart (ซ้าย) -->
-                            <div class="col-xl-6 col-lg-12 mb-2">
-
-                                <div class="chart-box">
-
-                                    <h5 class="chart-title">
-                                        <i class="fa-solid fa-hospital-user"></i>
-                                        จำนวนผู้รับบริการ ER
-                                    </h5>
-
-                                    <div id="er-chart" style="height: 420px;"></div>
-
-                                </div>
-
-                            </div>
-
-                            <!-- Pie Chart (ขวา) -->
-                            <div class="col-xl-6 col-lg-12 mb-2">
-
-                                <div class="chart-box">
-
-                                    <h5 class="chart-title">
-                                        <i class="fa-solid fa-chart-pie"></i>
-                                        สัดส่วนผู้รับบริการแยกตามประเภท
-                                    </h5>
-
-                                    <div id="er-pie-chart" style="height: 420px;"></div>
-
-                                </div>
-
-                            </div>
-
+                    <div id="period-filter" class="bbh-period">
+                        <div class="budget-select-wrapper">
+                            <select id="budget-year" class="form-control budget-select" aria-label="ปีงบประมาณ">
+                                <?php
+                                $currentYear = date('Y') + 543 + (date('n') >= 10 ? 1 : 0);
+                                for ($y = $currentYear; $y >= 2565; $y--) {
+                                    echo "<option value='$y'>ปีงบประมาณ $y</option>";
+                                }
+                                ?>
+                            </select>
+                            <i class="fas fa-chevron-down budget-select-icon" aria-hidden="true"></i>
                         </div>
-
-                        <!-- Row 2: Triage + Time Slot -->
-                        <div class="row mt-3">
-
-                            <!-- Triage Chart (ซ้าย) -->
-                            <div class="col-xl-6 col-lg-12 mb-2">
-
-                                <div class="chart-box">
-
-                                    <h5 class="chart-title">
-                                        <i class="fa-solid fa-triangle-exclamation"></i>
-                                        Triage Level — ระดับความเร่งด่วน
-                                    </h5>
-
-                                    <div id="er-triage-chart" style="height: 380px;"></div>
-
-                                </div>
-
-                            </div>
-
-                            <!-- Time Slot Chart (ขวา) -->
-                            <div class="col-xl-6 col-lg-12 mb-2">
-
-                                <div class="chart-box">
-
-                                    <h5 class="chart-title">
-                                        <i class="fa-solid fa-clock"></i>
-                                        ช่วงเวลาที่ผู้ป่วยเข้า ER
-                                    </h5>
-
-                                    <div id="er-timeslot-chart" style="height: 380px;"></div>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-                        <!-- Row 3: Top 10 Diagnosis -->
-
-                        <div class="row mt-3">
-
-                            <div class="col-12">
-
-                                <div class="chart-box">
-
-                                    <h5 class="chart-title">
-                                        <i class="fa-solid fa-stethoscope"></i>
-                                        10 อันดับโรค/การวินิจฉัยผู้ป่วย ER
-                                    </h5>
-
-                                    <div class="table-responsive">
-                                        <table class="table table-ipd-top10 table-hover align-middle">
-                                            <thead>
-                                                <tr>
-                                                    <th class="text-center" style="width:60px">อันดับ</th>
-                                                    <th class="text-center" style="width:100px">ICD-10</th>
-                                                    <th>ชื่อโรค / การวินิจฉัย</th>
-                                                    <th class="text-center" style="width:90px">รวม</th>
-                                                    <th class="text-center" style="width:80px">
-                                                        <i class="fa-solid fa-mars"></i>
-                                                        ชาย
-                                                    </th>
-                                                    <th class="text-center" style="width:80px">
-                                                        <i class="fa-solid fa-venus"></i>
-                                                        หญิง
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="er-top10-tbody">
-                                                <tr>
-                                                    <td colspan="6" class="text-center text-muted py-4">
-                                                        <i class="fa-solid fa-spinner fa-spin me-2"></i>
-                                                        กำลังโหลดข้อมูล…
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
                     </div>
-
                 </div>
 
-            </div>
+                <div class="er-charts">
+                    <figure class="er-chart">
+                        <figcaption class="er-h3">จำนวนผู้รับบริการ ER</figcaption>
+                        <div id="er-chart" style="height: 400px;"></div>
+                    </figure>
+                    <figure class="er-chart">
+                        <figcaption class="er-h3">สัดส่วนผู้รับบริการแยกตามประเภท</figcaption>
+                        <div id="er-pie-chart" style="height: 400px;"></div>
+                    </figure>
+                    <figure class="er-chart">
+                        <figcaption class="er-h3">Triage Level — ระดับความเร่งด่วน</figcaption>
+                        <div id="er-triage-chart" style="height: 360px;"></div>
+                    </figure>
+                    <figure class="er-chart">
+                        <figcaption class="er-h3">ช่วงเวลาที่ผู้ป่วยเข้า ER</figcaption>
+                        <div id="er-timeslot-chart" style="height: 360px;"></div>
+                    </figure>
+                </div>
+
+                <h3 class="er-h3 er-h3-gap" id="er-top10-title">10 อันดับโรค/การวินิจฉัยผู้ป่วย ER</h3>
+                <div class="table-responsive">
+                    <table class="table er-table table-ipd-top10" aria-labelledby="er-top10-title">
+                        <thead>
+                            <tr>
+                                <th class="text-center" style="width:64px">อันดับ</th>
+                                <th class="text-center" style="width:100px">ICD-10</th>
+                                <th>ชื่อโรค / การวินิจฉัย</th>
+                                <th class="text-center" style="width:90px">รวม</th>
+                                <th class="text-center" style="width:80px"><i class="fa-solid fa-mars" aria-hidden="true"></i> ชาย</th>
+                                <th class="text-center" style="width:80px"><i class="fa-solid fa-venus" aria-hidden="true"></i> หญิง</th>
+                            </tr>
+                        </thead>
+                        <tbody id="er-top10-tbody">
+                            <tr>
+                                <td colspan="6" class="text-center er-note py-4">
+                                    <i class="fa-solid fa-spinner fa-spin me-2" aria-hidden="true"></i>
+                                    กำลังโหลดข้อมูล…
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
 
         </div>
 

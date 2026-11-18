@@ -515,25 +515,24 @@ html[data-theme="dark"] .status-finish .special-status-icon {
 /* ---- assets/css/er_theme.css ---- */
 html[data-theme="dark"] .er-theme {
     --er-text: #ffa698;
-    --er-tint: #1f1918;
-    --er-wash: #1b1817;
-    --er-line: #463230;
+    --er-ink-text: #edd6d4;
+    --er-muted-text: #d5bdb9;
+    --er-tint: #1f1919;
+    --er-wash: #1a1817;
+    --er-line: #3e3634;
+    --er-card-line: #3f3534;
     --er-row-bg: #181717;
     --er-page-bg: #161616;
-    --er-card-line: #463230;
-    --er-muted-text: #e3bcb8;
+    --er-on-mast-rule: rgba(56, 56, 56, 0.3);
 }
 html[data-theme="dark"] body:has(.er-theme) {
     --er-nav-text: #ffa698;
     --er-nav-tint: #1f1918;
     --er-nav-line: rgba(198, 40, 40, .25);
 }
-html[data-theme="dark"] .er-theme #er-summary #er-summary-card {
-    --st-line: #463230;
-}
-html[data-theme="dark"] .er-ref-in {
-    background: #141d1c;
-    color: #7bd2c8;
+html[data-theme="dark"] .er-theme {
+    --er-ref-in-bg: #141d1c;
+    --er-ref-in-text: #7bd2c8;
 }
 
 /* ---- assets/css/index.css ---- */

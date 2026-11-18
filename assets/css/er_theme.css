@@ -1,24 +1,38 @@
+/* Hallmark · v2.0.0 · shape: app screen · theme: brand (ER red-white, THSarabunNew from the site) · redesign: full · scope: app
+ * signature: the red masthead carrying today's total and the live "now in ER" board · screen: masthead, service-time rows, four day lists, period charts + top-10 table
+ * Hallmark · pre-emit critique: P4 H5 E4 S4 R4 V3 · weakest: V, an app shell keeps AdminLTE's chrome; spent the change on one red band and hairline rows instead of icon tiles
+ * Hallmark · waive 34 · overflow-x on html/body belongs to the AdminLTE shell shared by every page, not this page's stylesheet
+ * Hallmark · dismissed F6 · .er-mast-number small is the unit word, and .er-stat-lead b inherits tabular-nums from .er-stat-value b
+ * Hallmark · waive 48 · page-scoped tokens live on :root .er-theme (and body:has(.er-theme) for the navbar) so tools/build_dark_css.mjs can derive dark mode
+ */
+
 /* =========================================================
-   หน้า ER: ธีมแดง–ขาว (ทำงานเฉพาะใต้ .content-wrapper.er-theme ใน pages/ER_detail.php)
-   กฎที่เปลี่ยนสีส่วนประกอบเดิมขึ้นต้นด้วย :root ให้ชนะกฎโหมดมืด (html[data-theme="dark"] …) ด้วย — สีมาจาก token ด้านล่างซึ่งมีค่าโหมดมืดของตัวเอง
-   ชื่อ token ตั้งตามบทบาทให้ tools/build_dark_css.mjs แปลงโหมดมืดได้เอง:
-   --er-text = ตัวอักษร/ไอคอน · --er-tint, --er-wash = พื้นอ่อน · --er-line = เส้นขอบ · --er-solid = พื้นปุ่ม (ตัวอักษรขาว)
-   สีที่มีความหมายไม่ใช้ธีมแดง: ระดับ Triage (ตามป้ายของ รพ. ท้ายไฟล์), ▲▼ เทียบสัปดาห์ก่อน, สีกราฟ
+   หน้า ER: ระบบสีแดง–ขาว (ทำงานเฉพาะใต้ .content-wrapper.er-theme ใน pages/ER_detail.php)
+   แดงใช้กับ: แถบหัว, ปุ่มที่เลือก, ตัวเลขสำคัญ, แถบสัดส่วน — นอกนั้นขาว/เทาอุ่น เส้นบาง ไม่มีไอคอนประดับ
+   กฎที่เปลี่ยนส่วนประกอบเดิมขึ้นต้นด้วย :root ให้ชนะกฎโหมดมืด (html[data-theme="dark"] …)
+   ชื่อ token ตามบทบาทให้ tools/build_dark_css.mjs แปลงโหมดมืดเอง: *-text = ตัวอักษร · tint/wash/*-bg = พื้น · *-line = เส้น
+   --er-canvas / --er-mast ไม่มีบทบาท → ค่าโหมดมืดตั้งเองใน dark.css
+   สีที่มีความหมายไม่ใช้ธีมแดง: ระดับ Triage (ป้ายของ รพ. ท้ายไฟล์), สีกราฟ
 ========================================================= */
 :root .er-theme {
     --er-text: #b42318;         /* แดงบนพื้นขาว 6.5:1 */
-    --er-solid: #c62828;        /* พื้นปุ่มแดง ตัวอักษรขาว 5.6:1 */
-    --er-tint: #fdecea;
-    --er-wash: #fdf4f3;
-    --er-line: #f2cdc9;
-    --er-on-solid: #ffffff;     /* ตัวอักษรบนพื้นแดง (คงขาวทั้งสองโหมด) */
-    --er-glow: rgba(198, 40, 40, .25);
+    --er-ink-text: #2a1a19;     /* ตัวอักษรหลัก */
+    --er-muted-text: #6b5753;   /* ข้อความรอง 6.9:1 บนขาว */
+    --er-solid: #b3261e;        /* พื้นปุ่ม/แถบ ตัวอักษรขาว 6.0:1 */
+    --er-on-solid: #ffffff;
+    --er-tint: #fbeceb;
+    --er-wash: #fdf6f5;
+    --er-line: #eee3e1;
+    --er-card-line: #e8dbd9;
+    --er-glow: rgba(179, 38, 30, .22);
     --er-row-bg: #fffafa;
-    --er-page-bg: #ffffff;      /* พื้นการ์ด (ขาวตัดกับพื้นหลังแดง) */
-    --er-backdrop: #c62828;     /* พื้นหลังหน้า: แดงไล่ลงเข้ม */
-    --er-backdrop-end: #8e1b1b;
-    --er-card-line: #e9b9b4;
-    --er-muted-text: #6b4a47;   /* ข้อความรอง (เทาอมแดง) บนพื้นการ์ด 8:1 */
+    --er-page-bg: #ffffff;      /* พื้นแผง */
+    --er-canvas: #f6f2f1;       /* พื้นหน้า: ขาวอุ่น */
+    --er-mast: #a8221b;         /* แถบหัวแดง ตัวอักษรขาว 6.9:1 */
+    --er-on-mast: #ffffff;
+    --er-on-mast-dim: #f6dcda; /* ข้อความรองบนแถบหัว 5.3:1 */
+    --er-on-mast-veil: #b63a33;    /* แดงอ่อนกว่าแถบหัว (ทึบ) สำหรับปุ่ม/ป้ายบนแถบ */
+    --er-on-mast-rule: rgba(255, 255, 255, .3);
 
     /* ส่วนประกอบกลางที่ใช้ token เขียวของเว็บ (ตัวกรองช่วงเวลา, ปีงบ, ช่องวันที่) เปลี่ยนเป็นแดงในหน้านี้ */
     --bbh-green: var(--er-solid);
@@ -28,20 +42,132 @@
     --bbh-ring: 0 0 0 3px var(--er-glow);
 }
 
-/* พื้นหลังแดง การ์ดขาว — ทุกข้อความอยู่ในการ์ดขาว จึงไม่มีตัวอักษรวางบนพื้นแดงตรง ๆ */
-:root .content-wrapper.er-theme {
-    background: linear-gradient(180deg, var(--er-backdrop) 0, var(--er-backdrop-end) 100%) !important;
+:root .content-wrapper.er-theme { background: var(--er-canvas) !important; color: var(--er-ink-text); }
+.er-theme .er-page { max-width: 1680px; margin: 0 auto; padding: 16px 16px 32px; }
+
+/* ---------- แผง (ชั้นเดียว ไม่มีการ์ดซ้อนการ์ด) ---------- */
+.er-theme .er-panel {
+    background: var(--er-page-bg); border: 1px solid var(--er-card-line); border-radius: 16px;
+    padding: 20px 24px; margin-bottom: 16px; min-width: 0;
 }
-:root .er-theme .card { background: var(--er-page-bg); border-color: var(--er-card-line); }
+.er-theme .er-h2 { margin: 0 0 12px; font-size: 2.1rem; font-weight: 700; line-height: 1.25; color: var(--er-ink-text); overflow-wrap: break-word; min-width: 0; }
+.er-theme .er-h3 { margin: 0 0 8px; font-size: 1.68rem; font-weight: 700; color: var(--er-ink-text); }
+.er-theme .er-h3-gap { margin-top: 24px; }
+.er-theme .er-note { margin: 12px 0 0; font-size: 1.425rem; color: var(--er-muted-text); }
+.er-theme .er-split { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 16px; }
+.er-theme .er-split .er-panel { margin-bottom: 0; }
 
-:root .er-theme .text-success { color: var(--er-text) !important; }
+/* ---------- แถบหัวแดง: วันที่ ยอดรวม สถานะตอนนี้ ---------- */
+.er-theme .er-mast {
+    background: var(--er-mast); color: var(--er-on-mast); border-radius: 16px;
+    padding: 24px 28px; margin-bottom: 16px;
+}
+.er-theme .er-mast-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 16px; }
+.er-theme .er-mast-heading { min-width: 0; }
+.er-theme .er-mast-title { margin: 0; font-size: 2.85rem; font-weight: 700; line-height: 1.2; color: var(--er-on-mast); overflow-wrap: break-word; }
+.er-theme .er-mast-sub { margin: 4px 0 0; color: var(--er-on-mast-dim); }
+:root .er-theme .er-mast .opd-delta { color: var(--er-on-mast); font-weight: 700; }
+.er-theme .er-mast-body { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 32px; align-items: end; margin-top: 20px; }
+.er-theme .er-mast-number { display: inline-flex; align-items: baseline; gap: 8px; font-size: 6.75rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; cursor: pointer; border-radius: 8px; }
+.er-theme .er-mast-number small { font-size: 2.1rem; font-weight: 400; color: var(--er-on-mast-dim); }
+.er-theme .er-mast-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-top: 8px; color: var(--er-on-mast-dim); }
+.er-theme .er-mast-meta b { color: var(--er-on-mast); font-variant-numeric: tabular-nums; }
+.er-theme .er-mast-chip { padding: 2px 12px; border: 1px solid var(--er-on-mast-rule); border-radius: 999px; background: var(--er-on-mast-veil); color: var(--er-on-mast); cursor: pointer; }
+.er-theme .er-now { padding-left: 32px; border-left: 1px solid var(--er-on-mast-rule); min-width: 0; }
+.er-theme .er-now[hidden] { display: none; }
+.er-theme .er-now-title { margin: 0 0 8px; font-size: 1.575rem; font-weight: 700; color: var(--er-on-mast); }
+.er-theme .er-now-at { font-weight: 400; color: var(--er-on-mast-dim); }
+.er-theme .er-now-items { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px 24px; }
+.er-theme .er-now-item { display: flex; flex-direction: column; min-width: 0; }
+.er-theme .er-now-item b { font-size: 3.3rem; line-height: 1.1; font-variant-numeric: tabular-nums; color: var(--er-on-mast); overflow-wrap: break-word; }
+.er-theme .er-now-item span { color: var(--er-on-mast-dim); }
 
-/* ข้อความที่ยังเป็นเขียว/เทาเขียวจาก custom.css, opd_tabs.css, theme.css */
-:root .er-theme #er-summary #er-summary-card .opd-summary-main-number small { color: var(--er-text); }
+/* ตัวเลือกวันนี้/เมื่อวาน + กล่องวันที่บนแถบแดง (opd_quality.css) */
+:root .er-theme .er-mast .oq-seg { background: var(--er-on-mast-veil); border-color: var(--er-on-mast-rule); }
+:root .er-theme .er-mast .oq-seg button { color: var(--er-on-mast); }
+:root .er-theme .er-mast .oq-seg button:hover { background: var(--er-on-mast-veil); }
+:root .er-theme .er-mast .oq-seg button[aria-pressed="true"] { background: var(--er-page-bg); color: var(--er-text); box-shadow: none; }
+:root .er-theme .er-mast .oq-range { background: var(--er-page-bg); border-color: transparent; color: var(--er-ink-text); }
+:root .er-theme .er-mast .oq-range > i { color: var(--er-text); }
+:root .er-theme .er-mast :is(button, input, [data-drill]):focus-visible { outline: 2px solid var(--er-on-mast); outline-offset: 2px; }
+
+/* ---------- แถวตัวชี้วัดเวลา (Door-to-Doctor / LOS · er_summary.js row()) ---------- */
+.er-theme .er-row {
+    display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr) minmax(0, 1.6fr);
+    gap: 16px; align-items: center; padding: 12px 0; border-top: 1px solid var(--er-line);
+}
+.er-theme .er-row:first-child { border-top: 0; padding-top: 4px; }
+.er-theme .er-row small { display: block; font-size: 1.38rem; font-weight: 400; color: var(--er-muted-text); }
+.er-theme .er-row-key { font-weight: 700; color: var(--er-ink-text); min-width: 0; }
+.er-theme .er-row-num { color: var(--er-ink-text); }
+.er-theme .er-row-num small { display: inline; }
+.er-theme .er-row-num b { font-size: 2.85rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.er-theme .er-row-bar small { margin-top: 4px; font-variant-numeric: tabular-nums; }
+.er-theme .er-flag { display: inline-block; padding: 0 8px; border-radius: 999px; background: var(--er-tint); color: var(--er-text); font-size: 1.32rem; font-weight: 700; white-space: nowrap; }
+.er-theme .er-meter { height: 6px; border-radius: 999px; background: var(--er-tint); overflow: hidden; }
+.er-theme .er-meter span { display: block; height: 100%; background: var(--er-solid); }
+
+/* ---------- ผู้ป่วยของวันที่เลือก: 4 คอลัมน์ รายการแบบแถว ---------- */
+.er-theme .er-cols { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px 32px; }
+.er-theme .er-col { min-width: 0; }
+.er-theme .er-stat {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+    margin: 0 -12px; padding: 8px 12px; border-radius: 10px; cursor: pointer;
+    transition: background-color 150ms ease;
+}
+.er-theme .er-stat + .er-stat { border-top: 1px solid var(--er-line); }
+.er-theme .er-stat:hover { background: var(--er-wash); }
+.er-theme .er-stat:active { background: var(--er-tint); }
+.er-theme .er-stat-label { color: var(--er-ink-text); min-width: 0; }
+.er-theme .er-stat-label small { display: block; font-size: 1.35rem; color: var(--er-muted-text); }
+.er-theme .er-stat-value { color: var(--er-muted-text); white-space: nowrap; }
+.er-theme .er-stat-value b { margin-right: 4px; font-size: 2.25rem; color: var(--er-ink-text); font-variant-numeric: tabular-nums; }
+.er-theme .er-stat-lead .er-stat-value b { font-size: 3.3rem; color: var(--er-text); }
+.er-theme .er-mix-bar { display: flex; gap: 2px; height: 10px; margin: 8px 0; border-radius: 999px; overflow: hidden; background: var(--er-tint); }
+.er-theme .er-mix-bar span { min-width: 0; }
+.er-theme .er-mix-legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 1.425rem; color: var(--er-muted-text); }
+.er-theme .er-mix-legend b { color: var(--er-ink-text); font-variant-numeric: tabular-nums; }
+.er-theme .er-dot { display: inline-block; width: 10px; height: 10px; margin-right: 4px; border-radius: 50%; vertical-align: middle; }
+:root .er-theme #er-summary [data-drill]:focus-visible { outline: 2px solid var(--er-solid); outline-offset: 2px; }
+
+/* ---------- สถิติตามช่วงเวลา: หัว + ตัวกรอง, กราฟ 2×2, ตาราง 10 อันดับ ---------- */
+.er-theme .er-stats-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 16px; }
+.er-theme .er-stats-head .er-h2 { margin-bottom: 0; }
+:root .er-theme .er-stats-head #budget-date-text { margin-top: 4px; color: var(--er-muted-text); }
+.er-theme .er-charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.er-theme .er-chart { margin: 0; padding: 16px; border: 1px solid var(--er-line); border-radius: 12px; min-width: 0; }
+:root .er-theme .er-table thead th { background: var(--er-wash); color: var(--er-ink-text); font-weight: 700; border-bottom: 1px solid var(--er-line); border-top: 0; }
+:root .er-theme .er-table td { border-top: 1px solid var(--er-line); color: var(--er-ink-text); }
+:root .er-theme .er-table tbody tr:hover { background: var(--er-wash); }
+
+/* ตัวกรองช่วงเวลาของกราฟ (theme.css .bbh-seg ใช้สีเขียวเขียนตรง) + ปีงบ */
+:root .er-theme .bbh-seg { background: var(--er-wash); border-color: var(--er-line); }
+:root .er-theme .bbh-seg button { color: var(--er-text); }
+:root .er-theme .bbh-seg button:hover { background: var(--er-tint); }
+:root .er-theme .bbh-seg button[aria-pressed="true"] { color: var(--er-on-solid); box-shadow: 0 2px 6px var(--er-glow); }
+:root .er-theme .bbh-range { border-color: var(--er-line); }
 :root .er-theme .budget-select { border-color: var(--er-line); color: var(--er-text); }
 :root .er-theme .budget-select:focus { border-color: var(--er-solid) !important; color: var(--er-text) !important; }
 :root .er-theme .budget-select-icon { color: var(--er-text); }
-:root .er-theme .chart-title { color: var(--er-text); }
+
+@media (max-width: 1199.98px) {
+    .er-theme .er-split, .er-theme .er-charts { grid-template-columns: minmax(0, 1fr); }
+    .er-theme .er-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .er-theme .er-mast-body { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+    .er-theme .er-now { padding: 16px 0 0; border-left: 0; border-top: 1px solid var(--er-on-mast-rule); }
+}
+@media (max-width: 575.98px) {
+    .er-theme .er-page { padding-top: 8px; padding-inline: 12px; }
+    .er-theme .er-mast, .er-theme .er-panel { padding: 16px; border-radius: 12px; }
+    .er-theme .er-mast-number { font-size: 5.25rem; }
+    .er-theme .er-now-items { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .er-theme .er-cols { grid-template-columns: minmax(0, 1fr); }
+    .er-theme .er-row { grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; }
+    .er-theme .er-row-bar { grid-column: 1 / -1; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .er-theme .er-stat { transition: none; }
+}
 
 /* ---------- แถบเมนูบน (templates/navbar.php) เป็นแดงเฉพาะหน้า ER ----------
    navbar อยู่นอก .er-theme จึงเลือกผ่าน body:has(.er-theme) และใช้ token ชุดของตัวเอง */
@@ -67,78 +193,6 @@
 :root:not([data-theme="dark"]) body:has(.er-theme) .theme-toggle { border-color: var(--er-nav-line); color: var(--er-nav-text); }
 :root:not([data-theme="dark"]) body:has(.er-theme) .theme-toggle:is(:hover, :focus-visible) { background: var(--er-nav-tint); }
 
-/* ---------- การ์ดสรุปรายวัน ---------- */
-:root .er-theme #er-summary #er-summary-card .opd-summary-main-icon { background: var(--er-tint); color: var(--er-text); }
-:root .er-theme #er-summary #er-summary-card .opd-summary-title,
-:root .er-theme #er-summary #er-summary-card .opd-summary-main-number,
-:root .er-theme #er-summary #er-summary-card .opd-summary-main-number span,
-:root .er-theme #er-summary #er-summary-card .summary-section-title { color: var(--er-text); }
-
-:root .er-theme #er-summary #er-summary-card .opd-summary-newold .newpt { background: var(--er-tint); color: var(--er-text); }
-
-:root .er-theme #er-summary #er-summary-card {
-    --st-surface: var(--er-row-bg);
-    --st-line: #f5dcd9;
-}
-/* กลุ่มการส่งต่อใต้การ์ดวิกฤต (ช่องแรก) */
-:root .er-theme #er-summary #er-summary-card .er-refer-title { margin: 16px 0 8px; }
-:root .er-theme #er-summary #er-summary-card .er-refer-pair { margin-top: 0; }
-
-/* ทุกแถวโทนแดง ยกเว้น "รับบริการอื่น" / "อื่น ๆ" เป็นเทา ไม่แย่งสายตา */
-:root .er-theme #er-summary #er-summary-card :is(.time-horizontal-card, .exam-horizontal-card):not(.nodr-card) {
-    --st-accent-text: var(--er-text);
-    --st-chip-tint: var(--er-tint);
-}
-
-/* Door-to-Doctor แยกตามระดับ (ใต้ 4 หมวดของการ์ดสรุป) — แถบสีซ้ายของแต่ละช่อง = สีระดับ (--lvl) */
-.er-theme .er-d2d { margin: 20px 0; }
-
-/* สถานะ ER ตอนนี้ — แถบตัวเลขใหญ่บนพื้นอ่อน */
-.er-theme .er-now { margin-top: 16px; padding: 12px 16px; border: 1px solid var(--er-line); border-radius: 12px; background: var(--er-tint); }
-.er-theme .er-now-at { font-weight: 400; color: var(--er-muted-text); }
-.er-theme .er-now-items { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px 16px; }
-.er-theme .er-now-item { display: flex; flex-direction: column; min-width: 0; }
-.er-theme .er-now-item b { font-size: 2rem; line-height: 1.1; color: var(--er-text); font-variant-numeric: tabular-nums; }
-.er-theme .er-now-item span { color: var(--er-muted-text); }
-.er-theme .er-d2d-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); gap: 12px; }
-.er-theme .er-d2d-tile {
-    padding: 12px 16px; border: 1px solid var(--er-line); border-left: 6px solid var(--lvl, var(--er-line));
-    border-radius: 12px; background: var(--er-row-bg); min-width: 0;
-}
-.er-theme .er-d2d-tile.er-tri-5 { border-left-color: var(--lvl-ring); }
-.er-theme .er-d2d-head { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-weight: 700; color: var(--er-text); }
-.er-theme .er-d2d-target, .er-theme .er-d2d-label, .er-theme .er-d2d-within, .er-theme .er-d2d-note { font-weight: 400; color: var(--er-muted-text); }
-.er-theme .er-d2d-avg { margin: 4px 0 8px; color: var(--er-text); }
-.er-theme .er-d2d-avg b { font-size: 2rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
-.er-theme .er-d2d-late { display: inline-block; padding: 0 8px; border-radius: 999px; background: var(--er-solid); color: var(--er-on-solid); font-size: .9rem; }
-.er-theme .er-d2d-meter { height: 8px; border-radius: 999px; background: var(--er-tint); overflow: hidden; }
-.er-theme .er-d2d-meter span { display: block; height: 100%; background: var(--er-solid); }
-.er-theme .er-d2d-within { margin-top: 8px; font-variant-numeric: tabular-nums; }
-.er-theme .er-d2d-note { margin-top: 8px; font-size: .95rem; }
-
-/* ตัวเลือกวันนี้/เมื่อวาน + กล่องวันที่ (opd_quality.css) */
-:root .er-theme .oq-seg { background: var(--er-wash); border-color: var(--er-line); }
-:root .er-theme .oq-seg button { color: var(--er-text); }
-:root .er-theme .oq-seg button:hover { background: var(--er-tint); }
-:root .er-theme .oq-seg button[aria-pressed="true"] { background: var(--er-solid); color: var(--er-on-solid); box-shadow: 0 2px 6px var(--er-glow); }
-:root .er-theme .oq-range { border-color: var(--er-line); }
-:root .er-theme .oq-range > i { color: var(--er-text); }
-
-/* ตัวกรองช่วงเวลาของกราฟ (theme.css .bbh-seg ใช้สีเขียวเขียนตรง) */
-:root .er-theme .bbh-seg { background: var(--er-wash); border-color: var(--er-line); }
-:root .er-theme .bbh-seg button { color: var(--er-text); }
-:root .er-theme .bbh-seg button:hover { background: var(--er-tint); }
-:root .er-theme .bbh-seg button[aria-pressed="true"] { color: var(--er-on-solid); box-shadow: 0 2px 6px var(--er-glow); }
-:root .er-theme .bbh-range { border-color: var(--er-line); }
-
-/* ---------- กราฟ + ตาราง 10 อันดับ ---------- */
-:root .er-theme .chart-title i { color: var(--er-text); }
-:root .er-theme .table-ipd-top10 thead th { background: var(--er-solid); color: var(--er-on-solid); }
-:root .er-theme .table-ipd-top10 tbody tr:hover { background: var(--er-wash); }
-
-/* ---------- ตัวเลข/การ์ดที่คลิกดูรายชื่อได้ ---------- */
-:root .er-theme #er-summary [data-drill]:focus-visible { outline-color: var(--er-solid); }
-
 /* ---------- หน้าต่างรายชื่อ (bbh_drill.js · ใช้ .opd-drill ของ opd_tabs.css) ---------- */
 :root .er-theme .opd-drill-head h3 { color: var(--er-text); }
 :root .er-theme .opd-drill-close:hover { background: var(--er-tint); }
@@ -148,14 +202,13 @@
 :root .er-theme .opd-drill-pages button.is-current { background: var(--er-solid); border-color: var(--er-solid); color: var(--er-on-solid); }
 :root .er-theme .opd-drill-table tbody tr:nth-child(even) { background: var(--er-row-bg); }
 :root .er-theme .opd-drill-table tbody tr:hover { background: var(--er-wash); }
-
 :root .er-theme .opd-drill-table th { background: var(--er-wash); color: var(--er-text); }
 
 /* ---------- สีระดับความเร่งด่วน (Triage) ตามป้ายจำแนกผู้ป่วยหน้าห้อง ER ของ รพ. ----------
    1 แดง (Resuscitation) · 2 ชมพู (Emergency) · 3 เหลือง (Urgency) · 4 เขียว (Semi-Urgency) · 5 ขาว (Non-Urgency)
    ไม่ระบุ = เทาอ่อน · Black (6, ไม่มีในป้าย) = ดำ
    ใช้ตัวแปร --lvl (ไม่ใช่ style="background:…") เพื่อให้ build_dark_css.mjs ไม่แปลงสี — สีระดับต้องเหมือนกันทั้งสองโหมด
-   ใช้กับ: แถบ/จุดบนการ์ด (.er-tri) และป้ายในหน้าต่างรายชื่อ (.er-lvl) · กราฟใช้สีชุดเดียวกันจาก api/er_triage.php */
+   ใช้กับ: แถบ/จุดสัดส่วน (.er-tri), แถว Door-to-Doctor และป้ายในหน้าต่างรายชื่อ (.er-lvl) · กราฟใช้สีชุดเดียวกันจาก api/er_triage.php */
 .er-tri-1 { --lvl: #dc2626; }
 .er-tri-2 { --lvl: #c2389a; }
 .er-tri-3 { --lvl: #facc15; }
@@ -166,8 +219,9 @@
 .er-tri { background: var(--lvl); box-shadow: inset 0 0 0 1px var(--lvl-ring, transparent); }
 
 /* สัญลักษณ์ทิศทาง Refer ในหน้าต่าง "Refer ทั้งหมด": in = ลูกศรเข้า (เขียวน้ำทะเล) · out = รถพยาบาล (แดง) — รูปต่างกัน ไม่พึ่งสีอย่างเดียว */
+:root .er-theme { --er-ref-in-bg: #ddf4f1; --er-ref-in-text: #0f766e; }
 .er-ref { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 8px; font-size: 1rem; }
-.er-ref-in { background: #ddf4f1; color: #0f766e; }
+.er-ref-in { background: var(--er-ref-in-bg); color: var(--er-ref-in-text); }
 .er-ref-out { background: var(--er-tint); color: var(--er-text); }
 
 .er-lvl { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }

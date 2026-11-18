@@ -87,24 +87,29 @@
         if (my !== seq) return;
         if (data.error) { grid.innerHTML = ''; note.textContent = data.error; return; }
 
-        const pct = (a, b) => b ? Math.round(a * 100 / b) : 0;
         grid.innerHTML = data.items.map(it => {
             const p = pct(it.within, it.timed);
-            const avg = it.avg === null ? '—' : it.avg.toLocaleString(undefined, { maximumFractionDigits: 1 });
-            const late = it.avg !== null && it.avg > it.target;
-            return `<div class="er-d2d-tile er-tri-${it.level}">
-                <div class="er-d2d-head"><span class="er-lvl">ระดับ ${it.level}</span><span class="er-d2d-target">เป้า ${it.target_label}</span></div>
-                <div class="er-d2d-avg"><span class="er-d2d-label">เฉลี่ย</span> <b>${avg}</b> <span class="er-d2d-label">นาที</span>${late ? ' <span class="er-d2d-late">เกินเป้า</span>' : ''}</div>
-                <div class="er-d2d-meter" role="img" aria-label="ทันเป้า ${p}%"><span style="width:${p}%"></span></div>
-                <div class="er-d2d-within">${it.timed ? `ทันเป้า ${fmt(it.within)} จาก ${fmt(it.timed)} ราย (${p}%)` : (it.n ? 'ยังไม่มีเวลาพบแพทย์' : 'ไม่มีผู้ป่วย')}</div>
-            </div>`;
+            const avg = it.avg === null ? null : it.avg.toLocaleString(undefined, { maximumFractionDigits: 1 });
+            return row({
+                cls: 'er-tri-' + it.level, key: `<span class="er-lvl">ระดับ ${it.level}</span>`, sub: `เป้า ${it.target_label}`,
+                avg, late: it.avg !== null && it.avg > it.target,
+                meter: it.timed ? { p, label: `ทันเป้า ${p}%` } : null,
+                line: it.timed ? `ทันเป้า ${fmt(it.within)} จาก ${fmt(it.timed)} ราย (${p}%)` : (it.n ? 'ยังไม่มีเวลาพบแพทย์' : 'ไม่มีผู้ป่วย')
+            });
         }).join('');
         const n = data.items.reduce((s, it) => s + it.n, 0), t = data.items.reduce((s, it) => s + it.timed, 0);
-        note.textContent = `มีเวลาพบแพทย์ ${fmt(t)} จาก ${fmt(n)} ราย (${pct(t, n)}%) · ใช้เวลาที่เร็วที่สุดของ กดเริ่มตรวจ / สั่ง Lab / X-ray / สั่งยา / บันทึกรายงานแพทย์ใน HPI · ไม่รวม Black`;
+        note.textContent = `มีเวลาพบแพทย์ ${fmt(t)} จาก ${fmt(n)} ราย (${pct(t, n)}%) ไม่รวม Black. ใช้เวลาที่เร็วที่สุดของการกดเริ่มตรวจ สั่ง Lab, X-ray, สั่งยา หรือบันทึกรายงานแพทย์ใน HPI`;
     }
 
+    /* แถวตัวชี้วัดเวลา (Door-to-Doctor / LOS): ชื่อ + เกณฑ์ | ค่าเฉลี่ย | แถบสัดส่วน + คำอธิบาย */
+    const pct = (a, b) => b ? Math.round(a * 100 / b) : 0;
+    const row = o => `<div class="er-row ${o.cls || ''}">
+            <div class="er-row-key">${o.key}<small>${o.sub}</small></div>
+            <div class="er-row-num">${o.avg === null ? '<b>—</b>' : `<small>เฉลี่ย</small> <b>${o.avg}</b> <small>นาที</small>`}${o.late ? ' <span class="er-flag">เกินเป้า</span>' : ''}</div>
+            <div class="er-row-bar">${o.meter ? `<div class="er-meter" role="img" aria-label="${o.meter.label}"><span style="width:${o.meter.p}%"></span></div>` : ''}<small>${o.line}</small></div>
+        </div>`;
+
     /* สถานะ ER ตอนนี้ (เฉพาะวันนี้) + LOS / เข้า ER ถึง Admit / Refer ของวันที่เลือก */
-    const hm = m => m === null || m === undefined ? '—' : m < 60 ? `${m} นาที` : `${Math.floor(m / 60)} ชม. ${m % 60} นาที`;
     async function loadLos(date, my) {
         const grid = $('er-los-grid'), note = $('er-los-note');
         let data;
@@ -123,26 +128,24 @@
             $('er-now-l12').textContent = fmt(data.now.l12);
             $('er-now-wait').textContent = fmt(data.now.waiting);
             $('er-now-over').textContent = fmt(data.now.over4h);
-            $('er-now-long').textContent = hm(data.now.longest);
+            $('er-now-long').textContent = data.now.longest === null ? '—'
+                : `${Math.floor(data.now.longest / 60)}:${String(data.now.longest % 60).padStart(2, '0')}`;
         }
 
         const L = data.los, b = data.boarding_min;
-        const pct = (a, n) => n ? Math.round(a * 100 / n) : 0;
-        const tile = (head, sub, avg, line, meter) => `<div class="er-d2d-tile">
-                <div class="er-d2d-head"><span>${head}</span><span class="er-d2d-target">${sub}</span></div>
-                <div class="er-d2d-avg"><span class="er-d2d-label">เฉลี่ย</span> <b>${avg === null ? '—' : fmt(avg)}</b> <span class="er-d2d-label">นาที</span></div>
-                ${meter === null ? '' : `<div class="er-d2d-meter" role="img" aria-label="${meter.label}"><span style="width:${meter.p}%"></span></div>`}
-                <div class="er-d2d-within">${line}</div>
-            </div>`;
-        const ttd = (name, x) => tile(`เข้า ER ถึง ${name}`, `เกณฑ์ ≤ ${b} นาที`, x.avg,
-            x.n ? `รอเกิน ${b} นาที ${fmt(x.over)} จาก ${fmt(x.n)} ราย (${pct(x.over, x.n)}%)` : `ไม่มี${name}`,
-            x.n ? { p: pct(x.over, x.n), label: `รอเกิน ${pct(x.over, x.n)}%` } : null);
-        grid.innerHTML =
-            tile('อยู่ใน ER ทั้งหมด', L.median === null ? '' : `มัธยฐาน ${fmt(L.median)} นาที`, L.avg,
-                L.timed ? `เกิน 4 ชม. ${fmt(L.over4h)} ราย · เกิน 6 ชม. ${fmt(L.over6h)} ราย` : 'ยังไม่มีเวลาออกจาก ER',
-                L.timed ? { p: pct(L.over4h, L.timed), label: `เกิน 4 ชม. ${pct(L.over4h, L.timed)}%` } : null) +
-            ttd('Admit', data.admit) + ttd('Refer', data.refer);
-        note.textContent = `มีเวลาออกจาก ER ${fmt(L.timed)} จาก ${fmt(L.n)} ราย (${pct(L.timed, L.n)}%) · ไม่นับงานบริการ (ทำแผล / ฉีดยา) · Admit / Refer นับถึงเวลาลงทะเบียน Admit / ส่งต่อ`;
+        const ttd = (name, x) => row({
+            key: `เข้า ER ถึง ${name}`, sub: `เกณฑ์ ≤ ${b} นาที`, avg: x.avg === null ? null : fmt(x.avg),
+            late: x.avg !== null && x.avg > b,
+            meter: x.n ? { p: pct(x.over, x.n), label: `รอเกิน ${pct(x.over, x.n)}%` } : null,
+            line: x.n ? `รอเกิน ${b} นาที ${fmt(x.over)} จาก ${fmt(x.n)} ราย (${pct(x.over, x.n)}%)` : `ไม่มี${name}`
+        });
+        grid.innerHTML = row({
+            key: 'อยู่ใน ER ทั้งหมด', sub: L.median === null ? 'ยังไม่มีข้อมูล' : `มัธยฐาน ${fmt(L.median)} นาที`,
+            avg: L.avg === null ? null : fmt(L.avg),
+            meter: L.timed ? { p: pct(L.over4h, L.timed), label: `เกิน 4 ชม. ${pct(L.over4h, L.timed)}%` } : null,
+            line: L.timed ? `เกิน 4 ชม. ${fmt(L.over4h)} ราย, เกิน 6 ชม. ${fmt(L.over6h)} ราย` : 'ยังไม่มีเวลาออกจาก ER'
+        }) + ttd('Admit', data.admit) + ttd('Refer', data.refer);
+        note.textContent = `มีเวลาออกจาก ER ${fmt(L.timed)} จาก ${fmt(L.n)} ราย (${pct(L.timed, L.n)}%) ไม่นับงานบริการทำแผลและฉีดยา. Admit และ Refer นับถึงเวลาลงทะเบียน Admit หรือส่งต่อ`;
     }
 
     /* คลิกการ์ด/ตัวเลข → รายชื่อผู้ป่วย (api/er_visit_list.php · ต้อง login · เงื่อนไขเดียวกับตัวเลขบนการ์ด) */
