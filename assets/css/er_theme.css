@@ -91,10 +91,18 @@
 }
 
 /* Door-to-Doctor แยกตามระดับ (ใต้ 4 หมวดของการ์ดสรุป) — แถบสีซ้ายของแต่ละช่อง = สีระดับ (--lvl) */
-.er-theme .er-d2d { margin-top: 20px; }
+.er-theme .er-d2d { margin: 20px 0; }
+
+/* สถานะ ER ตอนนี้ — แถบตัวเลขใหญ่บนพื้นอ่อน */
+.er-theme .er-now { margin-top: 16px; padding: 12px 16px; border: 1px solid var(--er-line); border-radius: 12px; background: var(--er-tint); }
+.er-theme .er-now-at { font-weight: 400; color: var(--er-muted-text); }
+.er-theme .er-now-items { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px 16px; }
+.er-theme .er-now-item { display: flex; flex-direction: column; min-width: 0; }
+.er-theme .er-now-item b { font-size: 2rem; line-height: 1.1; color: var(--er-text); font-variant-numeric: tabular-nums; }
+.er-theme .er-now-item span { color: var(--er-muted-text); }
 .er-theme .er-d2d-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); gap: 12px; }
 .er-theme .er-d2d-tile {
-    padding: 12px 16px; border: 1px solid var(--er-line); border-left: 6px solid var(--lvl);
+    padding: 12px 16px; border: 1px solid var(--er-line); border-left: 6px solid var(--lvl, var(--er-line));
     border-radius: 12px; background: var(--er-row-bg); min-width: 0;
 }
 .er-theme .er-d2d-tile.er-tri-5 { border-left-color: var(--lvl-ring); }

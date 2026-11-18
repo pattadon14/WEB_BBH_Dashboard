@@ -29,6 +29,7 @@
         buttons.forEach(b => b.setAttribute('aria-pressed', String(daysAgo(Number(b.dataset.erDay)) === date)));
 
         loadD2D(date, my);
+        loadLos(date, my);
 
         let data;
         try {
@@ -100,6 +101,48 @@
         }).join('');
         const n = data.items.reduce((s, it) => s + it.n, 0), t = data.items.reduce((s, it) => s + it.timed, 0);
         note.textContent = `มีเวลาพบแพทย์ ${fmt(t)} จาก ${fmt(n)} ราย (${pct(t, n)}%) · ใช้เวลาที่เร็วที่สุดของ กดเริ่มตรวจ / สั่ง Lab / X-ray / สั่งยา / บันทึกรายงานแพทย์ใน HPI · ไม่รวม Black`;
+    }
+
+    /* สถานะ ER ตอนนี้ (เฉพาะวันนี้) + LOS / เข้า ER ถึง Admit / Refer ของวันที่เลือก */
+    const hm = m => m === null || m === undefined ? '—' : m < 60 ? `${m} นาที` : `${Math.floor(m / 60)} ชม. ${m % 60} นาที`;
+    async function loadLos(date, my) {
+        const grid = $('er-los-grid'), note = $('er-los-note');
+        let data;
+        try {
+            data = await (await fetch('../api/er_los.php?date=' + encodeURIComponent(date), { cache: 'no-store' })).json();
+        } catch (e) {
+            data = { error: 'โหลดข้อมูลไม่สำเร็จ' };
+        }
+        if (my !== seq) return;
+        $('er-now').hidden = !data.now;
+        if (data.error) { grid.innerHTML = ''; note.textContent = data.error; return; }
+
+        if (data.now) {
+            $('er-now-at').textContent = `(ณ ${data.now.at} น.)`;
+            $('er-now-in').textContent = fmt(data.now.in_er);
+            $('er-now-l12').textContent = fmt(data.now.l12);
+            $('er-now-wait').textContent = fmt(data.now.waiting);
+            $('er-now-over').textContent = fmt(data.now.over4h);
+            $('er-now-long').textContent = hm(data.now.longest);
+        }
+
+        const L = data.los, b = data.boarding_min;
+        const pct = (a, n) => n ? Math.round(a * 100 / n) : 0;
+        const tile = (head, sub, avg, line, meter) => `<div class="er-d2d-tile">
+                <div class="er-d2d-head"><span>${head}</span><span class="er-d2d-target">${sub}</span></div>
+                <div class="er-d2d-avg"><span class="er-d2d-label">เฉลี่ย</span> <b>${avg === null ? '—' : fmt(avg)}</b> <span class="er-d2d-label">นาที</span></div>
+                ${meter === null ? '' : `<div class="er-d2d-meter" role="img" aria-label="${meter.label}"><span style="width:${meter.p}%"></span></div>`}
+                <div class="er-d2d-within">${line}</div>
+            </div>`;
+        const ttd = (name, x) => tile(`เข้า ER ถึง ${name}`, `เกณฑ์ ≤ ${b} นาที`, x.avg,
+            x.n ? `รอเกิน ${b} นาที ${fmt(x.over)} จาก ${fmt(x.n)} ราย (${pct(x.over, x.n)}%)` : `ไม่มี${name}`,
+            x.n ? { p: pct(x.over, x.n), label: `รอเกิน ${pct(x.over, x.n)}%` } : null);
+        grid.innerHTML =
+            tile('อยู่ใน ER ทั้งหมด', L.median === null ? '' : `มัธยฐาน ${fmt(L.median)} นาที`, L.avg,
+                L.timed ? `เกิน 4 ชม. ${fmt(L.over4h)} ราย · เกิน 6 ชม. ${fmt(L.over6h)} ราย` : 'ยังไม่มีเวลาออกจาก ER',
+                L.timed ? { p: pct(L.over4h, L.timed), label: `เกิน 4 ชม. ${pct(L.over4h, L.timed)}%` } : null) +
+            ttd('Admit', data.admit) + ttd('Refer', data.refer);
+        note.textContent = `มีเวลาออกจาก ER ${fmt(L.timed)} จาก ${fmt(L.n)} ราย (${pct(L.timed, L.n)}%) · ไม่นับงานบริการ (ทำแผล / ฉีดยา) · Admit / Refer นับถึงเวลาลงทะเบียน Admit / ส่งต่อ`;
     }
 
     /* คลิกการ์ด/ตัวเลข → รายชื่อผู้ป่วย (api/er_visit_list.php · ต้อง login · เงื่อนไขเดียวกับตัวเลขบนการ์ด) */

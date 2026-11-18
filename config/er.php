@@ -33,6 +33,15 @@ const ER_EMS_CODES = "('09', '10', '11')";
 // Refer out = ผลจำหน่าย 2 ใน ER_DCH_SQL (er_dch_type 2 หรือ referout จากจุด ER)
 const ER_REFER_IN_SQL = "(o.ovstist = '04' OR EXISTS (SELECT 1 FROM referin ri WHERE ri.vn = e.vn))";
 
+// แผนก ER ของบ้านบึง (011 คัดกรอง ER · 040 · 065) — ชุดเดียวกับ ER_DEPCODE ของต้นแบบ
+const ER_DEPCODES = "('011', '040', '065')";
+
+// ---- ระยะเวลาอยู่ใน ER (LOS, นาที) = er_regist.leave_datetime − enter_er_time (นับเฉพาะ 0–1440)
+// ข้อมูลจริง 30 วัน: leave_datetime ลง 89% ของ visit · ตรงกับเวลาส่งออกจาก ER ใน opd_dep_queue ±5 นาที 80% (มัธยฐานต่าง −1 นาที)
+// "อยู่ใน ER ตอนนี้" = ยังไม่มี leave_datetime และ ovst.cur_dep เป็นแผนก ER (ไม่มี leave แต่ cur_dep เป็นแผนกอื่น = ลืมลงเวลาออก)
+// เกณฑ์รอ Admit / Refer นาน = 120 นาที ชุดเดียวกับ BOARDING_MIN ของต้นแบบ
+const ER_BOARDING_MIN = 120;
+
 // ---- Door-to-Doctor (นาที) = เข้า ER (enter_er_time) ถึง "การกระทำแรกของแพทย์" — ตรงกับต้นแบบ queries.py (D2D + HPI)
 // เร็วที่สุดของ: กดเริ่มตรวจ (service_time.service2 = OPD-DOCTOR ของบ้านบึง) · สั่ง Lab · สั่ง X-ray · สั่งยา
 //   · เวลาที่พยาบาลจดใน HPI ว่ารายงาน/พบแพทย์ (er_hpi_minutes)

@@ -63,6 +63,41 @@ include '../templates/sidebar.php';
                             </div>
                         </div>
 
+                        <!-- สถานะ ER ตอนนี้ (api/er_los.php · แสดงเฉพาะเมื่อดูวันนี้) -->
+                        <div class="er-now" id="er-now" hidden>
+                            <div class="summary-section-title">
+                                <i class="fa-solid fa-bed-pulse"></i>
+                                สถานะ ER ตอนนี้ <span class="er-now-at" id="er-now-at"></span>
+                            </div>
+                            <div class="er-now-items">
+                                <div class="er-now-item"><b id="er-now-in">—</b><span>อยู่ใน ER (ราย)</span></div>
+                                <div class="er-now-item"><b id="er-now-l12">—</b><span>ระดับ 1–2</span></div>
+                                <div class="er-now-item" title="ยังไม่มีบันทึกการพบแพทย์ (กดเริ่มตรวจ / สั่ง Lab / X-ray / ยา / HPI)"><b id="er-now-wait">—</b><span>ยังไม่พบแพทย์</span></div>
+                                <div class="er-now-item"><b id="er-now-over">—</b><span>อยู่เกิน 4 ชม.</span></div>
+                                <div class="er-now-item"><b id="er-now-long">—</b><span>อยู่นานสุด</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Door-to-Doctor แยกตามระดับ (api/er_d2d.php · นิยามใน config/er.php) — วันเดียวกับการ์ดด้านบน -->
+                        <div class="er-d2d">
+                            <div class="summary-section-title" id="er-d2d-title">
+                                <i class="fa-solid fa-user-doctor"></i>
+                                เวลาเข้า ER ถึงพบแพทย์ (Door-to-Doctor)
+                            </div>
+                            <div class="er-d2d-grid" id="er-d2d-grid" aria-labelledby="er-d2d-title" aria-live="polite"></div>
+                            <div class="er-d2d-note" id="er-d2d-note"></div>
+                        </div>
+
+                        <!-- ระยะเวลาอยู่ใน ER + เข้า ER ถึง Admit / Refer (api/er_los.php) -->
+                        <div class="er-d2d er-los">
+                            <div class="summary-section-title" id="er-los-title">
+                                <i class="fa-solid fa-hourglass-half"></i>
+                                ระยะเวลาอยู่ใน ER (Length of Stay)
+                            </div>
+                            <div class="er-d2d-grid" id="er-los-grid" aria-labelledby="er-los-title"></div>
+                            <div class="er-d2d-note" id="er-los-note"></div>
+                        </div>
+
                         <div class="opd-summary-grid">
 
                             <div class="opd-summary-section">
@@ -229,15 +264,6 @@ include '../templates/sidebar.php';
 
                         </div>
 
-                        <!-- Door-to-Doctor แยกตามระดับ (api/er_d2d.php · นิยามใน config/er.php) — วันเดียวกับการ์ดด้านบน -->
-                        <div class="er-d2d">
-                            <div class="summary-section-title" id="er-d2d-title">
-                                <i class="fa-solid fa-user-doctor"></i>
-                                เวลาเข้า ER ถึงพบแพทย์ (Door-to-Doctor)
-                            </div>
-                            <div class="er-d2d-grid" id="er-d2d-grid" aria-labelledby="er-d2d-title" aria-live="polite"></div>
-                            <div class="er-d2d-note" id="er-d2d-note"></div>
-                        </div>
                     </div>
                 </div>
             </div>
