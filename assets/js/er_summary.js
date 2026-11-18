@@ -122,11 +122,12 @@
         dx: r.pdx ? [`${r.pdx} ${r.diag_th || r.diag_en || ''}`.trim(), r.diag_th && r.diag_en && r.diag_th !== r.diag_en ? r.diag_en : '']
             .filter(Boolean).join(' / ') : null
     });
-    function openDrill(type) {
+    // el = การ์ดที่คลิก · data-drill-title ใช้แทนหัวหน้าต่างได้ (ช่อง Refer ในผลการจำหน่ายคงชื่อ "Refer ส่งต่อ")
+    function openDrill(type, el) {
         if (!DRILL_TITLES[type]) return;
         const date = input.value || today();
         bbhDrill.open({
-            title: DRILL_TITLES[type],
+            title: (el && el.dataset.drillTitle) || DRILL_TITLES[type],
             sub: 'วันที่ ' + thai(date),
             url: '../api/er_visit_list.php?' + new URLSearchParams({ date, type }),
             cols: withDest(COLS, type),
