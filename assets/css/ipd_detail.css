@@ -22,16 +22,6 @@
     overflow: hidden;
 }
 
-.ipd-kpi-card::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: #198754;
-}
-
 .ipd-kpi-icon {
     width: 52px;
     height: 52px;
@@ -70,31 +60,6 @@
     color: #5f6b73;
     font-size: 12px;
     line-height: 1.2;
-}
-
-/* KPI color accents */
-.ipd-kpi-card.kpi-admit::before {
-    background: #198754;
-}
-
-.ipd-kpi-card.kpi-discharge::before {
-    background: #dc3545;
-}
-
-.ipd-kpi-card.kpi-beds::before {
-    background: #0d6efd;
-}
-
-.ipd-kpi-card.kpi-occupancy::before {
-    background: #198754;
-}
-
-.ipd-kpi-card.kpi-los::before {
-    background: #f59e0b;
-}
-
-.ipd-kpi-card.kpi-readmission::before {
-    background: #6f42c1;
 }
 
 .kpi-discharge .ipd-kpi-icon {
@@ -200,10 +165,6 @@
     box-shadow: 0 4px 14px rgba(220, 53, 69, .18);
 }
 
-.kpi-status-danger::before {
-    background: #dc3545 !important;
-}
-
 .kpi-status-danger .ipd-kpi-value {
     color: #b02a37 !important;
 }
@@ -240,7 +201,7 @@
     column-gap: 10px;
     row-gap: 4px;
     min-height: 0;
-    padding: 14px 14px 14px 18px;
+    padding: 16px;
 }
 
 /* ไอคอน + ชื่อ อยู่แถวเดียวกัน ตัวเลข/หน่วย/สถานะ เต็มความกว้างด้านล่าง */
@@ -258,6 +219,7 @@
     width: 40px;
     height: 40px;
     flex-basis: 40px;
+    border-radius: 12px;   /* กล่องมุมมนแบบเดียวกับการ์ดสรุป OPD / ER */
     font-size: 19px;
 }
 
@@ -268,6 +230,7 @@
 
 .ipd-kpi-value {
     font-size: 36px;
+    font-variant-numeric: tabular-nums;
 }
 
 .ipd-kpi-unit {

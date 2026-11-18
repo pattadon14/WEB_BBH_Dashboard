@@ -20,7 +20,7 @@ include '../templates/sidebar.php';
 
             <!-- สรุปรายวัน (api/er_today_summary.php · assets/js/er_summary.js) — รูปแบบเดียวกับการ์ดสรุปหน้า OPD -->
             <div id="er-summary" class="mb-3">
-                <div class="card shadow-sm opd-summary-horizontal">
+                <div class="card shadow-sm opd-summary-horizontal" id="er-summary-card">
                     <div class="card-body">
 
                         <div class="opd-summary-main">
@@ -71,7 +71,7 @@ include '../templates/sidebar.php';
                                 </div>
                                 <div class="horizontal-summary-item walkin-card er-crit-card">
                                     <div class="walkin-head">
-                                        <span class="opd-ico"><i class="fa-solid fa-heart-pulse"></i></span>
+                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-heart-pulse"></i></span>
                                         <div>
                                             <div class="summary-title">วิกฤต / ฉุกเฉิน</div>
                                             <div class="todaysummary-sub">ระดับ 1–2 ต้องพบแพทย์ภายใน 10 นาที</div>
@@ -111,19 +111,23 @@ include '../templates/sidebar.php';
                                 </div>
                                 <div class="exam-horizontal-group">
                                     <div class="exam-horizontal-card refer-card">
-                                        <div class="summary-title"><span class="opd-ico"><i class="fa-solid fa-heart-pulse"></i></span>ฉุกเฉิน</div>
+                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-heart-pulse"></i></span>
+                                        <div class="summary-title">ฉุกเฉิน</div>
                                         <div class="summary-number"><span id="er-pt-emergency">—</span> <span class="summary-unit">ครั้ง</span></div>
                                     </div>
                                     <div class="exam-horizontal-card admit-card">
-                                        <div class="summary-title"><span class="opd-ico"><i class="fa-solid fa-car-burst"></i></span>อุบัติเหตุ</div>
+                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-car-burst"></i></span>
+                                        <div class="summary-title">อุบัติเหตุ</div>
                                         <div class="summary-number"><span id="er-pt-accident">—</span> <span class="summary-unit">ครั้ง</span></div>
                                     </div>
                                     <div class="exam-horizontal-card wait-card">
-                                        <div class="summary-title"><span class="opd-ico"><i class="fa-solid fa-stethoscope"></i></span>ตรวจโรคทั่วไป</div>
+                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-stethoscope"></i></span>
+                                        <div class="summary-title">ตรวจโรคทั่วไป</div>
                                         <div class="summary-number"><span id="er-pt-general">—</span> <span class="summary-unit">ครั้ง</span></div>
                                     </div>
                                     <div class="exam-horizontal-card nodr-card" title="ทำแผล ฉีดยา ใบรับรองแพทย์ และห้องทำแผลเวรเช้า">
-                                        <div class="summary-title"><span class="opd-ico"><i class="fa-solid fa-syringe"></i></span>รับบริการอื่น</div>
+                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-syringe"></i></span>
+                                        <div class="summary-title">รับบริการอื่น</div>
                                         <div class="summary-number"><span id="er-pt-service">—</span> <span class="summary-unit">ครั้ง</span></div>
                                     </div>
                                 </div>
@@ -136,7 +140,7 @@ include '../templates/sidebar.php';
                                 </div>
                                 <div class="time-horizontal-group">
                                     <div class="time-horizontal-card time-night">
-                                        <div class="time-icon"><i class="fa-solid fa-moon"></i></div>
+                                        <div class="time-icon" aria-hidden="true"><i class="fa-solid fa-moon"></i></div>
                                         <div class="time-info">
                                             <div class="time-label">เวรดึก</div>
                                             <div class="time-range">00:00 – 07:59 น.</div>
@@ -144,7 +148,7 @@ include '../templates/sidebar.php';
                                         <div class="time-count"><span id="er-shift-night">—</span><small>ครั้ง</small></div>
                                     </div>
                                     <div class="time-horizontal-card time-morning">
-                                        <div class="time-icon"><i class="fa-solid fa-sun"></i></div>
+                                        <div class="time-icon" aria-hidden="true"><i class="fa-solid fa-sun"></i></div>
                                         <div class="time-info">
                                             <div class="time-label">เวรเช้า</div>
                                             <div class="time-range">08:00 – 15:59 น.</div>
@@ -152,7 +156,7 @@ include '../templates/sidebar.php';
                                         <div class="time-count"><span id="er-shift-morning">—</span><small>ครั้ง</small></div>
                                     </div>
                                     <div class="time-horizontal-card time-evening">
-                                        <div class="time-icon"><i class="fa-solid fa-cloud-sun"></i></div>
+                                        <div class="time-icon" aria-hidden="true"><i class="fa-solid fa-cloud-sun"></i></div>
                                         <div class="time-info">
                                             <div class="time-label">เวรบ่าย</div>
                                             <div class="time-range">16:00 – 23:59 น.</div>
@@ -170,29 +174,35 @@ include '../templates/sidebar.php';
                                 <!-- 6 ช่องรวมได้ยอดทั้งหมด · Admit/Refer นับจาก ipt / referout จุด ER ด้วย (config/er.php) -->
                                 <div class="exam-horizontal-group">
                                     <div class="exam-horizontal-card finish-card">
-                                        <div class="summary-title"><span class="opd-ico"><i class="fa-solid fa-house"></i></span>กลับบ้าน</div>
+                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-house"></i></span>
+                                        <div class="summary-title">กลับบ้าน</div>
                                         <div class="summary-number"><span id="er-home">—</span> <span class="summary-unit">ครั้ง</span></div>
                                     </div>
                                     <div class="exam-horizontal-card exam-card" title="ไม่รอตรวจ / หนีกลับ / ปฏิเสธการรักษา">
-                                        <div class="summary-title"><span class="opd-ico"><i class="fa-solid fa-person-walking-arrow-right"></i></span>ไม่รอตรวจ / หนีกลับ</div>
+                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-person-walking-arrow-right"></i></span>
+                                        <div class="summary-title">ไม่รอตรวจ / หนีกลับ</div>
                                         <div class="summary-number"><span id="er-gone">—</span> <span class="summary-unit">ครั้ง</span></div>
                                     </div>
                                     <div class="exam-horizontal-card wait-card" title="ยังอยู่ใน ER หรือยังไม่ได้บันทึกผลการจำหน่าย">
-                                        <div class="summary-title"><span class="opd-ico"><i class="fa-solid fa-user-clock"></i></span>ยังไม่ลงผลจำหน่าย</div>
+                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-user-clock"></i></span>
+                                        <div class="summary-title">ยังไม่ลงผลจำหน่าย</div>
                                         <div class="summary-number"><span id="er-no-dch">—</span> <span class="summary-unit">ครั้ง</span></div>
                                     </div>
                                     <div class="exam-horizontal-card nodr-card" title="สังเกตอาการ / เสียชีวิต">
-                                        <div class="summary-title"><span class="opd-ico"><i class="fa-solid fa-ellipsis"></i></span>อื่น ๆ</div>
+                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-ellipsis"></i></span>
+                                        <div class="summary-title">อื่น ๆ</div>
                                         <div class="summary-number"><span id="er-other-dch">—</span> <span class="summary-unit">ครั้ง</span></div>
                                     </div>
                                 </div>
                                 <div class="opd-mini-pair">
                                     <div class="exam-horizontal-card admit-card">
-                                        <div class="summary-title"><i class="fa-solid fa-bed-pulse"></i> Admit</div>
+                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-bed-pulse"></i></span>
+                                        <div class="summary-title">Admit</div>
                                         <div class="summary-number"><span id="er-admit">—</span> <span class="summary-unit">ครั้ง</span></div>
                                     </div>
                                     <div class="exam-horizontal-card refer-card">
-                                        <div class="summary-title"><i class="fa-solid fa-truck-medical"></i> Refer ส่งต่อ</div>
+                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-truck-medical"></i></span>
+                                        <div class="summary-title">Refer ส่งต่อ</div>
                                         <div class="summary-number"><span id="er-refer">—</span> <span class="summary-unit">ครั้ง</span></div>
                                     </div>
                                 </div>

@@ -630,9 +630,6 @@ html[data-theme="dark"] .ipd-kpi-card {
     border: 1px solid #333a37;
     background: #161616;
 }
-html[data-theme="dark"] .ipd-kpi-card::before {
-    background: #198754;
-}
 html[data-theme="dark"] .ipd-kpi-icon {
     background: #161b18;
     color: #72d39c;
@@ -645,24 +642,6 @@ html[data-theme="dark"] .ipd-kpi-value {
 }
 html[data-theme="dark"] .ipd-kpi-unit {
     color: #b4c1ca;
-}
-html[data-theme="dark"] .ipd-kpi-card.kpi-admit::before {
-    background: #198754;
-}
-html[data-theme="dark"] .ipd-kpi-card.kpi-discharge::before {
-    background: #dc3545;
-}
-html[data-theme="dark"] .ipd-kpi-card.kpi-beds::before {
-    background: #0d6efd;
-}
-html[data-theme="dark"] .ipd-kpi-card.kpi-occupancy::before {
-    background: #198754;
-}
-html[data-theme="dark"] .ipd-kpi-card.kpi-los::before {
-    background: #442800;
-}
-html[data-theme="dark"] .ipd-kpi-card.kpi-readmission::before {
-    background: #6f42c1;
 }
 html[data-theme="dark"] .kpi-discharge .ipd-kpi-icon {
     background: #1d1818;
@@ -714,9 +693,6 @@ html[data-theme="dark"] .kpi-status-warning .ipd-kpi-status {
 html[data-theme="dark"] .kpi-status-danger {
     border-color: #dc3545;
     background: #1b1718;
-}
-html[data-theme="dark"] .kpi-status-danger::before {
-    background: #dc3545 !important;
 }
 html[data-theme="dark"] .kpi-status-danger .ipd-kpi-value {
     color: #fba7a5 !important;
@@ -1158,7 +1134,7 @@ html[data-theme="dark"] .opd-wait-more:focus-visible {
 html[data-theme="dark"] #opd-tab-general [data-drill]:focus-visible {
     outline: 3px solid #198754;
 }
-html[data-theme="dark"] #opd-tab-general #opd-summary {
+html[data-theme="dark"] :is(#opd-tab-general #opd-summary, #er-summary #er-summary-card) {
     --st-surface: #171817;
     --st-line: #333a36;
     --st-label-text: #c7dad2;
@@ -1168,45 +1144,49 @@ html[data-theme="dark"] #opd-tab-general #opd-summary {
     --st-track-tint: #1b1d1c;
     --st-appt-text: #89d8a9;
 }
-html[data-theme="dark"] #opd-tab-general #opd-summary :is(.time-horizontal-card, .exam-horizontal-card) {
+html[data-theme="dark"] :is(#opd-tab-general #opd-summary, #er-summary #er-summary-card) :is(.time-horizontal-card, .exam-horizontal-card) {
     --st-accent-text: #89d8a9;
     --st-chip-tint: #17201b;
 }
-html[data-theme="dark"] #opd-tab-general #opd-summary .time-night {
+html[data-theme="dark"] :is(#opd-tab-general #opd-summary, #er-summary #er-summary-card) .time-night {
     --st-accent-text: #b5c4fc;
     --st-chip-tint: #1b1d23;
 }
-html[data-theme="dark"] #opd-tab-general #opd-summary .time-morning {
+html[data-theme="dark"] :is(#opd-tab-general #opd-summary, #er-summary #er-summary-card) .time-morning {
     --st-accent-text: #f1b26e;
     --st-chip-tint: #201a0c;
 }
-html[data-theme="dark"] #opd-tab-general #opd-summary .time-evening {
+html[data-theme="dark"] :is(#opd-tab-general #opd-summary, #er-summary #er-summary-card) .time-evening {
     --st-accent-text: #fba489;
     --st-chip-tint: #241a13;
 }
-html[data-theme="dark"] #opd-tab-general #opd-summary .wait-card {
+html[data-theme="dark"] :is(#opd-tab-general #opd-summary, #er-summary #er-summary-card) .wait-card {
     --st-accent-text: #80d1e7;
     --st-chip-tint: #141f21;
 }
-html[data-theme="dark"] #opd-tab-general #opd-summary .exam-card {
+html[data-theme="dark"] :is(#opd-tab-general #opd-summary, #er-summary #er-summary-card) .exam-card {
     --st-accent-text: #c9bdfe;
     --st-chip-tint: #1f1c27;
 }
-html[data-theme="dark"] #opd-tab-general #opd-summary .finish-card {
+html[data-theme="dark"] :is(#opd-tab-general #opd-summary, #er-summary #er-summary-card) .finish-card {
     --st-accent-text: #89d8a9;
     --st-chip-tint: #17201b;
 }
-html[data-theme="dark"] #opd-tab-general #opd-summary .nodr-card {
+html[data-theme="dark"] :is(#opd-tab-general #opd-summary, #er-summary #er-summary-card) .nodr-card {
     --st-accent-text: #bacad8;
     --st-chip-tint: #1c1e1f;
 }
-html[data-theme="dark"] #opd-tab-general #opd-summary .admit-card {
+html[data-theme="dark"] :is(#opd-tab-general #opd-summary, #er-summary #er-summary-card) .admit-card {
     --st-accent-text: #ffaa7b;
     --st-chip-tint: #241a0f;
 }
-html[data-theme="dark"] #opd-tab-general #opd-summary .refer-card {
+html[data-theme="dark"] :is(#opd-tab-general #opd-summary, #er-summary #er-summary-card) .refer-card {
     --st-accent-text: #fba7a5;
     --st-chip-tint: #251a1c;
+}
+html[data-theme="dark"] #er-summary #er-summary-card .er-crit-card {
+    --st-walkin-text: #ffa698;
+    --st-walkin-tint: #241a19;
 }
 html[data-theme="dark"] .opd-drill {
     color: #cbdcd4;
