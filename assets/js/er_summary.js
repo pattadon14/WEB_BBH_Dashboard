@@ -44,7 +44,7 @@
             'er-pt-general': data.pt_general, 'er-pt-service': data.pt_service,
             'er-shift-night': data.shift_night, 'er-shift-morning': data.shift_morning, 'er-shift-evening': data.shift_evening,
             'er-home': data.home, 'er-gone': data.gone, 'er-no-dch': data.no_dch, 'er-other-dch': data.other_dch,
-            'er-admit': data.admit, 'er-refer': data.refer, 'er-refer-out': data.refer
+            'er-admit': data.admit, 'er-refer': data.refer_all, 'er-refer-out': data.refer
         };
         Object.keys(map).forEach(id => { $(id).textContent = fmt(map[id]); });
 
@@ -79,26 +79,29 @@
         pt_emergency: 'ผู้ป่วยฉุกเฉิน', pt_accident: 'ผู้ป่วยอุบัติเหตุ', pt_general: 'ผู้ป่วยตรวจโรคทั่วไป', pt_service: 'ผู้ป่วยรับบริการอื่น',
         shift_night: 'เวรดึก (00:00–07:59 น.)', shift_morning: 'เวรเช้า (08:00–15:59 น.)', shift_evening: 'เวรบ่าย (16:00–23:59 น.)',
         home: 'กลับบ้าน', gone: 'ไม่รอตรวจ / หนีกลับ / ปฏิเสธการรักษา', no_dch: 'ยังไม่ลงผลจำหน่าย', other_dch: 'ผลจำหน่ายอื่น ๆ',
-        admit: 'Admit', refer: 'Refer out — ส่งต่อไปสถานพยาบาลอื่น'
+        admit: 'Admit', refer: 'Refer out — ส่งต่อไปสถานพยาบาลอื่น',
+        refer_all: 'Refer ทั้งหมด (รับเข้า + ส่งออก)'
     };
     // ตัวเลือกคอลัมน์ (bbh_drill.js) แบบเดียวกับหน้า OPD: nowrap = บรรทัดเดียว · max = ยาวเกินตัด … (ชี้/แตะดูเต็ม) · display = ย่อเฉพาะตอนแสดง
     const NW = { nowrap: true };
     const shortHosp = v => String(v).replace(/โรงพยาบาลส่งเสริมสุขภาพตำบล/g, 'รพ.สต.').replace(/โรงพยาบาล/g, 'รพ.');
     const COLS = [
-        ['enter_at', 'เข้า ER', NW], ['hn', 'HN', NW], ['name', 'ชื่อ-สกุล', NW], ['age', 'อายุ', { nowrap: true, display: v => v + ' ปี' }],
+        ['enter_at', 'เข้า ER', NW], ['hn', 'HN', NW], ['name', 'ชื่อ-สกุล', { max: '12em' }], ['age', 'อายุ', { nowrap: true, display: v => v + ' ปี' }],
         ['lvl', 'ระดับ', NW], ['pt', 'ประเภท', NW], ['arrival', 'วิธีมา', { max: '8em' }],
         // การวินิจฉัยบรรทัดเดียว: "รหัส ชื่อไทย" · ชื่ออังกฤษอยู่ใน tooltip / แตะดู (ค่าเต็ม "… / English")
-        ['dx', 'การวินิจฉัย', { max: '13em', display: v => v.split(' / ')[0] }],
+        ['dx', 'การวินิจฉัย', { max: '12em', display: v => v.split(' / ')[0] }],
         ['d2d', 'Door-to-Doctor', { nowrap: true, display: v => v + ' น.' }], ['dch', 'ผลจำหน่าย', NW]
     ];
-    // คอลัมน์ที่ค่าเหมือนกันทั้งรายการ → แสดงข้อมูลที่บอกมากกว่าแทน [คอลัมน์ที่ถูกแทน, คอลัมน์ใหม่]
+    // คอลัมน์ที่ค่าเหมือนกันทั้งรายการ → แสดงข้อมูลที่บอกมากกว่าแทน [คอลัมน์ที่ถูกแทน, คอลัมน์ใหม่...]
     //   Admit / Refer out: ผลจำหน่าย → ปลายทาง · Refer in: วิธีมา → รพ.ต้นทาง (ใบ referin)
+    //   Refer รวม: วิธีมา → สัญลักษณ์ in/out + รพ.ต้นทาง/ปลายทาง (คงผลจำหน่ายไว้ เห็นว่าเคสรับเข้าจบอย่างไร · ไม่มี Door-to-Doctor ให้พอดีจอ)
     const DEST_COL = {
         admit:    ['dch', ['admit_ward', 'Admit ไปที่', { max: '13em' }]],
         refer:    ['dch', ['refer_to', 'ส่งต่อไปที่', { display: shortHosp, max: '16em' }]],
-        refer_in: ['arrival', ['refer_from', 'รับจาก', { display: shortHosp, max: '16em' }]]
+        refer_in: ['arrival', ['refer_from', 'รับจาก', { display: shortHosp, max: '16em' }]],
+        refer_all: ['arrival', ['ref_dir', 'In / Out', NW], ['ref_place', 'รับจาก / ส่งไป', { display: shortHosp, max: '10em' }]]
     };
-    const withDest = (list, type) => DEST_COL[type] ? list.map(c => c[0] === DEST_COL[type][0] ? DEST_COL[type][1] : c) : list;
+    const withDest = (list, type) => DEST_COL[type] ? list.flatMap(c => c[0] === DEST_COL[type][0] ? DEST_COL[type].slice(1) : [c]) : list;
     // Export: ค่าเต็ม หน่วยอยู่ที่หัวคอลัมน์ แยกรหัส/ชื่อโรค
     const EXPORT_COLS = [
         ['enter_at', 'เข้า ER'], ['hn', 'HN'], ['name', 'ชื่อ-สกุล'], ['age', 'อายุ (ปี)'], ['lvl', 'ระดับ'], ['pt', 'ประเภท'],
@@ -114,31 +117,43 @@
             const n = m ? m[1] : r.lvl === 'Black' ? '6' : '0';
             return `<span class="er-lvl er-tri-${n}">${esc(r.lvl)}</span>`;
         }
+        // ทิศทาง Refer: สัญลักษณ์ (รูปต่างกัน ไม่พึ่งสีอย่างเดียว) + ข้อความสำหรับโปรแกรมอ่านหน้าจอ / tooltip
+        if (k === 'ref_dir' && r.ref_dir) {
+            const sym = {
+                in:  '<span class="er-ref er-ref-in" title="Refer in: รับเข้า"><i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i><span class="visually-hidden">Refer in</span></span>',
+                out: '<span class="er-ref er-ref-out" title="Refer out: ส่งออก"><i class="fa-solid fa-truck-medical" aria-hidden="true"></i><span class="visually-hidden">Refer out</span></span>'
+            };
+            return r.ref_dir.split(' + ').map(d => sym[d.replace('Refer ', '')] || '').join(' ');
+        }
         return undefined;   // ค่าปกติ (bbh_drill.js จัดการตามตัวเลือกคอลัมน์)
     }
 
+    const DIR_LABEL = { in: 'Refer in', out: 'Refer out', 'in+out': 'Refer in + Refer out' };
     const withDx = r => ({
         ...r,
+        // Refer รวม: ทิศทางเป็นข้อความ (กรอง/ค้นหา/Export) · สถานที่ตามทิศทาง
+        ref_dir: r.ref_dir ? DIR_LABEL[r.ref_dir] : null,
+        ref_place: r.ref_dir === 'in' ? r.refer_from : r.ref_dir === 'out' ? r.refer_to
+            : r.ref_dir ? `รับจาก ${r.refer_from || '–'} · ส่งต่อ ${r.refer_to || '–'}` : null,
         dx: r.pdx ? [`${r.pdx} ${r.diag_th || r.diag_en || ''}`.trim(), r.diag_th && r.diag_en && r.diag_th !== r.diag_en ? r.diag_en : '']
             .filter(Boolean).join(' / ') : null
     });
-    // el = การ์ดที่คลิก · data-drill-title ใช้แทนหัวหน้าต่างได้ (ช่อง Refer ในผลการจำหน่ายคงชื่อ "Refer ส่งต่อ")
-    function openDrill(type, el) {
+    function openDrill(type) {
         if (!DRILL_TITLES[type]) return;
         const date = input.value || today();
         bbhDrill.open({
-            title: (el && el.dataset.drillTitle) || DRILL_TITLES[type],
+            title: DRILL_TITLES[type],
             sub: 'วันที่ ' + thai(date),
             url: '../api/er_visit_list.php?' + new URLSearchParams({ date, type }),
-            cols: withDest(COLS, type),
-            exportCols: EXPORT_COLS.concat(DEST_COL[type] ? [DEST_COL[type][1].slice(0, 2)] : []),
+            cols: withDest(COLS, type).filter(c => !(type === 'refer_all' && c[0] === 'd2d')),
+            exportCols: EXPORT_COLS.concat(DEST_COL[type] ? DEST_COL[type].slice(1).map(c => c.slice(0, 2)) : []),
             mapRows: data => data.rows.map(withDx),
             placeholder: 'ค้นหา HN / ชื่อ / การวินิจฉัย',
-            searchKeys: ['hn', 'name', 'dx', 'arrival', 'dch', 'admit_ward', 'refer_to', 'refer_from'],
+            searchKeys: ['hn', 'name', 'dx', 'arrival', 'dch', 'admit_ward', 'refer_to', 'refer_from', 'ref_dir'],
             filters: withDest([['lvl', 'ระดับ'], ['pt', 'ประเภท'], ['arrival', 'วิธีมา'], ['dch', 'ผลจำหน่าย']], type),
             cell: drillCell,
             file: `ER_${type}_${date}.csv`,
-            summary: rows => `${fmt(rows.length)} ครั้ง (${fmt(new Set(rows.map(r => r.hn)).size)} คน)`
+            summary: rows => (type === 'refer_all' ? `in ${fmt(rows.filter(r => /Refer in/.test(r.ref_dir || '')).length)} · out ${fmt(rows.filter(r => /Refer out/.test(r.ref_dir || '')).length)} · ` : '') + `${fmt(rows.length)} ครั้ง (${fmt(new Set(rows.map(r => r.hn)).size)} คน)`
         });
     }
     bbhDrill.bind($('er-summary'), openDrill);

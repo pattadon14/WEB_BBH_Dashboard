@@ -52,7 +52,8 @@ try {
             COUNT(*) FILTER (WHERE x.dch IN (6, 7, 8))      AS gone,
             COUNT(*) FILTER (WHERE x.dch IS NULL)           AS no_dch,
             COUNT(*) FILTER (WHERE x.ovstist IN $ems)       AS ems,
-            COUNT(*) FILTER (WHERE x.refer_in)              AS refer_in
+            COUNT(*) FILTER (WHERE x.refer_in)              AS refer_in,
+            COUNT(*) FILTER (WHERE x.dch = 2 OR x.refer_in) AS refer_all   -- การ์ด Refer: in หรือ out (visit ที่มีทั้งสองนับครั้งเดียว)
         FROM (
             SELECT
                 $level                                      AS lvl,

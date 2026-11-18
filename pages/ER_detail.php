@@ -219,9 +219,9 @@ include '../templates/sidebar.php';
                                         <div class="summary-title">Admit</div>
                                         <div class="summary-number"><span id="er-admit">—</span> <span class="summary-unit">ครั้ง</span></div>
                                     </div>
-                                    <div class="exam-horizontal-card refer-card" data-drill="refer" data-drill-title="Refer ส่งต่อ">
-                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-truck-medical"></i></span>
-                                        <div class="summary-title">Refer ส่งต่อ</div>
+                                    <div class="exam-horizontal-card refer-card" data-drill="refer_all" title="Refer ทั้งหมด: รับเข้า (in) + ส่งออก (out) · visit ที่มีทั้งสองนับครั้งเดียว">
+                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-right-left"></i></span>
+                                        <div class="summary-title">Refer</div>
                                         <div class="summary-number"><span id="er-refer">—</span> <span class="summary-unit">ครั้ง</span></div>
                                     </div>
                                 </div>

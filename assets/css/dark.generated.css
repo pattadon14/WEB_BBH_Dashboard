@@ -524,6 +524,10 @@ html[data-theme="dark"] .er-theme {
 html[data-theme="dark"] .er-theme #er-summary #er-summary-card {
     --st-line: #463230;
 }
+html[data-theme="dark"] .er-ref-in {
+    background: #141d1c;
+    color: #7bd2c8;
+}
 
 /* ---- assets/css/index.css ---- */
 html[data-theme="dark"] .home-dash {

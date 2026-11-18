@@ -52,6 +52,7 @@ $FILTERS = [
     'other_dch'     => 'x.dch IS NOT NULL AND x.dch NOT IN (1, 2, 3, 6, 7, 8)',
     'admit'         => 'x.dch = 3',
     'refer'         => 'x.dch = 2',
+    'refer_all'     => '(x.dch = 2 OR x.refer_in)',   // = refer_all ใน er_today_summary.php
 ];
 
 $type = (string)($_GET['type'] ?? '');
@@ -76,7 +77,7 @@ $dch   = ER_DCH_SQL;
 try {
     $sql = "
         SELECT x.hn, x.name, x.age, x.enter_at, x.lvl, x.pt AS pt_code, x.arrival, x.dch, x.dch_name,
-               x.pdx, x.diag_th, x.diag_en, x.d2d, x.admit_ward, x.refer_to, x.refer_from
+               x.pdx, x.diag_th, x.diag_en, x.d2d, x.admit_ward, x.refer_to, x.refer_from, x.refer_in
         FROM (
             SELECT
                 $level                                          AS lvl,
@@ -132,6 +133,11 @@ try {
         $r['pt'] = ER_PT_NAMES[(int)$r['pt_code']] ?? 'ไม่ระบุ';
         unset($r['pt_code']);
         $r['age'] = $r['age'] === null ? null : (int)$r['age'];
+        // ทิศทางการส่งต่อ (หน้าต่าง Refer รวม): in = รับเข้า · out = ผลจำหน่ายส่งต่อ
+        $in = (bool)$r['refer_in'];
+        $out = $dchCode === 2;
+        $r['ref_dir'] = $in && $out ? 'in+out' : ($in ? 'in' : ($out ? 'out' : null));
+        unset($r['refer_in']);
         $r['d2d'] = $r['d2d'] === null ? null : (int)$r['d2d'];
         return $r;
     }, $st->fetchAll(PDO::FETCH_ASSOC));

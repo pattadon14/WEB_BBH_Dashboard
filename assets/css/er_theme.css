@@ -104,5 +104,10 @@
 .er-tri-0 { --lvl: #d1d5db; }
 .er-tri { background: var(--lvl); box-shadow: inset 0 0 0 1px var(--lvl-ring, transparent); }
 
+/* สัญลักษณ์ทิศทาง Refer ในหน้าต่าง "Refer ทั้งหมด": in = ลูกศรเข้า (เขียวน้ำทะเล) · out = รถพยาบาล (แดง) — รูปต่างกัน ไม่พึ่งสีอย่างเดียว */
+.er-ref { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 8px; font-size: 1rem; }
+.er-ref-in { background: #ddf4f1; color: #0f766e; }
+.er-ref-out { background: var(--er-tint); color: var(--er-text); }
+
 .er-lvl { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
 .er-lvl::before { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--lvl); box-shadow: inset 0 0 0 1px var(--lvl-ring, transparent); }
