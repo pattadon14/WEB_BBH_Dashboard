@@ -115,10 +115,10 @@ include '../templates/sidebar.php';
                                         <div class="summary-title">Refer in</div>
                                         <div class="summary-number"><span id="er-refer-in">—</span> <span class="summary-unit">ราย</span></div>
                                     </div>
-                                    <div class="exam-horizontal-card refer-card" data-drill="refer" title="Refer out: ส่งต่อไปสถานพยาบาลอื่น">
-                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-truck-medical"></i></span>
-                                        <div class="summary-title">Refer out</div>
-                                        <div class="summary-number"><span id="er-refer-out">—</span> <span class="summary-unit">ราย</span></div>
+                                    <div class="exam-horizontal-card refer-card" data-drill="refer_all" title="Refer ทั้งหมด: รับเข้า (in) + ส่งออก (out) · visit ที่มีทั้งสองนับครั้งเดียว">
+                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-right-left"></i></span>
+                                        <div class="summary-title">Refer รวม</div>
+                                        <div class="summary-number"><span id="er-refer">—</span> <span class="summary-unit">ราย</span></div>
                                     </div>
                                 </div>
                             </div>
@@ -219,10 +219,10 @@ include '../templates/sidebar.php';
                                         <div class="summary-title">Admit</div>
                                         <div class="summary-number"><span id="er-admit">—</span> <span class="summary-unit">ครั้ง</span></div>
                                     </div>
-                                    <div class="exam-horizontal-card refer-card" data-drill="refer_all" title="Refer ทั้งหมด: รับเข้า (in) + ส่งออก (out) · visit ที่มีทั้งสองนับครั้งเดียว">
-                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-right-left"></i></span>
-                                        <div class="summary-title">Refer</div>
-                                        <div class="summary-number"><span id="er-refer">—</span> <span class="summary-unit">ครั้ง</span></div>
+                                    <div class="exam-horizontal-card refer-card" data-drill="refer" title="Refer out: ส่งต่อไปสถานพยาบาลอื่น">
+                                        <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-truck-medical"></i></span>
+                                        <div class="summary-title">Refer out</div>
+                                        <div class="summary-number"><span id="er-refer-out">—</span> <span class="summary-unit">ครั้ง</span></div>
                                     </div>
                                 </div>
                             </div>
