@@ -20,11 +20,11 @@ require_once __DIR__ . '/../config/app.php';
 
     <script>
         // ธีมสว่าง/มืด: ตั้งก่อนโหลด CSS เพื่อไม่ให้หน้ากระพริบเป็นสีขาว
-        // ยังไม่เคยเลือก = ตามการตั้งค่าเครื่อง · เลือกแล้วจำไว้ในเครื่องนั้น (localStorage)
+        // ค่าเริ่มต้น = โหมดสว่าง · กดปุ่มเลือกแล้วจำไว้ในเครื่องนั้น (localStorage)
         (function () {
             var t = null;
             try { t = localStorage.getItem('bbh-theme'); } catch (e) {}
-            if (t !== 'light' && t !== 'dark') t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            if (t !== 'dark') t = 'light';
             document.documentElement.setAttribute('data-theme', t);
             document.documentElement.setAttribute('data-bs-theme', t);   // ตาราง/ฟอร์ม/dropdown ของ Bootstrap 5.3 (AdminLTE 4)
         })();
