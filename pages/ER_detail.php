@@ -376,11 +376,11 @@ include '../templates/sidebar.php';
                                                     <th>ชื่อโรค / การวินิจฉัย</th>
                                                     <th class="text-center" style="width:90px">รวม</th>
                                                     <th class="text-center" style="width:80px">
-                                                        <i class="fa-solid fa-mars" style="color:#2563eb"></i>
+                                                        <i class="fa-solid fa-mars"></i>
                                                         ชาย
                                                     </th>
                                                     <th class="text-center" style="width:80px">
-                                                        <i class="fa-solid fa-venus" style="color:#be185d"></i>
+                                                        <i class="fa-solid fa-venus"></i>
                                                         หญิง
                                                     </th>
                                                 </tr>

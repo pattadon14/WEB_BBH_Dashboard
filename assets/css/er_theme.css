@@ -14,7 +14,10 @@
     --er-on-solid: #ffffff;     /* ตัวอักษรบนพื้นแดง (คงขาวทั้งสองโหมด) */
     --er-glow: rgba(198, 40, 40, .25);
     --er-row-bg: #fffafa;
-    --er-page-bg: #ffffff;
+    --er-page-bg: #ffffff;      /* พื้นการ์ด (ขาวตัดกับพื้นหลังแดง) */
+    --er-backdrop: #c62828;     /* พื้นหลังหน้า: แดงไล่ลงเข้ม */
+    --er-backdrop-end: #8e1b1b;
+    --er-card-line: #e9b9b4;
 
     /* ส่วนประกอบกลางที่ใช้ token เขียวของเว็บ (ตัวกรองช่วงเวลา, ปีงบ, ช่องวันที่) เปลี่ยนเป็นแดงในหน้านี้ */
     --bbh-green: var(--er-solid);
@@ -24,11 +27,20 @@
     --bbh-ring: 0 0 0 3px var(--er-glow);
 }
 
-.content-wrapper.er-theme {
-    background: linear-gradient(180deg, var(--er-wash) 0, var(--er-page-bg) 320px) !important;
+/* พื้นหลังแดง การ์ดขาว — ทุกข้อความอยู่ในการ์ดขาว จึงไม่มีตัวอักษรวางบนพื้นแดงตรง ๆ */
+:root .content-wrapper.er-theme {
+    background: linear-gradient(180deg, var(--er-backdrop) 0, var(--er-backdrop-end) 100%) !important;
 }
+:root .er-theme .card { background: var(--er-page-bg); border-color: var(--er-card-line); }
 
 :root .er-theme .text-success { color: var(--er-text) !important; }
+
+/* ข้อความที่ยังเป็นเขียว/เทาเขียวจาก custom.css, opd_tabs.css, theme.css */
+:root .er-theme #er-summary #er-summary-card .opd-summary-main-number small { color: var(--er-text); }
+:root .er-theme .budget-select { border-color: var(--er-line); color: var(--er-text); }
+:root .er-theme .budget-select:focus { border-color: var(--er-solid) !important; color: var(--er-text) !important; }
+:root .er-theme .budget-select-icon { color: var(--er-text); }
+:root .er-theme .chart-title { color: var(--er-text); }
 
 /* ---------- การ์ดสรุปรายวัน ---------- */
 :root .er-theme #er-summary #er-summary-card .opd-summary-main-icon { background: var(--er-tint); color: var(--er-text); }
@@ -71,8 +83,6 @@
 /* ---------- กราฟ + ตาราง 10 อันดับ ---------- */
 :root .er-theme .chart-title i { color: var(--er-text); }
 :root .er-theme .table-ipd-top10 thead th { background: var(--er-solid); color: var(--er-on-solid); }
-/* ไอคอนชาย/หญิงในหัวตารางใส่สีไว้ใน style="" (ฟ้า/ชมพู) จมกับพื้นแดง → ขาวตามตัวอักษรหัวตาราง */
-:root .er-theme .table-ipd-top10 thead th i { color: inherit !important; }
 :root .er-theme .table-ipd-top10 tbody tr:hover { background: var(--er-wash); }
 
 /* ---------- ตัวเลข/การ์ดที่คลิกดูรายชื่อได้ ---------- */

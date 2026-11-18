@@ -465,10 +465,10 @@ try {
                 <td class="text-center fw-bold text-success">
                     ${row.total.toLocaleString()}
                 </td>
-                <td class="text-center" style="color:#2563eb">
+                <td class="text-center">
                     ${row.male.toLocaleString()}
                 </td>
-                <td class="text-center" style="color:#be185d">
+                <td class="text-center">
                     ${row.female.toLocaleString()}
                 </td>
             </tr>`;

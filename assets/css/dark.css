@@ -178,3 +178,6 @@ html[data-theme="dark"] .highcharts-plot-background { fill: transparent !importa
 html[data-theme="dark"] .highcharts-point { stroke: var(--bbh-surface); }
 html[data-theme="dark"] .highcharts-credits { fill: #6f7c76 !important; }
 html[data-theme="dark"] .highcharts-heatmap-series .highcharts-point { stroke: var(--bbh-surface) !important; }
+
+/* หน้า ER: พื้นหลังแดงเข้มในโหมดมืด (er_theme.css ใช้แดงสด — สว่างเกินบนจอมืด) */
+html[data-theme="dark"] body .er-theme { --er-backdrop: #4a1414; --er-backdrop-end: #200a0a; }
