@@ -1158,6 +1158,56 @@ html[data-theme="dark"] .opd-wait-more:focus-visible {
 html[data-theme="dark"] #opd-tab-general [data-drill]:focus-visible {
     outline: 3px solid #198754;
 }
+html[data-theme="dark"] #opd-tab-general #opd-summary {
+    --st-surface: #171817;
+    --st-line: #333a36;
+    --st-label-text: #c7dad2;
+    --st-muted-text: #afc4bc;
+    --st-walkin-text: #9bc1fd;
+    --st-walkin-tint: #191c24;
+    --st-track-tint: #1b1d1c;
+    --st-appt-text: #89d8a9;
+}
+html[data-theme="dark"] #opd-tab-general #opd-summary :is(.time-horizontal-card, .exam-horizontal-card) {
+    --st-accent-text: #89d8a9;
+    --st-chip-tint: #17201b;
+}
+html[data-theme="dark"] #opd-tab-general #opd-summary .time-night {
+    --st-accent-text: #b5c4fc;
+    --st-chip-tint: #1b1d23;
+}
+html[data-theme="dark"] #opd-tab-general #opd-summary .time-morning {
+    --st-accent-text: #f1b26e;
+    --st-chip-tint: #201a0c;
+}
+html[data-theme="dark"] #opd-tab-general #opd-summary .time-evening {
+    --st-accent-text: #fba489;
+    --st-chip-tint: #241a13;
+}
+html[data-theme="dark"] #opd-tab-general #opd-summary .wait-card {
+    --st-accent-text: #80d1e7;
+    --st-chip-tint: #141f21;
+}
+html[data-theme="dark"] #opd-tab-general #opd-summary .exam-card {
+    --st-accent-text: #c9bdfe;
+    --st-chip-tint: #1f1c27;
+}
+html[data-theme="dark"] #opd-tab-general #opd-summary .finish-card {
+    --st-accent-text: #89d8a9;
+    --st-chip-tint: #17201b;
+}
+html[data-theme="dark"] #opd-tab-general #opd-summary .nodr-card {
+    --st-accent-text: #bacad8;
+    --st-chip-tint: #1c1e1f;
+}
+html[data-theme="dark"] #opd-tab-general #opd-summary .admit-card {
+    --st-accent-text: #ffaa7b;
+    --st-chip-tint: #241a0f;
+}
+html[data-theme="dark"] #opd-tab-general #opd-summary .refer-card {
+    --st-accent-text: #fba7a5;
+    --st-chip-tint: #251a1c;
+}
 html[data-theme="dark"] .opd-drill {
     color: #cbdcd4;
 }
