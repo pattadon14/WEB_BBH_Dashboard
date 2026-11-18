@@ -15,7 +15,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 .ipd-ward-page {
     --ipd-green: #198754;
     --ipd-green-dark: #147447;
-    --ipd-blue: #1683c5;
+    --ipd-blue: #0e6ba8;
     --ipd-orange: #f59e0b;
     --ipd-red: #dc3545;
     --ipd-text: #6c6d75;
@@ -198,7 +198,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 }
 
 .ipd-ward-page .overview-help {
-    color: #71808d;
+    color: #5b6773;
     font-size: .88rem;
     margin-top: 5px;
 }
@@ -249,7 +249,6 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     width: 0;
     background: var(--ipd-green);
     border-radius: inherit;
-    transition: width .35s ease;
 }
 
 .ipd-ward-page .overview-card.orange .occupancy-fill {
@@ -346,7 +345,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 
 .ipd-ward-page .patient-avatar.avatar-male,
 .ipd-ward-page .patient-avatar.avatar-child-male {
-    color: #1683c5;
+    color: #0e6ba8;
     background: #edf7fc;
 }
 
@@ -365,7 +364,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 }
 
 .ipd-ward-page .patient-meta {
-    color: #8a969e;
+    color: #5f6b73;
 }
 
 .ipd-ward-page .patient-badges {
@@ -415,7 +414,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 }
 
 .ipd-ward-page .patient-info .value {
-    color: #1683c5;
+    color: #0e6ba8;
     font-weight: 700;
 }
 
@@ -435,7 +434,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 }
 
 .ipd-ward-page .doctor-name {
-    color: #1683c5;
+    color: #0e6ba8;
     font-weight: 700;
     word-break: break-word;
 }
@@ -553,7 +552,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
                         <i class="fa-solid fa-bed-pulse"></i>
                         <span id="ward-title">ข้อมูลผู้ป่วยใน</span>
                     </h2>
-                    <div class="ward-page-subtitle" id="ward-subtitle">กำลังโหลดข้อมูล Ward...</div>
+                    <div class="ward-page-subtitle" id="ward-subtitle">กำลังโหลดข้อมูล Ward…</div>
                 </div>
                 <a href="<?= BASE_URL ?>index.php" class="btn btn-outline-success back-btn">
                     <i class="fas fa-arrow-left mr-1"></i> กลับหน้าหลัก
@@ -649,7 +648,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
                         <div class="col-12">
                             <div class="empty-state">
                                 <i class="fas fa-spinner fa-spin d-block"></i>
-                                กำลังโหลดข้อมูลผู้ป่วย...
+                                กำลังโหลดข้อมูลผู้ป่วย…
                             </div>
                         </div>
                     </div>

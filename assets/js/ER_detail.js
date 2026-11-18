@@ -402,7 +402,7 @@ tbody.innerHTML = `
     <tr>
         <td colspan="6" class="text-center text-muted py-4">
             <i class="fa-solid fa-spinner fa-spin me-2"></i>
-            กำลังโหลดข้อมูล...
+            กำลังโหลดข้อมูล…
         </td>
     </tr>`;
 
@@ -443,7 +443,7 @@ try {
     data.forEach(row => {
 
         const badgeBg = rankColor[row.rank]
-            ? `style="background:${rankColor[row.rank]};color:#333;"`
+            ? `style="background:${rankColor[row.rank]};color:#1f1f1f;"`
             : 'style="background:#198754;color:#fff;"';
 
 
@@ -464,10 +464,10 @@ try {
                 <td class="text-center fw-bold text-success">
                     ${row.total.toLocaleString()}
                 </td>
-                <td class="text-center" style="color:#3b82f6">
+                <td class="text-center" style="color:#2563eb">
                     ${row.male.toLocaleString()}
                 </td>
-                <td class="text-center" style="color:#ec4899">
+                <td class="text-center" style="color:#be185d">
                     ${row.female.toLocaleString()}
                 </td>
             </tr>`;

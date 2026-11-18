@@ -84,7 +84,7 @@
 
             .ipd-ward-page .ipd-filter-result {
                 margin-left: auto;
-                color: #71808d;
+                color: #5b6773;
                 font-size: 14px;
                 font-weight: 600;
                 white-space: nowrap;
@@ -230,7 +230,7 @@
                 <i class="fas fa-rotate-left mr-1"></i> รีเซ็ต
             </button>
 
-            <div class="ipd-filter-result" id="ipd-filter-result">กำลังโหลด...</div>
+            <div class="ipd-filter-result" id="ipd-filter-result">กำลังโหลด…</div>
         `;
 
         head.insertAdjacentElement('afterend', tools);

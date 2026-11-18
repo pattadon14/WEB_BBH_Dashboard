@@ -42,16 +42,16 @@
             }
             .ipd-ward-page .ipd-ward-status.normal { background:#eaf7f0; color:#198754; }
             .ipd-ward-page .ipd-ward-status.watch { background:#fff7e6; color:#b77900; }
-            .ipd-ward-page .ipd-ward-status.over { background:#fff0f2; color:#dc3545; }
-            .ipd-ward-page .ipd-ward-status.error { background:#fff0f2; color:#dc3545; }
+            .ipd-ward-page .ipd-ward-status.over { background:#fff0f2; color:#b02a37; }
+            .ipd-ward-page .ipd-ward-status.error { background:#fff0f2; color:#b02a37; }
             .ipd-ward-page .ipd-flow-grid { display:grid; grid-template-columns:repeat(4,1fr); background:#fff; }
             .ipd-ward-page .ipd-flow-item { padding:12px 15px; border-right:1px solid #e7ece9; }
             .ipd-ward-page .ipd-flow-item:last-child { border-right:0; }
-            .ipd-ward-page .ipd-flow-label { color:#71808d; font-size:14px; }
+            .ipd-ward-page .ipd-flow-label { color:#5b6773; font-size:14px; }
             .ipd-ward-page .ipd-flow-value { margin-top:2px; color:#198754; font-size:23px; font-weight:800; line-height:1.2; }
-            .ipd-ward-page .ipd-flow-value.blue { color:#1683c5; }
-            .ipd-ward-page .ipd-flow-value.red { color:#dc3545; }
-            .ipd-ward-page .ipd-flow-value.orange { color:#f59e0b; }
+            .ipd-ward-page .ipd-flow-value.blue { color:#0e6ba8; }
+            .ipd-ward-page .ipd-flow-value.red { color:#b02a37; }
+            .ipd-ward-page .ipd-flow-value.orange { color:#b45309; }
             .ipd-ward-page .ipd-quick-actions {
                 display:flex; align-items:center; gap:7px; flex-wrap:wrap;
                 padding:10px 15px; border-top:1px solid #e7ece9; background:#fbfcfc;
@@ -64,7 +64,7 @@
             }
             .ipd-ward-page .ipd-quick-btn:hover,
             .ipd-ward-page .ipd-quick-btn.active { background:#198754; border-color:#198754; color:#fff; }
-            .ipd-ward-page .ipd-quick-btn.export { margin-left:auto; color:#1683c5; border-color:#cfe0ec; }
+            .ipd-ward-page .ipd-quick-btn.export { margin-left:auto; color:#0e6ba8; border-color:#cfe0ec; }
             .ipd-ward-page .ipd-quick-btn.export:hover { background:#1683c5; border-color:#1683c5; color:#fff; }
             .ipd-ward-page .ipd-filter-extra-group { display:flex; align-items:center; gap:6px; }
             .ipd-ward-page .ipd-filter-extra-select {
@@ -85,13 +85,13 @@
                 border-radius:9px; background:#f8faf9;
             }
             .ipd-history-insight .ipd-insight-label,
-            #ipd-history-insight .ipd-insight-label { color:#71808d; font-size:13px; }
+            #ipd-history-insight .ipd-insight-label { color:#5b6773; font-size:13px; }
             .ipd-history-insight .ipd-insight-value,
             #ipd-history-insight .ipd-insight-value { color:#198754; font-size:19px; font-weight:800; margin-top:2px; line-height:1.25; }
             .ipd-history-insight .ipd-insight-value.red,
-            #ipd-history-insight .ipd-insight-value.red { color:#dc3545; }
+            #ipd-history-insight .ipd-insight-value.red { color:#b02a37; }
             .ipd-history-insight .ipd-insight-value.blue,
-            #ipd-history-insight .ipd-insight-value.blue { color:#1683c5; }
+            #ipd-history-insight .ipd-insight-value.blue { color:#0e6ba8; }
 
             @media (max-width:991px) {
                 .ipd-ward-page .ipd-flow-grid { grid-template-columns:repeat(2,1fr); }
@@ -154,7 +154,7 @@
         box.innerHTML = `
             <div class="ipd-management-top">
                 <h3 class="ipd-management-title"><i class="fas fa-clipboard-check mr-1"></i> สถานการณ์ Ward วันนี้</h3>
-                <div id="ipd-ward-status" class="ipd-ward-status normal"><i class="fas fa-circle"></i> กำลังประเมิน...</div>
+                <div id="ipd-ward-status" class="ipd-ward-status normal"><i class="fas fa-circle"></i> กำลังประเมิน…</div>
             </div>
             <div class="ipd-flow-grid">
                 <div class="ipd-flow-item"><div class="ipd-flow-label">ผู้ป่วยปัจจุบัน</div><div id="ipd-flow-current" class="ipd-flow-value">-</div></div>

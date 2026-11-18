@@ -453,9 +453,9 @@ include '../templates/sidebar.php';
                                                     <th>ชื่อโรค / การวินิจฉัย</th>
                                                     <th class="text-center" style="width:90px">รวม</th>
                                                     <th class="text-center" style="width:80px"><i
-                                                            class="fa-solid fa-mars" style="color:#3b82f6"></i> ชาย</th>
+                                                            class="fa-solid fa-mars" style="color:#2563eb"></i> ชาย</th>
                                                     <th class="text-center" style="width:80px"><i
-                                                            class="fa-solid fa-venus" style="color:#ec4899"></i> หญิง
+                                                            class="fa-solid fa-venus" style="color:#be185d"></i> หญิง
                                                     </th>
                                                 </tr>
                                             </thead>

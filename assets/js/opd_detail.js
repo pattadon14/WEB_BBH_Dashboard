@@ -1053,7 +1053,7 @@ tbody.innerHTML = `
     <tr>
         <td colspan="6" class="text-center text-muted py-4">
             <i class="fa-solid fa-spinner fa-spin me-2"></i>
-            กำลังโหลดข้อมูล...
+            กำลังโหลดข้อมูล…
         </td>
     </tr>`;
 
@@ -1085,7 +1085,7 @@ try {
     const rankColor = {
         1: 'background:#FFD700;color:#333;',
         2: 'background:#C0C0C0;color:#333;',
-        3: 'background:#CD7F32;color:#fff;',
+        3: 'background:#CD7F32;color:#1f1f1f;',
     };
 
     let html = '';
@@ -1115,10 +1115,10 @@ try {
                 <td class="text-center fw-bold text-success">
                     ${row.total.toLocaleString()}
                 </td>
-                <td class="text-center" style="color:#3b82f6">
+                <td class="text-center" style="color:#2563eb">
                     ${row.male.toLocaleString()}
                 </td>
-                <td class="text-center" style="color:#ec4899">
+                <td class="text-center" style="color:#be185d">
                     ${row.female.toLocaleString()}
                 </td>
             </tr>`;
@@ -1209,8 +1209,8 @@ try {
                 const female = row ? row.female.toLocaleString() : 0;
                 return `<b>${this.x}</b><br/>
                         รวม: <b>${this.y.toLocaleString()} ครั้ง</b> (${pct}%)<br/>
-                        ชาย: <span style="color:#3b82f6">${male}</span> |
-                        หญิง: <span style="color:#ec4899">${female}</span>`;
+                        ชาย: <span style="color:#2563eb">${male}</span> |
+                        หญิง: <span style="color:#be185d">${female}</span>`;
             }
         },
 
@@ -1274,16 +1274,16 @@ try {
                     <div style="font-size:19px;font-weight:600;color:#333;margin-bottom:6px">
                         ${d.name}
                     </div>
-                    <div style="font-size:32px;font-weight:bold;color:${d.color};line-height:1">
+                    <div style="font-size:32px;font-weight:bold;color:#333;line-height:1">
                         ${d.total.toLocaleString()}
                         <span style="font-size:18px;font-weight:normal;color:#555">
                             ครั้ง (${pct}%)
                         </span>
                     </div>
                     <div style="font-size:17px;margin-top:6px;color:#555">
-                        <span style="color:#3b82f6">♂ ชาย ${d.male.toLocaleString()}</span>
+                        <span style="color:#2563eb">♂ ชาย ${d.male.toLocaleString()}</span>
                         &nbsp;|&nbsp;
-                        <span style="color:#ec4899">♀ หญิง ${d.female.toLocaleString()}</span>
+                        <span style="color:#be185d">♀ หญิง ${d.female.toLocaleString()}</span>
                     </div>
                 </div>
             </div>`;
@@ -1362,7 +1362,7 @@ async function openDrill(type, key, label) {
     document.getElementById('opd-drill-filters').innerHTML = '';
     document.getElementById('opd-drill-pager').innerHTML = '';
     document.getElementById('opd-drill-body').innerHTML =
-        '<p class="opd-drill-msg"><i class="fa-solid fa-spinner fa-spin"></i> กำลังโหลดรายชื่อ...</p>';
+        '<p class="opd-drill-msg"><i class="fa-solid fa-spinner fa-spin"></i> กำลังโหลดรายชื่อ…</p>';
     if (!dlg.open) dlg.showModal();
 
     try {

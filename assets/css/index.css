@@ -7,7 +7,7 @@
     --bbh-green-dark: #146c43;
     --bbh-green-soft: #e8f5ee;
     --bbh-text: #24433a;
-    --bbh-muted: #6b7f78;
+    --bbh-muted: #5d6e67;
     --bbh-shadow: 0 1px 2px rgba(16, 60, 40, .06), 0 6px 18px rgba(16, 60, 40, .08);
     --bbh-shadow-hover: 0 4px 10px rgba(16, 60, 40, .10), 0 16px 32px rgba(16, 60, 40, .14);
 }
@@ -439,7 +439,8 @@
 .home-dash .service-item { cursor: pointer; }
 .home-dash .service-item:focus-visible { outline: none; box-shadow: var(--bbh-ring); }
 
-.svc-detail { width: min(1180px, calc(100vw - 32px)); }
+.svc-detail { width: min(1180px, calc(100% - 32px)); }
+.badge.bg-info { background-color: #117a8b !important; }
 .svc-detail-scroll { flex: 1; min-height: 0; overflow: auto; }
 .svc-detail .opd-drill-body { overflow: visible; }
 .svc-detail .opd-drill-head h3 i { margin-right: 6px; }

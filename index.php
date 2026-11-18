@@ -36,7 +36,7 @@ include 'templates/sidebar.php';
                         <div class="inner">
 
                             <h3 id="opd-total">
-                                Loading...
+                                Loading…
                             </h3>
 
                             <p class="kpi-title mb-0">
@@ -48,13 +48,13 @@ include 'templates/sidebar.php';
                                 (เดือนนี้
 
                                 <span id="opd-month-patient">
-                                    Loading...
+                                    Loading…
                                 </span>
 
                                 คน /
 
                                 <span id="opd-month-visit">
-                                    Loading...
+                                    Loading…
                                 </span>
 
                                 ครั้ง)
@@ -95,7 +95,7 @@ include 'templates/sidebar.php';
                         <div class="inner">
 
                             <h3 id="ipd-total">
-                                Loading...
+                                Loading…
                             </h3>
 
                             <p class="kpi-title mb-0">
@@ -107,13 +107,13 @@ include 'templates/sidebar.php';
                                 (เดือนนี้
 
                                 <span id="ipd-month-patient">
-                                    Loading...
+                                    Loading…
                                 </span>
 
                                 คน /
 
                                 <span id="ipd-month-visit">
-                                    Loading...
+                                    Loading…
                                 </span>
 
                                 ครั้ง)
@@ -144,7 +144,7 @@ include 'templates/sidebar.php';
                         <div class="inner">
 
                             <h3 id="er-total">
-                                Loading...
+                                Loading…
                             </h3>
 
                             <p class="kpi-title mb-0">
@@ -156,13 +156,13 @@ include 'templates/sidebar.php';
                                 (เดือนนี้
 
                                 <span id="er-month-patient">
-                                    Loading...
+                                    Loading…
                                 </span>
 
                                 คน /
 
                                 <span id="er-month-visit">
-                                    Loading...
+                                    Loading…
                                 </span>
 
                                 ครั้ง)
@@ -210,10 +210,10 @@ include 'templates/sidebar.php';
 
                                 <div class="col-lg-3 col-6 mb-2">
                                     <div class="summary-card" style="border-left:5px solid #fd7e14">
-                                        <div class="summary-title" style="font-size:1.3rem;color:#fd7e14">
+                                        <div class="summary-title" style="font-size:1.3rem;color:#c2410c">
                                             <i class="fa-solid fa-clock"></i> ชั่วโมงที่แออัดสุด
                                         </div>
-                                        <div class="summary-number" style="font-size:2.2rem;color:#fd7e14">
+                                        <div class="summary-number" style="font-size:2.2rem;color:#c2410c">
                                             <span id="hm-peak-hour">—</span>
                                         </div>
                                     </div>
@@ -221,10 +221,10 @@ include 'templates/sidebar.php';
 
                                 <div class="col-lg-3 col-6 mb-2">
                                     <div class="summary-card" style="border-left:5px solid #dc3545">
-                                        <div class="summary-title" style="font-size:1.3rem;color:#dc3545">
+                                        <div class="summary-title" style="font-size:1.3rem;color:#b02a37">
                                             <i class="fa-solid fa-hospital"></i> แผนกที่แออัดสุดวันนี้
                                         </div>
-                                        <div class="summary-number" style="font-size:2rem;color:#dc3545">
+                                        <div class="summary-number" style="font-size:2rem;color:#b02a37">
                                             <span id="hm-peak-dept">—</span>
                                         </div>
                                     </div>
@@ -296,7 +296,7 @@ include 'templates/sidebar.php';
 
                                                     จำนวนเตียงทั้งหมด
                                                     <span id="bedcount">
-                                                        Loading...
+                                                        Loading…
                                                     </span>
                                                     เตียง
 
@@ -313,7 +313,7 @@ include 'templates/sidebar.php';
                                                 <span>อัตราครองเตียงขณะนี้</span>
 
                                                 <span class="badge bg-danger" id="occupancy">
-                                                    Loading...
+                                                    Loading…
                                                 </span>
 
                                             </div>
@@ -323,7 +323,7 @@ include 'templates/sidebar.php';
                                                 <span>รับใหม่วันนี้</span>
 
                                                 <span class="badge bg-success" id="admittoday">
-                                                    Loading...
+                                                    Loading…
                                                 </span>
 
                                             </div>
@@ -333,7 +333,7 @@ include 'templates/sidebar.php';
                                                 <span>Admit อยู่</span>
 
                                                 <span class="badge bg-success" id="wtotal">
-                                                    Loading...
+                                                    Loading…
                                                 </span>
 
                                             </div>
@@ -343,7 +343,7 @@ include 'templates/sidebar.php';
                                                 <span>เตียงว่าง</span>
 
                                                 <span class="badge bg-success" id="wblank">
-                                                    Loading...
+                                                    Loading…
                                                 </span>
 
                                             </div>
@@ -353,7 +353,7 @@ include 'templates/sidebar.php';
                                                 <span>จำหน่ายวันนี้</span>
 
                                                 <span class="badge bg-success" id="dchtoday">
-                                                    Loading...
+                                                    Loading…
                                                 </span>
 
                                             </div>
@@ -363,7 +363,7 @@ include 'templates/sidebar.php';
                                                 <span>สิทธิ์ชำระเงินและเบิกได้</span>
 
                                                 <span class="badge bg-info" id="mo">
-                                                    Loading...
+                                                    Loading…
                                                 </span>
 
                                             </div>
@@ -373,7 +373,7 @@ include 'templates/sidebar.php';
                                                 <span>สิทธิ์ UC</span>
 
                                                 <span class="badge bg-info" id="uc">
-                                                    Loading...
+                                                    Loading…
                                                 </span>
 
                                             </div>
@@ -383,7 +383,7 @@ include 'templates/sidebar.php';
                                                 <span>สิทธิ์อื่นๆ</span>
 
                                                 <span class="badge bg-info" id="ot">
-                                                    Loading...
+                                                    Loading…
                                                 </span>
 
                                             </div>
@@ -433,7 +433,7 @@ include 'templates/sidebar.php';
 
                                                 <div class="service-total" id="scope_total">
 
-                                                    Loading...
+                                                    Loading…
 
                                                 </div>
 
@@ -450,7 +450,7 @@ include 'templates/sidebar.php';
 
                                                 <div class="service-total" id="or_total">
 
-                                                    Loading...
+                                                    Loading…
 
                                                 </div>
 
@@ -467,7 +467,7 @@ include 'templates/sidebar.php';
 
                                                 <div class="service-total" id="pt_total">
 
-                                                    Loading...
+                                                    Loading…
 
                                                 </div>
 
@@ -484,7 +484,7 @@ include 'templates/sidebar.php';
 
                                                 <div class="service-total" id="thai_total">
 
-                                                    Loading...
+                                                    Loading…
 
                                                 </div>
 
@@ -501,7 +501,7 @@ include 'templates/sidebar.php';
 
                                                 <div class="service-total" id="dent_total">
 
-                                                    Loading...
+                                                    Loading…
 
                                                 </div>
 
@@ -518,7 +518,7 @@ include 'templates/sidebar.php';
 
                                                 <div class="service-total" id="hemo_total">
 
-                                                    Loading...
+                                                    Loading…
 
                                                 </div>
 
@@ -534,7 +534,7 @@ include 'templates/sidebar.php';
 
                                                 <div class="service-total" id="wound_total">
 
-                                                    Loading...
+                                                    Loading…
 
                                                 </div>
 
@@ -550,7 +550,7 @@ include 'templates/sidebar.php';
 
                                                 <div class="service-total" id="us_total">
 
-                                                    Loading...
+                                                    Loading…
 
                                                 </div>
 
@@ -567,7 +567,7 @@ include 'templates/sidebar.php';
 
                                                 <div class="service-total" id="observe_total">
 
-                                                    Loading...
+                                                    Loading…
 
                                                 </div>
 
@@ -584,7 +584,7 @@ include 'templates/sidebar.php';
 
                                                 <div class="service-total" id="xray_total">
 
-                                                    Loading...
+                                                    Loading…
 
                                                 </div>
 
@@ -601,7 +601,7 @@ include 'templates/sidebar.php';
 
                                                 <div class="service-total" id="lr_total">
 
-                                                    Loading...
+                                                    Loading…
 
                                                 </div>
 
@@ -617,7 +617,7 @@ include 'templates/sidebar.php';
 
                                                 <div class="service-total" id="lab_total">
 
-                                                    Loading...
+                                                    Loading…
 
                                                 </div>
                                             </div>
@@ -633,7 +633,7 @@ include 'templates/sidebar.php';
 
                                                 <div class="service-total" id="ct_total">
 
-                                                    Loading...
+                                                    Loading…
 
                                                 </div>
 
@@ -650,7 +650,7 @@ include 'templates/sidebar.php';
 
                                                 <div class="service-total" id="rights_total">
 
-                                                    Loading...
+                                                    Loading…
 
                                                 </div>
 

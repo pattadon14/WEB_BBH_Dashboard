@@ -67,7 +67,7 @@
 
 .ipd-kpi-unit {
     margin-top: 3px;
-    color: #7a8790;
+    color: #5f6b73;
     font-size: 12px;
     line-height: 1.2;
 }
@@ -99,7 +99,7 @@
 
 .kpi-discharge .ipd-kpi-icon {
     background: #fff0f2;
-    color: #dc3545;
+    color: #b02a37;
 }
 
 .kpi-beds .ipd-kpi-icon {
@@ -109,7 +109,7 @@
 
 .kpi-los .ipd-kpi-icon {
     background: #fff7e6;
-    color: #d88900;
+    color: #a15c00;
 }
 
 .kpi-readmission .ipd-kpi-icon {
@@ -118,7 +118,7 @@
 }
 
 .kpi-discharge .ipd-kpi-value {
-    color: #dc3545;
+    color: #b02a37;
 }
 
 .kpi-beds .ipd-kpi-value {
@@ -126,7 +126,7 @@
 }
 
 .kpi-los .ipd-kpi-value {
-    color: #d88900;
+    color: #a15c00;
 }
 
 .kpi-readmission .ipd-kpi-value {
@@ -169,7 +169,7 @@
     padding: 3px 8px;
     border-radius: 10px;
     background: #eaf7f0;
-    color: #198754;
+    color: #146c43;
     font-size: 11px;
     font-weight: 700;
     line-height: 1.3;
@@ -181,17 +181,17 @@
 }
 
 .kpi-status-warning .ipd-kpi-value {
-    color: #d88900;
+    color: #a15c00;
 }
 
 .kpi-status-warning .ipd-kpi-icon {
     background: #fff7e6;
-    color: #d88900;
+    color: #a15c00;
 }
 
 .kpi-status-warning .ipd-kpi-status {
     background: #fff3cd;
-    color: #9a6700;
+    color: #7a5200;
 }
 
 .kpi-status-danger {
@@ -205,12 +205,12 @@
 }
 
 .kpi-status-danger .ipd-kpi-value {
-    color: #dc3545 !important;
+    color: #b02a37 !important;
 }
 
 .kpi-status-danger .ipd-kpi-icon {
     background: #ffe5e8;
-    color: #dc3545;
+    color: #b02a37;
 }
 
 .kpi-status-danger .ipd-kpi-status {
@@ -220,7 +220,7 @@
 
 .kpi-status-normal .ipd-kpi-status {
     background: #eaf7f0;
-    color: #198754;
+    color: #146c43;
 }
 
 .kpi-status-normal {

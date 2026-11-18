@@ -121,7 +121,7 @@ include '../templates/sidebar.php';
                         <div class="ipd-kpi-content">
                             <div class="ipd-kpi-label">อัตราครองเตียงเฉลี่ย</div>
                             <div id="kpi-occupancy-rate" class="ipd-kpi-value">-</div>
-                            <div id="kpi-occupancy-status" class="ipd-kpi-status">กำลังประเมิน...</div>
+                            <div id="kpi-occupancy-status" class="ipd-kpi-status">กำลังประเมิน…</div>
                         </div>
                     </div>
 
@@ -140,7 +140,7 @@ include '../templates/sidebar.php';
                             <div class="ipd-kpi-label">Readmission 30 วัน</div>
                             <div id="kpi-readmission-rate" class="ipd-kpi-value">-</div>
                             <div id="kpi-readmission-cases" class="ipd-kpi-unit">- ราย</div>
-                            <div id="kpi-readmission-status" class="ipd-kpi-status">กำลังประเมิน...</div>
+                            <div id="kpi-readmission-status" class="ipd-kpi-status">กำลังประเมิน…</div>
                         </div>
                     </div>
                 </div>
@@ -208,10 +208,10 @@ include '../templates/sidebar.php';
                                                     <th>ชื่อโรค / การวินิจฉัย</th>
                                                     <th class="text-center" style="width:90px">รวม</th>
                                                     <th class="text-center" style="width:80px">
-                                                        <i class="fa-solid fa-mars" style="color:#3b82f6"></i> ชาย
+                                                        <i class="fa-solid fa-mars" style="color:#2563eb"></i> ชาย
                                                     </th>
                                                     <th class="text-center" style="width:80px">
-                                                        <i class="fa-solid fa-venus" style="color:#ec4899"></i> หญิง
+                                                        <i class="fa-solid fa-venus" style="color:#be185d"></i> หญิง
                                                     </th>
                                                 </tr>
                                             </thead>

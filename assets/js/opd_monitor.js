@@ -119,6 +119,7 @@
   var WALL_TOP = '#15803d';
 
   var COL = { ok: '#1fa463', mid: '#f59e0b', high: '#e5484d' };
+  var COL_TEXT = { mid: '#b45309', high: '#c9302c' };   // same hues, dark enough for text (>= 4.5:1 on white)
   // ความหนาแน่น = คนในโซน ÷ ที่นั่ง · < 45% ว่าง · 45–79% ปานกลาง · ≥ 80% แน่น
   var DENS = { low: { c: '#1fa463', t: 'ว่าง' }, mid: { c: '#f59e0b', t: 'ปานกลาง' }, full: { c: '#e5484d', t: 'แน่น' } };
   function densLevel(r) { return r >= 0.8 ? 'full' : r >= 0.45 ? 'mid' : 'low'; }
@@ -1235,7 +1236,7 @@
       }
       el.querySelector('.c').textContent = c;
       el.querySelector('.v').textContent = v;
-      el.querySelector('.c').style.color = a.n && !a.nowait && a.lv !== 'ok' ? COL[a.lv] : '';
+      el.querySelector('.c').style.color = a.n && !a.nowait && a.lv !== 'ok' ? COL_TEXT[a.lv] : '';
       var bar = el.querySelector('i');
       bar.style.width = Math.min(100, a.dens * 100) + '%';
       bar.style.background = a.nowait ? '#94a3b8' : DENS[a.dl].c;

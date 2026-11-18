@@ -38,7 +38,7 @@
     text-decoration: none;
     cursor: pointer;
     box-shadow: 0 4px 10px rgba(25, 135, 84, 0.18);
-    transition: all 0.25s ease;
+    transition: background-color 0.25s ease, color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .login-btn:hover,
@@ -71,7 +71,7 @@
     text-decoration: none;
     cursor: pointer;
     box-shadow: 0 4px 10px rgba(25, 135, 84, 0.18);
-    transition: all 0.25s ease;
+    transition: background-color 0.25s ease, color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .logout-btn:hover,
@@ -126,7 +126,7 @@
 .provider-user-position {
     display: block;
     margin-top: 2px;
-    color: #7a8b82;
+    color: #5d6e67;
     font-size: 0.88rem;
     font-weight: 400;
     line-height: 1.1;
@@ -247,7 +247,7 @@ body.hosxp-modal-open {
 .hosxp-login-close:hover,
 .hosxp-login-close:focus {
     background: #f8f9fa;
-    color: #dc3545;
+    color: #b02a37;
     border-color: #dc3545;
     outline: none;
 }
@@ -306,7 +306,7 @@ body.hosxp-modal-open {
     border-right: 0;
     border-radius: 8px 0 0 8px;
     background: #f8f9fa;
-    color: #198754;
+    color: #146c43;
     font-size: 0.95rem;
     transition: border-color 0.15s ease;
 }

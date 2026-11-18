@@ -375,7 +375,7 @@ async function loadTop10Disease() {
         const rankColor = {
             1: 'background:#FFD700;color:#333;',
             2: 'background:#C0C0C0;color:#333;',
-            3: 'background:#CD7F32;color:#fff;',
+            3: 'background:#CD7F32;color:#1f1f1f;',
         };
 
         let html = '';
@@ -405,10 +405,10 @@ async function loadTop10Disease() {
                     <td class="text-center fw-bold text-success">
                         ${Number(row.total_case || 0).toLocaleString()}
                     </td>
-                    <td class="text-center" style="color:#3b82f6">
+                    <td class="text-center" style="color:#2563eb">
                         ${Number(row.male || 0).toLocaleString()}
                     </td>
-                    <td class="text-center" style="color:#ec4899">
+                    <td class="text-center" style="color:#be185d">
                         ${Number(row.female || 0).toLocaleString()}
                     </td>
                 </tr>

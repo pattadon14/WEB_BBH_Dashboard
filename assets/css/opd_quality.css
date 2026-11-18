@@ -11,7 +11,7 @@
 .oq-seg button[aria-pressed="true"] { background: #198754; color: #fff; box-shadow: 0 2px 6px rgba(25, 135, 84, .25); }
 .oq-range { display: inline-flex; align-items: center; gap: 8px; height: 42px; padding: 0 6px 0 14px; background: #fff; border: 1px solid #cddad3; border-radius: 12px; }
 .oq-range > i { color: #198754; }
-.oq-range-sep { color: #6b7f78; font-size: 17px; }
+.oq-range-sep { color: #5d6e67; font-size: 17px; }
 .oq-date { position: relative; margin: 0; padding: 4px 10px; border-radius: 8px; font-size: 19px; font-weight: 600; color: #1f2d27; white-space: nowrap; cursor: pointer; }
 .oq-date:hover { background: #eef7f2; }
 .oq-date:focus-within { background: #eef7f2; box-shadow: 0 0 0 3px rgba(25, 135, 84, .28); }
@@ -26,18 +26,18 @@
 .oq-kpi b { display: block; font-size: 2.1rem; line-height: 1.1; color: #1f2937; }
 .oq-kpi b span { font-size: 1rem; font-weight: normal; color: #6b7280; margin-left: 4px; }
 .oq-d { font-size: .95rem; color: #6b7280; }
-.oq-d.up { color: #1e8e5a; }
-.oq-d.down { color: #e5484d; }
+.oq-d.up { color: #146c43; }
+.oq-d.down { color: #c9302c; }
 
 .oq-table { font-size: 1.1rem; }
 .oq-table th { color: #6b7280; font-weight: 600; border-top: 0; white-space: nowrap; }
-.oq-ok { color: #1e8e5a; }
-.oq-bad { color: #e5484d; font-weight: bold; }
-.oq-note { color: #8a94a0; font-size: .95rem; margin: 6px 0 0; }
+.oq-ok { color: #146c43; }
+.oq-bad { color: #c9302c; font-weight: bold; }
+.oq-note { color: #5f6b76; font-size: .95rem; margin: 6px 0 0; }
 
 .oq-fn { display: grid; grid-template-columns: 90px 1fr 48px 56px; gap: 8px; align-items: center; margin: 8px 0; }
 .oq-fn span { color: #374151; }
-.oq-fn small { color: #8a94a0; text-align: right; }
+.oq-fn small { color: #5f6b76; text-align: right; }
 .oq-fn b { text-align: right; }
 .oq-bar { height: 14px; background: #eef2f5; border-radius: 7px; overflow: hidden; }
 .oq-bar i { display: block; height: 100%; background: linear-gradient(90deg, #198754, #34c38f); border-radius: 7px; }

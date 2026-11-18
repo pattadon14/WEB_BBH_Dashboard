@@ -6,7 +6,7 @@
     --g: #198754;
     --g-soft: #e8f5ee;
     --ink: #1f2937;
-    --muted: #6b7f78;
+    --muted: #5d6e67;
     --line: #e3ebe7;
     --shadow: 0 1px 2px rgba(16, 60, 40, .06), 0 8px 24px rgba(16, 60, 40, .10);
 }
@@ -143,6 +143,9 @@ button { cursor: pointer; }
 }
 .dot.replay { background: #f59e0b; animation: none; }
 @keyframes pulse { to { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); } }
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
 
 /* ---------- KPI ---------- */
 .kpis {
@@ -170,9 +173,9 @@ button { cursor: pointer; }
     vertical-align: middle;
     white-space: nowrap;
     background: #dcf5e7;
-    color: #15803d;
+    color: #166534;
 }
-.chip.mid { background: #fdefd3; color: #b45309; }
+.chip.mid { background: #fdefd3; color: #92400e; }
 .chip.full { background: #fde1e1; color: #b42318; }
 
 /* ---------- ซูม ---------- */
@@ -267,7 +270,7 @@ button { cursor: pointer; }
 .arow .c { font-size: .92rem; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .arow .v { grid-column: 1 / -1; overflow: hidden; color: var(--muted); font-size: .76rem; white-space: nowrap; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
 .arow .trk { grid-column: 1 / -1; height: 4px; background: #edf2ef; border-radius: 4px; overflow: hidden; }
-.arow .trk i { display: block; height: 100%; width: 0; border-radius: 4px; transition: width .4s ease; }
+.arow .trk i { display: block; height: 100%; width: 0; border-radius: 4px; }
 .remote { color: var(--muted); font-size: .78rem; margin-top: 4px; }
 
 .panel .bhead { margin: 8px 4px 2px; padding-bottom: 2px; border-bottom: 1px solid var(--line); color: var(--g); font-size: .8rem; font-weight: 600; }
@@ -316,7 +319,7 @@ button { cursor: pointer; }
     left: 12px;
     bottom: var(--pb, 128px);
     z-index: 3;
-    width: min(560px, calc(100vw - 430px));
+    width: min(560px, calc(100% - 430px));
     padding: 12px 16px;
     font-size: .8rem;
 }
@@ -390,7 +393,7 @@ body.is-live .pmain { display: flex; flex-direction: column; gap: 2px; }
 .tip .w.mid { color: #b45309; }
 .tip .w.high { color: #b42318; }
 .tip .u i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; box-shadow: inset 0 0 0 1px #94a3b8; }
-.tip .found { color: #e5484d; font-weight: 600; }
+.tip .found { color: #c9302c; font-weight: 600; }
 
 /* ---------- modal รายงาน ---------- */
 .modal {

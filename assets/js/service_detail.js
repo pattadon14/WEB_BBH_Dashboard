@@ -51,7 +51,7 @@
         renderTable();
     });
     $('svc-detail-export').addEventListener('click', exportCsv);
-    // คลิกแถบ "แยกตาม..." = ค้นหารายชื่อด้วยค่านั้น
+    // คลิกแถบ "แยกตาม…" = ค้นหารายชื่อด้วยค่านั้น
     const pickGroup = e => {
         const g = e.target.closest('[data-group]');
         if (!g || !state.rows.length) return;
@@ -72,9 +72,9 @@
     async function open(svc, iconClass) {
 
         const my = ++seq;
-        $('svc-detail-title').innerHTML = `<i class="${esc(iconClass)}" aria-hidden="true"></i> กำลังโหลด...`;
+        $('svc-detail-title').innerHTML = `<i class="${esc(iconClass)}" aria-hidden="true"></i> กำลังโหลด…`;
         $('svc-detail-sub').textContent = '';
-        $('svc-detail-summary').innerHTML = '<p class="opd-drill-msg"><i class="fa-solid fa-spinner fa-spin"></i> กำลังโหลดข้อมูล...</p>';
+        $('svc-detail-summary').innerHTML = '<p class="opd-drill-msg"><i class="fa-solid fa-spinner fa-spin"></i> กำลังโหลดข้อมูล…</p>';
         $('svc-detail-list').hidden = true;
         $('svc-detail-q').value = '';
         if (!dlg.open) dlg.showModal();

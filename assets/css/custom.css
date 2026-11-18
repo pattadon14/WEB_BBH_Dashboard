@@ -236,7 +236,7 @@ h1, h2, h3, h4, h5, h6 {
 .custom-navbar .live-label {
     font-weight: bold;
     letter-spacing: 1px;
-    color: #198754;
+    color: #146c43;
 }
 
 @keyframes bbh-live-pulse {
@@ -535,7 +535,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .bed-full {
 
-    color: #dc3545;
+    color: #b02a37;
     font-weight: bold;
 
 }
@@ -772,12 +772,12 @@ h1, h2, h3, h4, h5, h6 {
 
 .miss-card .summary-title {
     margin-bottom: 10px;
-    color: #dc3545;
+    color: #b02a37;
 }
 
 .miss-card .summary-number{
 
-    color: #dc3545;
+    color: #b02a37;
 }
 
 .todaysummary-sub{
@@ -1334,7 +1334,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .appoint-sub-label.miss {
-    color: #dc3545;
+    color: #b02a37;
 }
 
 .appoint-sub-number {
@@ -1348,7 +1348,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .appoint-sub-number.miss {
-    color: #dc3545;
+    color: #b02a37;
 }
 
 .appoint-sub-unit {
@@ -1705,7 +1705,7 @@ h1, h2, h3, h4, h5, h6 {
 
     padding: 5px 10px;
 
-    color: #198754;
+    color: #146c43;
 
 }
 
@@ -1780,14 +1780,14 @@ h1, h2, h3, h4, h5, h6 {
 
 .appointment-status-item.came {
 
-    color: #198754;
+    color: #146c43;
 
 }
 
 
 .appointment-status-item.miss {
 
-    color: #dc3545;
+    color: #b02a37;
 
 }
 
@@ -1899,7 +1899,7 @@ h1, h2, h3, h4, h5, h6 {
 
     background: #fff9df;
 
-    color: #a16207;
+    color: #854d0e;
 
 }
 
@@ -1908,7 +1908,7 @@ h1, h2, h3, h4, h5, h6 {
 
     background: #fff1e6;
 
-    color: #c2410c;
+    color: #9a3412;
 
 }
 
@@ -2375,7 +2375,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .special-result-item.miss {
 
-    color: #dc3545;
+    color: #b02a37;
 
 }
 
@@ -2498,7 +2498,7 @@ h1, h2, h3, h4, h5, h6 {
 
     border-color: #0dcaf0;
 
-    color: #087990;
+    color: #066a7e;
 
 }
 

@@ -62,13 +62,13 @@
                 padding:16px 20px 13px; border-bottom:1px solid #e7ece9; background:#f8faf9;
             }
             .bbh-history-modal-title { margin:0; color:#147447; font-size:21px; font-weight:700; }
-            .bbh-history-modal-subtitle { margin:3px 0 0; color:#71808d; font-size:15px; }
+            .bbh-history-modal-subtitle { margin:3px 0 0; color:#5b6773; font-size:15px; }
             .bbh-history-modal-close {
                 width:38px; height:38px; flex:0 0 38px; border:1px solid #d9e1dd; border-radius:8px;
                 background:#fff; color:#68757d; font-size:18px; cursor:pointer; transition:all .15s ease;
             }
             .bbh-history-modal-close:hover,
-            .bbh-history-modal-close:focus { border-color:#dc3545; background:#fff5f6; color:#dc3545; outline:none; }
+            .bbh-history-modal-close:focus { border-color:#dc3545; background:#fff5f6; color:#b02a37; outline:none; }
             .bbh-history-toolbar {
                 display:flex; align-items:center; justify-content:flex-end; gap:9px;
                 padding:12px 20px; border-bottom:1px solid #edf1ef;
@@ -92,9 +92,9 @@
             .bbh-history-chart { width:100%; height:440px; }
             .bbh-history-loading,
             .bbh-history-error {
-                height:440px; display:flex; align-items:center; justify-content:center; color:#71808d; font-size:17px;
+                height:440px; display:flex; align-items:center; justify-content:center; color:#5b6773; font-size:17px;
             }
-            .bbh-history-error { color:#dc3545; }
+            .bbh-history-error { color:#b02a37; }
             body.bbh-history-modal-open { overflow:hidden; }
             @media (max-width:767px) {
                 .bbh-history-modal-backdrop { padding:10px; }
@@ -150,10 +150,10 @@
                     <button type="button" class="bbh-history-tab" id="bbh-tab-occupancy" role="tab" aria-selected="false" aria-controls="bbh-panel-occupancy">อัตราการครองเตียง</button>
                 </div>
                 <div class="bbh-history-panel" id="bbh-panel-admit" role="tabpanel" aria-labelledby="bbh-tab-admit">
-                    <div id="ipd-history-admit" class="bbh-history-chart"><div class="bbh-history-loading">กำลังโหลดข้อมูล...</div></div>
+                    <div id="ipd-history-admit" class="bbh-history-chart"><div class="bbh-history-loading">กำลังโหลดข้อมูล…</div></div>
                 </div>
                 <div class="bbh-history-panel" id="bbh-panel-occupancy" role="tabpanel" aria-labelledby="bbh-tab-occupancy" hidden>
-                    <div id="ipd-history-occupancy" class="bbh-history-chart"><div class="bbh-history-loading">กำลังโหลดข้อมูล...</div></div>
+                    <div id="ipd-history-occupancy" class="bbh-history-chart"><div class="bbh-history-loading">กำลังโหลดข้อมูล…</div></div>
                 </div>
             </div>
         `;
@@ -302,8 +302,8 @@
         var admitEl = document.getElementById('ipd-history-admit');
         var occupancyEl = document.getElementById('ipd-history-occupancy');
         if (dateText) dateText.textContent = fiscalDateText(year);
-        if (admitEl) admitEl.innerHTML = '<div class="bbh-history-loading">กำลังโหลดข้อมูล...</div>';
-        if (occupancyEl) occupancyEl.innerHTML = '<div class="bbh-history-loading">กำลังโหลดข้อมูล...</div>';
+        if (admitEl) admitEl.innerHTML = '<div class="bbh-history-loading">กำลังโหลดข้อมูล…</div>';
+        if (occupancyEl) occupancyEl.innerHTML = '<div class="bbh-history-loading">กำลังโหลดข้อมูล…</div>';
         historyData = [];
         historyYear = year;
         try {

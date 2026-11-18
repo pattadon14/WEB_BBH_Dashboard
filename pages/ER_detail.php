@@ -344,11 +344,11 @@ include '../templates/sidebar.php';
                                                     <th>ชื่อโรค / การวินิจฉัย</th>
                                                     <th class="text-center" style="width:90px">รวม</th>
                                                     <th class="text-center" style="width:80px">
-                                                        <i class="fa-solid fa-mars" style="color:#3b82f6"></i>
+                                                        <i class="fa-solid fa-mars" style="color:#2563eb"></i>
                                                         ชาย
                                                     </th>
                                                     <th class="text-center" style="width:80px">
-                                                        <i class="fa-solid fa-venus" style="color:#ec4899"></i>
+                                                        <i class="fa-solid fa-venus" style="color:#be185d"></i>
                                                         หญิง
                                                     </th>
                                                 </tr>
@@ -357,7 +357,7 @@ include '../templates/sidebar.php';
                                                 <tr>
                                                     <td colspan="6" class="text-center text-muted py-4">
                                                         <i class="fa-solid fa-spinner fa-spin me-2"></i>
-                                                        กำลังโหลดข้อมูล...
+                                                        กำลังโหลดข้อมูล…
                                                     </td>
                                                 </tr>
                                             </tbody>

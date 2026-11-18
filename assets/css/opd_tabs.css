@@ -119,7 +119,7 @@
 
 .opd-summary-horizontal .exam-horizontal-card.wait-card .summary-title,
 .opd-summary-horizontal .exam-horizontal-card.wait-card .summary-number {
-    color: #087990;
+    color: #066a7e;
 }
 
 .opd-summary-horizontal .exam-horizontal-card.exam-card {
@@ -443,7 +443,7 @@
 :is(#opd-tab-general, #er-summary) .opd-summary-horizontal .exam-horizontal-card.refer-card  { background: #f9d9dc; }
 /* ตัวอักษรเข้มขึ้นให้อ่านได้บนพื้นที่เข้มขึ้น */
 :is(#opd-tab-general, #er-summary) .opd-summary-horizontal .exam-horizontal-card.wait-card .summary-title,
-:is(#opd-tab-general, #er-summary) .opd-summary-horizontal .exam-horizontal-card.wait-card .summary-number { color: #08788f; }
+:is(#opd-tab-general, #er-summary) .opd-summary-horizontal .exam-horizontal-card.wait-card .summary-number { color: #066a7e; }
 :is(#opd-tab-general, #er-summary) .opd-summary-horizontal .exam-horizontal-card.exam-card .summary-title,
 :is(#opd-tab-general, #er-summary) .opd-summary-horizontal .exam-horizontal-card.exam-card .summary-number { color: #5b0fd8; }
 :is(#opd-tab-general, #er-summary) .opd-summary-horizontal .exam-horizontal-card.finish-card .summary-title,
@@ -805,7 +805,7 @@
 }
 
 .special-result-item.miss {
-    color: #dc3545;
+    color: #b02a37;
 }
 
 /* สถานะการตรวจ 3 ช่องสูงเท่ากัน */
@@ -865,7 +865,7 @@
 .status-triage {
     background: #eef9fc;
     border-color: #0dcaf0;
-    color: #087990;
+    color: #066a7e;
 }
 
 .status-exam {
