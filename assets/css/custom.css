@@ -44,8 +44,6 @@ h1, h2, h3, h4, h5, h6 {
 
 .small-box:hover {
 
-    transform: translateY(-4px);
-
     box-shadow:
         rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
 
@@ -129,8 +127,6 @@ h1, h2, h3, h4, h5, h6 {
     color: #eafff2 !important;
 
     text-decoration: none !important;
-
-    transform: translateY(-1px);
 }
 
 /* =========================
@@ -157,9 +153,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Navbar หลัก: ขาวโปร่งแสง + เส้นไล่สีเขียวบาง ๆ ด้านล่าง */
 .custom-navbar {
-    background-color: rgba(255, 255, 255, .92) !important;
-    backdrop-filter: saturate(160%) blur(8px);
-    -webkit-backdrop-filter: saturate(160%) blur(8px);
+    background-color: #ffffff !important;
     border-bottom: 0;
     box-shadow: 0 1px 0 rgba(25, 135, 84, .12), 0 6px 20px rgba(16, 60, 40, .06);
     min-height: 65px;
@@ -455,7 +449,7 @@ h1, h2, h3, h4, h5, h6 {
 
     overflow: hidden;
 
-    transition: 0.3s;
+    transition: box-shadow .2s ease;
 
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
         
@@ -464,8 +458,6 @@ h1, h2, h3, h4, h5, h6 {
 
 
 .ward-card:hover {
-
-    transform: translateY(-3px);
 
     box-shadow:
         rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
@@ -575,14 +567,9 @@ h1, h2, h3, h4, h5, h6 {
     border-radius: 18px;
     padding: 22px;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-    transition: 0.3s;
-    border-left: 6px solid #198754;
+    border: 1px solid var(--bbh-border);
 }
 
-.summary-card:hover{
-
-    transform: translateY(-2px);
-}
 
 .bed-summary-card {
     background: #198754;
@@ -732,10 +719,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* WALK IN */
 
-.walkin-card{
 
-    border-left-color: #0d6efd;
-}
 
 .walkin-card .summary-title {
     margin-bottom: 10px;
@@ -748,10 +732,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* APPOINT */
 
-.appoint-card{
 
-    border-left-color: #198754;
-}
 
 .appoint-card .summary-title{
     margin-bottom: 10px;
@@ -765,10 +746,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* MISS */
 
-.miss-card{
 
-    border-left-color: #dc3545;
-}
 
 .miss-card .summary-title {
     margin-bottom: 10px;
@@ -796,7 +774,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .wait-card{
 
-    border-left: 6px solid #0dcaf0;
+    border: 1px solid var(--bbh-border);
 }
 
 .wait-card .summary-title,
@@ -809,7 +787,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .exam-card{
     
-    border-left: 6px solid #6610f2;
+    border: 1px solid var(--bbh-border);
 }
 
 .exam-card .summary-title,
@@ -822,7 +800,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .finish-card{
 
-    border-left: 6px solid #198754;
+    border: 1px solid var(--bbh-border);
 }
 
 .finish-card .summary-title,
@@ -1036,17 +1014,12 @@ h1, h2, h3, h4, h5, h6 {
     padding: 18px 18px;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 
-    border-left: 6px solid #198754;
+    border: 1px solid var(--bbh-border);
     margin-left: 20px;
-    transition: .2s;
     overflow: hidden;
     height: 100%;
 }
 
-.opd-room-card:hover{
-
-    transform: translateY(-2px);
-}
 
 .opd-room-content{
 
@@ -1263,19 +1236,17 @@ h1, h2, h3, h4, h5, h6 {
 ════════════════════════════ */
 .appoint-combined-card {
     background: #fff;
-    border-left: 6px solid #198754;
+    border: 1px solid var(--bbh-border);
     border-radius: 18px;
     padding: 16px;
     margin-bottom: 12px;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-    transition: 0.3s;
 }
 
 .appoint-combined-header {
     font-weight: 700;
     color: #198754;
     margin-bottom: 6px;
-    transition: 0.3s;
 }
 
 .appoint-combined-total {
@@ -1285,7 +1256,6 @@ h1, h2, h3, h4, h5, h6 {
     color: #198754;
     line-height: 1;
     margin-bottom: 4px;
-    transition: 0.3s;
 }
 
 .appoint-combined-unit {
@@ -1293,14 +1263,12 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 16px;
     color: #198754;
     margin-bottom: 12px;
-    transition: 0.3s;
 }
 
 .appoint-combined-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
-    transition: 0.3s;
 }
 
 .appoint-sub-box {
@@ -1357,12 +1325,6 @@ h1, h2, h3, h4, h5, h6 {
     margin-left: 2px;
 }
 
-.appoint-combined-card .appoint-combined-header 
-.appoint-combined-row .appoint-sub-box
-.appoint-combined-total .appoint-combined-unit:hover {
-
-    transform: translateY(-2px);
-}
 
 /* ════════════════════════════
    Time Group Cards
@@ -1637,7 +1599,7 @@ h1, h2, h3, h4, h5, h6 {
 
     border-radius: 14px;
 
-    border-left: 5px solid #0d6efd;
+    border: 1px solid var(--bbh-border);
 
     background: #f8fbff;
 
@@ -1944,9 +1906,7 @@ h1, h2, h3, h4, h5, h6 {
 
     background: #ffffff;
 
-    border-left-width: 5px;
-
-    border-left-style: solid;
+    border: 1px solid var(--bbh-border);
 
 }
 
@@ -2407,7 +2367,7 @@ h1, h2, h3, h4, h5, h6 {
 
     border-radius: 11px;
 
-    border-left: 4px solid;
+    border: 1px solid var(--bbh-border);
 
 }
 
@@ -2496,8 +2456,6 @@ h1, h2, h3, h4, h5, h6 {
 
     background: #eef9fc;
 
-    border-color: #0dcaf0;
-
     color: #066a7e;
 
 }
@@ -2516,8 +2474,6 @@ h1, h2, h3, h4, h5, h6 {
 
     background: #f5efff;
 
-    border-color: #6f42c1;
-
     color: #6f42c1;
 
 }
@@ -2535,8 +2491,6 @@ h1, h2, h3, h4, h5, h6 {
 .status-finish {
 
     background: #eef8f2;
-
-    border-color: #198754;
 
     color: #146c43;
 

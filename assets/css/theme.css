@@ -55,7 +55,7 @@ body {
 .opd-room-card {
     border-radius: var(--bbh-radius);
     box-shadow: var(--bbh-shadow) !important;
-    transition: box-shadow .2s ease, transform .2s ease;
+    transition: box-shadow .2s ease;
 }
 
 .card,
@@ -64,11 +64,9 @@ body {
     border: 1px solid var(--bbh-border);
 }
 
+/* เงาเข้มขึ้นเฉพาะการ์ดที่กดได้ — ไม่ยกการ์ด */
 .small-box:hover,
-.ward-card:hover,
-.summary-card:hover,
-.opd-room-card:hover {
-    transform: translateY(-2px);
+.ward-card:hover {
     box-shadow: var(--bbh-shadow-hover) !important;
 }
 
@@ -281,13 +279,6 @@ a.btn {
         animation-duration: .01ms !important;
         animation-iteration-count: 1 !important;
         scroll-behavior: auto !important;
-    }
-
-    .small-box:hover,
-    .ward-card:hover,
-    .summary-card:hover,
-    .opd-room-card:hover {
-        transform: none;
     }
 }
 

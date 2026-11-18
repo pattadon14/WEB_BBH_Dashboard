@@ -90,7 +90,7 @@
     min-height: 52px;
     padding: 7px 12px;
     border-radius: 10px;
-    border-left: 4px solid;
+    border: 1px solid var(--bbh-border);
     box-sizing: border-box;
 }
 
@@ -114,7 +114,6 @@
 
 .opd-summary-horizontal .exam-horizontal-card.wait-card {
     background: #eef9fc;
-    border-left-color: #0dcaf0;
 }
 
 .opd-summary-horizontal .exam-horizontal-card.wait-card .summary-title,
@@ -124,7 +123,6 @@
 
 .opd-summary-horizontal .exam-horizontal-card.exam-card {
     background: #f5efff;
-    border-left-color: #6610f2;
 }
 
 .opd-summary-horizontal .exam-horizontal-card.exam-card .summary-title,
@@ -134,7 +132,6 @@
 
 .opd-summary-horizontal .exam-horizontal-card.finish-card {
     background: #eef8f2;
-    border-left-color: #198754;
 }
 
 .opd-summary-horizontal .exam-horizontal-card.finish-card .summary-title,
@@ -170,8 +167,8 @@
     font-size: 1.3rem;
 }
 
-.opd-summary-horizontal .exam-horizontal-card.admit-card { background: #fff4e6; border-left-color: #fd7e14; color: #a14a00; }
-.opd-summary-horizontal .exam-horizontal-card.refer-card { background: #fdeeee; border-left-color: #dc3545; color: #b02a37; }
+.opd-summary-horizontal .exam-horizontal-card.admit-card { background: #fff4e6; color: #a14a00; }
+.opd-summary-horizontal .exam-horizontal-card.refer-card { background: #fdeeee; color: #b02a37; }
 
 .opd-summary-horizontal .opd-summary-compare {
     margin-top: 4px;
@@ -500,8 +497,8 @@
 }
 #opd-tab-general .opd-summary-horizontal :is(.opd-summary-main-number, .appointment-total, .time-count, .summary-number) :is(small, .summary-unit) { margin-left: 0; }
 /* ตัวเลข/การ์ดที่คลิกดูรายชื่อได้ */
-#opd-tab-general [data-drill] { cursor: pointer; transition: box-shadow .15s ease, transform .15s ease; }
-#opd-tab-general [data-drill]:hover { box-shadow: 0 3px 10px rgba(16, 60, 40, .16); transform: translateY(-1px); }
+#opd-tab-general [data-drill] { cursor: pointer; transition: box-shadow .15s ease; }
+#opd-tab-general [data-drill]:hover { box-shadow: 0 3px 10px rgba(16, 60, 40, .16); }
 #opd-tab-general [data-drill]:focus-visible { outline: 3px solid #198754; outline-offset: 2px; }
 #opd-tab-general .opd-summary-main-number[data-drill],
 #opd-tab-general .appointment-total[data-drill],
@@ -824,7 +821,7 @@
     align-items: center;
     padding: 7px 12px;
     border-radius: 10px;
-    border-left: 4px solid;
+    border: 1px solid var(--bbh-border);
     box-sizing: border-box;
 }
 
@@ -864,19 +861,16 @@
 
 .status-triage {
     background: #eef9fc;
-    border-color: #0dcaf0;
     color: #066a7e;
 }
 
 .status-exam {
     background: #f5efff;
-    border-color: #6610f2;
     color: #6610f2;
 }
 
 .status-finish {
     background: #eef8f2;
-    border-color: #198754;
     color: #146c43;
 }
 

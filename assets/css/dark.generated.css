@@ -37,7 +37,7 @@ html[data-theme="dark"] .navbar-info {
     background-color: #2a2a2a !important;
 }
 html[data-theme="dark"] .custom-navbar {
-    background-color: rgba(22, 22, 22, 0.92) !important;
+    background-color: #161616 !important;
 }
 html[data-theme="dark"] .custom-navbar::after {
     background: linear-gradient(90deg, #198754, #3cc48a 60%, rgba(60, 196, 138, 0));
@@ -142,7 +142,6 @@ html[data-theme="dark"] .border-danger {
 }
 html[data-theme="dark"] .summary-card {
     background: #161616;
-    border-left: 6px solid #198754;
 }
 html[data-theme="dark"] .bed-summary-card {
     background: #198754;
@@ -164,26 +163,17 @@ html[data-theme="dark"] .detail-link {
 html[data-theme="dark"] .detail-link:hover {
     color: #e8fff1;
 }
-html[data-theme="dark"] .walkin-card {
-    border-left-color: #0d6efd;
-}
 html[data-theme="dark"] .walkin-card .summary-title {
     color: #90baff;
 }
 html[data-theme="dark"] .walkin-card .summary-number {
     color: #90baff;
 }
-html[data-theme="dark"] .appoint-card {
-    border-left-color: #198754;
-}
 html[data-theme="dark"] .appoint-card .summary-title {
     color: #72d39c;
 }
 html[data-theme="dark"] .appoint-card .summary-number {
     color: #72d39c;
-}
-html[data-theme="dark"] .miss-card {
-    border-left-color: #dc3545;
 }
 html[data-theme="dark"] .miss-card .summary-title {
     color: #fba7a5;
@@ -194,22 +184,13 @@ html[data-theme="dark"] .miss-card .summary-number {
 html[data-theme="dark"] .todaysummary-sub {
     color: #b3bcc5;
 }
-html[data-theme="dark"] .wait-card {
-    border-left: 6px solid #263c42;
-}
 html[data-theme="dark"] .wait-card .summary-title,
 html[data-theme="dark"] .wait-card .summary-number {
     color: #0dcaf0;
 }
-html[data-theme="dark"] .exam-card {
-    border-left: 6px solid #6610f2;
-}
 html[data-theme="dark"] .exam-card .summary-title,
 html[data-theme="dark"] .exam-card .summary-number {
     color: #bdb8fd;
-}
-html[data-theme="dark"] .finish-card {
-    border-left: 6px solid #198754;
 }
 html[data-theme="dark"] .finish-card .summary-title,
 html[data-theme="dark"] .finish-card .summary-number {
@@ -261,7 +242,6 @@ html[data-theme="dark"] .service-total {
 }
 html[data-theme="dark"] .opd-room-card {
     background: #161616;
-    border-left: 6px solid #198754;
 }
 html[data-theme="dark"] .opd-room-title {
     color: #72d39c;
@@ -332,7 +312,6 @@ html[data-theme="dark"] .section-label {
 }
 html[data-theme="dark"] .appoint-combined-card {
     background: #161616;
-    border-left: 6px solid #198754;
 }
 html[data-theme="dark"] .appoint-combined-header {
     color: #72d39c;
@@ -405,7 +384,6 @@ html[data-theme="dark"] .summary-section-title {
     color: #72d39c;
 }
 html[data-theme="dark"] .horizontal-summary-item {
-    border-left: 5px solid #0d6efd;
     background: #161719;
 }
 html[data-theme="dark"] .horizontal-summary-item .summary-title {
@@ -509,7 +487,6 @@ html[data-theme="dark"] .special-status-description {
 }
 html[data-theme="dark"] .status-triage {
     background: #15191b;
-    border-color: #263c42;
     color: #80d1e7;
 }
 html[data-theme="dark"] .status-triage .special-status-icon {
@@ -517,7 +494,6 @@ html[data-theme="dark"] .status-triage .special-status-icon {
 }
 html[data-theme="dark"] .status-exam {
     background: #1b191f;
-    border-color: #6f42c1;
     color: #c5b4fb;
 }
 html[data-theme="dark"] .status-exam .special-status-icon {
@@ -525,7 +501,6 @@ html[data-theme="dark"] .status-exam .special-status-icon {
 }
 html[data-theme="dark"] .status-finish {
     background: #161a18;
-    border-color: #198754;
     color: #89d8a9;
 }
 html[data-theme="dark"] .status-finish .special-status-icon {
@@ -956,7 +931,6 @@ html[data-theme="dark"] .opd-page-tab.active {
 }
 html[data-theme="dark"] .opd-summary-horizontal .exam-horizontal-card.wait-card {
     background: #15191b;
-    border-left-color: #263c42;
 }
 html[data-theme="dark"] .opd-summary-horizontal .exam-horizontal-card.wait-card .summary-title,
 html[data-theme="dark"] .opd-summary-horizontal .exam-horizontal-card.wait-card .summary-number {
@@ -964,7 +938,6 @@ html[data-theme="dark"] .opd-summary-horizontal .exam-horizontal-card.wait-card 
 }
 html[data-theme="dark"] .opd-summary-horizontal .exam-horizontal-card.exam-card {
     background: #1b191f;
-    border-left-color: #6610f2;
 }
 html[data-theme="dark"] .opd-summary-horizontal .exam-horizontal-card.exam-card .summary-title,
 html[data-theme="dark"] .opd-summary-horizontal .exam-horizontal-card.exam-card .summary-number {
@@ -972,7 +945,6 @@ html[data-theme="dark"] .opd-summary-horizontal .exam-horizontal-card.exam-card 
 }
 html[data-theme="dark"] .opd-summary-horizontal .exam-horizontal-card.finish-card {
     background: #161a18;
-    border-left-color: #198754;
 }
 html[data-theme="dark"] .opd-summary-horizontal .exam-horizontal-card.finish-card .summary-title,
 html[data-theme="dark"] .opd-summary-horizontal .exam-horizontal-card.finish-card .summary-number {
@@ -980,12 +952,10 @@ html[data-theme="dark"] .opd-summary-horizontal .exam-horizontal-card.finish-car
 }
 html[data-theme="dark"] .opd-summary-horizontal .exam-horizontal-card.admit-card {
     background: #1c1813;
-    border-left-color: #fd7e14;
     color: #fea876;
 }
 html[data-theme="dark"] .opd-summary-horizontal .exam-horizontal-card.refer-card {
     background: #1e1818;
-    border-left-color: #dc3545;
     color: #fba7a5;
 }
 html[data-theme="dark"] .opd-summary-horizontal .opd-summary-compare {
@@ -1337,17 +1307,14 @@ html[data-theme="dark"] .special-status-description {
 }
 html[data-theme="dark"] .status-triage {
     background: #15191b;
-    border-color: #263c42;
     color: #80d1e7;
 }
 html[data-theme="dark"] .status-exam {
     background: #1b191f;
-    border-color: #6610f2;
     color: #bdb8fd;
 }
 html[data-theme="dark"] .status-finish {
     background: #161a18;
-    border-color: #198754;
     color: #89d8a9;
 }
 html[data-theme="dark"] .special-clinic-placeholder {
@@ -1387,7 +1354,7 @@ html[data-theme="dark"] .bbh-sidebar-close:hover {
     background: rgba(22, 22, 22, 0.16);
 }
 html[data-theme="dark"] .bbh-sidebar-guest-lock {
-    background: rgba(22, 22, 22, 0.58);
+    background: rgba(22, 22, 22, 0.9);
 }
 html[data-theme="dark"] .bbh-sidebar-guest-lock-card {
     border: 1px solid rgba(25, 135, 84, .18);
@@ -1631,9 +1598,6 @@ html[data-theme="dark"] .ipd-ward-page .patient-count-badge {
 }
 html[data-theme="dark"] .ipd-ward-page .patient-card {
     background: #161616;
-}
-html[data-theme="dark"] .ipd-ward-page .patient-card:hover {
-    border-color: #2e3b35;
 }
 html[data-theme="dark"] .ipd-ward-page .patient-avatar {
     background: #171b19;

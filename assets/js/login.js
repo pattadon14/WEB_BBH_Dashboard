@@ -329,11 +329,10 @@
             style.textContent = `
                 #ward-container .ward-card {
                     cursor: pointer;
-                    transition: transform .15s ease, box-shadow .15s ease;
+                    transition: box-shadow .15s ease;
                 }
 
                 #ward-container .ward-card:hover {
-                    transform: translateY(-2px);
                     box-shadow: 0 8px 18px rgba(0,0,0,.14) !important;
                 }
             `;

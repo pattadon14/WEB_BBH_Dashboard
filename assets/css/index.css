@@ -60,7 +60,6 @@
 }
 
 .home-dash .small-box:hover {
-    transform: translateY(-3px);
     box-shadow: var(--bbh-shadow-hover);
 }
 
@@ -266,7 +265,7 @@
 /* ---------- Ward cards (center) ---------- */
 .home-dash .ward-card {
     border-radius: 16px;
-    border-left: 6px solid;
+    border: 1px solid var(--bbh-border);
     padding: 14px 16px;
     box-shadow: var(--bbh-shadow);
 }

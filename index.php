@@ -209,7 +209,7 @@ include 'templates/sidebar.php';
                             <div class="row mb-3">
 
                                 <div class="col-lg-3 col-6 mb-2">
-                                    <div class="summary-card" style="border-left:5px solid #fd7e14">
+                                    <div class="summary-card">
                                         <div class="summary-title" style="font-size:1.3rem;color:#c2410c">
                                             <i class="fa-solid fa-clock"></i> ชั่วโมงที่แออัดสุด
                                         </div>
@@ -220,7 +220,7 @@ include 'templates/sidebar.php';
                                 </div>
 
                                 <div class="col-lg-3 col-6 mb-2">
-                                    <div class="summary-card" style="border-left:5px solid #dc3545">
+                                    <div class="summary-card">
                                         <div class="summary-title" style="font-size:1.3rem;color:#b02a37">
                                             <i class="fa-solid fa-hospital"></i> แผนกที่แออัดสุดวันนี้
                                         </div>
@@ -822,7 +822,7 @@ async function loadWardBed() {
 
             <div class="col-xl-6 col-lg-6 col-12 mb-2">
 
-                <div class="ward-card border-${colorClass}" tabindex="0" role="link">
+                <div class="ward-card" tabindex="0" role="link">
 
                     <div class="ward-icon text-${colorClass}">
 

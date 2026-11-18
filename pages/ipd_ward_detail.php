@@ -113,8 +113,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     justify-content: space-between;
     gap: 16px;
     padding: 18px 22px;
-    border: 1px solid transparent;
-    border-left: 6px solid var(--ipd-green);
+    border: 1px solid var(--ipd-border);
     border-radius: 12px;
     background: #eaf7f0;
     box-shadow: 0 4px 10px rgba(31, 45, 61, .08);
@@ -133,7 +132,6 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 }
 
 .ipd-ward-page .overview-card.blue {
-    border-left-color: var(--ipd-blue);
     background: #edf7fc;
 }
 
@@ -142,7 +140,6 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 }
 
 .ipd-ward-page .overview-card.orange {
-    border-left-color: var(--ipd-orange);
     background: #fff7e6;
 }
 
@@ -151,7 +148,6 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 }
 
 .ipd-ward-page .overview-card.red {
-    border-left-color: var(--ipd-red);
     background: #fff0f2;
 }
 
@@ -317,14 +313,8 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     border-radius: 10px;
     padding: 14px 15px 13px;
     box-shadow: 0 3px 8px rgba(31, 45, 61, .075);
-    transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
 }
 
-.ipd-ward-page .patient-card:hover {
-    transform: translateY(-2px);
-    border-color: #c9d9d1;
-    box-shadow: 0 7px 18px rgba(31, 45, 61, .12);
-}
 
 .ipd-ward-page .patient-top {
     display: flex;

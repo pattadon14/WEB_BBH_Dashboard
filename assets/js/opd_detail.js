@@ -1268,11 +1268,11 @@ try {
                     background:#fff;
                     border-radius:12px;
                     padding:12px 16px;
-                    border-left:5px solid ${d.color};
+                    border:1px solid var(--bbh-border);
                     box-shadow:rgba(0,0,0,0.08) 0 2px 6px;
                 ">
                     <div style="font-size:19px;font-weight:600;color:#333;margin-bottom:6px">
-                        ${d.name}
+                        <span aria-hidden="true" style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${d.color};margin-right:6px"></span>${d.name}
                     </div>
                     <div style="font-size:32px;font-weight:bold;color:#333;line-height:1">
                         ${d.total.toLocaleString()}
