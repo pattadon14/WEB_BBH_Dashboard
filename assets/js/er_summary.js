@@ -122,10 +122,10 @@
         }
         if (my !== seq) return;
         $('er-now').hidden = !data.now;
+        $('er-now-at').textContent = data.now ? `และสถานะตอนนี้ ณ ${data.now.at} น.` : '';
         if (data.error) { grid.innerHTML = ''; note.textContent = data.error; return; }
 
         if (data.now) {
-            $('er-now-at').textContent = `(ณ ${data.now.at} น.)`;
             $('er-now-in').textContent = fmt(data.now.in_er);
             $('er-now-l12').textContent = fmt(data.now.l12);
             $('er-now-wait').textContent = fmt(data.now.waiting);
@@ -135,7 +135,7 @@
         }
 
         const L = data.los, b = data.boarding_min;
-        const ico = (c, i) => `<span class="er-ico er-c-${c}" aria-hidden="true"><i class="fa-solid fa-${i}"></i></span>`;
+        const ico = (c, i) => `<span class="er-ico" aria-hidden="true"><i class="fa-solid fa-${i}"></i></span>`;   // ไอคอนโทนแดงชุดเดียว
         const ttd = (name, x) => row({
             icon: name === 'Admit' ? ico('blue', 'bed-pulse') : ico('teal', 'truck-medical'),
             key: `เข้า ER ถึง ${name}`, sub: `เกณฑ์ ≤ ${b} นาที`, avg: x.avg === null ? null : fmt(x.avg),

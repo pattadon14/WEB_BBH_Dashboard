@@ -1,24 +1,24 @@
 /* Hallmark · v2.0.0 · shape: app screen · theme: brand (ER red-white, THSarabunNew from the site) · redesign: full · scope: app
- * signature: the red masthead carrying today's total and the live "now in ER" board · screen: masthead, service-time rows, four day lists, period charts + top-10 table
- * Hallmark · pre-emit critique: P4 H5 E4 S4 R4 V3 · weakest: V, an app shell keeps AdminLTE's chrome; spent the change on one red band and hairline rows instead of icon tiles
+ * signature: numbered section cards under a red masthead, opened by a row of solid red-family KPI tiles · screen: masthead, KPI tiles, service-time tables, four day cards, period charts + top-10 table
+ * Hallmark · pre-emit critique: P4 H5 E4 S4 R3 V3 · weakest: R, the owner asked for more colour; kept it to one warm family so the tiles read as one set
  * Hallmark · waive 34 · overflow-x on html/body belongs to the AdminLTE shell shared by every page, not this page's stylesheet
- * Hallmark · dismissed F6 · .er-mast-number small is the unit word, and .er-stat-lead b inherits tabular-nums from .er-stat-value b
+ * Hallmark · dismissed F6 · .er-stat-lead b inherits tabular-nums from .er-stat-value b
  * Hallmark · waive 48 · page-scoped tokens live on :root .er-theme (and body:has(.er-theme) for the navbar) so tools/build_dark_css.mjs can derive dark mode
  */
 
 /* =========================================================
    หน้า ER: ระบบสีแดง–ขาว (ทำงานเฉพาะใต้ .content-wrapper.er-theme ใน pages/ER_detail.php)
-   แดงใช้กับ: แถบหัว, ปุ่มที่เลือก, ตัวเลขสำคัญ, แถบสัดส่วน — นอกนั้นขาว/เทาอุ่น เส้นบาง ไม่มีไอคอนประดับ
+   แบ่งส่วนด้วยการ์ดที่มีหัวข้อเลขลำดับ (.er-sec-no) · ตัวอักษรหัวข้อและตัวเลขเป็นแดง · ไอคอนโทนแดงชุดเดียว
+   ช่องภาพรวม (.er-kpi) เป็นสีทึบตระกูลแดง–ส้ม ตัวอักษรขาว · สีที่ไม่ใช่แดงมีเฉพาะที่มีความหมาย: ระดับ Triage, แถบทันเป้า/เกินเป้า, สีกราฟ
    กฎที่เปลี่ยนส่วนประกอบเดิมขึ้นต้นด้วย :root ให้ชนะกฎโหมดมืด (html[data-theme="dark"] …)
    ชื่อ token ตามบทบาทให้ tools/build_dark_css.mjs แปลงโหมดมืดเอง: *-text = ตัวอักษร · tint/wash/*-bg = พื้น · *-line = เส้น
-   --er-canvas / --er-mast ไม่มีบทบาท → ค่าโหมดมืดตั้งเองใน dark.css
-   สีที่มีความหมายไม่ใช้ธีมแดง: ระดับ Triage (ป้ายของ รพ. ท้ายไฟล์), สีกราฟ
+   --er-canvas / --er-mast / --er-k* ไม่มีบทบาท → คงค่าเดิมหรือตั้งเองใน dark.css
 ========================================================= */
 :root .er-theme {
     --er-text: #b42318;         /* แดงบนพื้นขาว 6.5:1 */
     --er-ink-text: #2a1a19;     /* ตัวอักษรหลัก */
     --er-muted-text: #6b5753;   /* ข้อความรอง 6.9:1 บนขาว */
-    --er-solid: #b3261e;        /* พื้นปุ่ม/แถบ ตัวอักษรขาว 6.0:1 */
+    --er-solid: #b3261e;        /* พื้นปุ่ม/หัวตาราง ตัวอักษรขาว 6.0:1 */
     --er-on-solid: #ffffff;
     --er-tint: #fbeceb;
     --er-wash: #fdf6f5;
@@ -26,23 +26,24 @@
     --er-card-line: #e8dbd9;
     --er-glow: rgba(179, 38, 30, .22);
     --er-row-bg: #fffafa;
-    --er-page-bg: #ffffff;      /* พื้นแผง */
+    --er-page-bg: #ffffff;      /* พื้นการ์ด */
     --er-canvas: #f6f2f1;       /* พื้นหน้า: ขาวอุ่น */
     --er-mast: #a8221b;         /* แถบหัวแดง ตัวอักษรขาว 6.9:1 */
     --er-on-mast: #ffffff;
-    --er-on-mast-dim: #f6dcda; /* ข้อความรองบนแถบหัว 5.3:1 */
-    --er-on-mast-veil: #b63a33;    /* แดงอ่อนกว่าแถบหัว (ทึบ) สำหรับปุ่ม/ป้ายบนแถบ */
+    --er-on-mast-dim: #f6dcda;  /* ข้อความรองบนแถบหัว/ช่องสี 5.3:1 ขึ้นไป */
+    --er-on-mast-veil: #b63a33; /* แดงอ่อนกว่าแถบหัว (ทึบ) สำหรับปุ่มบนแถบ */
     --er-on-mast-rule: rgba(255, 255, 255, .3);
+    --er-kpi-sheen: rgba(255, 255, 255, .16);
 
-    /* สีตามความหมาย (ไอคอนในชิป + แถบ) — คู่ ตัวอักษร/พื้นอ่อน ผ่าน 4.5:1 ทุกคู่ · โหมดมืดแปลงตามชื่อ (-text / -tint) */
-    --er-red-text: #b42318;    --er-red-tint: #fdecea;      /* ฉุกเฉิน/วิกฤต */
-    --er-orange-text: #b93e0b; --er-orange-tint: #fdede4;   /* อุบัติเหตุ, เกินเวลา */
-    --er-amber-text: #92580a;  --er-amber-tint: #fdf2dc;    /* รอ, เวรเช้า */
-    --er-green-text: #157a3a;  --er-green-tint: #e5f5ea;    /* กลับบ้าน, ทันเป้า */
-    --er-teal-text: #0f716a;   --er-teal-tint: #dcf3f0;     /* ส่งต่อ */
-    --er-blue-text: #1d4fc4;   --er-blue-tint: #e7eefd;     /* ตรวจทั่วไป, Admit */
-    --er-indigo-text: #4338ca; --er-indigo-tint: #ecebfd;   /* เวรดึก, Refer รวม */
-    --er-slate-text: #4a5566;  --er-slate-tint: #eef1f5;    /* บริการอื่น, ยังไม่ลงผล */
+    /* ช่องภาพรวม: ตระกูลแดง–ส้ม ตัวอักษรขาวผ่าน 5:1 ทุกช่อง */
+    --er-k1: #a8221b;   /* ผู้มารับบริการ */
+    --er-k2: #c2410c;   /* EMS */
+    --er-k3: #be123c;   /* อยู่ใน ER ตอนนี้ */
+    --er-k4: #9f1239;   /* ระดับ 1–2 ตอนนี้ */
+    --er-k5: #b45309;   /* ยังไม่พบแพทย์ */
+    --er-k6: #c2185b;   /* อยู่เกิน 4 ชม. */
+    --er-k7: #7f1d1d;   /* อยู่นานสุด */
+
     --er-good-fill: #1f9d55;   /* แถบทันเป้า */
     --er-bad-fill: #d0342c;    /* แถบเกินเป้า */
     --er-warn-fill: #e07b12;   /* แถบสัดส่วนที่เกินเกณฑ์เวลา */
@@ -58,84 +59,89 @@
 :root .content-wrapper.er-theme { background: var(--er-canvas) !important; color: var(--er-ink-text); }
 .er-theme .er-page { max-width: 1680px; margin: 0 auto; padding: 16px 16px 32px; font-size: 1.3rem; }
 
-/* ---------- แผง (ชั้นเดียว ไม่มีการ์ดซ้อนการ์ด) ---------- */
+/* ---------- การ์ด + หัวข้อเลขลำดับ ---------- */
 .er-theme .er-panel {
     background: var(--er-page-bg); border: 1px solid var(--er-card-line); border-radius: 16px;
-    padding: 20px 24px; margin-bottom: 16px; min-width: 0;
+    padding: 16px 20px 20px; margin-bottom: 16px; min-width: 0;
 }
-.er-theme .er-h2 { margin: 0 0 12px; font-size: 1.68rem; font-weight: 700; line-height: 1.25; color: var(--er-ink-text); overflow-wrap: break-word; min-width: 0; }
-.er-theme .er-h3 { margin: 0 0 8px; font-size: 1.34rem; font-weight: 700; color: var(--er-ink-text); }
-.er-theme .er-h3-gap { margin-top: 24px; }
-.er-theme .er-note { margin: 12px 0 0; font-size: 1.14rem; color: var(--er-muted-text); }
+.er-theme .er-sec-head { display: flex; align-items: center; gap: 12px; padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid var(--er-line); min-width: 0; }
+.er-theme .er-sec-no {
+    display: inline-flex; align-items: center; justify-content: center; flex: none;
+    width: 1.9em; height: 1.9em; border-radius: 10px;
+    background: var(--er-solid); color: var(--er-on-solid); font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.er-theme .er-h2 { margin: 0; font-size: 1.55rem; font-weight: 700; line-height: 1.2; color: var(--er-text); overflow-wrap: break-word; min-width: 0; }
+.er-theme .er-sec-sub { margin: 2px 0 0; font-size: 1.08rem; color: var(--er-muted-text); }
+.er-theme .er-h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 8px; font-size: 1.3rem; font-weight: 700; color: var(--er-text); }
+.er-theme .er-h3-gap { margin-top: 20px; padding-top: 12px; border-top: 1px solid var(--er-line); }
+.er-theme .er-note { margin: 12px 0 0; font-size: 1.08rem; color: var(--er-muted-text); }
 .er-theme .er-split { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 16px; }
 .er-theme .er-split .er-panel { margin-bottom: 0; }
 
-/* ---------- ชิปไอคอนตามความหมาย (ไอคอนประกอบข้อความ จึง aria-hidden) ---------- */
-.er-theme .er-c-red    { --c-text: var(--er-red-text);    --c-tint: var(--er-red-tint); }
-.er-theme .er-c-orange { --c-text: var(--er-orange-text); --c-tint: var(--er-orange-tint); }
-.er-theme .er-c-amber  { --c-text: var(--er-amber-text);  --c-tint: var(--er-amber-tint); }
-.er-theme .er-c-green  { --c-text: var(--er-green-text);  --c-tint: var(--er-green-tint); }
-.er-theme .er-c-teal   { --c-text: var(--er-teal-text);   --c-tint: var(--er-teal-tint); }
-.er-theme .er-c-blue   { --c-text: var(--er-blue-text);   --c-tint: var(--er-blue-tint); }
-.er-theme .er-c-indigo { --c-text: var(--er-indigo-text); --c-tint: var(--er-indigo-tint); }
-.er-theme .er-c-slate  { --c-text: var(--er-slate-text);  --c-tint: var(--er-slate-tint); }
+/* ชิปไอคอน: โทนแดงชุดเดียวทั้งหน้า (ไอคอนประกอบข้อความ จึง aria-hidden) */
 .er-theme .er-ico {
     display: inline-flex; align-items: center; justify-content: center; flex: none;
     width: 1.75em; height: 1.75em; border-radius: 8px; font-size: .85em;
-    background: var(--c-tint); color: var(--c-text);
+    background: var(--er-tint); color: var(--er-text);
 }
-.er-theme .er-h2, .er-theme .er-h3 { display: flex; align-items: center; gap: 10px; }
 
-/* ---------- แถบหัวแดง: วันที่ ยอดรวม สถานะตอนนี้ ---------- */
+/* ---------- แถบหัวแดง: ชื่อหน้า เทียบสัปดาห์ก่อน ตัวเลือกวันที่ ---------- */
 .er-theme .er-mast {
     background: var(--er-mast); color: var(--er-on-mast); border-radius: 16px;
-    padding: 24px 28px; margin-bottom: 16px;
+    padding: 20px 24px; margin-bottom: 16px;
 }
-.er-theme .er-mast-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 16px; }
+.er-theme .er-mast-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; }
 .er-theme .er-mast-heading { min-width: 0; }
-.er-theme .er-mast-title { margin: 0; font-size: 2.28rem; font-weight: 700; line-height: 1.2; color: var(--er-on-mast); overflow-wrap: break-word; }
+.er-theme .er-mast-title { margin: 0; font-size: 2.1rem; font-weight: 700; line-height: 1.2; color: var(--er-on-mast); overflow-wrap: break-word; }
 .er-theme .er-mast-sub { margin: 4px 0 0; color: var(--er-on-mast-dim); }
 :root .er-theme .er-mast .opd-delta { color: var(--er-on-mast); font-weight: 700; }
-.er-theme .er-mast-body { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 32px; align-items: end; margin-top: 20px; }
-.er-theme .er-mast-number { display: inline-flex; align-items: baseline; gap: 8px; font-size: 5.4rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; cursor: pointer; border-radius: 8px; }
-.er-theme .er-mast-number small { font-size: 1.68rem; font-weight: 400; color: var(--er-on-mast-dim); }
-.er-theme .er-mast-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-top: 8px; color: var(--er-on-mast-dim); }
-.er-theme .er-mast-meta b { color: var(--er-on-mast); font-variant-numeric: tabular-nums; }
-.er-theme .er-mast-chip { padding: 2px 12px; border: 1px solid var(--er-on-mast-rule); border-radius: 999px; background: var(--er-on-mast-veil); color: var(--er-on-mast); cursor: pointer; }
-.er-theme .er-now { padding-left: 32px; border-left: 1px solid var(--er-on-mast-rule); min-width: 0; }
-.er-theme .er-now[hidden] { display: none; }
-.er-theme .er-now-title { margin: 0 0 8px; font-size: 1.26rem; font-weight: 700; color: var(--er-on-mast); }
-.er-theme .er-now-at { font-weight: 400; color: var(--er-on-mast-dim); }
-.er-theme .er-now-items { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px 24px; }
-.er-theme .er-now-item { display: flex; flex-direction: column; min-width: 0; }
-.er-theme .er-now-item b { font-size: 2.64rem; line-height: 1.1; font-variant-numeric: tabular-nums; color: var(--er-on-mast); overflow-wrap: break-word; }
-.er-theme .er-now-item span { color: var(--er-on-mast-dim); }
-.er-theme .er-now-item span i, .er-theme .er-mast-chip i, .er-theme .er-mast-meta > span > i { margin-right: 6px; color: var(--er-on-mast); }
-.er-theme .er-h2 .er-ico { font-size: .8em; }
-
-/* ตัวเลือกวันนี้/เมื่อวาน + กล่องวันที่บนแถบแดง (opd_quality.css) */
 :root .er-theme .er-mast .oq-seg { background: var(--er-on-mast-veil); border-color: var(--er-on-mast-rule); }
 :root .er-theme .er-mast .oq-seg button { color: var(--er-on-mast); }
 :root .er-theme .er-mast .oq-seg button:hover { background: var(--er-on-mast-veil); }
 :root .er-theme .er-mast .oq-seg button[aria-pressed="true"] { background: var(--er-page-bg); color: var(--er-text); box-shadow: none; }
 :root .er-theme .er-mast .oq-range { background: var(--er-page-bg); border-color: transparent; color: var(--er-ink-text); }
 :root .er-theme .er-mast .oq-range > i { color: var(--er-text); }
-:root .er-theme .er-mast :is(button, input, [data-drill]):focus-visible { outline: 2px solid var(--er-on-mast); outline-offset: 2px; }
+:root .er-theme .er-mast :is(button, input):focus-visible { outline: 2px solid var(--er-on-mast); outline-offset: 2px; }
 
-/* ---------- แถวตัวชี้วัดเวลา (Door-to-Doctor / LOS · er_summary.js row()) ---------- */
-.er-theme .er-row {
-    display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr) minmax(0, 1.6fr);
-    gap: 16px; align-items: center; padding: 12px 0; border-top: 1px solid var(--er-line);
+/* ---------- 1 ภาพรวม: ช่องสีทึบ ---------- */
+.er-theme .er-kpis { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 12px; }
+.er-theme .er-now { display: contents; }
+.er-theme .er-now[hidden] { display: none; }
+.er-theme .er-kpi {
+    position: relative; display: flex; flex-direction: column; gap: 2px; min-width: 0;
+    padding: 14px 16px; border-radius: 14px; color: var(--er-on-mast);
+    background: var(--k) linear-gradient(135deg, var(--er-kpi-sheen), transparent 60%);
 }
-.er-theme .er-row:first-child { border-top: 0; padding-top: 4px; }
-.er-theme .er-row small { display: block; font-size: 1.1rem; font-weight: 400; color: var(--er-muted-text); }
+.er-theme .er-k1 { --k: var(--er-k1); } .er-theme .er-k2 { --k: var(--er-k2); } .er-theme .er-k3 { --k: var(--er-k3); }
+.er-theme .er-k4 { --k: var(--er-k4); } .er-theme .er-k5 { --k: var(--er-k5); } .er-theme .er-k6 { --k: var(--er-k6); }
+.er-theme .er-k7 { --k: var(--er-k7); }
+.er-theme .er-kpi[data-drill] { cursor: pointer; }
+.er-theme .er-kpi-label { padding-right: 2.2em; font-weight: 700; line-height: 1.2; }
+.er-theme .er-kpi-label i {
+    position: absolute; top: 12px; right: 12px; display: inline-flex; align-items: center; justify-content: center;
+    width: 1.8em; height: 1.8em; border-radius: 8px; background: var(--er-kpi-sheen); font-size: .9em;
+}
+.er-theme .er-kpi-num { font-size: 2.6rem; line-height: 1.1; font-weight: 700; font-variant-numeric: tabular-nums; overflow-wrap: break-word; }
+.er-theme .er-kpi-sub { font-size: 1.05rem; color: var(--er-on-mast); }   /* ขาวล้วน: บนช่องส้ม/อำพัน สีจางไม่ผ่าน 4.5:1 */
+.er-theme .er-kpi-sub b { color: var(--er-on-mast); font-variant-numeric: tabular-nums; }
+:root .er-theme #er-summary .er-kpi[data-drill]:focus-visible { outline: 3px solid var(--er-ink-text); outline-offset: 2px; }
+
+/* ---------- 2–3 ตารางเวลา (Door-to-Doctor / LOS · er_summary.js row()) — หัวตารางแดง ---------- */
+.er-theme .er-rows-head, .er-theme .er-row {
+    display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr) minmax(0, 1.6fr); gap: 16px; align-items: center;
+}
+.er-theme .er-rows-head { padding: 8px 12px; border-radius: 10px; background: var(--er-solid); color: var(--er-on-solid); font-size: 1.08rem; font-weight: 700; }
+.er-theme .er-row { padding: 12px; border-top: 1px solid var(--er-line); }
+.er-theme .er-row:first-child { border-top: 0; }
+.er-theme .er-row:nth-child(even) { background: var(--er-row-bg); }
+.er-theme .er-row small { display: block; font-size: 1.05rem; font-weight: 400; color: var(--er-muted-text); }
 .er-theme .er-row-key { font-weight: 700; color: var(--er-ink-text); min-width: 0; }
-.er-theme .er-row-num { color: var(--er-ink-text); }
+.er-theme .er-row-num { color: var(--er-muted-text); }
 .er-theme .er-row-num small { display: inline; }
-.er-theme .er-row-num b { font-size: 2.28rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.er-theme .er-row-num b { font-size: 2.1rem; line-height: 1.1; color: var(--er-text); font-variant-numeric: tabular-nums; }
 .er-theme .er-row-bar small { margin-top: 4px; font-variant-numeric: tabular-nums; }
-.er-theme .er-flag { display: inline-block; padding: 0 8px; border-radius: 999px; background: var(--er-tint); color: var(--er-text); font-size: 1.06rem; font-weight: 700; white-space: nowrap; }
-.er-theme .er-meter { height: 6px; border-radius: 999px; background: var(--er-tint); overflow: hidden; }
+.er-theme .er-flag { display: inline-block; padding: 0 8px; border-radius: 999px; background: var(--er-tint); color: var(--er-text); font-size: 1rem; font-weight: 700; white-space: nowrap; }
+.er-theme .er-meter { height: 8px; border-radius: 999px; background: var(--er-tint); overflow: hidden; }
 .er-theme .er-meter span { display: block; height: 100%; background: var(--er-solid); }
 /* สีแถบตามผล: ทันเป้า = เขียว · เกินเป้า = แดง · สัดส่วนที่เกินเกณฑ์เวลา = ส้ม (มีข้อความกำกับเสมอ ไม่พึ่งสีอย่างเดียว) */
 .er-theme .er-meter.is-good span { background: var(--er-good-fill); }
@@ -147,42 +153,44 @@
 .er-tri-4 { --lvl-on: #142605; }
 .er-tri-5 { --lvl-on: #2a1a19; }
 
-/* ---------- ผู้ป่วยของวันที่เลือก: 4 คอลัมน์ รายการแบบแถว ---------- */
-.er-theme .er-cols { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px 32px; }
-.er-theme .er-col { min-width: 0; }
+/* ---------- 4–7 การ์ดผู้ป่วยของวันที่เลือก: รายการแบบแถว ---------- */
+.er-theme .er-cols { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 16px; }
+.er-theme .er-cols .er-panel { margin-bottom: 0; }
 .er-theme .er-stat {
-    display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
-    margin: 0 -12px; padding: 8px 12px; border-radius: 10px; cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    margin: 0 -8px; padding: 8px; border-radius: 10px; cursor: pointer;
     transition: background-color 150ms ease;
 }
 .er-theme .er-stat + .er-stat { border-top: 1px solid var(--er-line); }
 .er-theme .er-stat:hover { background: var(--er-wash); }
 .er-theme .er-stat:active { background: var(--er-tint); }
-.er-theme .er-stat { align-items: center; }
 /* ชื่อแถว: ชิปไอคอน (2 บรรทัด) | ชื่อ + คำอธิบายย่อย */
 .er-theme :is(.er-stat-label, .er-row-key) { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 10px; align-items: center; }
 .er-theme :is(.er-stat-label, .er-row-key) > .er-ico { grid-row: span 2; }
 .er-theme .er-stat-label { color: var(--er-ink-text); min-width: 0; }
-.er-theme .er-stat-label small { display: block; font-size: 1.08rem; color: var(--er-muted-text); }
+.er-theme .er-stat-label small { display: block; font-size: 1.05rem; color: var(--er-muted-text); }
 .er-theme .er-stat-value { color: var(--er-muted-text); white-space: nowrap; }
-.er-theme .er-stat-value b { margin-right: 4px; font-size: 1.8rem; color: var(--er-ink-text); font-variant-numeric: tabular-nums; }
-.er-theme .er-stat-lead .er-stat-value b { font-size: 2.64rem; color: var(--er-text); }
+.er-theme .er-stat-value b { margin-right: 4px; font-size: 1.7rem; color: var(--er-text); font-variant-numeric: tabular-nums; }
+.er-theme .er-stat-lead .er-stat-value b { font-size: 2.4rem; }
 .er-theme .er-mix-bar { display: flex; gap: 2px; height: 10px; margin: 8px 0; border-radius: 999px; overflow: hidden; background: var(--er-tint); }
 .er-theme .er-mix-bar span { min-width: 0; }
-.er-theme .er-mix-legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 1.14rem; color: var(--er-muted-text); }
+.er-theme .er-mix-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 1.08rem; color: var(--er-muted-text); }
 .er-theme .er-mix-legend b { color: var(--er-ink-text); font-variant-numeric: tabular-nums; }
 .er-theme .er-dot { display: inline-block; width: 10px; height: 10px; margin-right: 4px; border-radius: 50%; vertical-align: middle; }
-:root .er-theme #er-summary [data-drill]:focus-visible { outline: 2px solid var(--er-solid); outline-offset: 2px; }
+:root .er-theme #er-summary .er-stat:focus-visible { outline: 2px solid var(--er-solid); outline-offset: 2px; }
 
-/* ---------- สถิติตามช่วงเวลา: หัว + ตัวกรอง, กราฟ 2×2, ตาราง 10 อันดับ ---------- */
-.er-theme .er-stats-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 16px; }
-.er-theme .er-stats-head .er-h2 { margin-bottom: 0; }
-:root .er-theme .er-stats-head #budget-date-text { margin-top: 4px; color: var(--er-muted-text); }
+/* ---------- 8 สถิติตามช่วงเวลา: หัว + ตัวกรอง, กราฟ 2×2, ตาราง 10 อันดับ (หัวตารางแดง) ---------- */
+.er-theme .er-stats-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px 16px; padding-bottom: 12px; margin-bottom: 16px; border-bottom: 1px solid var(--er-line); }
+.er-theme .er-stats-head .er-sec-head { padding-bottom: 0; margin-bottom: 0; border-bottom: 0; }
+:root .er-theme .er-stats-head #budget-date-text { color: var(--er-muted-text); font-size: 1.08rem; }
 .er-theme .er-charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .er-theme .er-chart { margin: 0; padding: 16px; border: 1px solid var(--er-line); border-radius: 12px; min-width: 0; }
-:root .er-theme .er-table thead th { background: var(--er-wash); color: var(--er-ink-text); font-weight: 700; border-bottom: 1px solid var(--er-line); border-top: 0; }
-:root .er-theme .er-table td { border-top: 1px solid var(--er-line); color: var(--er-ink-text); }
-:root .er-theme .er-table tbody tr:hover { background: var(--er-wash); }
+.er-theme .er-chart figcaption { padding-bottom: 8px; border-bottom: 1px solid var(--er-line); }
+:root .er-theme .er-table thead th { background: var(--er-solid); color: var(--er-on-solid); font-weight: 700; border: 0; }
+:root .er-theme .er-table thead th:first-child { border-radius: 10px 0 0 10px; }
+:root .er-theme .er-table thead th:last-child { border-radius: 0 10px 10px 0; }
+:root .er-theme .er-table td { border-top: 1px solid var(--er-line); color: var(--er-ink-text); background: var(--er-page-bg); }
+:root .er-theme .er-table tbody tr:hover td { background: var(--er-wash); }
 
 /* ตัวกรองช่วงเวลาของกราฟ (theme.css .bbh-seg ใช้สีเขียวเขียนตรง) + ปีงบ */
 :root .er-theme .bbh-seg { background: var(--er-wash); border-color: var(--er-line); }
@@ -194,19 +202,21 @@
 :root .er-theme .budget-select:focus { border-color: var(--er-solid) !important; color: var(--er-text) !important; }
 :root .er-theme .budget-select-icon { color: var(--er-text); }
 
+@media (max-width: 1399.98px) {
+    .er-theme .er-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
 @media (max-width: 1199.98px) {
     .er-theme .er-split, .er-theme .er-charts { grid-template-columns: minmax(0, 1fr); }
     .er-theme .er-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .er-theme .er-mast-body { grid-template-columns: minmax(0, 1fr); gap: 20px; }
-    .er-theme .er-now { padding: 16px 0 0; border-left: 0; border-top: 1px solid var(--er-on-mast-rule); }
 }
 @media (max-width: 575.98px) {
     .er-theme .er-page { padding-top: 8px; padding-inline: 12px; }
-    .er-theme .er-mast, .er-theme .er-panel { padding: 16px; border-radius: 12px; }
-    .er-theme .er-mast-number { font-size: 4.2rem; }
-    .er-theme .er-now-items { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .er-theme .er-mast, .er-theme .er-panel { padding: 14px; border-radius: 12px; }
+    .er-theme .er-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .er-theme .er-kpi-num { font-size: 2.2rem; }
     .er-theme .er-cols { grid-template-columns: minmax(0, 1fr); }
-    .er-theme .er-row { grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; }
+    .er-theme .er-rows-head { display: none; }
+    .er-theme .er-row { grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding-inline: 8px; }
     .er-theme .er-row-bar { grid-column: 1 / -1; }
 }
 @media (prefers-reduced-motion: reduce) {
