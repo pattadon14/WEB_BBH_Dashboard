@@ -444,7 +444,7 @@ try {
 
         const badgeBg = rankColor[row.rank]
             ? `style="background:${rankColor[row.rank]};color:#1f1f1f;"`
-            : 'style="background:#198754;color:#fff;"';
+            : 'style="background:#c62828;color:#fff;"';
 
 
         html += `

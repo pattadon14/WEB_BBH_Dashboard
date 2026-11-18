@@ -1,0 +1,100 @@
+/* =========================================================
+   หน้า ER: ธีมแดง–ขาว (ทำงานเฉพาะใต้ .content-wrapper.er-theme ใน pages/ER_detail.php)
+   กฎที่เปลี่ยนสีส่วนประกอบเดิมขึ้นต้นด้วย :root ให้ชนะกฎโหมดมืด (html[data-theme="dark"] …) ด้วย — สีมาจาก token ด้านล่างซึ่งมีค่าโหมดมืดของตัวเอง
+   ชื่อ token ตั้งตามบทบาทให้ tools/build_dark_css.mjs แปลงโหมดมืดได้เอง:
+   --er-text = ตัวอักษร/ไอคอน · --er-tint, --er-wash = พื้นอ่อน · --er-line = เส้นขอบ · --er-solid = พื้นปุ่ม (ตัวอักษรขาว)
+   สีที่มีความหมายคงเดิม: แถบ/จุดระดับ Triage, ▲▼ เทียบสัปดาห์ก่อน, สีกราฟ
+========================================================= */
+:root .er-theme {
+    --er-text: #b42318;         /* แดงบนพื้นขาว 6.5:1 */
+    --er-solid: #c62828;        /* พื้นปุ่มแดง ตัวอักษรขาว 5.6:1 */
+    --er-tint: #fdecea;
+    --er-wash: #fdf4f3;
+    --er-line: #f2cdc9;
+    --er-on-solid: #ffffff;     /* ตัวอักษรบนพื้นแดง (คงขาวทั้งสองโหมด) */
+    --er-glow: rgba(198, 40, 40, .25);
+    --er-row-bg: #fffafa;
+    --er-page-bg: #ffffff;
+
+    /* ส่วนประกอบกลางที่ใช้ token เขียวของเว็บ (ตัวกรองช่วงเวลา, ปีงบ, ช่องวันที่) เปลี่ยนเป็นแดงในหน้านี้ */
+    --bbh-green: var(--er-solid);
+    --bbh-green-dark: var(--er-text);
+    --bbh-green-50: var(--er-tint);
+    --bbh-green-100: var(--er-tint);
+    --bbh-ring: 0 0 0 3px var(--er-glow);
+}
+
+.content-wrapper.er-theme {
+    background: linear-gradient(180deg, var(--er-wash) 0, var(--er-page-bg) 320px) !important;
+}
+
+:root .er-theme .text-success { color: var(--er-text) !important; }
+
+/* ---------- การ์ดสรุปรายวัน ---------- */
+:root .er-theme #er-summary #er-summary-card .opd-summary-main-icon { background: var(--er-tint); color: var(--er-text); }
+:root .er-theme #er-summary #er-summary-card .opd-summary-title,
+:root .er-theme #er-summary #er-summary-card .opd-summary-main-number,
+:root .er-theme #er-summary #er-summary-card .opd-summary-main-number span,
+:root .er-theme #er-summary #er-summary-card .summary-section-title { color: var(--er-text); }
+
+:root .er-theme #er-summary #er-summary-card .opd-summary-newold .newpt { background: var(--er-tint); color: var(--er-text); }
+
+:root .er-theme #er-summary #er-summary-card {
+    --st-surface: var(--er-row-bg);
+    --st-line: #f5dcd9;
+}
+/* ทุกแถวโทนแดง ยกเว้น "รับบริการอื่น" / "อื่น ๆ" เป็นเทา ไม่แย่งสายตา */
+:root .er-theme #er-summary #er-summary-card :is(.time-horizontal-card, .exam-horizontal-card):not(.nodr-card) {
+    --st-accent-text: var(--er-text);
+    --st-chip-tint: var(--er-tint);
+}
+
+/* ตัวเลือกวันนี้/เมื่อวาน + กล่องวันที่ (opd_quality.css) */
+:root .er-theme .oq-seg { background: var(--er-wash); border-color: var(--er-line); }
+:root .er-theme .oq-seg button { color: var(--er-text); }
+:root .er-theme .oq-seg button:hover { background: var(--er-tint); }
+:root .er-theme .oq-seg button[aria-pressed="true"] { background: var(--er-solid); color: var(--er-on-solid); box-shadow: 0 2px 6px var(--er-glow); }
+:root .er-theme .oq-range { border-color: var(--er-line); }
+:root .er-theme .oq-range > i { color: var(--er-text); }
+
+/* ตัวกรองช่วงเวลาของกราฟ (theme.css .bbh-seg ใช้สีเขียวเขียนตรง) */
+:root .er-theme .bbh-seg { background: var(--er-wash); border-color: var(--er-line); }
+:root .er-theme .bbh-seg button { color: var(--er-text); }
+:root .er-theme .bbh-seg button:hover { background: var(--er-tint); }
+:root .er-theme .bbh-seg button[aria-pressed="true"] { color: var(--er-on-solid); box-shadow: 0 2px 6px var(--er-glow); }
+:root .er-theme .bbh-range { border-color: var(--er-line); }
+
+/* ---------- กราฟ + ตาราง 10 อันดับ ---------- */
+:root .er-theme .chart-title i { color: var(--er-text); }
+:root .er-theme .table-ipd-top10 thead th { background: var(--er-solid); color: var(--er-on-solid); }
+/* ไอคอนชาย/หญิงในหัวตารางใส่สีไว้ใน style="" (ฟ้า/ชมพู) จมกับพื้นแดง → ขาวตามตัวอักษรหัวตาราง */
+:root .er-theme .table-ipd-top10 thead th i { color: inherit !important; }
+:root .er-theme .table-ipd-top10 tbody tr:hover { background: var(--er-wash); }
+
+/* ---------- ตัวเลข/การ์ดที่คลิกดูรายชื่อได้ ---------- */
+:root .er-theme #er-summary [data-drill]:focus-visible { outline-color: var(--er-solid); }
+
+/* ---------- หน้าต่างรายชื่อ (bbh_drill.js · ใช้ .opd-drill ของ opd_tabs.css) ---------- */
+:root .er-theme .opd-drill-head h3 { color: var(--er-text); }
+:root .er-theme .opd-drill-close:hover { background: var(--er-tint); }
+:root .er-theme .opd-drill-search:focus-within,
+:root .er-theme .opd-drill-filter select:focus { border-color: var(--er-solid); box-shadow: none; outline: 2px solid var(--er-solid); outline-offset: 2px; }
+:root .er-theme .opd-drill-pages button:hover:not(:disabled) { border-color: var(--er-solid); color: var(--er-text); }
+:root .er-theme .opd-drill-pages button.is-current { background: var(--er-solid); border-color: var(--er-solid); color: var(--er-on-solid); }
+:root .er-theme .opd-drill-table tbody tr:nth-child(even) { background: var(--er-row-bg); }
+:root .er-theme .opd-drill-table tbody tr:hover { background: var(--er-wash); }
+
+/* ป้ายในตารางรายชื่อ: ระดับ Triage (สีเดียวกับแถบระดับบนการ์ด) + ผลจำหน่าย */
+.er-lvl { --lvl: #cbd5e1; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+.er-lvl::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--lvl); }
+.er-lvl-1 { --lvl: #f01a1a; }
+.er-lvl-2 { --lvl: #dc35b2; }
+.er-lvl-3 { --lvl: #13a142; }
+.er-lvl-4 { --lvl: #07c5ff; }
+.er-lvl-5 { --lvl: #6c757d; }
+.er-lvl-6 { --lvl: #343a40; }
+.er-dx-code { font-weight: 700; }
+.er-dx { text-align: left; }
+:root .er-theme .opd-drill-table th { background: var(--er-wash); color: var(--er-text); }
+/* คอลัมน์สั้นไม่ตัดบรรทัด (ชื่อ, ประเภท, วิธีมา, ผลจำหน่าย) ให้คอลัมน์การวินิจฉัยรับความกว้างที่เหลือ · จอแคบเลื่อนตารางแนวนอนใน .opd-drill-body */
+:root .er-theme .opd-drill-table td:is(:nth-child(4), :nth-child(7), :nth-child(8), :last-child) { white-space: nowrap; }

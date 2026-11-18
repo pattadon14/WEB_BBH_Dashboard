@@ -11,8 +11,10 @@ include '../templates/sidebar.php';
 <!-- ตัวเลือกวันที่ในการ์ดสรุป (ปุ่มวันนี้/เมื่อวาน + กล่องวันที่) ใช้ชุดเดียวกับหน้า OPD -->
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_tabs.css?v=<?= filemtime(__DIR__ . '/../assets/css/opd_tabs.css') ?>">
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_quality.css?v=<?= filemtime(__DIR__ . '/../assets/css/opd_quality.css') ?>">
+<!-- ธีมแดง–ขาวของหน้า ER (ทำงานใต้ .er-theme) -->
+<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/er_theme.css?v=<?= filemtime(__DIR__ . '/../assets/css/er_theme.css') ?>">
 
-<div class="content-wrapper">
+<div class="content-wrapper er-theme">
 
     <section class="content pt-3">
 
@@ -51,13 +53,13 @@ include '../templates/sidebar.php';
                             </div>
 
                             <div class="opd-summary-main-total">
-                                <div class="opd-summary-main-number">
+                                <div class="opd-summary-main-number" data-drill="all">
                                     <span id="er-total">—</span>
                                     <small>ครั้ง</small>
                                 </div>
                                 <div class="opd-summary-newold">
-                                    <span class="newpt" title="ovstist 09 FR / 10 BLS / 11 ALS">EMS นำส่ง <strong id="er-ems">—</strong> ราย</span>
-                                    <span class="oldpt" title="รับส่งต่อจากสถานพยาบาลอื่น (ovstist 04)">รับส่งต่อ <strong id="er-refer-in">—</strong> ราย</span>
+                                    <span class="newpt" data-drill="ems" title="ovstist 09 FR / 10 BLS / 11 ALS">EMS นำส่ง <strong id="er-ems">—</strong> ราย</span>
+                                    <span class="oldpt" data-drill="refer_in" title="รับส่งต่อจากสถานพยาบาลอื่น (ovstist 04)">รับส่งต่อ <strong id="er-refer-in">—</strong> ราย</span>
                                 </div>
                             </div>
                         </div>
@@ -69,7 +71,7 @@ include '../templates/sidebar.php';
                                     <i class="fa-solid fa-triangle-exclamation"></i>
                                     ระดับความเร่งด่วน
                                 </div>
-                                <div class="horizontal-summary-item walkin-card er-crit-card">
+                                <div class="horizontal-summary-item walkin-card er-crit-card" data-drill="l12">
                                     <div class="walkin-head">
                                         <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-heart-pulse"></i></span>
                                         <div>
@@ -110,22 +112,22 @@ include '../templates/sidebar.php';
                                     ประเภทผู้ป่วย
                                 </div>
                                 <div class="exam-horizontal-group">
-                                    <div class="exam-horizontal-card refer-card">
+                                    <div class="exam-horizontal-card refer-card" data-drill="pt_emergency">
                                         <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-heart-pulse"></i></span>
                                         <div class="summary-title">ฉุกเฉิน</div>
                                         <div class="summary-number"><span id="er-pt-emergency">—</span> <span class="summary-unit">ครั้ง</span></div>
                                     </div>
-                                    <div class="exam-horizontal-card admit-card">
+                                    <div class="exam-horizontal-card admit-card" data-drill="pt_accident">
                                         <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-car-burst"></i></span>
                                         <div class="summary-title">อุบัติเหตุ</div>
                                         <div class="summary-number"><span id="er-pt-accident">—</span> <span class="summary-unit">ครั้ง</span></div>
                                     </div>
-                                    <div class="exam-horizontal-card wait-card">
+                                    <div class="exam-horizontal-card wait-card" data-drill="pt_general">
                                         <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-stethoscope"></i></span>
                                         <div class="summary-title">ตรวจโรคทั่วไป</div>
                                         <div class="summary-number"><span id="er-pt-general">—</span> <span class="summary-unit">ครั้ง</span></div>
                                     </div>
-                                    <div class="exam-horizontal-card nodr-card" title="ทำแผล ฉีดยา ใบรับรองแพทย์ และห้องทำแผลเวรเช้า">
+                                    <div class="exam-horizontal-card nodr-card" data-drill="pt_service" title="ทำแผล ฉีดยา ใบรับรองแพทย์ และห้องทำแผลเวรเช้า">
                                         <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-syringe"></i></span>
                                         <div class="summary-title">รับบริการอื่น</div>
                                         <div class="summary-number"><span id="er-pt-service">—</span> <span class="summary-unit">ครั้ง</span></div>
@@ -139,7 +141,7 @@ include '../templates/sidebar.php';
                                     แยกตามเวร
                                 </div>
                                 <div class="time-horizontal-group">
-                                    <div class="time-horizontal-card time-night">
+                                    <div class="time-horizontal-card time-night" data-drill="shift_night">
                                         <div class="time-icon" aria-hidden="true"><i class="fa-solid fa-moon"></i></div>
                                         <div class="time-info">
                                             <div class="time-label">เวรดึก</div>
@@ -147,7 +149,7 @@ include '../templates/sidebar.php';
                                         </div>
                                         <div class="time-count"><span id="er-shift-night">—</span><small>ครั้ง</small></div>
                                     </div>
-                                    <div class="time-horizontal-card time-morning">
+                                    <div class="time-horizontal-card time-morning" data-drill="shift_morning">
                                         <div class="time-icon" aria-hidden="true"><i class="fa-solid fa-sun"></i></div>
                                         <div class="time-info">
                                             <div class="time-label">เวรเช้า</div>
@@ -155,7 +157,7 @@ include '../templates/sidebar.php';
                                         </div>
                                         <div class="time-count"><span id="er-shift-morning">—</span><small>ครั้ง</small></div>
                                     </div>
-                                    <div class="time-horizontal-card time-evening">
+                                    <div class="time-horizontal-card time-evening" data-drill="shift_evening">
                                         <div class="time-icon" aria-hidden="true"><i class="fa-solid fa-cloud-sun"></i></div>
                                         <div class="time-info">
                                             <div class="time-label">เวรบ่าย</div>
@@ -173,34 +175,34 @@ include '../templates/sidebar.php';
                                 </div>
                                 <!-- 6 ช่องรวมได้ยอดทั้งหมด · Admit/Refer นับจาก ipt / referout จุด ER ด้วย (config/er.php) -->
                                 <div class="exam-horizontal-group">
-                                    <div class="exam-horizontal-card finish-card">
+                                    <div class="exam-horizontal-card finish-card" data-drill="home">
                                         <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-house"></i></span>
                                         <div class="summary-title">กลับบ้าน</div>
                                         <div class="summary-number"><span id="er-home">—</span> <span class="summary-unit">ครั้ง</span></div>
                                     </div>
-                                    <div class="exam-horizontal-card exam-card" title="ไม่รอตรวจ / หนีกลับ / ปฏิเสธการรักษา">
+                                    <div class="exam-horizontal-card exam-card" data-drill="gone" title="ไม่รอตรวจ / หนีกลับ / ปฏิเสธการรักษา">
                                         <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-person-walking-arrow-right"></i></span>
                                         <div class="summary-title">ไม่รอตรวจ / หนีกลับ</div>
                                         <div class="summary-number"><span id="er-gone">—</span> <span class="summary-unit">ครั้ง</span></div>
                                     </div>
-                                    <div class="exam-horizontal-card wait-card" title="ยังอยู่ใน ER หรือยังไม่ได้บันทึกผลการจำหน่าย">
+                                    <div class="exam-horizontal-card wait-card" data-drill="no_dch" title="ยังอยู่ใน ER หรือยังไม่ได้บันทึกผลการจำหน่าย">
                                         <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-user-clock"></i></span>
                                         <div class="summary-title">ยังไม่ลงผลจำหน่าย</div>
                                         <div class="summary-number"><span id="er-no-dch">—</span> <span class="summary-unit">ครั้ง</span></div>
                                     </div>
-                                    <div class="exam-horizontal-card nodr-card" title="สังเกตอาการ / เสียชีวิต">
+                                    <div class="exam-horizontal-card nodr-card" data-drill="other_dch" title="สังเกตอาการ / เสียชีวิต">
                                         <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-ellipsis"></i></span>
                                         <div class="summary-title">อื่น ๆ</div>
                                         <div class="summary-number"><span id="er-other-dch">—</span> <span class="summary-unit">ครั้ง</span></div>
                                     </div>
                                 </div>
                                 <div class="opd-mini-pair">
-                                    <div class="exam-horizontal-card admit-card">
+                                    <div class="exam-horizontal-card admit-card" data-drill="admit">
                                         <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-bed-pulse"></i></span>
                                         <div class="summary-title">Admit</div>
                                         <div class="summary-number"><span id="er-admit">—</span> <span class="summary-unit">ครั้ง</span></div>
                                     </div>
-                                    <div class="exam-horizontal-card refer-card">
+                                    <div class="exam-horizontal-card refer-card" data-drill="refer">
                                         <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-truck-medical"></i></span>
                                         <div class="summary-title">Refer ส่งต่อ</div>
                                         <div class="summary-number"><span id="er-refer">—</span> <span class="summary-unit">ครั้ง</span></div>
@@ -400,6 +402,7 @@ include '../templates/sidebar.php';
 <script>window.BBH_CURRENT_FISCAL_YEAR = <?= $currentYear ?>;</script>
 <script src="<?= BASE_URL ?>assets/js/period_filter.js?v=<?= filemtime(__DIR__ . '/../assets/js/period_filter.js') ?>"></script>
 <script src="<?= BASE_URL ?>assets/js/ER_detail.js?v=<?= filemtime(__DIR__ . '/../assets/js/ER_detail.js') ?>"></script>
+<script src="<?= BASE_URL ?>assets/js/bbh_drill.js?v=<?= filemtime(__DIR__ . '/../assets/js/bbh_drill.js') ?>"></script>
 <script src="<?= BASE_URL ?>assets/js/er_summary.js?v=<?= filemtime(__DIR__ . '/../assets/js/er_summary.js') ?>"></script>
 
 <?php include '../templates/footer.php'; ?>

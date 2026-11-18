@@ -1,5 +1,5 @@
 /* ไฟล์สร้างอัตโนมัติจาก tools/build_dark_css.mjs — ห้ามแก้ตรง ๆ (แก้ใน dark.css แทน)
- * แหล่ง: 17 ชุด CSS + style="…" 10 แบบ */
+ * แหล่ง: 18 ชุด CSS + style="…" 10 แบบ */
 
 /* ---- assets/css/custom.css ---- */
 html[data-theme="dark"] body {
@@ -510,6 +510,19 @@ html[data-theme="dark"] .status-finish .special-status-icon {
     html[data-theme="dark"] .special-section + .special-section {
         border-top: 1px solid #36383b;
     }
+}
+
+/* ---- assets/css/er_theme.css ---- */
+html[data-theme="dark"] .er-theme {
+    --er-text: #ffa698;
+    --er-tint: #1f1918;
+    --er-wash: #1b1817;
+    --er-line: #463230;
+    --er-row-bg: #181717;
+    --er-page-bg: #161616;
+}
+html[data-theme="dark"] .er-theme #er-summary #er-summary-card {
+    --st-line: #463230;
 }
 
 /* ---- assets/css/index.css ---- */
@@ -1131,7 +1144,7 @@ html[data-theme="dark"] .opd-wait-more:focus-visible {
     background: #7c3aed;
     color: #fff;
 }
-html[data-theme="dark"] #opd-tab-general [data-drill]:focus-visible {
+html[data-theme="dark"] :is(#opd-tab-general, #er-summary) [data-drill]:focus-visible {
     outline: 3px solid #198754;
 }
 html[data-theme="dark"] :is(#opd-tab-general #opd-summary, #er-summary #er-summary-card) {

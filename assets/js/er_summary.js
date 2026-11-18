@@ -72,6 +72,54 @@
         $('er-compare').innerHTML = `เทียบ${label} ${fmt(data.prev_week)} ครั้ง${delta}` + (isToday ? ' — นับถึงเวลาเดียวกัน' : '');
     }
 
+    /* คลิกการ์ด/ตัวเลข → รายชื่อผู้ป่วย (api/er_visit_list.php · ต้อง login · เงื่อนไขเดียวกับตัวเลขบนการ์ด) */
+    const DRILL_TITLES = {
+        all: 'ผู้มารับบริการ ER ทั้งหมด', ems: 'EMS นำส่ง', refer_in: 'รับส่งต่อจากสถานพยาบาลอื่น',
+        l12: 'วิกฤต / ฉุกเฉิน (ระดับ 1–2)',
+        pt_emergency: 'ผู้ป่วยฉุกเฉิน', pt_accident: 'ผู้ป่วยอุบัติเหตุ', pt_general: 'ผู้ป่วยตรวจโรคทั่วไป', pt_service: 'ผู้ป่วยรับบริการอื่น',
+        shift_night: 'เวรดึก (00:00–07:59 น.)', shift_morning: 'เวรเช้า (08:00–15:59 น.)', shift_evening: 'เวรบ่าย (16:00–23:59 น.)',
+        home: 'กลับบ้าน', gone: 'ไม่รอตรวจ / หนีกลับ / ปฏิเสธการรักษา', no_dch: 'ยังไม่ลงผลจำหน่าย', other_dch: 'ผลจำหน่ายอื่น ๆ',
+        admit: 'Admit', refer: 'Refer ส่งต่อ'
+    };
+    const COLS = [
+        ['enter_at', 'เข้า ER'], ['hn', 'HN'], ['name', 'ชื่อ-สกุล'], ['age', 'อายุ (ปี)'], ['lvl', 'ระดับ'],
+        ['pt', 'ประเภท'], ['arrival', 'วิธีมา'], ['dx', 'การวินิจฉัย'], ['d2d', 'Door-to-Doctor (นาที)'], ['dch', 'ผลจำหน่าย']
+    ];
+    const EXPORT_COLS = COLS.filter(([k]) => k !== 'dx').concat([['pdx', 'ICD-10'], ['diag_th', 'ชื่อโรค (ไทย)'], ['diag_en', 'ชื่อโรค (อังกฤษ)']]);
+    const esc = bbhDrill.esc;
+
+    function drillCell(r, k) {
+        if (k === 'lvl') {
+            const m = /^ระดับ (\d)$/.exec(r.lvl) || (r.lvl === 'Black' ? [0, 6] : null);
+            return `<span class="er-lvl${m ? ' er-lvl-' + m[1] : ''}">${esc(r.lvl)}</span>`;
+        }
+        if (k === 'dx') {
+            if (!r.pdx) return '<span class="text-muted">–</span>';
+            const name = r.diag_th || r.diag_en || '';
+            const en = r.diag_th && r.diag_en && r.diag_th !== r.diag_en ? `<div class="diag-en">${esc(r.diag_en)}</div>` : '';
+            return `<div class="er-dx"><div><span class="er-dx-code">${esc(r.pdx)}</span> ${esc(name)}</div>${en}</div>`;
+        }
+        return undefined;   // ค่าปกติ
+    }
+
+    function openDrill(type) {
+        if (!DRILL_TITLES[type]) return;
+        const date = input.value || today();
+        bbhDrill.open({
+            title: DRILL_TITLES[type],
+            sub: 'วันที่ ' + thai(date),
+            url: '../api/er_visit_list.php?' + new URLSearchParams({ date, type }),
+            cols: COLS,
+            exportCols: EXPORT_COLS,
+            searchKeys: ['hn', 'name', 'pdx', 'diag_th', 'diag_en', 'arrival', 'dch'],
+            filters: [['lvl', 'ระดับ'], ['pt', 'ประเภท'], ['arrival', 'วิธีมา'], ['dch', 'ผลจำหน่าย']],
+            cell: drillCell,
+            file: `ER_${type}_${date}.csv`,
+            summary: rows => `${fmt(rows.length)} ครั้ง (${fmt(new Set(rows.map(r => r.hn)).size)} คน)`
+        });
+    }
+    bbhDrill.bind($('er-summary'), openDrill);
+
     input.addEventListener('change', load);
     buttons.forEach(b => b.addEventListener('click', () => { input.value = daysAgo(Number(b.dataset.erDay)); load(); }));
     bbhPoll(() => { if ((input.value || today()) === today()) load(); }, 60000);
