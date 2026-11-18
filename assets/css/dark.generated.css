@@ -522,6 +522,11 @@ html[data-theme="dark"] .er-theme {
     --er-page-bg: #161616;
     --er-card-line: #463230;
 }
+html[data-theme="dark"] body:has(.er-theme) {
+    --er-nav-text: #ffa698;
+    --er-nav-tint: #1f1918;
+    --er-nav-line: rgba(198, 40, 40, .25);
+}
 html[data-theme="dark"] .er-theme #er-summary #er-summary-card {
     --st-line: #463230;
 }
