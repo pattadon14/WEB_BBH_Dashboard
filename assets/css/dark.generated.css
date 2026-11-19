@@ -533,6 +533,8 @@ html[data-theme="dark"] body:has(.er-theme) {
 html[data-theme="dark"] .er-theme {
     --er-ref-in-bg: #141d1c;
     --er-ref-in-text: #7bd2c8;
+    --er-ipd-bg: #1e1913;
+    --er-ipd-text: #fcab7b;
 }
 
 /* ---- assets/css/index.css ---- */

@@ -1,3 +1,12 @@
+// คลิกกราฟ/ตาราง/แถว → รายชื่อผู้ป่วยของช่วงเวลาที่เลือก (erOpenList ใน er_summary.js · api/er_visit_list.php ต้อง login)
+// o = { title, type, v?, d1?, d2?, sub?, keep? }
+function erPeriodList(o) {
+    const s = bbhPeriod.state;
+    window.erOpenList({ d1: s.d1, d2: s.d2, sub: bbhPeriod.label(), ...o });
+}
+const ER_SHIFT_TYPE = { 1: 'shift_morning', 2: 'shift_evening', 3: 'shift_night' };   // order ของ api/er_timeslot.php
+const erIso = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+
 async function loadChart() {
 
 /*
@@ -66,7 +75,20 @@ Highcharts.chart('er-chart', {
             stacking: 'normal',
             maxPointWidth: 72,   // ปีงบต้นปีมีแค่ 1–2 เดือน แท่งจะกว้างเต็มจอ
             borderRadius: 4,
-            borderWidth: 0
+            borderWidth: 0,
+            cursor: 'pointer',
+            // คลิกแท่ง → รายชื่อของวัน/เดือนนั้น (ตัดให้อยู่ในช่วงที่เลือก) แยกตามส่วนที่คลิก
+            point: { events: { click() {
+                const t = trendData[this.index], s = bbhPeriod.state;
+                let d2 = t.start;
+                if (json.unit === 'month') { const [y, m] = t.start.split('-').map(Number); d2 = erIso(new Date(y, m, 0)); }
+                const acc = this.series.index === 1;
+                erPeriodList({
+                    title: acc ? 'ผู้ป่วยอุบัติเหตุ' : 'ผู้ป่วยอื่น (ไม่ใช่อุบัติเหตุ)', sub: t.label,
+                    d1: t.start < s.d1 ? s.d1 : t.start, d2: d2 > s.d2 ? s.d2 : d2,
+                    type: acc ? 'pt' : 'non_accident', v: acc ? 2 : undefined
+                });
+            } } }
         }
     },
 
@@ -84,67 +106,67 @@ Highcharts.chart('er-chart', {
 
 /*
 ==========================
-Pie Chart
+ประเภทผู้ป่วย — แท่งแนวนอนเรียงตามรหัสประเภท (เดิมเป็นโดนัท: ชิ้นเล็กอ่านยาก ต้องดูคำอธิบายสลับกับชิ้น)
+ป้าย "จำนวน (%)" ที่ปลายแท่ง · tooltip บอกระดับ 1–2 และ Admit ของประเภทนั้น · คลิกดูรายชื่อ
 ==========================
 */
+
+const typeTotal = pieData.reduce((s, d) => s + d.y, 0);
+const typePct   = n => typeTotal ? (n * 100 / typeTotal).toFixed(1) : '0.0';
 
 Highcharts.chart('er-pie-chart', {
 
     chart: {
-        type: 'pie',
+        type: 'bar',
         backgroundColor: '#ffffff',
         style: { fontFamily: 'THSarabun' }
     },
 
     title: { text: null },
 
-    tooltip: {
-        pointFormat:
-            '{series.name}: <b>{point.y} ราย</b><br/>คิดเป็น: <b>{point.percentage:.2f}%</b>'
+    xAxis: {
+        categories: pieData.map(d => d.name),
+        labels: { style: { fontSize: '15px', fontWeight: 'normal' } }
     },
 
-    credits: { enabled: false },
+    yAxis: {
+        min: 0,
+        title: { text: 'จำนวนครั้ง' },
+        labels: { style: { fontSize: '13px' } }
+    },
 
-    // โดนัท + คำอธิบายด้านขวา: ป้ายบนชิ้นเหลือแค่ % ไม่ทับกัน
-    plotOptions: {
-        pie: {
-            innerSize: '55%',
-            allowPointSelect: true,
-            cursor: 'pointer',
-            dataLabels: {
-                enabled: true,
-                distance: 14,
-                format: '{point.percentage:.1f}%',
-                style: {
-                    fontSize: '17px',
-                    fontFamily: 'THSarabun',
-                    textOutline: 'none'
-                }
-            },
-            showInLegend: true
+    tooltip: {
+        formatter: function () {
+            const d = this.point.options;
+            return `<b>${d.name}</b><br/>
+                    จำนวน: <b>${d.y.toLocaleString()} ครั้ง</b> (${typePct(d.y)}%)<br/>
+                    ระดับ 1–2: <b>${d.l12.toLocaleString()}</b>, Admit: <b>${d.admit.toLocaleString()}</b><br/>
+                    คลิกเพื่อดูรายชื่อ`;
         }
     },
 
-    legend: {
-        enabled: true,
-        layout: 'vertical',
-        align: 'right',
-        verticalAlign: 'middle',
-        itemMarginBottom: 6,
-        labelFormat: '{name} <b>{y:,.0f}</b>',
-        itemStyle: { fontSize: '17px', fontWeight: 'normal' }
+    plotOptions: {
+        bar: {
+            borderRadius: 4,
+            colorByPoint: true,
+            cursor: 'pointer',
+            dataLabels: {
+                enabled: true,
+                formatter: function () { return `${this.y.toLocaleString()} (${typePct(this.y)}%)`; },
+                style: { fontSize: '14px', fontWeight: 'normal', textOutline: 'none' }
+            },
+            point: { events: { click() {
+                const d = this.options;
+                if (d.code) erPeriodList({ title: 'ประเภท: ' + d.name, type: 'pt', v: d.code });
+            } } }
+        }
     },
 
-    responsive: {
-        rules: [{
-            condition: { maxWidth: 520 },
-            chartOptions: { legend: { layout: 'horizontal', align: 'center', verticalAlign: 'bottom' } }
-        }]
-    },
+    legend: { enabled: false },
+    credits: { enabled: false },
 
     series: [{
         name: 'จำนวนผู้ป่วย',
-        colorByPoint: true,
         data: pieData
     }]
 
@@ -241,6 +263,11 @@ Highcharts.chart('er-triage-chart', {
     plotOptions: {
         bar: {
             borderRadius: 4,
+            cursor: 'pointer',
+            point: { events: { click() {
+                const d = data[this.index];
+                erPeriodList({ title: 'ระดับความเร่งด่วน: ' + d.name, type: 'lvl', v: d.id });
+            } } },
             dataLabels: {
                 enabled: true,
                 formatter: function () {
@@ -348,6 +375,11 @@ Highcharts.chart('er-timeslot-chart', {
         column: {
             borderRadius: 6,
             colorByPoint: true,
+            cursor: 'pointer',
+            point: { events: { click() {
+                const d = data[this.index];
+                if (ER_SHIFT_TYPE[d.order]) erPeriodList({ title: 'เวร' + d.name, type: ER_SHIFT_TYPE[d.order] });
+            } } },
             dataLabels: {
                 enabled: true,
                 formatter: function () {
@@ -451,8 +483,9 @@ try {
             : 'style="background:#c62828;color:#fff;"';
 
 
+        // คลิกแถว → รายชื่อผู้ป่วยโรคนั้น (นิยามเดียวกับตาราง: ไม่นับงานบริการ 4, 5)
         html += `
-            <tr>
+            <tr data-pdx="${row.icd10}" data-dx="${(row.diag_th || row.diag_en || '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))}" role="button" tabindex="0" title="คลิกเพื่อดูรายชื่อ">
                 <td class="text-center">
                     <span class="rank-badge" ${badgeBg}>
                         ${row.rank}
@@ -492,35 +525,45 @@ try {
 
 loadTop10Table();
 
+(function () {
+    const tbody = document.getElementById('er-top10-tbody');
+    const go = e => {
+        const tr = e.target.closest('tr[data-pdx]');
+        if (!tr) return;
+        if (e.type === 'keydown') { if (e.key !== 'Enter' && e.key !== ' ') return; e.preventDefault(); }
+        erPeriodList({ title: `${tr.dataset.pdx} ${tr.dataset.dx}`.trim(), type: 'pdx', v: tr.dataset.pdx });
+    };
+    tbody.addEventListener('click', go);
+    tbody.addEventListener('keydown', go);
+})();
+
 document
     .getElementById('budget-year')
     .addEventListener('change', loadTop10Table);
 
 /*
 ============================================================
-การส่งต่อ Refer out / in แยกตามสถานพยาบาล (api/er_refer.php)
-แสดง 8 แห่งแรก + รวมที่เหลือเป็น "อื่น ๆ" · แถบยาวเทียบกับยอดของกล่องนั้น
+การส่งต่อ 3 กล่อง (api/er_refer.php): ส่งต่อออกจาก ER · Admit แล้วส่งต่อจากหอผู้ป่วย · รับส่งต่อเข้า ER
+แต่ละแถว (รพ. / เหตุผล / ไม่มีใบ / อื่น ๆ) และหัวกล่อง คลิกดูรายชื่อได้ — รายชื่อใช้ใบเดียวกับที่นับ
+(refer_dest / ipd_dest / refer_src ของ api/er_visit_list.php) จึงตรงกับตัวเลข
 ============================================================
 */
 
-async function loadRefer() {
-    const $ = id => document.getElementById(id);
-    const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-    const fmt = n => n.toLocaleString('th-TH');
-    const pct = (n, t) => t ? Math.round(n * 100 / t) : 0;
+const REFER_BOX = [
+    { key: 'out', cls: 'is-out', icon: 'arrow-right-from-bracket', title: 'ส่งต่อออกจาก ER', sub: 'Refer out ส่งไปที่ไหน',
+      type: 'refer', field: 'refer_dest', reason: 'refer_reason', noDoc: 'ไม่มีใบส่งต่อ (ไม่ทราบปลายทาง)' },
+    { key: 'ipd', cls: 'is-ipd', icon: 'bed-pulse', title: 'Admit แล้วส่งต่อ', sub: 'ส่งต่อจากหอผู้ป่วย',
+      type: 'ipd_refer', field: 'ipd_dest', reason: 'ipd_reason', noDoc: 'จำหน่าย By Transfer แต่ไม่มีใบส่งต่อ' },
+    { key: 'in', cls: 'is-in', icon: 'arrow-right-to-bracket', title: 'รับส่งต่อเข้า ER', sub: 'Refer in รับมาจากที่ไหน',
+      type: 'refer_in', field: 'refer_src', noDoc: 'ไม่มีใบรับส่งต่อ (ไม่ทราบต้นทาง)' }
+];
+let referData = null;
 
-    const rows = (items, total, max = 8) => {
-        const top  = items.slice(0, max);
-        const rest = items.slice(max);
-        if (rest.length) top.push({ name: `อื่น ๆ (${rest.length} แห่ง)`, n: rest.reduce((s, x) => s + x.n, 0) });
-        if (!top.length) return '<li><span class="er-refer-nm">ไม่มีข้อมูลในช่วงนี้</span></li>';
-        return top.map(x => `
-            <li>
-                <span class="er-refer-nm">${esc(x.name)}</span>
-                <span class="er-refer-n">${fmt(x.n)}<small>${pct(x.n, total)}%</small></span>
-                <span class="er-meter" aria-hidden="true"><span style="width:${pct(x.n, total)}%"></span></span>
-            </li>`).join('');
-    };
+async function loadRefer() {
+    const host = document.getElementById('er-refer-panel');
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const fmt = n => Number(n).toLocaleString();
+    const pct = (n, t) => t ? Math.round(n * 100 / t) : 0;
 
     let data;
     try {
@@ -529,26 +572,76 @@ async function loadRefer() {
         data = { error: 'โหลดข้อมูลไม่สำเร็จ' };
     }
     if (data.error) {
-        $('er-refer-out-list').innerHTML = $('er-refer-in-list').innerHTML = `<li><span class="er-refer-nm">${esc(data.error)}</span></li>`;
+        host.innerHTML = `<p class="er-note">${esc(data.error)}</p>`;
         return;
     }
+    referData = data;
 
-    const o = data.out, i = data.in;
-    $('er-refer-out-total').textContent = fmt(o.total);
-    $('er-refer-in-total').textContent  = fmt(i.total);
-    $('er-refer-out-list').innerHTML    = rows(o.items, o.total);
-    $('er-refer-in-list').innerHTML     = rows(i.items, i.total);
-    // เหตุผล: % ของครั้งที่มีใบส่งต่อ (ไม่มีใบ = ไม่มีเหตุผล)
-    $('er-refer-reason-list').innerHTML = rows(o.reasons, o.total - o.no_doc, 5);
+    // แถว: [ชื่อ | แถบ | จำนวน %] · data-pick = เงื่อนไขกรองรายชื่อ (ดู openReferList)
+    const line = (box, label, n, total, pick, l12) => `
+        <li role="button" tabindex="0" data-box="${box.key}" data-pick="${esc(pick)}" title="คลิกเพื่อดูรายชื่อ">
+            <span class="er-refer-nm">${esc(label)}${l12 ? `<small>ระดับ 1–2: ${fmt(l12)}</small>` : ''}</span>
+            <span class="er-meter" aria-hidden="true"><span style="width:${pct(n, total)}%"></span></span>
+            <span class="er-refer-n">${fmt(n)}<small>${pct(n, total)}%</small></span>
+        </li>`;
 
-    $('er-refer-out-note').textContent = o.no_doc
-        ? `ไม่มีใบส่งต่อในระบบ ${fmt(o.no_doc)} ครั้ง (ลงผลจำหน่ายส่งต่อแต่ไม่ได้ออกใบ จึงไม่ทราบปลายทาง)`
-        : '';
-    const inNotes = [];
-    if (i.no_doc) inNotes.push(`ไม่มีใบรับส่งต่อ ${fmt(i.no_doc)} ครั้ง (ลงวิธีมาว่ารับส่งต่อ แต่ไม่ระบุต้นทาง)`);
-    if (i.self)   inNotes.push(`ลงต้นทางเป็น รพ.บ้านบึงเอง ${fmt(i.self)} ครั้ง ควรตรวจการบันทึก`);
-    $('er-refer-in-note').textContent = inNotes.join(' และ ');
+    host.innerHTML = REFER_BOX.map(box => {
+        const g = data[box.key], max = 6;
+        const top = g.items.slice(0, max), rest = g.items.slice(max);
+        let list = top.map(x => line(box, x.name, x.n, g.total, 'name:' + x.name, x.l12)).join('');
+        if (rest.length) list += line(box, `อื่น ๆ (${rest.length} แห่ง)`, rest.reduce((s, x) => s + x.n, 0), g.total, 'rest:' + top.map(x => x.name).join('|'));
+        if (g.no_doc) list += line(box, box.noDoc, g.no_doc, g.total, 'none');
+        if (!g.total) list = '<li class="is-empty"><span class="er-refer-nm">ไม่มีในช่วงนี้</span></li>';
+
+        const share = data.er_total ? (g.total * 100 / data.er_total).toFixed(1) : '0.0';
+        const stats = [`${share}% ของผู้ป่วย ER, ระดับ 1–2: ${fmt(g.l12)} ครั้ง`];
+        if (box.key === 'ipd' && g.total) stats.push(`จำหน่าย By Transfer ${fmt(g.transfer)}, จำหน่ายแบบอื่นแต่มีใบส่งต่อ ${fmt(g.total - g.transfer)}`);
+        const warn = box.key === 'in' && g.self ? `<p class="er-refer-warn"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> ลงต้นทางเป็น รพ.บ้านบึงเอง ${fmt(g.self)} ครั้ง ควรตรวจการบันทึก</p>` : '';
+        const reasons = box.reason && g.reasons.length ? `
+            <h4 class="er-refer-sub">เหตุผลการส่งต่อ</h4>
+            <ol class="er-refer-list is-reason">${g.reasons.slice(0, 3).map(x => line(box, x.name, x.n, g.total - g.no_doc, 'reason:' + x.name)).join('')}</ol>` : '';
+
+        return `
+            <section class="er-chart er-refer-box ${box.cls}" aria-label="${esc(box.title)}">
+                <header class="er-refer-head" role="button" tabindex="0" data-box="${box.key}" data-pick="all" title="คลิกเพื่อดูรายชื่อทั้งหมด">
+                    <span class="er-ref" aria-hidden="true"><i class="fa-solid fa-${box.icon}"></i></span>
+                    <span class="er-refer-name">${esc(box.title)}<small>${esc(box.sub)}</small></span>
+                    <span class="er-refer-total"><b>${fmt(g.total)}</b> ครั้ง</span>
+                </header>
+                <p class="er-refer-stats">${stats.map(esc).join('<br>')}</p>
+                <ol class="er-refer-list">${list}</ol>
+                ${warn}${reasons}
+            </section>`;
+    }).join('');
 }
+
+// คลิกแถว/หัวกล่อง → รายชื่อของช่วงเวลาเดียวกัน กรองตาม รพ. / เหตุผล / ไม่มีใบ / อื่น ๆ
+function openReferList(node) {
+    const box = REFER_BOX.find(b => b.key === node.dataset.box);
+    const pick = node.dataset.pick, sep = pick.indexOf(':');
+    const kind = sep < 0 ? pick : pick.slice(0, sep), val = sep < 0 ? '' : pick.slice(sep + 1);
+    const keep = {
+        all:    () => true,
+        none:   r => !r[box.field],
+        name:   r => r[box.field] === val,
+        rest:   r => !!r[box.field] && !val.split('|').includes(r[box.field]),
+        reason: r => r[box.reason] === val
+    }[kind];
+    const what = { all: '', none: ' — ' + box.noDoc, name: ' — ' + val, rest: ' — แห่งอื่น ๆ', reason: ' — เหตุผล: ' + val }[kind];
+    erPeriodList({ title: box.title + what, type: box.type, keep });
+}
+
+(function () {
+    const host = document.getElementById('er-refer-panel');
+    const go = e => {
+        const n = e.target.closest('[data-pick]');
+        if (!n || !host.contains(n)) return;
+        if (e.type === 'keydown') { if (e.key !== 'Enter' && e.key !== ' ') return; e.preventDefault(); }
+        openReferList(n);
+    };
+    host.addEventListener('click', go);
+    host.addEventListener('keydown', go);
+})();
 
 loadRefer();
 

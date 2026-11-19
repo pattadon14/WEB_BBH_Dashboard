@@ -191,25 +191,39 @@
 .er-theme .er-chart figcaption { padding-bottom: 8px; border-bottom: 1px solid var(--er-line); }
 :root .er-theme .er-table .er-total { color: var(--er-text); }
 
-/* การส่งต่อ: ออก = แดง · เข้า = เขียวน้ำทะเล (ชุดเดียวกับไอคอน .er-ref-in ในรายชื่อ) */
-.er-theme .er-refer { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-.er-theme .er-refer-head { display: flex; align-items: center; gap: 10px; }
-.er-theme .er-refer-name { flex: 1; min-width: 0; font-size: 1.3rem; font-weight: 700; color: var(--er-text); }
-.er-theme .er-refer-name small, .er-theme .er-refer-list small { display: block; font-size: 1.05rem; font-weight: 400; color: var(--er-muted-text); }
-.er-theme .er-refer-total { color: var(--er-muted-text); white-space: nowrap; }
-.er-theme .er-refer-total b { font-size: 2.1rem; line-height: 1.1; color: var(--er-text); font-variant-numeric: tabular-nums; }
-.er-theme .is-in :is(.er-refer-name, .er-refer-total b, .er-refer-n) { color: var(--er-ref-in-text); }
-.er-theme .er-refer-list { margin: 0; padding: 0; list-style: none; }
-.er-theme .er-refer-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 4px 12px; padding: 8px 0; border-top: 1px solid var(--er-line); }
-.er-theme .er-refer-list li:first-child { border-top: 0; }
-.er-theme .er-refer-list .er-meter { grid-column: 1 / -1; }
-.er-theme .er-refer-nm { min-width: 0; overflow-wrap: anywhere; color: var(--er-ink-text); }
-.er-theme .er-refer-n { font-weight: 700; color: var(--er-text); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.er-theme .er-refer-n small { display: inline; margin-left: 4px; }
-.er-theme .is-in .er-meter { background: var(--er-ref-in-bg); }
-.er-theme .is-in .er-meter span { background: var(--er-ref-in-text); }
-.er-theme .er-refer-list.is-reason .er-meter span { background: var(--er-warn-fill); }
-.er-theme .er-refer-sub { margin: 16px 0 0; padding-top: 12px; border-top: 1px solid var(--er-line); font-size: 1.3rem; font-weight: 700; color: var(--er-ink-text); }
+/* การส่งต่อ 3 กล่อง (ขนาดกระชับ): ออก = แดง · Admit แล้วส่งต่อ = อำพัน · เข้า = เขียวน้ำทะเล (ชุดเดียวกับไอคอน .er-ref-in ในรายชื่อ)
+   --rf = สีตัวอักษร/ไอคอน · --rf-fill = แถบ · --rf-track = พื้นแถบ/พื้นไอคอน */
+.er-theme .er-refer-hint { margin: 0 0 12px; }
+.er-theme .er-refer { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.er-theme .er-refer-box { padding: 12px; --rf: var(--er-text); --rf-fill: var(--er-solid); --rf-track: var(--er-tint); }
+.er-theme .er-refer-box.is-ipd { --rf: var(--er-ipd-text); --rf-fill: var(--er-warn-fill); --rf-track: var(--er-ipd-bg); }
+.er-theme .er-refer-box.is-in { --rf: var(--er-ref-in-text); --rf-fill: var(--er-ref-in-text); --rf-track: var(--er-ref-in-bg); }
+.er-theme .er-refer-box .er-ref { background: var(--rf-track); color: var(--rf); }
+.er-theme .er-refer-head { display: flex; align-items: center; gap: 8px; margin: -4px -4px 0; padding: 4px; border-radius: 8px; cursor: pointer; }
+.er-theme .er-refer-name { flex: 1; min-width: 0; font-size: 1.2rem; font-weight: 700; line-height: 1.2; color: var(--rf); }
+.er-theme .er-refer-name small { display: block; font-size: 1rem; font-weight: 400; color: var(--er-muted-text); }
+.er-theme .er-refer-total { color: var(--er-muted-text); font-size: 1rem; white-space: nowrap; }
+.er-theme .er-refer-total b { font-size: 1.8rem; line-height: 1; color: var(--rf); font-variant-numeric: tabular-nums; }
+.er-theme .er-refer-stats { margin: 6px 0 4px; padding-bottom: 6px; border-bottom: 1px solid var(--er-line); font-size: 1rem; line-height: 1.35; color: var(--er-muted-text); }
+.er-theme .er-refer-list { margin: 0; padding: 0; list-style: none; font-size: 1.08rem; }
+.er-theme .er-refer-list li { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(40px, 1fr) auto; align-items: center; gap: 8px; padding: 4px 6px; border-radius: 6px; cursor: pointer; }
+.er-theme .er-refer-list li.is-empty { cursor: default; grid-template-columns: 1fr; }
+.er-theme .er-refer-list li:nth-child(even) { background: var(--er-row-bg); }
+.er-theme :is(.er-refer-list li[data-pick], .er-refer-head):hover { background: var(--er-wash); }
+:root .er-theme :is(.er-refer-list li[data-pick], .er-refer-head):focus-visible { outline: 2px solid var(--er-solid); outline-offset: 1px; }
+.er-theme .er-refer-nm { min-width: 0; overflow-wrap: anywhere; line-height: 1.2; color: var(--er-ink-text); }
+.er-theme .er-refer-nm small { display: block; font-size: .92em; color: var(--er-muted-text); }
+.er-theme .er-refer-list .er-meter { height: 6px; background: var(--rf-track); }
+.er-theme .er-refer-list .er-meter span { background: var(--rf-fill); }
+.er-theme .er-refer-list.is-reason .er-meter span { background: var(--er-muted-text); }
+.er-theme .er-refer-n { font-weight: 700; color: var(--rf); font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; }
+.er-theme .er-refer-n small { margin-left: 4px; font-weight: 400; color: var(--er-muted-text); }
+.er-theme .er-refer-sub { margin: 8px 0 2px; padding-top: 6px; border-top: 1px solid var(--er-line); font-size: 1.05rem; font-weight: 700; color: var(--er-ink-text); }
+.er-theme .er-refer-warn { margin: 6px 0 0; font-size: 1rem; color: var(--er-text); }
+/* แถว/แถวตารางที่กดดูรายชื่อได้ */
+.er-theme .er-row[data-drill], .er-theme .er-table tr[data-pdx] { cursor: pointer; }
+.er-theme .er-row[data-drill]:hover { background: var(--er-wash); }
+:root .er-theme :is(.er-row[data-drill], .er-table tr[data-pdx]):focus-visible { outline: 2px solid var(--er-solid); outline-offset: -2px; }
 :root .er-theme .er-table thead th { background: var(--er-solid); color: var(--er-on-solid); font-weight: 700; border: 0; }
 :root .er-theme .er-table thead th:first-child { border-radius: 10px 0 0 10px; }
 :root .er-theme .er-table thead th:last-child { border-radius: 0 10px 10px 0; }
@@ -300,7 +314,7 @@
 .er-tri { background: var(--lvl); box-shadow: inset 0 0 0 1px var(--lvl-ring, transparent); }
 
 /* สัญลักษณ์ทิศทาง Refer ในหน้าต่าง "Refer ทั้งหมด": in = ลูกศรเข้า (เขียวน้ำทะเล) · out = รถพยาบาล (แดง) — รูปต่างกัน ไม่พึ่งสีอย่างเดียว */
-:root .er-theme { --er-ref-in-bg: #ddf4f1; --er-ref-in-text: #0f766e; }
+:root .er-theme { --er-ref-in-bg: #ddf4f1; --er-ref-in-text: #0f766e; --er-ipd-bg: #fdf0e1; --er-ipd-text: #9a4a07; }
 .er-ref { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 8px; font-size: 1rem; }
 .er-ref-in { background: var(--er-ref-in-bg); color: var(--er-ref-in-text); }
 .er-ref-out { background: var(--er-tint); color: var(--er-text); }

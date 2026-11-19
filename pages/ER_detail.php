@@ -273,7 +273,8 @@ include '../templates/sidebar.php';
                     </div>
                 </div>
 
-                <!-- แนวโน้มเต็มความกว้าง → 3 กราฟสัดส่วน → การส่งต่อ (Refer out / in) → 10 อันดับโรค -->
+                <!-- แนวโน้มเต็มความกว้าง → 3 กราฟสัดส่วน → การส่งต่อ → 10 อันดับโรค · คลิกแท่ง/แถว = รายชื่อ (ER_detail.js erPeriodList) -->
+                <p class="er-sec-sub er-refer-hint"><i class="fa-solid fa-hand-pointer" aria-hidden="true"></i> คลิกแท่งกราฟ แถวการส่งต่อ หรือแถวในตาราง เพื่อดูรายชื่อผู้ป่วยของช่วงเวลาที่เลือก</p>
                 <div class="er-charts">
                     <figure class="er-chart er-chart-wide">
                         <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-chart-column"></i></span>จำนวนผู้รับบริการ ER (แยกผู้ป่วยอุบัติเหตุ)</figcaption>
@@ -284,7 +285,7 @@ include '../templates/sidebar.php';
                         <div id="er-triage-chart" style="height: 360px;"></div>
                     </figure>
                     <figure class="er-chart er-chart-third">
-                        <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-chart-pie"></i></span>ประเภทผู้ป่วย</figcaption>
+                        <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-chart-bar"></i></span>ประเภทผู้ป่วย</figcaption>
                         <div id="er-pie-chart" style="height: 360px;"></div>
                     </figure>
                     <figure class="er-chart er-chart-third">
@@ -295,27 +296,9 @@ include '../templates/sidebar.php';
 
                 <!-- การส่งต่อตามช่วงเวลา (api/er_refer.php → loadRefer ใน ER_detail.js) -->
                 <h3 class="er-h3 er-h3-gap" id="er-refer-title"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-truck-medical"></i></span>การส่งต่อผู้ป่วย (Refer)</h3>
-                <div class="er-refer" aria-labelledby="er-refer-title">
-                    <figure class="er-chart er-refer-box is-out">
-                        <figcaption class="er-refer-head">
-                            <span class="er-ref er-ref-out" aria-hidden="true"><i class="fa-solid fa-arrow-right-from-bracket"></i></span>
-                            <span class="er-refer-name">ส่งต่อออก (Refer out)<small>ส่งไปที่ไหน</small></span>
-                            <span class="er-refer-total"><b id="er-refer-out-total">–</b> ครั้ง</span>
-                        </figcaption>
-                        <ol class="er-refer-list" id="er-refer-out-list"></ol>
-                        <p class="er-note" id="er-refer-out-note"></p>
-                        <h4 class="er-refer-sub">เหตุผลการส่งต่อ</h4>
-                        <ol class="er-refer-list is-reason" id="er-refer-reason-list"></ol>
-                    </figure>
-                    <figure class="er-chart er-refer-box is-in">
-                        <figcaption class="er-refer-head">
-                            <span class="er-ref er-ref-in" aria-hidden="true"><i class="fa-solid fa-arrow-right-to-bracket"></i></span>
-                            <span class="er-refer-name">รับส่งต่อ (Refer in)<small>รับมาจากที่ไหน</small></span>
-                            <span class="er-refer-total"><b id="er-refer-in-total">–</b> ครั้ง</span>
-                        </figcaption>
-                        <ol class="er-refer-list" id="er-refer-in-list"></ol>
-                        <p class="er-note" id="er-refer-in-note"></p>
-                    </figure>
+                <!-- 3 กล่อง: ส่งต่อออกจาก ER · Admit แล้วส่งต่อจากหอผู้ป่วย · รับส่งต่อเข้า ER (loadRefer สร้าง) -->
+                <div class="er-refer" id="er-refer-panel" aria-labelledby="er-refer-title">
+                    <p class="er-note"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> กำลังโหลดข้อมูล…</p>
                 </div>
 
                 <h3 class="er-h3 er-h3-gap" id="er-top10-title"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-notes-medical"></i></span>10 อันดับโรค/การวินิจฉัยผู้ป่วย ER</h3>

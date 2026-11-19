@@ -92,7 +92,7 @@
             const avg = it.avg === null ? null : it.avg.toLocaleString(undefined, { maximumFractionDigits: 1 });
             const late = it.avg !== null && it.avg > it.target;
             return row({
-                cls: 'er-tri-' + it.level, icon: `<span class="er-ico er-lvl-chip" aria-hidden="true">${it.level}</span>`,
+                cls: 'er-tri-' + it.level, drill: it.n ? 'lvl:' + it.level : null, icon: `<span class="er-ico er-lvl-chip" aria-hidden="true">${it.level}</span>`,
                 key: `ระดับ ${it.level}`, sub: `เป้า ${it.target_label}`,
                 avg, late,
                 meter: it.timed ? { p, label: `ทันเป้า ${p}%`, cls: late ? 'is-bad' : 'is-good' } : null,
@@ -105,7 +105,8 @@
 
     /* แถวตัวชี้วัดเวลา (Door-to-Doctor / LOS): ชื่อ + เกณฑ์ | ค่าเฉลี่ย | แถบสัดส่วน + คำอธิบาย */
     const pct = (a, b) => b ? Math.round(a * 100 / b) : 0;
-    const row = o => `<div class="er-row ${o.cls || ''}">
+    // o.drill = กดดูรายชื่อ (แถวสร้างหลัง bbhDrill.bind จึงใส่ role/tabindex เอง — การคลิกจับที่ #er-summary อยู่แล้ว)
+    const row = o => `<div class="er-row ${o.cls || ''}"${o.drill ? ` data-drill="${o.drill}" role="button" tabindex="0" title="คลิกเพื่อดูรายชื่อ"` : ''}>
             <div class="er-row-key">${o.icon || ''}<span>${o.key}</span><small>${o.sub}</small></div>
             <div class="er-row-num">${o.avg === null ? '<b>—</b>' : `<small>เฉลี่ย</small> <b>${o.avg}</b> <small>นาที</small>`}${o.late ? ' <span class="er-flag"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> เกินเป้า</span>' : ''}</div>
             <div class="er-row-bar">${o.meter ? `<div class="er-meter ${o.meter.cls || ''}" role="img" aria-label="${o.meter.label}"><span style="width:${o.meter.p}%"></span></div>` : ''}<small>${o.line}</small></div>
@@ -137,6 +138,7 @@
         const L = data.los, b = data.boarding_min;
         const ico = (c, i) => `<span class="er-ico" aria-hidden="true"><i class="fa-solid fa-${i}"></i></span>`;   // ไอคอนโทนแดงชุดเดียว
         const ttd = (name, x) => row({
+            drill: x.n ? name.toLowerCase() : null,   // 'admit' / 'refer' = รายชื่อชุดเดียวกับการ์ดผลการจำหน่าย
             icon: name === 'Admit' ? ico('blue', 'bed-pulse') : ico('teal', 'truck-medical'),
             key: `เข้า ER ถึง ${name}`, sub: `เกณฑ์ ≤ ${b} นาที`, avg: x.avg === null ? null : fmt(x.avg),
             late: x.avg !== null && x.avg > b,
@@ -178,8 +180,12 @@
     //   Refer รวม: วิธีมา → สัญลักษณ์ in/out + รพ.ต้นทาง/ปลายทาง (คงผลจำหน่ายไว้ เห็นว่าเคสรับเข้าจบอย่างไร · ไม่มี Door-to-Doctor ให้พอดีจอ)
     const DEST_COL = {
         admit:    ['dch', ['admit_ward', 'Admit ไปที่', { max: '13em' }]],
-        refer:    ['dch', ['refer_to', 'ส่งต่อไปที่', { display: shortHosp, max: '16em' }]],
-        refer_in: ['arrival', ['refer_from', 'รับจาก', { display: shortHosp, max: '16em' }]],
+        // ปลายทาง/เหตุผล = ใบเดียวกับที่ api/er_refer.php นับ (refer_dest) — คลิกชื่อ รพ. แล้วรายชื่อตรงกับตัวเลข
+        refer:    ['dch', ['refer_dest', 'ส่งต่อไปที่', { max: '16em' }], ['refer_reason', 'เหตุผล', { max: '12em' }]],
+        refer_in: ['arrival', ['refer_src', 'รับจาก', { max: '16em' }]],
+        // Admit แล้วส่งต่อจากหอผู้ป่วย: ผลจำหน่าย (Admit ทุกราย) → ward + ปลายทาง + เหตุผล + แบบจำหน่ายของ ipt
+        ipd_refer: ['dch', ['admit_ward', 'Admit ที่', { max: '10em' }], ['ipd_dest', 'ส่งต่อไปที่', { max: '14em' }],
+                    ['ipd_reason', 'เหตุผล', { max: '12em' }], ['ipd_transfer', 'การจำหน่าย', NW]],
         refer_all: ['arrival', ['ref_dir', 'In / Out', NW], ['ref_place', 'รับจาก / ส่งไป', { display: shortHosp, max: '10em' }]]
     };
     const withDest = (list, type) => DEST_COL[type] ? list.flatMap(c => c[0] === DEST_COL[type][0] ? DEST_COL[type].slice(1) : [c]) : list;
@@ -219,23 +225,39 @@
         dx: r.pdx ? [`${r.pdx} ${r.diag_th || r.diag_en || ''}`.trim(), r.diag_th && r.diag_en && r.diag_th !== r.diag_en ? r.diag_en : '']
             .filter(Boolean).join(' / ') : null
     });
-    function openDrill(type) {
-        if (!DRILL_TITLES[type]) return;
-        const date = input.value || today();
+    /* รายชื่อผู้ป่วย 1 รายการ — ใช้ทั้งการ์ดรายวัน (date) และกราฟสถิติตามช่วงเวลา (d1, d2 → มีคอลัมน์วันที่)
+     * o = { title, sub, type, v?, date? | d1?, d2?, keep?: row => bool (กรองต่อในหน้า เช่น ชื่อ รพ. ที่คลิก) } */
+    const thaiShort = s => { const [y, m, d] = s.split('-').map(Number); return `${d}/${m}/${String(y + 543).slice(2)}`; };
+    function openList(o) {
+        const range = !o.date;
+        const params = range ? { d1: o.d1, d2: o.d2, type: o.type } : { date: o.date, type: o.type };
+        if (o.v !== undefined) params.v = o.v;
+        const cols = withDest(COLS, o.type).filter(c => !(o.type === 'refer_all' && c[0] === 'd2d'));
+        const dateCol = ['vstdate', 'วันที่', { nowrap: true, display: thaiShort }];
         bbhDrill.open({
-            title: DRILL_TITLES[type],
-            sub: 'วันที่ ' + thai(date),
-            url: '../api/er_visit_list.php?' + new URLSearchParams({ date, type }),
-            cols: withDest(COLS, type).filter(c => !(type === 'refer_all' && c[0] === 'd2d')),
-            exportCols: EXPORT_COLS.concat(DEST_COL[type] ? DEST_COL[type].slice(1).map(c => c.slice(0, 2)) : []),
-            mapRows: data => data.rows.map(withDx),
+            title: o.title,
+            sub: o.sub,
+            url: '../api/er_visit_list.php?' + new URLSearchParams(params),
+            cols: range ? [dateCol, ...cols] : cols,
+            exportCols: (range ? [['vstdate', 'วันที่']] : []).concat(EXPORT_COLS, DEST_COL[o.type] ? DEST_COL[o.type].slice(1).map(c => c.slice(0, 2)) : []),
+            mapRows: data => data.rows.map(withDx).filter(o.keep || (() => true)),
             placeholder: 'ค้นหา HN / ชื่อ / การวินิจฉัย',
-            searchKeys: ['hn', 'name', 'dx', 'arrival', 'dch', 'admit_ward', 'refer_to', 'refer_from', 'ref_dir'],
-            filters: withDest([['lvl', 'ระดับ'], ['pt', 'ประเภท'], ['arrival', 'วิธีมา'], ['dch', 'ผลจำหน่าย']], type),
+            searchKeys: ['hn', 'name', 'dx', 'arrival', 'dch', 'admit_ward', 'refer_to', 'refer_from', 'ref_dir', 'refer_dest', 'refer_src', 'ipd_dest'],
+            filters: withDest([['lvl', 'ระดับ'], ['pt', 'ประเภท'], ['arrival', 'วิธีมา'], ['dch', 'ผลจำหน่าย']], o.type),
             cell: drillCell,
-            file: `ER_${type}_${date}.csv`,
-            summary: rows => (type === 'refer_all' ? `in ${fmt(rows.filter(r => /Refer in/.test(r.ref_dir || '')).length)} · out ${fmt(rows.filter(r => /Refer out/.test(r.ref_dir || '')).length)} · ` : '') + `${fmt(rows.length)} ครั้ง (${fmt(new Set(rows.map(r => r.hn)).size)} คน)`
+            file: `ER_${o.type}${o.v !== undefined ? '_' + o.v : ''}_${range ? o.d1 + '_' + o.d2 : o.date}.csv`,
+            summary: rows => (o.type === 'refer_all' ? `in ${fmt(rows.filter(r => /Refer in/.test(r.ref_dir || '')).length)} · out ${fmt(rows.filter(r => /Refer out/.test(r.ref_dir || '')).length)} · ` : '') + `${fmt(rows.length)} ครั้ง (${fmt(new Set(rows.map(r => r.hn)).size)} คน)`
         });
+    }
+    window.erOpenList = openList;   // ใช้จากกราฟสถิติ (assets/js/ER_detail.js)
+
+    // การ์ดรายวัน: data-drill="<type>" หรือ "lvl:<ระดับ>" (แถว Door-to-Doctor)
+    function openDrill(key) {
+        const date = input.value || today();
+        const lv = /^lvl:(\d)$/.exec(key);
+        if (lv) return openList({ title: `ผู้ป่วยระดับ ${lv[1]}`, sub: 'วันที่ ' + thai(date), type: 'lvl', v: lv[1], date });
+        if (!DRILL_TITLES[key]) return;
+        openList({ title: DRILL_TITLES[key], sub: 'วันที่ ' + thai(date), type: key, date });
     }
     bbhDrill.bind($('er-summary'), openDrill);
 

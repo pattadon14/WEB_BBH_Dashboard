@@ -4,6 +4,7 @@ header('Content-Type: application/json; charset=utf-8');
 
 require_once '../config/database.php';
 require_once '../config/period.php';
+require_once '../config/er.php';
 
 try {
 
@@ -19,7 +20,7 @@ try {
     */
 
     $cacheDir  = __DIR__ . '/../storage/cache/';
-    $cacheFile = $cacheDir . 'er_chart_v5_' . $p['key'] . '.json';
+    $cacheFile = $cacheDir . 'er_chart_v7_' . $p['key'] . '.json';
     $cacheTTL  = 5 * 60; // 5 นาที
 
     if (
@@ -64,6 +65,7 @@ try {
     foreach (bbh_period_buckets($p) as $bucket => $label) {
         $trend[] = [
             'label'    => $label,
+            'start'    => $bucket,   // วันแรกของช่อง (คลิกแท่ง → รายชื่อช่วงนั้น)
             'er'       => (int)($byBucket[$bucket]['er_total'] ?? 0),
             'accident' => (int)($byBucket[$bucket]['accident_total'] ?? 0),
         ];
@@ -75,19 +77,25 @@ try {
     ==========================
     */
 
+    // l12 = ระดับ 1-2 (ER_LEVEL_SQL) · admit = มี ipt ของ visit (ชุดเดียวกับ ER_DCH_SQL) — แสดงใน tooltip ให้เห็นว่าแต่ละประเภทหนักแค่ไหน
+    $level = ER_LEVEL_SQL;
     $sqlPie = "SELECT
-            er.er_pt_type  AS ertype,
-            et.name        AS typename,
-            COUNT(*)       AS total
-        FROM er_regist er
-        LEFT JOIN er_pt_type et
-            ON et.er_pt_type = er.er_pt_type
+            e.er_pt_type   AS ertype,
+            pt.name        AS typename,
+            COUNT(*)       AS total,
+            COUNT(*) FILTER (WHERE ($level) IN (1, 2)) AS l12,
+            COUNT(*) FILTER (WHERE EXISTS (SELECT 1 FROM ipt ai WHERE ai.vn = e.vn)) AS admit
+        FROM er_regist e
+        LEFT JOIN er_pt_type pt
+            ON pt.er_pt_type = e.er_pt_type
+        LEFT JOIN er_emergency_type et
+            ON et.er_emergency_type = e.er_emergency_type
         WHERE
-            er.vstdate BETWEEN :startDate AND :endDate
+            e.vstdate BETWEEN :startDate AND :endDate
         GROUP BY
-            er.er_pt_type,
-            et.name
-        ORDER BY total DESC
+            e.er_pt_type,
+            pt.name
+        ORDER BY e.er_pt_type
     ";
 
     $stmtPie = $conn->prepare($sqlPie);
@@ -115,6 +123,9 @@ try {
             'name'  => $shortName[(int)$row['ertype']] ?? ($row['typename'] ?? 'ไม่ระบุ'),
             'y'     => (int)$row['total'],
             'color' => $typeColor[(int)$row['ertype']] ?? '#94a3b8',
+            'code'  => $row['ertype'] === null ? null : (int)$row['ertype'],
+            'l12'   => (int)$row['l12'],
+            'admit' => (int)$row['admit'],
         ];
     }
 

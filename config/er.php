@@ -33,6 +33,47 @@ const ER_EMS_CODES = "('09', '10', '11')";
 // Refer out = ผลจำหน่าย 2 ใน ER_DCH_SQL (er_dch_type 2 หรือ referout จากจุด ER)
 const ER_REFER_IN_SQL = "(o.ovstist = '04' OR EXISTS (SELECT 1 FROM referin ri WHERE ri.vn = e.vn))";
 
+// ---- ใบส่งต่อที่ใช้แสดงปลายทาง/เหตุผล (1 visit = 1 ใบ) — ใช้ร่วมกันใน api/er_refer.php และ api/er_visit_list.php
+// Refer out จาก ER: ใบของ visit เอง ใบจากจุด ER ก่อน ไม่นับใบที่ยกเลิก → alias ro (code, rfrcs)
+const ER_REFER_OUT_PICK = "LEFT JOIN LATERAL (
+        SELECT r.refer_hospcode AS code, r.rfrcs FROM referout r
+        WHERE r.vn = e.vn AND COALESCE(r.cancel_status, '') <> 'Y'
+        ORDER BY (r.refer_point = 'ER') DESC, r.referout_id LIMIT 1
+    ) ro ON TRUE";
+// Refer in: ใบรับส่งต่อใบแรกของ visit → alias rin (code)
+const ER_REFER_IN_PICK = "LEFT JOIN LATERAL (
+        SELECT ri.refer_hospcode AS code FROM referin ri WHERE ri.vn = e.vn ORDER BY ri.referin_id LIMIT 1
+    ) rin ON TRUE";
+// Admit แล้วส่งต่อจากหอผู้ป่วย = visit ER ที่ Admit (ipt.vn) และ จำหน่ายแบบ By Transfer (ipt.dchtype 04)
+//   หรือ มีใบส่งต่อจากจุดอื่นที่ไม่ใช่ ER (ใบอยู่ที่ vn หรือ an) ที่ไม่ยกเลิก และไม่ใช่ Follow up ตามนัด (rfrcs E)
+// ข้อมูลจริง 1 ต.ค.-18 พ.ย. 2569: By Transfer 55 ราย + ลงจำหน่ายแบบอื่นแต่มีใบส่งต่อจากหอผู้ป่วยอีกราว 60 ราย
+// ไม่ซ้อนกับ Refer out ของ ER (ER_DCH_SQL ให้ Admit มาก่อน Refer)
+const ER_IPD_REFER_SQL = "EXISTS (SELECT 1 FROM ipt ai WHERE ai.vn = e.vn AND (ai.dchtype = '04'
+        OR EXISTS (SELECT 1 FROM referout r WHERE r.vn IN (ai.vn, ai.an) AND r.refer_point <> 'ER'
+                   AND COALESCE(r.cancel_status, '') <> 'Y' AND COALESCE(r.rfrcs, '') <> 'E')))";
+// ใบส่งต่อของรายที่ Admit แล้วส่งต่อ: ใบจากหอผู้ป่วยก่อน ไม่ใช่ Follow up ก่อน ใบล่าสุด → alias rq (code, rfrcs, transfer = จำหน่ายแบบ By Transfer)
+const ER_IPD_REFER_PICK = "LEFT JOIN LATERAL (
+        SELECT r.refer_hospcode AS code, r.rfrcs, (ai.dchtype = '04') AS transfer, ai.ward
+        FROM ipt ai LEFT JOIN referout r ON r.vn IN (ai.vn, ai.an) AND COALESCE(r.cancel_status, '') <> 'Y'
+        WHERE ai.vn = e.vn
+        ORDER BY (r.refer_point <> 'ER') DESC NULLS LAST, (COALESCE(r.rfrcs, '') <> 'E') DESC, r.refer_date DESC NULLS LAST, r.referout_id DESC
+        LIMIT 1
+    ) rq ON TRUE";
+
+// ชื่อ รพ. แบบสั้นสำหรับแสดงและจัดกลุ่ม: "โรงพยาบาลพญาไทศรีราชาโรงพยาบาลทั่วไปขนาดใหญ่" -> "รพ.พญาไทศรีราชา"
+// (รหัสต่างกันแต่ชื่อเดียวกัน เช่น 10662 / EA0010662 รวมเป็นแห่งเดียว)
+function er_hosp_short(?string $name): ?string
+{
+    if ($name === null || trim($name) === '') {
+        return null;
+    }
+    $s = preg_replace('/\s*โรงพยาบาลทั่วไป\s*ขนาด(ใหญ่|กลาง|เล็ก)\s*/u', ' ', trim($name));
+    $s = preg_replace('/\s*ขนาด(ใหญ่|กลาง|เล็ก)\s*$/u', '', $s);
+    $s = str_replace(['โรงพยาบาลส่งเสริมสุขภาพตำบล', 'โรงพยาบาล'], ['รพ.สต.', 'รพ.'], $s);
+    $s = trim(preg_replace('/\s+/u', ' ', $s));
+    return preg_match('/^รพ\.|คลินิก/u', $s) ? $s : 'รพ.' . $s;
+}
+
 // แผนก ER ของบ้านบึง (011 คัดกรอง ER · 040 · 065) — ชุดเดียวกับ ER_DEPCODE ของต้นแบบ
 const ER_DEPCODES = "('011', '040', '065')";
 
