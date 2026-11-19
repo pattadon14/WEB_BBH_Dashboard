@@ -55,7 +55,7 @@ function opd_info_btn(string $key, string $label, bool $onMast = false): string
                 </button>
             </div>
             <a class="opd-tool-btn is-3d" href="<?= BASE_URL ?>pages/opd_monitor.php">
-                <i class="fa-solid fa-cube" aria-hidden="true"></i> 3D Live Monitor
+                <i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i> Real time Monitor
             </a>
             </div>
 
@@ -143,7 +143,7 @@ function opd_info_btn(string $key, string $label, bool $onMast = false): string
                         </header>
                         <div class="er-stat er-stat-lead" data-drill="walkin">
                             <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-person-walking"></i></span>Walk-in <small>มารับบริการโดยไม่มีนัดล่วงหน้า</small></span>
-                            <span class="er-stat-value"><b id="walkin_today">—</b> ครั้ง</span>
+                            <span class="er-stat-value"><b id="walkin_today">—</b> ราย</span>
                         </div>
                         <div class="er-mix-bar" role="img" id="visit-mix-bar" aria-label="สัดส่วน Walk-in และมาตามนัด">
                             <span class="mix-walkin" id="mix-walkin-bar"></span>
@@ -183,15 +183,15 @@ function opd_info_btn(string $key, string $label, bool $onMast = false): string
                         </header>
                         <div class="er-stat" data-drill="night">
                             <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-moon"></i></span>ก่อนเวลาราชการ <small>20:01 – 07:59 น.</small></span>
-                            <span class="er-stat-value"><b id="before_time">—</b> ครั้ง</span>
+                            <span class="er-stat-value"><b id="before_time">—</b> ราย</span>
                         </div>
                         <div class="er-stat" data-drill="morning">
                             <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-sun"></i></span>ในเวลาราชการ <small>08:00 – 15:59 น.</small></span>
-                            <span class="er-stat-value"><b id="worktime">—</b> ครั้ง</span>
+                            <span class="er-stat-value"><b id="worktime">—</b> ราย</span>
                         </div>
                         <div class="er-stat" data-drill="evening">
                             <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-cloud-sun"></i></span>นอกเวลาราชการ <small>16:00 – 20:00 น.</small></span>
-                            <span class="er-stat-value"><b id="after_time">—</b> ครั้ง</span>
+                            <span class="er-stat-value"><b id="after_time">—</b> ราย</span>
                         </div>
                     </section>
 
@@ -203,20 +203,20 @@ function opd_info_btn(string $key, string $label, bool $onMast = false): string
                         </header>
                         <div class="er-stat" data-drill="wait_triage">
                             <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-user-nurse"></i></span>รอซักประวัติ</span>
-                            <span class="er-stat-value"><b id="wait_triage">—</b> ครั้ง</span>
+                            <span class="er-stat-value"><b id="wait_triage">—</b> ราย</span>
                         </div>
                         <div class="er-stat" data-drill="wait_exam">
                             <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-stethoscope"></i></span>รอตรวจ</span>
-                            <span class="er-stat-value"><b id="wait_exam">—</b> ครั้ง</span>
+                            <span class="er-stat-value"><b id="wait_exam">—</b> ราย</span>
                         </div>
                         <div class="er-stat" data-drill="finish">
                             <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-circle-check"></i></span>ตรวจเสร็จแล้ว</span>
-                            <span class="er-stat-value"><b id="finish_exam">—</b> ครั้ง</span>
+                            <span class="er-stat-value"><b id="finish_exam">—</b> ราย</span>
                         </div>
                         <div class="er-stat" data-drill="no_doctor"
                             title="กลับบ้าน / Admit / อยู่ห้องยา–การเงิน โดยไม่มีบันทึกเวลาพบแพทย์ (เช่น รับยาเดิม ตรวจแล็บ หรือลืมกดเวลา)">
                             <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-user-clock"></i></span>ไม่มีบันทึกพบแพทย์ <small>รับยาเดิม ตรวจแล็บ หรือไม่ได้กดเวลา</small></span>
-                            <span class="er-stat-value"><b id="no_doctor">—</b> ครั้ง</span>
+                            <span class="er-stat-value"><b id="no_doctor">—</b> ราย</span>
                         </div>
                     </section>
 
@@ -298,10 +298,15 @@ function opd_info_btn(string $key, string $label, bool $onMast = false): string
                         </div>
                     </div>
 
+                    <p class="er-sec-sub er-refer-hint"><i class="fa-solid fa-hand-pointer" aria-hidden="true"></i> คลิกแท่งรายเดือน การ์ด/แท่งกลุ่มอายุ หรือแถวโรค เพื่อดูรายชื่อผู้ป่วยของปีงบที่เลือก</p>
                     <!-- กราฟมีชื่อในตัว (opd_detail.js) -->
                     <div class="er-chart">
                         <div id="opd-chart" style="height:470px;"></div>
                     </div>
+
+                    <h3 class="er-h3 er-h3-gap"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-users"></i></span>กลุ่มอายุผู้ป่วย OPD ปีงบประมาณ <?= opd_info_btn('age', 'กลุ่มอายุผู้ป่วย') ?></h3>
+                    <div class="row mb-3" id="opd-age-summary"></div>
+                    <div id="opd-age-chart" style="height:360px;"></div>
 
                     <h3 class="er-h3 er-h3-gap" id="opd-top10-title"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-trophy"></i></span>10 อันดับโรค/การวินิจฉัยผู้ป่วยนอก ปีงบประมาณ <?= opd_info_btn('top10', '10 อันดับโรค') ?></h3>
                     <div class="table-responsive">
@@ -326,10 +331,6 @@ function opd_info_btn(string $key, string $label, bool $onMast = false): string
                             </tbody>
                         </table>
                     </div>
-
-                    <h3 class="er-h3 er-h3-gap"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-users"></i></span>กลุ่มอายุผู้ป่วย OPD ปีงบประมาณ <?= opd_info_btn('age', 'กลุ่มอายุผู้ป่วย') ?></h3>
-                    <div class="row mb-3" id="opd-age-summary"></div>
-                    <div id="opd-age-chart" style="height:360px;"></div>
                 </section>
 
             </div>

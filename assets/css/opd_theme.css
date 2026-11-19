@@ -97,6 +97,12 @@
 :root .er-theme.opd-theme .opd-wait-more:is(:hover, :focus-visible) { background: var(--er-solid); color: var(--er-on-solid); }
 :root .er-theme.opd-theme .opd-wait-more:focus-visible { outline: 2px solid var(--er-ink-text); outline-offset: 2px; }
 
+/* ส่วนปีงบประมาณ: การ์ดกลุ่มอายุ / แถว 10 อันดับโรค คลิกดูรายชื่อ (opd_detail.js openFyDrill) */
+.er-theme.opd-theme .opd-age-card { cursor: pointer; transition: border-color 150ms ease; }
+.er-theme.opd-theme .opd-age-card:hover { border-color: var(--er-solid) !important; }
+.er-theme.opd-theme #opd-top10-tbody tr[data-pdx] { cursor: pointer; }
+:root .er-theme.opd-theme :is(.opd-age-card, #opd-top10-tbody tr[data-pdx]):focus-visible { outline: 2px solid var(--er-solid); outline-offset: 2px; }
+
 /* แท็บเวลารอ: หัวตารางเขียว */
 .er-theme.opd-theme #opd-tab-quality .oq-kpis { margin-bottom: 16px; }
 :root .er-theme.opd-theme .oq-table thead th { background: var(--er-wash); color: var(--er-text); border-color: var(--er-line); }
@@ -121,7 +127,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
     .er-theme.opd-theme .opd-live-dot::after { animation: none; }
-    .er-theme.opd-theme .opd-tool-btn { transition: none; }
+    .er-theme.opd-theme :is(.opd-tool-btn, .opd-age-card) { transition: none; }
 }
 @media (max-width: 991.98px) {
     .er-theme.opd-theme .opd-tool-btn.is-3d { margin-left: 0; }
