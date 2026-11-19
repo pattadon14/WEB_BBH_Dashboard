@@ -65,6 +65,11 @@ $FILTERS = [
     'lvl'           => 'COALESCE(x.lvl, 0) = :v',                                  // 0 = ไม่ระบุระดับ · 6 = Black
     'pt'            => 'x.pt = :v',
     'pdx'           => 'x.pdx = :v AND COALESCE(x.pt, 0) NOT IN (4, 5)',          // = นิยาม 10 อันดับโรค
+    // ช่อง "ตอนนี้" ของการ์ดภาพรวม (ไม่ใช้วันที่ — ผู้ที่อยู่ใน ER ขณะนี้ เงื่อนไขเดียวกับ now ใน api/er_los.php)
+    'now_in'        => 'TRUE',
+    'now_l12'       => 'x.lvl IN (1, 2)',
+    'now_wait'      => 'TRUE',               // กรองต่อใน PHP: ยังไม่มีเวลาพบแพทย์ (d2d รวม HPI = null) แบบเดียวกับ er_los.php
+    'now_over'      => 'x.stay > 240',
 ];
 // ค่าประกอบของ type ที่มี :v (ตรวจรูปแบบก่อน bind)
 $V_RULES = ['lvl' => '/^[0-6]$/', 'pt' => '/^[1-5]$/', 'pdx' => '/^[A-Z][0-9A-Z.]{1,7}$/'];
@@ -85,6 +90,14 @@ $dch   = ER_DCH_SQL;
 $d2d   = ER_D2D_SQL;
 $hpi   = ER_D2D_HPI_SQL;
 $ipdRef = ER_IPD_REFER_SQL;
+// ขอบเขตแถว: รายการ "ตอนนี้" = ยังไม่ออกจาก ER (ไม่มี leave_datetime) อยู่แผนก ER และเข้า ER ภายใน 24 ชม. — ชุดเดียวกับ api/er_los.php
+$isNow = strncmp($type, 'now_', 4) === 0;
+$deps  = ER_DEPCODES;
+$scope = $isNow
+    ? "e.vstdate >= CURRENT_DATE - 1
+              AND e.enter_er_time BETWEEN LOCALTIMESTAMP - interval '24 hours' AND LOCALTIMESTAMP
+              AND e.leave_datetime IS NULL AND o.cur_dep IN $deps"
+    : 'e.vstdate BETWEEN :d1 AND :d2';
 $picks  = ER_REFER_OUT_PICK . "\n" . ER_REFER_IN_PICK . "\n" . ER_IPD_REFER_PICK;
 // refer_dest / refer_src / ipd_dest: ใบเดียวกับที่ api/er_refer.php ใช้นับ (ER_*_PICK) ชื่อย่อด้วย er_hosp_short — ให้คลิกชื่อ รพ. แล้วรายชื่อตรงกับตัวเลข
 // หมายเหตุ SQL (คอมเมนต์ไว้นอก SQL — การเชื่อมต่อเป็น WIN874 ส่งอักขระอย่าง → · ไม่ได้):
@@ -98,7 +111,7 @@ try {
     $sql = "
         SELECT x.hn, x.name, x.age, x.enter_at, x.lvl, x.pt AS pt_code, x.arrival, x.dch, x.dch_name,
                x.pdx, x.diag_th, x.diag_en, x.d2d, x.enter_ts, x.hpi, x.admit_ward, x.refer_to, x.refer_from, x.refer_in,
-               x.vstdate, x.refer_dest, x.refer_reason, x.refer_src, x.ipd_refer, x.ipd_dest, x.ipd_reason, x.ipd_transfer
+               x.vstdate, x.stay, x.refer_dest, x.refer_reason, x.refer_src, x.ipd_refer, x.ipd_dest, x.ipd_reason, x.ipd_transfer
         FROM (
             SELECT
                 $level                                          AS lvl,
@@ -129,6 +142,7 @@ try {
                    FROM referin ri LEFT JOIN hospcode h ON h.hospcode = ri.refer_hospcode
                   WHERE ri.vn = e.vn)                           AS refer_from,
                 e.vstdate,
+                (EXTRACT(EPOCH FROM (LOCALTIMESTAMP - e.enter_er_time)) / 60)::integer AS stay,
                 COALESCE(hro.name, ro.code)                     AS refer_dest,
                 rfo.name                                        AS refer_reason,
                 COALESCE(hin.name, rin.code)                    AS refer_src,
@@ -152,20 +166,20 @@ try {
             LEFT JOIN hospcode hin ON hin.hospcode = rin.code
             LEFT JOIN hospcode hq  ON hq.hospcode = rq.code
             LEFT JOIN rfrcs rfq    ON rfq.rfrcs = rq.rfrcs
-            WHERE e.vstdate BETWEEN :d1 AND :d2
+            WHERE $scope
         ) x
         WHERE {$FILTERS[$type]}
         ORDER BY x.sort_at NULLS LAST, x.hn
     ";
     $st = $conn->prepare($sql);
-    $params = [':d1' => $d1, ':d2' => $d2];
+    $params = $isNow ? [] : [':d1' => $d1, ':d2' => $d2];
     if (isset($V_RULES[$type])) {
         $params[':v'] = $type === 'pdx' ? $v : (int)$v;
     }
     $st->execute($params);
 
     // ผลจำหน่ายที่แสดง = ค่าที่ใช้นับ (Admit / Refer มาจาก ipt / referout ได้แม้ er_dch_type ว่าง)
-    $rows = array_map(function ($r) {
+    $rows = array_map(function ($r) use ($isNow) {
         $dchCode = $r['dch'] === null ? null : (int)$r['dch'];
         $r['dch'] = $dchCode === 3 ? 'Admit'
             : ($dchCode === 2 ? 'Refer ส่งต่อ'
@@ -191,8 +205,12 @@ try {
         }
         $r['ipd_refer'] = (bool)$r['ipd_refer'];
         $r['ipd_transfer'] = $r['ipd_refer'] ? ($r['ipd_transfer'] ? 'By Transfer' : 'จำหน่ายแบบอื่น') : null;
+        $r['stay'] = $isNow && $r['stay'] !== null ? (int)$r['stay'] : null;   // นาทีที่อยู่ใน ER แล้ว (เฉพาะรายการ "ตอนนี้")
         return $r;
     }, $st->fetchAll(PDO::FETCH_ASSOC));
+    if ($type === 'now_wait') {
+        $rows = array_values(array_filter($rows, fn($r) => $r['d2d'] === null));
+    }
 
     echo json_encode(['d1' => $d1, 'd2' => $d2, 'type' => $type, 'rows' => $rows], JSON_UNESCAPED_UNICODE);
 

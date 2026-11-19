@@ -69,22 +69,22 @@ include '../templates/sidebar.php';
                             <span class="er-kpi-sub">ราย</span>
                         </div>
                         <div class="er-now" id="er-now" hidden>
-                            <div class="er-kpi er-k3">
+                            <div class="er-kpi er-k3" data-drill="now_in">
                                 <span class="er-kpi-label"><i class="fa-solid fa-bed-pulse" aria-hidden="true"></i>อยู่ใน ER ตอนนี้</span>
                                 <b class="er-kpi-num" id="er-now-in">—</b>
                                 <span class="er-kpi-sub">ราย</span>
                             </div>
-                            <div class="er-kpi er-k4">
+                            <div class="er-kpi er-k4" data-drill="now_l12">
                                 <span class="er-kpi-label"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i>ระดับ 1–2 ตอนนี้</span>
                                 <b class="er-kpi-num" id="er-now-l12">—</b>
                                 <span class="er-kpi-sub">ราย</span>
                             </div>
-                            <div class="er-kpi er-k5" title="ยังไม่มีบันทึกการพบแพทย์ (กดเริ่มตรวจ / สั่ง Lab / X-ray / ยา / HPI)">
+                            <div class="er-kpi er-k5" data-drill="now_wait" title="ยังไม่มีบันทึกการพบแพทย์ (กดเริ่มตรวจ / สั่ง Lab / X-ray / ยา / HPI)">
                                 <span class="er-kpi-label"><i class="fa-solid fa-user-doctor" aria-hidden="true"></i>ยังไม่พบแพทย์</span>
                                 <b class="er-kpi-num" id="er-now-wait">—</b>
                                 <span class="er-kpi-sub">ราย</span>
                             </div>
-                            <div class="er-kpi er-k6">
+                            <div class="er-kpi er-k6" data-drill="now_over">
                                 <span class="er-kpi-label"><i class="fa-solid fa-hourglass-end" aria-hidden="true"></i>อยู่เกิน 4 ชม.</span>
                                 <b class="er-kpi-num" id="er-now-over">—</b>
                                 <span class="er-kpi-sub">ราย</span>

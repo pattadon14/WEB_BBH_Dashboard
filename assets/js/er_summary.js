@@ -163,7 +163,9 @@
         shift_night: 'เวรดึก (00:00–07:59 น.)', shift_morning: 'เวรเช้า (08:00–15:59 น.)', shift_evening: 'เวรบ่าย (16:00–23:59 น.)',
         home: 'กลับบ้าน', gone: 'ไม่รอตรวจ / หนีกลับ / ปฏิเสธการรักษา', no_dch: 'ยังไม่ลงผลจำหน่าย', other_dch: 'ผลจำหน่ายอื่น ๆ',
         admit: 'Admit', refer: 'Refer out — ส่งต่อไปสถานพยาบาลอื่น',
-        refer_all: 'Refer ทั้งหมด (รับเข้า + ส่งออก)'
+        refer_all: 'Refer ทั้งหมด (รับเข้า + ส่งออก)',
+        now_in: 'อยู่ใน ER ตอนนี้', now_l12: 'ระดับ 1–2 ที่อยู่ใน ER ตอนนี้',
+        now_wait: 'อยู่ใน ER และยังไม่พบแพทย์', now_over: 'อยู่ใน ER เกิน 4 ชม.'
     };
     // ตัวเลือกคอลัมน์ (bbh_drill.js) แบบเดียวกับหน้า OPD: nowrap = บรรทัดเดียว · max = ยาวเกินตัด … (ชี้/แตะดูเต็ม) · display = ย่อเฉพาะตอนแสดง
     const NW = { nowrap: true };
@@ -188,6 +190,9 @@
                     ['ipd_reason', 'เหตุผล', { max: '12em' }], ['ipd_transfer', 'การจำหน่าย', NW]],
         refer_all: ['arrival', ['ref_dir', 'In / Out', NW], ['ref_place', 'รับจาก / ส่งไป', { display: shortHosp, max: '10em' }]]
     };
+    // ช่อง "ตอนนี้": ยังไม่มีผลจำหน่าย → แสดงเวลาที่อยู่ใน ER แล้ว (ชม.:นาที) แทน
+    const STAY_COL = ['dch', ['stay', 'อยู่มาแล้ว', { nowrap: true, display: m => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')} ชม.` }]];
+    ['now_in', 'now_l12', 'now_wait', 'now_over'].forEach(k => { DEST_COL[k] = STAY_COL; });
     const withDest = (list, type) => DEST_COL[type] ? list.flatMap(c => c[0] === DEST_COL[type][0] ? DEST_COL[type].slice(1) : [c]) : list;
     // Export: ค่าเต็ม หน่วยอยู่ที่หัวคอลัมน์ แยกรหัส/ชื่อโรค
     const EXPORT_COLS = [
@@ -257,6 +262,10 @@
         const lv = /^lvl:(\d)$/.exec(key);
         if (lv) return openList({ title: `ผู้ป่วยระดับ ${lv[1]}`, sub: 'วันที่ ' + thai(date), type: 'lvl', v: lv[1], date });
         if (!DRILL_TITLES[key]) return;
+        if (key.startsWith('now_')) {   // ไม่ขึ้นกับวันที่ (ช่องนี้แสดงเฉพาะตอนดูวันนี้)
+            const t = new Date();
+            return openList({ title: DRILL_TITLES[key], sub: `สถานะ ณ ${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')} น.`, type: key, date: today() });
+        }
         openList({ title: DRILL_TITLES[key], sub: 'วันที่ ' + thai(date), type: key, date });
     }
     bbhDrill.bind($('er-summary'), openDrill);
