@@ -19,7 +19,7 @@ try {
     */
 
     $cacheDir  = __DIR__ . '/../storage/cache/';
-    $cacheFile = $cacheDir . 'er_chart_v4_' . $p['key'] . '.json';
+    $cacheFile = $cacheDir . 'er_chart_v5_' . $p['key'] . '.json';
     $cacheTTL  = 5 * 60; // 5 นาที
 
     if (
@@ -106,11 +106,15 @@ try {
         5 => 'ห้องทำแผล เวรเช้า',
     ];
 
+    // สีตามประเภท (โทนอุ่นของหน้า ER แต่ hue ต่างกันพอแยกได้) — บริการที่ไม่ใช่การรักษา = เทา
+    $typeColor = [1 => '#b3261e', 2 => '#ea580c', 3 => '#ca8a04', 4 => '#64748b', 5 => '#db2777'];
+
     $pie = [];
     foreach ($pieRows as $row) {
         $pie[] = [
-            'name' => $shortName[(int)$row['ertype']] ?? ($row['typename'] ?? 'ไม่ระบุ'),
-            'y'    => (int)$row['total'],
+            'name'  => $shortName[(int)$row['ertype']] ?? ($row['typename'] ?? 'ไม่ระบุ'),
+            'y'     => (int)$row['total'],
+            'color' => $typeColor[(int)$row['ertype']] ?? '#94a3b8',
         ];
     }
 

@@ -19,7 +19,7 @@ try {
     */
 
     $cacheDir  = __DIR__ . '/../storage/cache/';
-    $cacheFile = $cacheDir . 'er_timeslot_' . $p['key'] . '.json';
+    $cacheFile = $cacheDir . 'er_timeslot_v2_' . $p['key'] . '.json';
     $cacheTTL  = 5 * 60;
 
     if (
@@ -91,9 +91,9 @@ try {
     */
 
     $colorMap = [
-        1 => '#f59e0b',  // เช้า — เหลืองส้ม
-        2 => '#3b82f6',  // บ่าย — ฟ้า
-        3 => '#6366f1',  // ดึก  — ม่วง
+        1 => '#ea580c',  // เช้า — ส้ม (โทนอุ่นของหน้า ER)
+        2 => '#b3261e',  // บ่าย — แดง
+        3 => '#7f1d1d',  // ดึก  — แดงเข้ม
     ];
 
     $data = [];

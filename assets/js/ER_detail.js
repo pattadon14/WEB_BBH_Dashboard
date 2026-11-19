@@ -41,38 +41,42 @@ Highcharts.chart('er-chart', {
         categories: months
     },
 
+    // แท่งซ้อน: อุบัติเหตุเป็นส่วนหนึ่งของทั้งหมด → ความสูงแท่ง = ผู้รับบริการทั้งหมด (เดิมวางคู่กันชวนให้บวกกัน)
     yAxis: {
         min: 0,
-        endOnTick: true,
-        title: { text: 'จำนวนครั้ง' }
+        title: { text: 'จำนวนครั้ง' },
+        stackLabels: {
+            enabled: months.length <= 16,   // รายวันหลายแท่ง ป้ายตัวเลขจะทับกัน
+            style: { fontSize: '16px', textOutline: 'none', color: '#2a1a19' }   // ค่าเริ่มต้นเป็นตัวแปร CSS ที่ไม่มีในโหมดสว่าง → ขาวบนขาว
+        }
     },
 
     tooltip: {
-        valueSuffix: ' ราย'
+        shared: true,
+        valueSuffix: ' ครั้ง',
+        footerFormat: 'รวม <b>{point.total:,.0f} ครั้ง</b>'
     },
 
     credits: { enabled: false },
 
-    legend: { enabled: true },
+    legend: { enabled: true, reversed: true },
 
     plotOptions: {
         column: {
+            stacking: 'normal',
+            maxPointWidth: 72,   // ปีงบต้นปีมีแค่ 1–2 เดือน แท่งจะกว้างเต็มจอ
             borderRadius: 4,
-            dataLabels: {
-                enabled: months.length <= 16, // รายวันหลายแท่ง ป้ายตัวเลขจะทับกัน
-                color: '#000',
-                style: { fontSize: '16px' }
-            }
+            borderWidth: 0
         }
     },
 
     series: [{
-        name: 'ผู้รับบริการ ER ทั้งหมด',
-        color: '#dc3545',
-        data: erData
+        name: 'ผู้ป่วยอื่น',
+        color: '#b3261e',
+        data: erData.map((n, i) => n - accidentData[i])
     }, {
-        name: 'เฉพาะผู้ป่วยอุบัติเหตุ',
-        color: '#f59e0b',
+        name: 'อุบัติเหตุ (ประเภทผู้ป่วย ER = อุบัติเหตุ)',
+        color: '#ea580c',
         data: accidentData
     }]
 
@@ -213,8 +217,7 @@ Highcharts.chart('er-triage-chart', {
     },
 
     yAxis: {
-        min: 0,
-        tickInterval: 2000,
+        min: 0,   // ไม่ตั้ง tickInterval ตายตัว (เดิม 2000 → ช่วง "วันนี้" แกนยาวถึง 2,000 แท่งแทบมองไม่เห็น)
         title: { text: 'จำนวนผู้ป่วย (ราย)' },
         labels: {
             style: { fontSize: '13px',
@@ -462,7 +465,7 @@ try {
                     </span>
                 </td>
                 <td>${diagCell(row.diag_th, row.diag_en)}</td>
-                <td class="text-center fw-bold text-success">
+                <td class="text-center fw-bold er-total">
                     ${row.total.toLocaleString()}
                 </td>
                 <td class="text-center">
@@ -492,6 +495,66 @@ loadTop10Table();
 document
     .getElementById('budget-year')
     .addEventListener('change', loadTop10Table);
+
+/*
+============================================================
+การส่งต่อ Refer out / in แยกตามสถานพยาบาล (api/er_refer.php)
+แสดง 8 แห่งแรก + รวมที่เหลือเป็น "อื่น ๆ" · แถบยาวเทียบกับยอดของกล่องนั้น
+============================================================
+*/
+
+async function loadRefer() {
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const fmt = n => n.toLocaleString('th-TH');
+    const pct = (n, t) => t ? Math.round(n * 100 / t) : 0;
+
+    const rows = (items, total, max = 8) => {
+        const top  = items.slice(0, max);
+        const rest = items.slice(max);
+        if (rest.length) top.push({ name: `อื่น ๆ (${rest.length} แห่ง)`, n: rest.reduce((s, x) => s + x.n, 0) });
+        if (!top.length) return '<li><span class="er-refer-nm">ไม่มีข้อมูลในช่วงนี้</span></li>';
+        return top.map(x => `
+            <li>
+                <span class="er-refer-nm">${esc(x.name)}</span>
+                <span class="er-refer-n">${fmt(x.n)}<small>${pct(x.n, total)}%</small></span>
+                <span class="er-meter" aria-hidden="true"><span style="width:${pct(x.n, total)}%"></span></span>
+            </li>`).join('');
+    };
+
+    let data;
+    try {
+        data = await (await fetch('../api/er_refer.php?' + bbhPeriod.query())).json();
+    } catch (e) {
+        data = { error: 'โหลดข้อมูลไม่สำเร็จ' };
+    }
+    if (data.error) {
+        $('er-refer-out-list').innerHTML = $('er-refer-in-list').innerHTML = `<li><span class="er-refer-nm">${esc(data.error)}</span></li>`;
+        return;
+    }
+
+    const o = data.out, i = data.in;
+    $('er-refer-out-total').textContent = fmt(o.total);
+    $('er-refer-in-total').textContent  = fmt(i.total);
+    $('er-refer-out-list').innerHTML    = rows(o.items, o.total);
+    $('er-refer-in-list').innerHTML     = rows(i.items, i.total);
+    // เหตุผล: % ของครั้งที่มีใบส่งต่อ (ไม่มีใบ = ไม่มีเหตุผล)
+    $('er-refer-reason-list').innerHTML = rows(o.reasons, o.total - o.no_doc, 5);
+
+    $('er-refer-out-note').textContent = o.no_doc
+        ? `ไม่มีใบส่งต่อในระบบ ${fmt(o.no_doc)} ครั้ง (ลงผลจำหน่ายส่งต่อแต่ไม่ได้ออกใบ จึงไม่ทราบปลายทาง)`
+        : '';
+    const inNotes = [];
+    if (i.no_doc) inNotes.push(`ไม่มีใบรับส่งต่อ ${fmt(i.no_doc)} ครั้ง (ลงวิธีมาว่ารับส่งต่อ แต่ไม่ระบุต้นทาง)`);
+    if (i.self)   inNotes.push(`ลงต้นทางเป็น รพ.บ้านบึงเอง ${fmt(i.self)} ครั้ง ควรตรวจการบันทึก`);
+    $('er-refer-in-note').textContent = inNotes.join(' และ ');
+}
+
+loadRefer();
+
+document
+    .getElementById('budget-year')
+    .addEventListener('change', loadRefer);
 
 // ชื่อโรค: ไทยเป็นหลัก อังกฤษตัวเล็กใต้ชื่อ (ไม่แสดงซ้ำถ้าเหมือนกันหรือไม่มีชื่อไทย) — ใช้รูปแบบเดียวกันทั้งหน้า OPD / IPD / ER
 function diagCell(th, en) {

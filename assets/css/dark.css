@@ -168,6 +168,7 @@ html[data-theme="dark"] .highcharts-tooltip text,
 html[data-theme="dark"] .highcharts-tooltip tspan,
 html[data-theme="dark"] .highcharts-tooltip span { fill: var(--bbh-text) !important; color: var(--bbh-text) !important; }
 /* ตัวเลขบนแท่ง: เส้นขอบตัวอักษรใช้สีพื้นมืดแทนขาว */
+html[data-theme="dark"] .highcharts-stack-labels text,
 html[data-theme="dark"] .highcharts-data-label text,
 html[data-theme="dark"] .highcharts-data-label tspan { fill: var(--bbh-text) !important; }
 html[data-theme="dark"] .highcharts-data-label .highcharts-text-outline { stroke: var(--bbh-surface) !important; fill: var(--bbh-surface) !important; }
