@@ -182,3 +182,5 @@ html[data-theme="dark"] .highcharts-heatmap-series .highcharts-point { stroke: v
 
 /* หน้า ER: พื้นหน้า + แถบหัวแดงในโหมดมืด (ชื่อ token ไม่มีบทบาท สคริปต์จึงไม่แปลงให้) — แดงเข้มลง ตัวอักษรขาวยังผ่าน 4.5:1 */
 html[data-theme="dark"] body .er-theme { --er-canvas: #120e0e; --er-mast: #6e1a15; --er-on-mast-veil: #84302a; }
+/* หน้า OPD (โครงเดียวกับ ER ชุดสีเขียว — opd_theme.css) */
+html[data-theme="dark"] body .er-theme.opd-theme { --er-canvas: #0e1210; --er-mast: #144d2e; --er-on-mast-veil: #23613f; }

@@ -1,0 +1,96 @@
+/* Hallmark · v2.0.0 · shape: app screen · theme: brand (OPD green-white, layout shared with er_theme.css) · scope: app
+ * Hallmark · waive 48 · page-scoped tokens live on :root .er-theme.opd-theme so tools/build_dark_css.mjs can derive dark mode
+ */
+
+/* =========================================================
+   หน้า OPD: ใช้โครงหน้าเดียวกับหน้า ER (er_theme.css — การ์ดเลขลำดับ, แถบหัว, ช่องสีทึบ, แถวรายการ)
+   ไฟล์นี้ตั้ง token เป็นชุดสีเขียวทับใต้ .er-theme.opd-theme (pages/opd_detail.php) และเพิ่มส่วนที่หน้า ER ไม่มี
+   ตัวอักษรขาวบนช่องสีทึบผ่าน 5:1 ทุกช่อง · ตัวอักษรเขียวบนขาว 6.5:1
+========================================================= */
+:root .er-theme.opd-theme {
+    --er-text: #146c3c;
+    --er-ink-text: #17241d;
+    --er-muted-text: #52615a;
+    --er-solid: #157a43;
+    --er-tint: #e7f4ec;
+    --er-wash: #f4faf6;
+    --er-line: #e0ebe4;
+    --er-card-line: #d6e4db;
+    --er-glow: rgba(21, 122, 67, .22);
+    --er-row-bg: #f8fcf9;
+    --er-canvas: #f1f6f3;
+    --er-mast: #11653a;
+    --er-on-mast-dim: #d3eedd;
+    --er-on-mast-veil: #2b7a50;
+
+    --er-k1: #11653a;   /* ผู้มารับบริการ */
+    --er-k2: #0f766e;   /* ผู้ป่วยใหม่ */
+    --er-k3: #15803d;   /* ผู้ป่วยเก่า */
+    --er-k4: #0e7490;   /* Admit */
+    --er-k5: #4d7c0f;   /* Refer */
+
+    --opd-walkin-fill: #0b5ed7;   /* สัดส่วน Walk-in (สีเดิมของหน้า) */
+    --opd-appt-fill: #198754;     /* สัดส่วนมาตามนัด */
+}
+
+/* 5 ช่องภาพรวม */
+.er-theme.opd-theme .opd-kpis { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+
+/* แท็บประเภทผู้รับบริการ: ปุ่มเขียว */
+:root .er-theme.opd-theme .opd-page-tabs { background: var(--er-page-bg); border-color: var(--er-card-line); }
+:root .er-theme.opd-theme .opd-page-tab:hover { color: var(--er-text); border-color: var(--er-solid); }
+:root .er-theme.opd-theme .opd-page-tab.active { background: var(--er-solid); border-color: var(--er-solid); color: var(--er-on-solid); }
+:root .er-theme.opd-theme .opd-page-tab:focus-visible { outline: 2px solid var(--er-solid); outline-offset: 2px; }
+
+/* สัดส่วน Walk-in / มาตามนัด และแถบมาตามนัด */
+.er-theme.opd-theme .mix-walkin { background: var(--opd-walkin-fill); }
+.er-theme.opd-theme .mix-appt { background: var(--opd-appt-fill); }
+.er-theme.opd-theme .er-mix-bar span { display: block; height: 100%; }
+.er-theme.opd-theme .opd-appt-meter { margin: 4px 0 8px; }
+.er-theme.opd-theme .er-stat-value small { margin-left: 4px; font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+
+/* โฟกัสคีย์บอร์ด (er_theme.css ผูกไว้กับ #er-summary) */
+:root .er-theme.opd-theme #opd-tab-general .er-kpi[data-drill]:focus-visible { outline: 3px solid var(--er-ink-text); outline-offset: 2px; }
+:root .er-theme.opd-theme #opd-tab-general .er-stat:focus-visible { outline: 2px solid var(--er-solid); outline-offset: 2px; }
+
+/* กราฟของวันที่เลือก: กริด 6 ช่อง → 4+2 / 3+3 (≤1199 ทีละแถว ตาม er_theme.css) */
+.er-theme.opd-theme .opd-span-4 { grid-column: span 4; }
+.er-theme.opd-theme .opd-span-3 { grid-column: span 3; }
+.er-theme.opd-theme .opd-span-2 { grid-column: span 2; }
+.er-theme.opd-theme .er-chart figcaption { align-items: flex-start; margin-bottom: 8px; }
+.er-theme.opd-theme .opd-cap-sub { display: block; margin-top: 2px; font-size: 1.05rem; font-weight: 400; line-height: 1.3; color: var(--er-muted-text); }
+.er-theme.opd-theme .er-stats .er-chart { margin-bottom: 0; }
+
+/* ปุ่มไปแท็บเวลารอ */
+:root .er-theme.opd-theme .opd-wait-more { border-color: var(--er-card-line); background: var(--er-wash); color: var(--er-text); }
+:root .er-theme.opd-theme .opd-wait-more:is(:hover, :focus-visible) { background: var(--er-solid); color: var(--er-on-solid); }
+:root .er-theme.opd-theme .opd-wait-more:focus-visible { outline: 2px solid var(--er-ink-text); outline-offset: 2px; }
+
+/* แท็บเวลารอ: หัวตารางเขียว */
+.er-theme.opd-theme #opd-tab-quality .oq-kpis { margin-bottom: 16px; }
+:root .er-theme.opd-theme .oq-table thead th { background: var(--er-wash); color: var(--er-text); border-color: var(--er-line); }
+.er-theme.opd-theme .er-split .er-panel { min-width: 0; }
+
+/* แถบเมนูบน: er_theme.css เปลี่ยนเป็นแดงผ่าน body:has(.er-theme) → คืนเป็นเขียวของเว็บ */
+:root body:has(.er-theme.opd-theme) {
+    --er-nav-text: #146c43;
+    --er-nav-solid: #198754;
+    --er-nav-solid-hover: #157347;
+    --er-nav-tint: #eef7f2;
+    --er-nav-line: rgba(25, 135, 84, .25);
+    --er-nav-glow: rgba(25, 135, 84, .18);
+    --er-nav-stripe: #3cc48a;
+}
+
+@media (max-width: 1399.98px) {
+    .er-theme.opd-theme .opd-kpis { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+@media (max-width: 991.98px) {
+    .er-theme.opd-theme .opd-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 575.98px) {
+    .er-theme.opd-theme .opd-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .er-theme.opd-theme .opd-kpis .er-k1 { grid-column: 1 / -1; }
+    .er-theme.opd-theme .opd-page-tabs { display: flex; flex-wrap: wrap; }
+    .er-theme.opd-theme .opd-page-tab { flex: 1 1 auto; min-width: 0; }
+}

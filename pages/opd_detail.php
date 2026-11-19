@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // ป้าย LIVE ใน navbar แบบหน้าแรก — opd_detail.js แสดงเฉพาะตอนเลือกดูข้อมูลวันนี้
 $showLiveStatus = true;
 
@@ -12,474 +12,303 @@ include '../templates/sidebar.php';
 
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_tabs.css?v=<?= filemtime(__DIR__ . '/../assets/css/opd_tabs.css') ?>">
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_quality.css?v=<?= filemtime(__DIR__ . '/../assets/css/opd_quality.css') ?>">
+<!-- โครงหน้าเดียวกับหน้า ER (er_theme.css) แต่ใช้ชุดสีเขียว (opd_theme.css ตั้ง token ทับใต้ .opd-theme) -->
+<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/er_theme.css?v=<?= filemtime(__DIR__ . '/../assets/css/er_theme.css') ?>">
+<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_theme.css?v=<?= filemtime(__DIR__ . '/../assets/css/opd_theme.css') ?>">
 
-<div class="content-wrapper">
-    <section class="content pt-3">
-        <div class="container-fluid">
+<div class="content-wrapper er-theme opd-theme">
+    <section class="content">
+        <div class="er-page">
 
             <!-- =====================================================
                  OPD TABS
             ====================================================== -->
-            <div class="opd-page-tabs mb-2" role="tablist" aria-label="ประเภทผู้รับบริการ OPD">
+            <div class="opd-page-tabs mb-3" role="tablist" aria-label="ประเภทผู้รับบริการ OPD">
                 <button class="opd-page-tab active" type="button" role="tab" aria-selected="true"
                     data-opd-tab="general">
-                    <i class="fa-solid fa-stethoscope"></i>
+                    <i class="fa-solid fa-stethoscope" aria-hidden="true"></i>
                     ตรวจโรคทั่วไป
                 </button>
 
                 <!-- คลินิคพิเศษใช้แผง/layout เดียวกับตรวจโรคทั่วไป เปลี่ยนแค่ชุดแผนก (?scope=special) -->
                 <button class="opd-page-tab" type="button" role="tab" aria-selected="false" data-opd-tab="special" data-opd-panel="general">
-                    <i class="fa-solid fa-hospital-user"></i>
+                    <i class="fa-solid fa-hospital-user" aria-hidden="true"></i>
                     คลินิคพิเศษ
                 </button>
 
                 <button class="opd-page-tab" type="button" role="tab" aria-selected="false" data-opd-tab="quality">
-                    <i class="fa-solid fa-stopwatch"></i>
+                    <i class="fa-solid fa-stopwatch" aria-hidden="true"></i>
                     เวลารอ &amp; คุณภาพบริการ
                 </button>
             </div>
 
             <!-- =====================================================
-                 TAB 1 : ตรวจโรคทั่วไป
+                 TAB 1 : ตรวจโรคทั่วไป / คลินิคพิเศษ
+                 ทุกตัวเลขที่มี data-drill ต้องอยู่ใน #opd-tab-general (bbhDrill.bind ใน opd_detail.js)
             ====================================================== -->
             <div class="opd-tab-panel active" id="opd-tab-general" role="tabpanel">
 
-                <div class="row">
-                    <div class="col-12 mb-3">
-                        <div class="card shadow-sm opd-summary-horizontal" id="opd-summary">
-                            <div class="card-body">
+                <!-- แถบหัวเขียว: ชื่อหน้า + เทียบสัปดาห์ก่อน + ตัวเลือกวันที่ -->
+                <header class="er-mast" id="opd-summary">
+                    <div class="er-mast-top">
+                        <div class="er-mast-heading">
+                            <h1 class="er-mast-title" id="opd-selected-date-title">ผู้มารับบริการตรวจโรคทั่วไปวันนี้</h1>
+                            <p class="er-mast-sub" id="opd-compare">—</p>
+                        </div>
 
-                                <div class="opd-summary-main">
-                                    <div class="opd-summary-main-icon">
-                                        <i class="fa-solid fa-hospital-user"></i>
-                                    </div>
-
-                                    <div class="opd-summary-main-info">
-                                        <div class="opd-summary-title" id="opd-selected-date-title">
-                                            ผู้มารับบริการตรวจโรคทั่วไปวันนี้
-                                        </div>
-                                        <div class="opd-summary-total-label">
-                                            จำนวนผู้มารับบริการ <span id="opd_total_people">—</span> คน
-                                        </div>
-                                        <div class="opd-summary-compare" id="opd-compare">—</div>
-                                    </div>
-
-                                    <!-- ตัวกรองวันที่: รูปแบบเดียวกับแท็บเวลารอ & คุณภาพบริการ (opd_quality.css) -->
-                                    <div class="oq-controls opd-day-filter">
-                                        <div class="oq-seg" role="group" aria-label="เลือกวันด่วน">
-                                            <button type="button" data-opd-day="0" aria-pressed="true">วันนี้</button>
-                                            <button type="button" data-opd-day="1" aria-pressed="false">เมื่อวาน</button>
-                                        </div>
-                                        <div class="oq-range">
-                                            <i class="fa-solid fa-calendar-day" aria-hidden="true"></i>
-                                            <label class="oq-date">
-                                                <span id="opd-service-date-text">—</span>
-                                                <input type="date" id="opd-service-date" aria-label="เลือกวันที่">
-                                            </label>
-                                        </div>
-                                    </div>
-
-                                <div class="opd-summary-main-total">
-                                    <div class="opd-summary-main-number" data-drill="all">
-                                        <span id="opd_total_today">—</span>
-                                        <small>ครั้ง</small>
-                                    </div>
-                                    <div class="opd-summary-newold">
-                                        <span class="newpt" data-drill="new">ผู้ป่วยใหม่ <strong id="new_patient">—</strong> คน</span>
-                                        <span class="oldpt" data-drill="old">ผู้ป่วยเก่า <strong id="old_patient">—</strong> คน</span>
-                                    </div>
-                                </div>
-                                </div>
-
-                                <div class="opd-summary-grid">
-
-                                    <div class="opd-summary-section">
-                                        <div class="summary-section-title">
-                                            <i class="fa-solid fa-users"></i>
-                                            ประเภทการมารับบริการ
-                                        </div>
-
-                                        <div class="horizontal-summary-item walkin-card" data-drill="walkin">
-                                            <div class="walkin-head">
-                                                <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-person-walking"></i></span>
-                                                <div>
-                                                    <div class="summary-title">Walk-in</div>
-                                                    <div class="todaysummary-sub">มารับบริการโดยไม่มีนัดล่วงหน้า</div>
-                                                </div>
-                                            </div>
-                                            <div class="summary-number">
-                                                <span id="walkin_today">—</span>
-                                                <span class="summary-unit">ครั้ง</span>
-                                            </div>
-                                            <!-- สัดส่วนของยอดรวม: Walk-in + มาตามนัด = ทั้งหมด -->
-                                            <div class="visit-mix">
-                                                <div class="visit-mix-bar" role="img" id="visit-mix-bar" aria-label="สัดส่วน Walk-in และมาตามนัด">
-                                                    <span class="mix-walkin" id="mix-walkin-bar"></span>
-                                                    <span class="mix-appt" id="mix-appt-bar"></span>
-                                                </div>
-                                                <div class="visit-mix-legend">
-                                                    <span><i class="mix-dot mix-walkin"></i>Walk-in <b id="mix-walkin-pct">–</b></span>
-                                                    <span><i class="mix-dot mix-appt"></i>มาตามนัด <b id="mix-appt-pct">–</b></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="opd-summary-section">
-                                        <div class="summary-section-title">
-                                            <i class="fa-solid fa-calendar-days"></i>
-                                            <span id="appt-section-title">นัดหมายวันนี้</span>
-                                        </div>
-
-                                        <div class="appointment-horizontal-card">
-                                            <div class="appointment-total" data-drill="appt">
-                                                <span class="appt-total-label">นัดทั้งหมด</span>
-                                                <span id="appoint_today">—</span>
-                                                <small>ราย</small>
-                                                <span class="appt-progress" role="img" id="appt-progress" aria-label="สัดส่วนมาตามนัด">
-                                                    <span id="appt-progress-bar"></span>
-                                                </span>
-                                            </div>
-
-                                            <div class="appointment-status">
-                                                <div class="appointment-status-item came" data-drill="appt_came">
-                                                    <div>
-                                                        <i class="fa-solid fa-square-check"></i>
-                                                        มาตามนัด
-                                                    </div>
-                                                    <strong id="oapp_success">—</strong>
-                                                    <small>ราย · <span id="oapp_success_pct">–</span></small>
-                                                </div>
-
-                                                <div class="appointment-status-item miss" data-drill="appt_miss">
-                                                    <div>
-                                                        <i class="fa-solid fa-square-xmark"></i>
-                                                        <span id="miss_label">ไม่มาตามนัด</span>
-                                                    </div>
-                                                    <strong id="miss_today">—</strong>
-                                                    <small>ราย · <span id="miss_pct">–</span></small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="opd-summary-section">
-                                        <div class="summary-section-title">
-                                            <i class="fa-solid fa-clock"></i>
-                                            แยกตามช่วงเวลา
-                                        </div>
-
-                                        <div class="time-horizontal-group">
-                                            <div class="time-horizontal-card time-night" data-drill="night">
-                                                <div class="time-icon" aria-hidden="true"><i class="fa-solid fa-moon"></i></div>
-                                                <div class="time-info">
-                                                    <div class="time-label">ก่อนเวลาราชการ</div>
-                                                    <div class="time-range">20:01 – 07:59 น.</div>
-                                                </div>
-                                                <div class="time-count">
-                                                    <span id="before_time">—</span><small>ครั้ง</small>
-                                                </div>
-                                            </div>
-
-                                            <div class="time-horizontal-card time-morning" data-drill="morning">
-                                                <div class="time-icon" aria-hidden="true"><i class="fa-solid fa-sun"></i></div>
-                                                <div class="time-info">
-                                                    <div class="time-label">ในเวลาราชการ</div>
-                                                    <div class="time-range">08:00 – 15:59 น.</div>
-                                                </div>
-                                                <div class="time-count">
-                                                    <span id="worktime">—</span><small>ครั้ง</small>
-                                                </div>
-                                            </div>
-
-                                            <div class="time-horizontal-card time-evening" data-drill="evening">
-                                                <div class="time-icon" aria-hidden="true"><i class="fa-solid fa-cloud-sun"></i></div>
-                                                <div class="time-info">
-                                                    <div class="time-label">นอกเวลาราชการ</div>
-                                                    <div class="time-range">16:00 – 20:00 น.</div>
-                                                </div>
-                                                <div class="time-count">
-                                                    <span id="after_time">—</span><small>ครั้ง</small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="opd-summary-section">
-                                        <div class="summary-section-title">
-                                            <i class="fa-solid fa-stethoscope"></i>
-                                            สถานะการตรวจ
-                                        </div>
-
-                                        <div class="exam-horizontal-group">
-                                            <div class="exam-horizontal-card wait-card" data-drill="wait_triage">
-                                                <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-user-nurse"></i></span>
-                                                <div class="summary-title">รอซักประวัติ</div>
-                                                <div class="summary-number">
-                                                    <span id="wait_triage">—</span>
-                                                    <span class="summary-unit">ครั้ง</span>
-                                                </div>
-                                            </div>
-
-                                            <div class="exam-horizontal-card exam-card" data-drill="wait_exam">
-                                                <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-stethoscope"></i></span>
-                                                <div class="summary-title">รอตรวจ</div>
-                                                <div class="summary-number">
-                                                    <span id="wait_exam">—</span>
-                                                    <span class="summary-unit">ครั้ง</span>
-                                                </div>
-                                            </div>
-
-                                            <div class="exam-horizontal-card finish-card" data-drill="finish">
-                                                <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-circle-check"></i></span>
-                                                <div class="summary-title">ตรวจเสร็จแล้ว</div>
-                                                <div class="summary-number">
-                                                    <span id="finish_exam">—</span>
-                                                    <span class="summary-unit">ครั้ง</span>
-                                                </div>
-                                            </div>
-
-                                            <!-- ส่วนที่เหลือ ให้ 4 ช่องรวมได้ยอดรวม -->
-                                            <div class="exam-horizontal-card nodr-card" data-drill="no_doctor"
-                                                title="กลับบ้าน / Admit / อยู่ห้องยา–การเงิน โดยไม่มีบันทึกเวลาพบแพทย์ (เช่น รับยาเดิม ตรวจแล็บ หรือลืมกดเวลา)">
-                                                <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-user-clock"></i></span>
-                                                <div class="summary-title">ไม่มีบันทึกพบแพทย์</div>
-                                                <div class="summary-number">
-                                                    <span id="no_doctor">—</span>
-                                                    <span class="summary-unit">ครั้ง</span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="opd-mini-pair">
-                                            <div class="exam-horizontal-card admit-card" data-drill="admit">
-                                                <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-bed-pulse"></i></span>
-                                                <div class="summary-title">Admit</div>
-                                                <div class="summary-number"><span id="opd_admit">—</span> <span class="summary-unit">ครั้ง</span></div>
-                                            </div>
-                                            <div class="exam-horizontal-card refer-card" data-drill="refer">
-                                                <span class="opd-ico" aria-hidden="true"><i class="fa-solid fa-truck-medical"></i></span>
-                                                <div class="summary-title">Refer ส่งต่อ</div>
-                                                <div class="summary-number"><span id="opd_refer">—</span> <span class="summary-unit">ครั้ง</span></div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
+                        <div class="oq-controls opd-day-filter er-mast-controls">
+                            <div class="oq-seg" role="group" aria-label="เลือกวันด่วน">
+                                <button type="button" data-opd-day="0" aria-pressed="true">วันนี้</button>
+                                <button type="button" data-opd-day="1" aria-pressed="false">เมื่อวาน</button>
+                            </div>
+                            <div class="oq-range">
+                                <i class="fa-solid fa-calendar-day" aria-hidden="true"></i>
+                                <label class="oq-date">
+                                    <span id="opd-service-date-text">—</span>
+                                    <input type="date" id="opd-service-date" aria-label="เลือกวันที่">
+                                </label>
                             </div>
                         </div>
                     </div>
+                </header>
 
-                    <!-- ข้อมูลของวันที่เลือก (ใช้ตัวเลือกวันที่ด้านบน) -->
-                    <div class="col-12 mb-3">
-                        <div class="card shadow-sm">
-                            <div class="card-body">
-                                <div class="opd-day-head">
-                                    <h2 class="opd-section-heading">
-                                        <i class="fa-solid fa-calendar-day"></i>
-                                        <span id="opd-day-title">ข้อมูลผู้มารับบริการวันนี้</span>
-                                    </h2>
-                                    <div class="opd-day-sub">เปลี่ยนวันที่ได้จากตัวกรองด้านบน · นับเป็นครั้งที่มารับบริการ</div>
-                                </div>
-
-                                <!-- การไหลของผู้ป่วย + เวลารอ (api/opd_general_today.php, api/opd_service_kpi.php?scope=general) -->
-                                <div class="row">
-                                    <div class="col-xl-8 mb-3">
-                                        <section class="opd-panel opd-panel--green">
-                                            <header class="opd-panel-head">
-                                                <span class="opd-panel-icon"><i class="fa-solid fa-chart-column"></i></span>
-                                                <div>
-                                                    <h3 class="opd-panel-title">ผู้ป่วยเข้า – พบแพทย์ รายชั่วโมง</h3>
-                                                    <p class="opd-panel-sub" id="flow-note">—</p>
-                                                </div>
-                                            </header>
-                                            <div id="opd-flow-chart"></div>
-                                        </section>
-                                    </div>
-                                    <div class="col-xl-4 mb-3">
-                                        <section class="opd-panel opd-panel--violet">
-                                            <header class="opd-panel-head">
-                                                <span class="opd-panel-icon"><i class="fa-solid fa-stopwatch"></i></span>
-                                                <div>
-                                                    <h3 class="opd-panel-title">เวลารอเฉลี่ย</h3>
-                                                    <p class="opd-panel-sub" id="wait-note">—</p>
-                                                </div>
-                                            </header>
-                                            <div id="opd-wait-list" class="opd-wait-list"></div>
-                                            <button type="button" class="opd-wait-more" data-goto-tab="quality">
-                                                ดูรายละเอียดที่แท็บเวลารอ &amp; คุณภาพบริการ <i class="fa-solid fa-arrow-right"></i>
-                                            </button>
-                                        </section>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-xl-6 mb-3">
-                                        <section class="opd-panel opd-panel--blue">
-                                            <header class="opd-panel-head">
-                                                <span class="opd-panel-icon"><i class="fa-solid fa-user-doctor"></i></span>
-                                                <div>
-                                                    <h3 class="opd-panel-title">จุดตรวจของแพทย์</h3>
-                                                    <p class="opd-panel-sub">จำนวนที่ตรวจ · ตัวเลขในวงเล็บ = รอแพทย์เฉลี่ยหลังซักประวัติ (นาที)</p>
-                                                </div>
-                                            </header>
-                                            <div id="opd-room-chart"></div>
-                                        </section>
-                                    </div>
-                                    <div class="col-xl-6 mb-3">
-                                        <section class="opd-panel opd-panel--amber">
-                                            <header class="opd-panel-head">
-                                                <span class="opd-panel-icon"><i class="fa-solid fa-calendar-xmark"></i></span>
-                                                <div>
-                                                    <h3 class="opd-panel-title">นัดหมายรายคลินิก</h3>
-                                                    <p class="opd-panel-sub" id="clinic-note">—</p>
-                                                </div>
-                                            </header>
-                                            <div id="opd-clinic-chart"></div>
-                                        </section>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-xl-6 mb-3">
-                                        <section class="opd-panel opd-panel--green">
-                                            <header class="opd-panel-head">
-                                                <span class="opd-panel-icon"><i class="fa-solid fa-hospital"></i></span>
-                                                <div>
-                                                    <h3 class="opd-panel-title">แผนกที่ลงทะเบียน</h3>
-                                                    <p class="opd-panel-sub">10 แผนกที่มีผู้มารับบริการมากที่สุด</p>
-                                                </div>
-                                            </header>
-                                            <div id="opd-dept-chart"></div>
-                                        </section>
-                                    </div>
-                                    <div class="col-xl-6 mb-3">
-                                        <section class="opd-panel opd-panel--blue">
-                                            <header class="opd-panel-head">
-                                                <span class="opd-panel-icon"><i class="fa-solid fa-id-card"></i></span>
-                                                <div>
-                                                    <h3 class="opd-panel-title">กลุ่มสิทธิ์การรักษา</h3>
-                                                    <p class="opd-panel-sub">ชี้ที่แท่งเพื่อดูสิทธิ์ย่อย</p>
-                                                </div>
-                                            </header>
-                                            <div id="pttype-chart" class="pttype-chart"></div>
-                                        </section>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-xl-8 mb-3 mb-xl-0">
-                                        <section class="opd-panel opd-panel--violet">
-                                            <header class="opd-panel-head">
-                                                <span class="opd-panel-icon"><i class="fa-solid fa-clock"></i></span>
-                                                <div>
-                                                    <h3 class="opd-panel-title">การกระจายเวลานัดหมาย</h3>
-                                                    <p class="opd-panel-sub" id="appt-time-note">—</p>
-                                                </div>
-                                            </header>
-                                            <div id="opd-appt-time-chart"></div>
-                                        </section>
-                                    </div>
-                                    <div class="col-xl-4">
-                                        <section class="opd-panel opd-panel--amber">
-                                            <header class="opd-panel-head">
-                                                <span class="opd-panel-icon"><i class="fa-solid fa-earth-asia"></i></span>
-                                                <div>
-                                                    <h3 class="opd-panel-title">สัญชาติ</h3>
-                                                    <p class="opd-panel-sub" id="nation-note">—</p>
-                                                </div>
-                                            </header>
-                                            <div id="opd-nation-chart"></div>
-                                        </section>
-                                    </div>
-                                </div>
-                            </div>
+                <!-- 1 ภาพรวม: ช่องสีทึบโทนเขียว · ใหม่ + เก่า = จำนวนคน -->
+                <section class="er-panel" aria-labelledby="opd-sec1">
+                    <header class="er-sec-head">
+                        <span class="er-sec-no" aria-hidden="true">1</span>
+                        <div>
+                            <h2 class="er-h2" id="opd-sec1">ภาพรวมผู้ป่วยนอก</h2>
+                            <p class="er-sec-sub">ยอดของวันที่เลือก นับเป็นครั้งที่มารับบริการ</p>
+                        </div>
+                    </header>
+                    <div class="er-kpis opd-kpis">
+                        <div class="er-kpi er-k1" data-drill="all">
+                            <span class="er-kpi-label"><i class="fa-solid fa-hospital-user" aria-hidden="true"></i>ผู้มารับบริการ</span>
+                            <b class="er-kpi-num" id="opd_total_today">—</b>
+                            <span class="er-kpi-sub">ครั้ง จาก <b id="opd_total_people">—</b> คน</span>
+                        </div>
+                        <div class="er-kpi er-k2" data-drill="new">
+                            <span class="er-kpi-label"><i class="fa-solid fa-user-plus" aria-hidden="true"></i>ผู้ป่วยใหม่</span>
+                            <b class="er-kpi-num" id="new_patient">—</b>
+                            <span class="er-kpi-sub">คน</span>
+                        </div>
+                        <div class="er-kpi er-k3" data-drill="old">
+                            <span class="er-kpi-label"><i class="fa-solid fa-user-check" aria-hidden="true"></i>ผู้ป่วยเก่า</span>
+                            <b class="er-kpi-num" id="old_patient">—</b>
+                            <span class="er-kpi-sub">คน</span>
+                        </div>
+                        <div class="er-kpi er-k4" data-drill="admit">
+                            <span class="er-kpi-label"><i class="fa-solid fa-bed-pulse" aria-hidden="true"></i>Admit</span>
+                            <b class="er-kpi-num" id="opd_admit">—</b>
+                            <span class="er-kpi-sub">ครั้ง</span>
+                        </div>
+                        <div class="er-kpi er-k5" data-drill="refer">
+                            <span class="er-kpi-label"><i class="fa-solid fa-truck-medical" aria-hidden="true"></i>Refer ส่งต่อ</span>
+                            <b class="er-kpi-num" id="opd_refer">—</b>
+                            <span class="er-kpi-sub">ครั้ง</span>
                         </div>
                     </div>
+                </section>
 
-                    <!-- ข้อมูลตามปีงบประมาณ (ใช้ตัวเลือกปีงบ) — OPD ทั้งหมด (ทั่วไป + คลินิคพิเศษ) เหมือนการ์ดหน้าหลัก แสดงเหมือนกันทั้ง 2 แท็บ -->
-                    <div class="col-12">
-                        <div class="card shadow-sm mb-3">
-                            <div class="opd-chart">
-                                <div class="row align-items-center">
-                                    <div class="col-md-7">
-                                        <h2 class="mb-1 text-success" style="font-weight:bold;">
-                                            <i class="fa-solid fa-chart-column"></i>
-                                            ข้อมูลตามปีงบประมาณ
-                                            <small class="opd-fy-scope">ผู้ป่วยนอกทั้งหมด (ตรวจโรคทั่วไป + คลินิคพิเศษ)</small>
-                                        </h2>
-                                        <div id="budget-date-text" class="text-success fs-5"></div>
-                                    </div>
+                <!-- 2–5 ผู้ป่วยของวันที่เลือก: แต่ละหมวดเป็นการ์ดของตัวเอง แต่ละแถวคลิกดูรายชื่อ -->
+                <div class="er-cols">
 
-                                    <div class="col-md-5 col-lg-4">
-                                        <div class="budget-select-wrapper">
-                                            <select id="budget-year" class="form-control budget-select">
-                                                <?php
-                                                $currentYear = date('Y') + 543 + (date('n') >= 10 ? 1 : 0);
-                                                for ($y = $currentYear; $y >= 2565; $y--) {
-                                                    echo "<option value='$y'>ปีงบประมาณ $y</option>";
-                                                }
-                                                ?>
-                                            </select>
-                                            <i class="fas fa-chevron-down budget-select-icon"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="card-body">
-                                <div id="opd-chart" style="height:470px;"></div>
-                            </div>
+                    <!-- Walk-in + มาตามนัด = ทั้งหมด (config/opd.php) -->
+                    <section class="er-panel er-col" aria-labelledby="opd-sec2">
+                        <header class="er-sec-head">
+                            <span class="er-sec-no" aria-hidden="true">2</span>
+                            <div><h2 class="er-h2" id="opd-sec2">ประเภทการมารับบริการ</h2><p class="er-sec-sub">Walk-in และมาตามนัด</p></div>
+                        </header>
+                        <div class="er-stat er-stat-lead" data-drill="walkin">
+                            <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-person-walking"></i></span>Walk-in <small>มารับบริการโดยไม่มีนัดล่วงหน้า</small></span>
+                            <span class="er-stat-value"><b id="walkin_today">—</b> ครั้ง</span>
                         </div>
-                    </div>
-
-                    <div class="col-12 mb-3">
-                        <div class="card shadow-sm">
-                            <div class="card-body">
-                                <div class="chart-box">
-                                    <h5 class="chart-title">
-                                        <i class="fa-solid fa-trophy"></i>
-                                        10 อันดับโรค/การวินิจฉัยผู้ป่วยนอก ปีงบประมาณ
-                                    </h5>
-                                    <div class="table-responsive">
-                                        <table class="table table-hover table-ipd-top10">
-                                            <thead>
-                                                <tr>
-                                                    <th class="text-center" style="width:60px">อันดับ</th>
-                                                    <th class="text-center" style="width:100px">ICD-10</th>
-                                                    <th>ชื่อโรค / การวินิจฉัย</th>
-                                                    <th class="text-center" style="width:90px">รวม</th>
-                                                    <th class="text-center" style="width:80px"><i
-                                                            class="fa-solid fa-mars" style="color:#2563eb"></i> ชาย</th>
-                                                    <th class="text-center" style="width:80px"><i
-                                                            class="fa-solid fa-venus" style="color:#be185d"></i> หญิง
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="opd-top10-tbody">
-                                                <tr>
-                                                    <td colspan="6" class="text-center text-muted py-4">
-                                                        <i class="fa-solid fa-spinner fa-spin me-2"></i>
-                                                        กำลังโหลดข้อมูล…
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-
-                                <div class="chart-box mt-4">
-                                    <h5 class="chart-title">
-                                        <i class="fa-solid fa-users"></i>
-                                        กลุ่มอายุผู้ป่วย OPD ปีงบประมาณ
-                                    </h5>
-                                    <div class="row mb-3" id="opd-age-summary"></div>
-                                    <div id="opd-age-chart" style="height:360px;"></div>
-                                </div>
-                            </div>
+                        <div class="er-mix-bar" role="img" id="visit-mix-bar" aria-label="สัดส่วน Walk-in และมาตามนัด">
+                            <span class="mix-walkin" id="mix-walkin-bar"></span>
+                            <span class="mix-appt" id="mix-appt-bar"></span>
                         </div>
-                    </div>
+                        <div class="er-mix-legend">
+                            <span><i class="er-dot mix-walkin" aria-hidden="true"></i>Walk-in <b id="mix-walkin-pct">–</b></span>
+                            <span><i class="er-dot mix-appt" aria-hidden="true"></i>มาตามนัด <b id="mix-appt-pct">–</b></span>
+                        </div>
+                    </section>
+
+                    <!-- % คิดจากนัดที่ไม่ได้ยกเลิก (มา + ไม่มา) -->
+                    <section class="er-panel er-col" aria-labelledby="appt-section-title">
+                        <header class="er-sec-head">
+                            <span class="er-sec-no" aria-hidden="true">3</span>
+                            <div><h2 class="er-h2" id="appt-section-title">นัดหมายวันนี้</h2><p class="er-sec-sub">ไม่นับนัดที่ยกเลิก</p></div>
+                        </header>
+                        <div class="er-stat er-stat-lead" data-drill="appt">
+                            <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-calendar-days"></i></span>นัดทั้งหมด</span>
+                            <span class="er-stat-value"><b id="appoint_today">—</b> ราย</span>
+                        </div>
+                        <div class="er-meter opd-appt-meter" role="img" id="appt-progress" aria-label="สัดส่วนมาตามนัด"><span id="appt-progress-bar"></span></div>
+                        <div class="er-stat" data-drill="appt_came">
+                            <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-square-check"></i></span>มาตามนัด</span>
+                            <span class="er-stat-value"><b id="oapp_success">—</b> ราย <small id="oapp_success_pct">–</small></span>
+                        </div>
+                        <div class="er-stat" data-drill="appt_miss">
+                            <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-square-xmark"></i></span><span id="miss_label">ไม่มาตามนัด</span></span>
+                            <span class="er-stat-value"><b id="miss_today">—</b> ราย <small id="miss_pct">–</small></span>
+                        </div>
+                    </section>
+
+                    <section class="er-panel er-col" aria-labelledby="opd-sec4">
+                        <header class="er-sec-head">
+                            <span class="er-sec-no" aria-hidden="true">4</span>
+                            <div><h2 class="er-h2" id="opd-sec4">แยกตามช่วงเวลา</h2><p class="er-sec-sub">ตามเวลาที่ลงทะเบียน</p></div>
+                        </header>
+                        <div class="er-stat" data-drill="night">
+                            <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-moon"></i></span>ก่อนเวลาราชการ <small>20:01 – 07:59 น.</small></span>
+                            <span class="er-stat-value"><b id="before_time">—</b> ครั้ง</span>
+                        </div>
+                        <div class="er-stat" data-drill="morning">
+                            <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-sun"></i></span>ในเวลาราชการ <small>08:00 – 15:59 น.</small></span>
+                            <span class="er-stat-value"><b id="worktime">—</b> ครั้ง</span>
+                        </div>
+                        <div class="er-stat" data-drill="evening">
+                            <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-cloud-sun"></i></span>นอกเวลาราชการ <small>16:00 – 20:00 น.</small></span>
+                            <span class="er-stat-value"><b id="after_time">—</b> ครั้ง</span>
+                        </div>
+                    </section>
+
+                    <!-- 4 แถวรวมได้ยอดรวม -->
+                    <section class="er-panel er-col" aria-labelledby="opd-sec5">
+                        <header class="er-sec-head">
+                            <span class="er-sec-no" aria-hidden="true">5</span>
+                            <div><h2 class="er-h2" id="opd-sec5">สถานะการตรวจ</h2><p class="er-sec-sub">4 แถวรวมได้ยอดทั้งหมด</p></div>
+                        </header>
+                        <div class="er-stat" data-drill="wait_triage">
+                            <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-user-nurse"></i></span>รอซักประวัติ</span>
+                            <span class="er-stat-value"><b id="wait_triage">—</b> ครั้ง</span>
+                        </div>
+                        <div class="er-stat" data-drill="wait_exam">
+                            <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-stethoscope"></i></span>รอตรวจ</span>
+                            <span class="er-stat-value"><b id="wait_exam">—</b> ครั้ง</span>
+                        </div>
+                        <div class="er-stat" data-drill="finish">
+                            <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-circle-check"></i></span>ตรวจเสร็จแล้ว</span>
+                            <span class="er-stat-value"><b id="finish_exam">—</b> ครั้ง</span>
+                        </div>
+                        <div class="er-stat" data-drill="no_doctor"
+                            title="กลับบ้าน / Admit / อยู่ห้องยา–การเงิน โดยไม่มีบันทึกเวลาพบแพทย์ (เช่น รับยาเดิม ตรวจแล็บ หรือลืมกดเวลา)">
+                            <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-user-clock"></i></span>ไม่มีบันทึกพบแพทย์ <small>รับยาเดิม ตรวจแล็บ หรือไม่ได้กดเวลา</small></span>
+                            <span class="er-stat-value"><b id="no_doctor">—</b> ครั้ง</span>
+                        </div>
+                    </section>
+
                 </div>
+
+                <!-- 6 ข้อมูลของวันที่เลือก (api/opd_general_today.php, api/opd_visit_today.php, api/opd_service_kpi.php) -->
+                <section class="er-panel" aria-labelledby="opd-day-title">
+                    <header class="er-sec-head">
+                        <span class="er-sec-no" aria-hidden="true">6</span>
+                        <div>
+                            <h2 class="er-h2" id="opd-day-title">ข้อมูลผู้มารับบริการวันนี้</h2>
+                            <p class="er-sec-sub">เปลี่ยนวันที่ได้จากตัวกรองด้านบน, นับเป็นครั้งที่มารับบริการ</p>
+                        </div>
+                    </header>
+
+                    <div class="er-charts">
+                        <figure class="er-chart opd-span-4">
+                            <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-chart-column"></i></span><span>ผู้ป่วยเข้า – พบแพทย์ รายชั่วโมง<small class="opd-cap-sub" id="flow-note">—</small></span></figcaption>
+                            <div id="opd-flow-chart"></div>
+                        </figure>
+                        <figure class="er-chart opd-span-2">
+                            <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-stopwatch"></i></span><span>เวลารอเฉลี่ย<small class="opd-cap-sub" id="wait-note">—</small></span></figcaption>
+                            <div id="opd-wait-list" class="opd-wait-list"></div>
+                            <button type="button" class="opd-wait-more" data-goto-tab="quality">
+                                ดูรายละเอียดที่แท็บเวลารอ &amp; คุณภาพบริการ <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                            </button>
+                        </figure>
+
+                        <figure class="er-chart opd-span-3">
+                            <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-user-doctor"></i></span><span>จุดตรวจของแพทย์<small class="opd-cap-sub">จำนวนที่ตรวจ, ตัวเลขในวงเล็บ = รอแพทย์เฉลี่ยหลังซักประวัติ (นาที)</small></span></figcaption>
+                            <div id="opd-room-chart"></div>
+                        </figure>
+                        <figure class="er-chart opd-span-3">
+                            <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-calendar-xmark"></i></span><span>นัดหมายรายคลินิก<small class="opd-cap-sub" id="clinic-note">—</small></span></figcaption>
+                            <div id="opd-clinic-chart"></div>
+                        </figure>
+
+                        <figure class="er-chart opd-span-3">
+                            <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-hospital"></i></span><span>แผนกที่ลงทะเบียน<small class="opd-cap-sub">10 แผนกที่มีผู้มารับบริการมากที่สุด</small></span></figcaption>
+                            <div id="opd-dept-chart"></div>
+                        </figure>
+                        <figure class="er-chart opd-span-3">
+                            <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-id-card"></i></span><span>กลุ่มสิทธิ์การรักษา<small class="opd-cap-sub">ชี้ที่แท่งเพื่อดูสิทธิ์ย่อย</small></span></figcaption>
+                            <div id="pttype-chart" class="pttype-chart"></div>
+                        </figure>
+
+                        <figure class="er-chart opd-span-4">
+                            <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-clock"></i></span><span>การกระจายเวลานัดหมาย<small class="opd-cap-sub" id="appt-time-note">—</small></span></figcaption>
+                            <div id="opd-appt-time-chart"></div>
+                        </figure>
+                        <figure class="er-chart opd-span-2">
+                            <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-earth-asia"></i></span><span>สัญชาติ<small class="opd-cap-sub" id="nation-note">—</small></span></figcaption>
+                            <div id="opd-nation-chart"></div>
+                        </figure>
+                    </div>
+                </section>
+
+                <!-- 7 ข้อมูลตามปีงบประมาณ — OPD ทั้งหมด (ทั่วไป + คลินิคพิเศษ) เหมือนการ์ดหน้าหลัก แสดงเหมือนกันทั้ง 2 แท็บ -->
+                <section class="er-panel er-stats" aria-labelledby="opd-fy-title">
+                    <div class="er-stats-head">
+                        <header class="er-sec-head">
+                            <span class="er-sec-no" aria-hidden="true">7</span>
+                            <div>
+                                <h2 class="er-h2" id="opd-fy-title">ข้อมูลตามปีงบประมาณ</h2>
+                                <p class="er-sec-sub">ผู้ป่วยนอกทั้งหมด (ตรวจโรคทั่วไป + คลินิคพิเศษ) <span id="budget-date-text"></span></p>
+                            </div>
+                        </header>
+
+                        <div class="budget-select-wrapper">
+                            <select id="budget-year" class="form-control budget-select" aria-label="ปีงบประมาณ">
+                                <?php
+                                $currentYear = date('Y') + 543 + (date('n') >= 10 ? 1 : 0);
+                                for ($y = $currentYear; $y >= 2565; $y--) {
+                                    echo "<option value='$y'>ปีงบประมาณ $y</option>";
+                                }
+                                ?>
+                            </select>
+                            <i class="fas fa-chevron-down budget-select-icon" aria-hidden="true"></i>
+                        </div>
+                    </div>
+
+                    <!-- กราฟมีชื่อในตัว (opd_detail.js) -->
+                    <div class="er-chart">
+                        <div id="opd-chart" style="height:470px;"></div>
+                    </div>
+
+                    <h3 class="er-h3 er-h3-gap" id="opd-top10-title"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-trophy"></i></span>10 อันดับโรค/การวินิจฉัยผู้ป่วยนอก ปีงบประมาณ</h3>
+                    <div class="table-responsive">
+                        <table class="table er-table table-ipd-top10" aria-labelledby="opd-top10-title">
+                            <thead>
+                                <tr>
+                                    <th class="text-center" style="width:64px">อันดับ</th>
+                                    <th class="text-center" style="width:100px">ICD-10</th>
+                                    <th>ชื่อโรค / การวินิจฉัย</th>
+                                    <th class="text-center" style="width:90px">รวม</th>
+                                    <th class="text-center" style="width:80px"><i class="fa-solid fa-mars" aria-hidden="true"></i> ชาย</th>
+                                    <th class="text-center" style="width:80px"><i class="fa-solid fa-venus" aria-hidden="true"></i> หญิง</th>
+                                </tr>
+                            </thead>
+                            <tbody id="opd-top10-tbody">
+                                <tr>
+                                    <td colspan="6" class="text-center er-note py-4">
+                                        <i class="fa-solid fa-spinner fa-spin me-2" aria-hidden="true"></i>
+                                        กำลังโหลดข้อมูล…
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="er-h3 er-h3-gap"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-users"></i></span>กลุ่มอายุผู้ป่วย OPD ปีงบประมาณ</h3>
+                    <div class="row mb-3" id="opd-age-summary"></div>
+                    <div id="opd-age-chart" style="height:360px;"></div>
+                </section>
 
             </div>
 
@@ -487,14 +316,14 @@ include '../templates/sidebar.php';
                  TAB 3 : เวลารอ & คุณภาพบริการ (api/opd_service_kpi.php)
             ====================================================== -->
             <div class="opd-tab-panel" id="opd-tab-quality" role="tabpanel" hidden>
-                <div class="card shadow-sm mb-3">
-                    <div class="card-body oq-filter">
-                        <div>
-                            <div class="oq-title"><i class="fa-solid fa-stopwatch"></i> เวลารอและคุณภาพบริการผู้ป่วยนอก</div>
-                            <div class="oq-sub" id="oq-period">—</div>
+                <!-- ตัวกรองช่วงวันที่: ปุ่มลัด + ช่องวันที่แสดงแบบ พ.ศ. (input date จริงซ้อนอยู่ใต้ข้อความ กดแล้วเปิดปฏิทิน) -->
+                <header class="er-mast">
+                    <div class="er-mast-top">
+                        <div class="er-mast-heading">
+                            <h1 class="er-mast-title">เวลารอและคุณภาพบริการผู้ป่วยนอก</h1>
+                            <p class="er-mast-sub" id="oq-period">—</p>
                         </div>
-                        <!-- ตัวกรองช่วงวันที่: ปุ่มลัด + ช่องวันที่แสดงแบบ พ.ศ. (input date จริงซ้อนอยู่ใต้ข้อความ กดแล้วเปิดปฏิทิน) -->
-                        <div class="oq-controls">
+                        <div class="oq-controls er-mast-controls">
                             <div class="oq-seg" role="group" aria-label="ช่วงวันที่ด่วน">
                                 <button type="button" data-oq-days="1" aria-pressed="false">วันนี้</button>
                                 <button type="button" data-oq-days="7" aria-pressed="false">7 วัน</button>
@@ -514,68 +343,69 @@ include '../templates/sidebar.php';
                             </div>
                         </div>
                     </div>
-                </div>
+                </header>
 
                 <div class="oq-kpis" id="oq-kpis"></div>
 
-                <div class="row">
-                    <div class="col-lg-7 mb-3">
-                        <div class="card shadow-sm h-100">
-                            <div class="card-body">
-                                <h5 class="chart-title"><i class="fa-solid fa-list-check"></i> เวลาแต่ละขั้นเทียบเป้าหมาย (SLA)</h5>
-                                <div class="table-responsive">
-                                    <table class="table table-sm oq-table">
-                                        <thead><tr><th>ขั้นตอน</th><th class="text-right">เฉลี่ย (นาที)</th><th class="text-right">เป้าหมาย</th><th class="text-right">ทันเป้า</th><th class="text-right">จำนวน</th><th class="text-center">ผล</th></tr></thead>
-                                        <tbody id="oq-sla"></tbody>
-                                    </table>
-                                </div>
-                                <p class="oq-note">เวลาจาก ovst_service_time · ซักประวัติ/พบแพทย์ = ครั้งแรก (ไม่นับจุด Exit) · นับเฉพาะ visit ที่บันทึกทั้งสองขั้น · ติดลบหรือเกิน 6 ชม. ไม่นับ</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-5 mb-3">
-                        <div class="card shadow-sm h-100">
-                            <div class="card-body">
-                                <h5 class="chart-title"><i class="fa-solid fa-filter"></i> Patient Flow — % ที่บันทึกเวลาแต่ละขั้น</h5>
-                                <div id="oq-funnel"></div>
-                                <p class="oq-note">ขั้นที่ % ต่ำผิดปกติ = จุดนั้นไม่ได้กดเวลาใน HOSxP ทำให้เวลารอของขั้นนั้นเชื่อได้น้อย</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card shadow-sm mb-3">
-                    <div class="card-body">
-                        <h5 class="chart-title"><i class="fa-solid fa-chart-column"></i> ผู้ป่วยตามชั่วโมงที่ลงทะเบียน — Walk-in / นัด</h5>
-                        <div id="oq-hours" style="height:320px;"></div>
-                        <p class="oq-note" id="oq-hours-note"></p>
-                    </div>
-                </div>
-
-                <div class="card shadow-sm mb-3">
-                    <div class="card-body">
-                        <h5 class="chart-title"><i class="fa-solid fa-triangle-exclamation"></i> Alert &amp; Action</h5>
+                <div class="er-split">
+                    <section class="er-panel" aria-labelledby="oq-sec1">
+                        <header class="er-sec-head">
+                            <span class="er-sec-no" aria-hidden="true">1</span>
+                            <div><h2 class="er-h2" id="oq-sec1">เวลาแต่ละขั้นเทียบเป้าหมาย (SLA)</h2></div>
+                        </header>
                         <div class="table-responsive">
                             <table class="table table-sm oq-table">
-                                <thead><tr><th>ประเด็น</th><th class="text-right">ค่าจริง</th><th class="text-right">เป้าหมาย</th><th class="text-center">ระดับ</th><th>แนวทาง</th></tr></thead>
-                                <tbody id="oq-alerts"></tbody>
+                                <thead><tr><th>ขั้นตอน</th><th class="text-right">เฉลี่ย (นาที)</th><th class="text-right">เป้าหมาย</th><th class="text-right">ทันเป้า</th><th class="text-right">จำนวน</th><th class="text-center">ผล</th></tr></thead>
+                                <tbody id="oq-sla"></tbody>
                             </table>
                         </div>
-                    </div>
+                        <p class="oq-note">เวลาจาก ovst_service_time · ซักประวัติ/พบแพทย์ = ครั้งแรก (ไม่นับจุด Exit) · นับเฉพาะ visit ที่บันทึกทั้งสองขั้น · ติดลบหรือเกิน 6 ชม. ไม่นับ</p>
+                    </section>
+                    <section class="er-panel" aria-labelledby="oq-sec2">
+                        <header class="er-sec-head">
+                            <span class="er-sec-no" aria-hidden="true">2</span>
+                            <div><h2 class="er-h2" id="oq-sec2">Patient Flow — % ที่บันทึกเวลาแต่ละขั้น</h2></div>
+                        </header>
+                        <div id="oq-funnel"></div>
+                        <p class="oq-note">ขั้นที่ % ต่ำผิดปกติ = จุดนั้นไม่ได้กดเวลาใน HOSxP ทำให้เวลารอของขั้นนั้นเชื่อได้น้อย</p>
+                    </section>
                 </div>
 
-                <div class="card shadow-sm mb-3">
-                    <div class="card-body">
-                        <h5 class="chart-title"><i class="fa-solid fa-hospital"></i> รายแผนก (แผนกส่งคิวแรก) — 20 อันดับ</h5>
-                        <div class="table-responsive">
-                            <table class="table table-sm table-hover oq-table">
-                                <thead><tr><th>แผนก</th><th class="text-right">Visit</th><th class="text-right">พบแพทย์</th><th class="text-right">Door-to-Doctor</th><th class="text-right">ทันเป้า</th><th class="text-right">รอรับยา</th><th class="text-right">เวลารวม</th></tr></thead>
-                                <tbody id="oq-deps"></tbody>
-                            </table>
-                        </div>
-                        <p class="oq-note">เวลาเป็นนาทีเฉลี่ย · ไม่รวม Admit และ Telemed/PCU · ผู้ป่วยนัด = มาตามนัดในระบบ (oapp) · เป้าหมายเป็นค่าตั้งต้น รอทีมคุณภาพยืนยัน</p>
+                <section class="er-panel" aria-labelledby="oq-sec3">
+                    <header class="er-sec-head">
+                        <span class="er-sec-no" aria-hidden="true">3</span>
+                        <div><h2 class="er-h2" id="oq-sec3">ผู้ป่วยตามชั่วโมงที่ลงทะเบียน — Walk-in / นัด</h2></div>
+                    </header>
+                    <div id="oq-hours" style="height:320px;"></div>
+                    <p class="oq-note" id="oq-hours-note"></p>
+                </section>
+
+                <section class="er-panel" aria-labelledby="oq-sec4">
+                    <header class="er-sec-head">
+                        <span class="er-sec-no" aria-hidden="true">4</span>
+                        <div><h2 class="er-h2" id="oq-sec4">Alert &amp; Action</h2></div>
+                    </header>
+                    <div class="table-responsive">
+                        <table class="table table-sm oq-table">
+                            <thead><tr><th>ประเด็น</th><th class="text-right">ค่าจริง</th><th class="text-right">เป้าหมาย</th><th class="text-center">ระดับ</th><th>แนวทาง</th></tr></thead>
+                            <tbody id="oq-alerts"></tbody>
+                        </table>
                     </div>
-                </div>
+                </section>
+
+                <section class="er-panel" aria-labelledby="oq-sec5">
+                    <header class="er-sec-head">
+                        <span class="er-sec-no" aria-hidden="true">5</span>
+                        <div><h2 class="er-h2" id="oq-sec5">รายแผนก (แผนกส่งคิวแรก) — 20 อันดับ</h2></div>
+                    </header>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover oq-table">
+                            <thead><tr><th>แผนก</th><th class="text-right">Visit</th><th class="text-right">พบแพทย์</th><th class="text-right">Door-to-Doctor</th><th class="text-right">ทันเป้า</th><th class="text-right">รอรับยา</th><th class="text-right">เวลารวม</th></tr></thead>
+                            <tbody id="oq-deps"></tbody>
+                        </table>
+                    </div>
+                    <p class="oq-note">เวลาเป็นนาทีเฉลี่ย · ไม่รวม Admit และ Telemed/PCU · ผู้ป่วยนัด = มาตามนัดในระบบ (oapp) · เป้าหมายเป็นค่าตั้งต้น รอทีมคุณภาพยืนยัน</p>
+                </section>
             </div>
 
         </div>
