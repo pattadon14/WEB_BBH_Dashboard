@@ -225,8 +225,10 @@
 .er-theme .er-info-btn {
     display: inline-flex; align-items: center; justify-content: center; flex: none;
     width: 32px; height: 32px; margin-left: 2px; padding: 0; border: 0; border-radius: 50%;
-    background: transparent; color: var(--er-muted-text); font-size: 1.1rem; vertical-align: middle; cursor: pointer;
+    background: transparent; color: var(--er-muted-text); font-size: .95rem; vertical-align: middle; cursor: pointer;
+    opacity: .45;   /* จางไว้ไม่แย่งสายตาจากหัวข้อ ชี้/โฟกัสแล้วชัดเต็ม */
 }
+.er-theme .er-info-btn:hover, .er-theme .er-info-btn:focus-visible { opacity: 1; }
 .er-theme .er-info-btn:hover { background: var(--er-tint); color: var(--er-text); }
 :root .er-theme .er-info-btn:focus-visible { outline: 2px solid var(--er-solid); outline-offset: 1px; }
 .er-theme .er-info-btn.is-on-mast { color: var(--er-on-mast-dim); }
