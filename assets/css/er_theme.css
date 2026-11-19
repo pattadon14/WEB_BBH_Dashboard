@@ -220,6 +220,33 @@
 .er-theme .er-refer-n small { margin-left: 4px; font-weight: 400; color: var(--er-muted-text); }
 .er-theme .er-refer-sub { margin: 8px 0 2px; padding-top: 6px; border-top: 1px solid var(--er-line); font-size: 1.05rem; font-weight: 700; color: var(--er-ink-text); }
 .er-theme .er-refer-warn { margin: 6px 0 0; font-size: 1rem; color: var(--er-text); }
+/* ปุ่ม (i) ข้างหัวข้อ → หน้าต่างที่มาของข้อมูล (assets/js/er_info.js) */
+.er-theme .er-mast-title-row { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.er-theme .er-info-btn {
+    display: inline-flex; align-items: center; justify-content: center; flex: none;
+    width: 32px; height: 32px; margin-left: 2px; padding: 0; border: 0; border-radius: 50%;
+    background: transparent; color: var(--er-muted-text); font-size: 1.1rem; vertical-align: middle; cursor: pointer;
+}
+.er-theme .er-info-btn:hover { background: var(--er-tint); color: var(--er-text); }
+:root .er-theme .er-info-btn:focus-visible { outline: 2px solid var(--er-solid); outline-offset: 1px; }
+.er-theme .er-info-btn.is-on-mast { color: var(--er-on-mast-dim); }
+.er-theme .er-info-btn.is-on-mast:hover { background: var(--er-kpi-sheen); color: var(--er-on-mast); }
+:root .er-theme .er-info-btn.is-on-mast:focus-visible { outline-color: var(--er-on-mast); }
+.er-theme .er-info-dlg { width: min(680px, calc(100vw - 32px)); max-height: min(82vh, 780px); padding: 0; border: 0; border-radius: 14px; background: var(--er-page-bg); color: var(--er-ink-text); box-shadow: 0 18px 48px var(--er-glow); }
+.er-theme .er-info-dlg[open] { display: flex; flex-direction: column; }
+.er-theme .er-info-dlg::backdrop { background: rgba(20, 8, 8, .45); }
+.er-theme .er-info-head { display: flex; align-items: center; gap: 10px; padding: 12px 12px 12px 16px; background: var(--er-solid); color: var(--er-on-solid); }
+.er-theme .er-info-head .er-ico { background: var(--er-kpi-sheen); color: inherit; }
+.er-theme .er-info-head h3 { flex: 1; min-width: 0; margin: 0; font-size: 1.4rem; font-weight: 700; line-height: 1.2; color: inherit; overflow-wrap: break-word; }
+.er-theme .er-info-close { flex: none; width: 40px; height: 40px; border: 0; border-radius: 8px; background: transparent; color: inherit; font-size: 1.3rem; cursor: pointer; }
+.er-theme .er-info-close:hover { background: var(--er-kpi-sheen); }
+:root .er-theme .er-info-close:focus-visible { outline: 2px solid var(--er-on-solid); outline-offset: -2px; }
+.er-theme .er-info-body { overflow: auto; padding: 4px 18px 18px; font-size: 1.15rem; line-height: 1.45; }
+.er-theme .er-info-sec h4 { display: flex; align-items: center; gap: 8px; margin: 14px 0 4px; font-size: 1.2rem; font-weight: 700; color: var(--er-text); }
+.er-theme .er-info-sec ul { margin: 0; padding-left: 1.3em; }
+.er-theme .er-info-sec li { margin: 3px 0; overflow-wrap: anywhere; }
+.er-theme .er-info-body code { padding: 0 4px; border-radius: 4px; background: var(--er-tint); color: var(--er-text); font-size: .82em; }
+
 /* แถว/แถวตารางที่กดดูรายชื่อได้ */
 .er-theme .er-row[data-drill], .er-theme .er-table tr[data-pdx] { cursor: pointer; }
 .er-theme .er-row[data-drill]:hover { background: var(--er-wash); }

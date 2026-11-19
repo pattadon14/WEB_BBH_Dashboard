@@ -28,7 +28,7 @@ include '../templates/sidebar.php';
                 <header class="er-mast" id="er-summary-card">
                     <div class="er-mast-top">
                         <div class="er-mast-heading">
-                            <h1 class="er-mast-title" id="er-day-title">ผู้มารับบริการ ER วันนี้</h1>
+                            <div class="er-mast-title-row"><h1 class="er-mast-title" id="er-day-title">ผู้มารับบริการ ER วันนี้</h1><button type="button" class="er-info-btn is-on-mast" data-info="mast" aria-label="ที่มาและนิยามของข้อมูล: ผู้มารับบริการ ER" title="ที่มาและนิยามของข้อมูล"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></button></div>
                             <p class="er-mast-sub" id="er-compare">—</p>
                         </div>
 
@@ -53,7 +53,7 @@ include '../templates/sidebar.php';
                     <header class="er-sec-head">
                         <span class="er-sec-no" aria-hidden="true">1</span>
                         <div>
-                            <h2 class="er-h2" id="er-sec1">ภาพรวม ER</h2>
+                            <h2 class="er-h2" id="er-sec1">ภาพรวม ER <button type="button" class="er-info-btn" data-info="sec1" aria-label="ที่มาและนิยามของข้อมูล: ภาพรวม ER" title="ที่มาและนิยามของข้อมูล"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></button></h2>
                             <p class="er-sec-sub">ยอดของวันที่เลือก <span id="er-now-at"></span></p>
                         </div>
                     </header>
@@ -104,7 +104,7 @@ include '../templates/sidebar.php';
                         <header class="er-sec-head">
                             <span class="er-sec-no" aria-hidden="true">2</span>
                             <div>
-                                <h2 class="er-h2" id="er-d2d-title">Door-to-Doctor</h2>
+                                <h2 class="er-h2" id="er-d2d-title">Door-to-Doctor <button type="button" class="er-info-btn" data-info="d2d" aria-label="ที่มาและนิยามของข้อมูล: Door-to-Doctor" title="ที่มาและนิยามของข้อมูล"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></button></h2>
                                 <p class="er-sec-sub">เวลาเข้า ER ถึงพบแพทย์ แยกตามระดับความเร่งด่วน</p>
                             </div>
                         </header>
@@ -117,7 +117,7 @@ include '../templates/sidebar.php';
                         <header class="er-sec-head">
                             <span class="er-sec-no" aria-hidden="true">3</span>
                             <div>
-                                <h2 class="er-h2" id="er-los-title">Length of Stay</h2>
+                                <h2 class="er-h2" id="er-los-title">Length of Stay <button type="button" class="er-info-btn" data-info="los" aria-label="ที่มาและนิยามของข้อมูล: Length of Stay" title="ที่มาและนิยามของข้อมูล"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></button></h2>
                                 <p class="er-sec-sub">ระยะเวลาอยู่ใน ER และเวลาถึง Admit / Refer</p>
                             </div>
                         </header>
@@ -133,7 +133,7 @@ include '../templates/sidebar.php';
                     <section class="er-panel er-col" aria-labelledby="er-sec4">
                         <header class="er-sec-head">
                             <span class="er-sec-no" aria-hidden="true">4</span>
-                            <div><h2 class="er-h2" id="er-sec4">ระดับความเร่งด่วน</h2><p class="er-sec-sub">Triage และการส่งต่อ</p></div>
+                            <div><h2 class="er-h2" id="er-sec4">ระดับความเร่งด่วน <button type="button" class="er-info-btn" data-info="sec4" aria-label="ที่มาและนิยามของข้อมูล: ระดับความเร่งด่วน" title="ที่มาและนิยามของข้อมูล"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></button></h2><p class="er-sec-sub">Triage และการส่งต่อ</p></div>
                         </header>
                         <div class="er-stat er-stat-lead" data-drill="l12">
                             <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-triangle-exclamation"></i></span>วิกฤต / ฉุกเฉิน <small>ระดับ 1–2 ต้องพบแพทย์ภายใน 10 นาที</small></span>
@@ -173,7 +173,7 @@ include '../templates/sidebar.php';
                     <section class="er-panel er-col" aria-labelledby="er-sec5">
                         <header class="er-sec-head">
                             <span class="er-sec-no" aria-hidden="true">5</span>
-                            <div><h2 class="er-h2" id="er-sec5">ประเภทผู้ป่วย</h2><p class="er-sec-sub">ตามประเภทที่ ER ลงทะเบียน</p></div>
+                            <div><h2 class="er-h2" id="er-sec5">ประเภทผู้ป่วย <button type="button" class="er-info-btn" data-info="sec5" aria-label="ที่มาและนิยามของข้อมูล: ประเภทผู้ป่วย" title="ที่มาและนิยามของข้อมูล"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></button></h2><p class="er-sec-sub">ตามประเภทที่ ER ลงทะเบียน</p></div>
                         </header>
                         <div class="er-stat" data-drill="pt_emergency">
                             <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-heart-pulse"></i></span>ฉุกเฉิน</span>
@@ -196,7 +196,7 @@ include '../templates/sidebar.php';
                     <section class="er-panel er-col" aria-labelledby="er-sec6">
                         <header class="er-sec-head">
                             <span class="er-sec-no" aria-hidden="true">6</span>
-                            <div><h2 class="er-h2" id="er-sec6">แยกตามเวร</h2><p class="er-sec-sub">ตามเวลาเข้า ER</p></div>
+                            <div><h2 class="er-h2" id="er-sec6">แยกตามเวร <button type="button" class="er-info-btn" data-info="sec6" aria-label="ที่มาและนิยามของข้อมูล: แยกตามเวร" title="ที่มาและนิยามของข้อมูล"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></button></h2><p class="er-sec-sub">ตามเวลาเข้า ER</p></div>
                         </header>
                         <div class="er-stat" data-drill="shift_night">
                             <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-moon"></i></span>เวรดึก <small>00:00 – 07:59 น.</small></span>
@@ -216,7 +216,7 @@ include '../templates/sidebar.php';
                     <section class="er-panel er-col" aria-labelledby="er-sec7">
                         <header class="er-sec-head">
                             <span class="er-sec-no" aria-hidden="true">7</span>
-                            <div><h2 class="er-h2" id="er-sec7">ผลการจำหน่าย</h2><p class="er-sec-sub">6 แถวรวมได้ยอดทั้งหมด</p></div>
+                            <div><h2 class="er-h2" id="er-sec7">ผลการจำหน่าย <button type="button" class="er-info-btn" data-info="sec7" aria-label="ที่มาและนิยามของข้อมูล: ผลการจำหน่าย" title="ที่มาและนิยามของข้อมูล"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></button></h2><p class="er-sec-sub">6 แถวรวมได้ยอดทั้งหมด</p></div>
                         </header>
                         <div class="er-stat" data-drill="home">
                             <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-house"></i></span>กลับบ้าน</span>
@@ -253,7 +253,7 @@ include '../templates/sidebar.php';
                     <header class="er-sec-head">
                         <span class="er-sec-no" aria-hidden="true">8</span>
                         <div>
-                            <h2 class="er-h2" id="er-stats-title">สถิติงานอุบัติเหตุและฉุกเฉิน</h2>
+                            <h2 class="er-h2" id="er-stats-title">สถิติงานอุบัติเหตุและฉุกเฉิน <button type="button" class="er-info-btn" data-info="stats" aria-label="ที่มาและนิยามของข้อมูล: สถิติงานอุบัติเหตุและฉุกเฉิน" title="ที่มาและนิยามของข้อมูล"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></button></h2>
                             <div id="budget-date-text" class="er-sec-sub"></div>
                         </div>
                     </header>
@@ -277,31 +277,31 @@ include '../templates/sidebar.php';
                 <p class="er-sec-sub er-refer-hint"><i class="fa-solid fa-hand-pointer" aria-hidden="true"></i> คลิกแท่งกราฟ แถวการส่งต่อ หรือแถวในตาราง เพื่อดูรายชื่อผู้ป่วยของช่วงเวลาที่เลือก</p>
                 <div class="er-charts">
                     <figure class="er-chart er-chart-wide">
-                        <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-chart-column"></i></span>จำนวนผู้รับบริการ ER (แยกผู้ป่วยอุบัติเหตุ)</figcaption>
+                        <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-chart-column"></i></span>จำนวนผู้รับบริการ ER (แยกผู้ป่วยอุบัติเหตุ) <button type="button" class="er-info-btn" data-info="trend" aria-label="ที่มาและนิยามของข้อมูล: จำนวนผู้รับบริการ ER" title="ที่มาและนิยามของข้อมูล"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></button></figcaption>
                         <div id="er-chart" style="height: 360px;"></div>
                     </figure>
                     <figure class="er-chart er-chart-third">
-                        <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-triangle-exclamation"></i></span>ระดับความเร่งด่วน (Triage)</figcaption>
+                        <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-triangle-exclamation"></i></span>ระดับความเร่งด่วน (Triage) <button type="button" class="er-info-btn" data-info="triage" aria-label="ที่มาและนิยามของข้อมูล: ระดับความเร่งด่วน" title="ที่มาและนิยามของข้อมูล"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></button></figcaption>
                         <div id="er-triage-chart" style="height: 360px;"></div>
                     </figure>
                     <figure class="er-chart er-chart-third">
-                        <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-chart-bar"></i></span>ประเภทผู้ป่วย</figcaption>
+                        <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-chart-bar"></i></span>ประเภทผู้ป่วย <button type="button" class="er-info-btn" data-info="type" aria-label="ที่มาและนิยามของข้อมูล: ประเภทผู้ป่วย" title="ที่มาและนิยามของข้อมูล"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></button></figcaption>
                         <div id="er-pie-chart" style="height: 360px;"></div>
                     </figure>
                     <figure class="er-chart er-chart-third">
-                        <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-clock"></i></span>แยกตามเวร (เวลาเข้า ER)</figcaption>
+                        <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-clock"></i></span>แยกตามเวร (เวลาเข้า ER) <button type="button" class="er-info-btn" data-info="shift" aria-label="ที่มาและนิยามของข้อมูล: แยกตามเวร" title="ที่มาและนิยามของข้อมูล"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></button></figcaption>
                         <div id="er-timeslot-chart" style="height: 360px;"></div>
                     </figure>
                 </div>
 
                 <!-- การส่งต่อตามช่วงเวลา (api/er_refer.php → loadRefer ใน ER_detail.js) -->
-                <h3 class="er-h3 er-h3-gap" id="er-refer-title"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-truck-medical"></i></span>การส่งต่อผู้ป่วย (Refer)</h3>
+                <h3 class="er-h3 er-h3-gap" id="er-refer-title"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-truck-medical"></i></span>การส่งต่อผู้ป่วย (Refer) <button type="button" class="er-info-btn" data-info="refer" aria-label="ที่มาและนิยามของข้อมูล: การส่งต่อผู้ป่วย" title="ที่มาและนิยามของข้อมูล"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></button></h3>
                 <!-- 3 กล่อง: ส่งต่อออกจาก ER · Admit แล้วส่งต่อจากหอผู้ป่วย · รับส่งต่อเข้า ER (loadRefer สร้าง) -->
                 <div class="er-refer" id="er-refer-panel" aria-labelledby="er-refer-title">
                     <p class="er-note"><i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> กำลังโหลดข้อมูล…</p>
                 </div>
 
-                <h3 class="er-h3 er-h3-gap" id="er-top10-title"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-notes-medical"></i></span>10 อันดับโรค/การวินิจฉัยผู้ป่วย ER</h3>
+                <h3 class="er-h3 er-h3-gap" id="er-top10-title"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-notes-medical"></i></span>10 อันดับโรค/การวินิจฉัยผู้ป่วย ER <button type="button" class="er-info-btn" data-info="top10" aria-label="ที่มาและนิยามของข้อมูล: 10 อันดับโรค" title="ที่มาและนิยามของข้อมูล"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></button></h3>
                 <div class="table-responsive">
                     <table class="table er-table table-ipd-top10" aria-labelledby="er-top10-title">
                         <thead>
@@ -337,6 +337,7 @@ include '../templates/sidebar.php';
 <script>window.BBH_CURRENT_FISCAL_YEAR = <?= $currentYear ?>;</script>
 <script src="<?= BASE_URL ?>assets/js/period_filter.js?v=<?= filemtime(__DIR__ . '/../assets/js/period_filter.js') ?>"></script>
 <script src="<?= BASE_URL ?>assets/js/ER_detail.js?v=<?= filemtime(__DIR__ . '/../assets/js/ER_detail.js') ?>"></script>
+<script src="<?= BASE_URL ?>assets/js/er_info.js?v=<?= filemtime(__DIR__ . '/../assets/js/er_info.js') ?>"></script>
 <script src="<?= BASE_URL ?>assets/js/bbh_drill.js?v=<?= filemtime(__DIR__ . '/../assets/js/bbh_drill.js') ?>"></script>
 <script src="<?= BASE_URL ?>assets/js/er_summary.js?v=<?= filemtime(__DIR__ . '/../assets/js/er_summary.js') ?>"></script>
 

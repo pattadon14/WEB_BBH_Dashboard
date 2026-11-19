@@ -525,6 +525,9 @@ html[data-theme="dark"] .er-theme {
     --er-page-bg: #161616;
     --er-on-mast-rule: rgba(56, 56, 56, 0.3);
 }
+html[data-theme="dark"] .er-theme .er-info-dlg::backdrop {
+    background: rgba(20, 8, 8, .45);
+}
 html[data-theme="dark"] body:has(.er-theme) {
     --er-nav-text: #ffa698;
     --er-nav-tint: #1f1918;
