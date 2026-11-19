@@ -8,6 +8,14 @@ provider_require_login_page();   // ยังไม่ login → กลับห
 include '../templates/header.php';
 include '../templates/navbar.php';
 include '../templates/sidebar.php';
+
+// ปุ่ม (i) ข้างหัวข้อ → หน้าต่างที่มาของข้อมูล (เนื้อหา assets/js/opd_info.js, หน้าต่าง assets/js/er_info.js)
+function opd_info_btn(string $key, string $label, bool $onMast = false): string
+{
+    return '<button type="button" class="er-info-btn' . ($onMast ? ' is-on-mast' : '') . '" data-info="' . $key . '"'
+        . ' aria-label="ที่มาและนิยามของข้อมูล: ' . htmlspecialchars($label) . '" title="ที่มาและนิยามของข้อมูล">'
+        . '<i class="fa-solid fa-circle-info" aria-hidden="true"></i></button>';
+}
 ?>
 
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_tabs.css?v=<?= filemtime(__DIR__ . '/../assets/css/opd_tabs.css') ?>">
@@ -23,7 +31,12 @@ include '../templates/sidebar.php';
             <!-- =====================================================
                  OPD TABS
             ====================================================== -->
-            <div class="opd-page-tabs mb-3" role="tablist" aria-label="ประเภทผู้รับบริการ OPD">
+            <!-- แถบบน: กลับหน้าแรก | แท็บ | หน้า 3D Monitor -->
+            <div class="opd-toolbar">
+            <a class="opd-tool-btn" href="<?= BASE_URL ?>index.php">
+                <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> หน้าแรก
+            </a>
+            <div class="opd-page-tabs" role="tablist" aria-label="ประเภทผู้รับบริการ OPD">
                 <button class="opd-page-tab active" type="button" role="tab" aria-selected="true"
                     data-opd-tab="general">
                     <i class="fa-solid fa-stethoscope" aria-hidden="true"></i>
@@ -41,6 +54,10 @@ include '../templates/sidebar.php';
                     เวลารอ &amp; คุณภาพบริการ
                 </button>
             </div>
+            <a class="opd-tool-btn is-3d" href="<?= BASE_URL ?>pages/opd_monitor.php">
+                <i class="fa-solid fa-cube" aria-hidden="true"></i> 3D Live Monitor
+            </a>
+            </div>
 
             <!-- =====================================================
                  TAB 1 : ตรวจโรคทั่วไป / คลินิคพิเศษ
@@ -52,7 +69,12 @@ include '../templates/sidebar.php';
                 <header class="er-mast" id="opd-summary">
                     <div class="er-mast-top">
                         <div class="er-mast-heading">
-                            <h1 class="er-mast-title" id="opd-selected-date-title">ผู้มารับบริการตรวจโรคทั่วไปวันนี้</h1>
+                            <div class="er-mast-title-row">
+                                <h1 class="er-mast-title" id="opd-selected-date-title">ผู้มารับบริการตรวจโรคทั่วไป</h1>
+                                <!-- แสดงเมื่อดูวันนี้ (opd_detail.js) แทนข้อความวันที่ -->
+                                <span class="opd-live" id="opd-live-badge" title="ข้อมูลวันนี้ รีเฟรชทุก 60 วินาที" hidden><span class="opd-live-dot" aria-hidden="true"></span>Live</span>
+                                <?= opd_info_btn('mast', 'ผู้มารับบริการ OPD', true) ?>
+                            </div>
                             <p class="er-mast-sub" id="opd-compare">—</p>
                         </div>
 
@@ -77,7 +99,7 @@ include '../templates/sidebar.php';
                     <header class="er-sec-head">
                         <span class="er-sec-no" aria-hidden="true">1</span>
                         <div>
-                            <h2 class="er-h2" id="opd-sec1">ภาพรวมผู้ป่วยนอก</h2>
+                            <h2 class="er-h2" id="opd-sec1">ภาพรวมผู้ป่วยนอก <?= opd_info_btn('sec1', 'ภาพรวมผู้ป่วยนอก') ?></h2>
                             <p class="er-sec-sub">ยอดของวันที่เลือก นับเป็นครั้งที่มารับบริการ</p>
                         </div>
                     </header>
@@ -117,7 +139,7 @@ include '../templates/sidebar.php';
                     <section class="er-panel er-col" aria-labelledby="opd-sec2">
                         <header class="er-sec-head">
                             <span class="er-sec-no" aria-hidden="true">2</span>
-                            <div><h2 class="er-h2" id="opd-sec2">ประเภทการมารับบริการ</h2><p class="er-sec-sub">Walk-in และมาตามนัด</p></div>
+                            <div><h2 class="er-h2" id="opd-sec2">ประเภทการมารับบริการ <?= opd_info_btn('sec2', 'ประเภทการมารับบริการ') ?></h2><p class="er-sec-sub">Walk-in และมาตามนัด</p></div>
                         </header>
                         <div class="er-stat er-stat-lead" data-drill="walkin">
                             <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-person-walking"></i></span>Walk-in <small>มารับบริการโดยไม่มีนัดล่วงหน้า</small></span>
@@ -137,7 +159,7 @@ include '../templates/sidebar.php';
                     <section class="er-panel er-col" aria-labelledby="appt-section-title">
                         <header class="er-sec-head">
                             <span class="er-sec-no" aria-hidden="true">3</span>
-                            <div><h2 class="er-h2" id="appt-section-title">นัดหมายวันนี้</h2><p class="er-sec-sub">ไม่นับนัดที่ยกเลิก</p></div>
+                            <div><h2 class="er-h2"><span id="appt-section-title">นัดหมายวันนี้</span> <?= opd_info_btn('sec3', 'นัดหมาย') ?></h2><p class="er-sec-sub">ไม่นับนัดที่ยกเลิก</p></div>
                         </header>
                         <div class="er-stat er-stat-lead" data-drill="appt">
                             <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-calendar-days"></i></span>นัดทั้งหมด</span>
@@ -157,7 +179,7 @@ include '../templates/sidebar.php';
                     <section class="er-panel er-col" aria-labelledby="opd-sec4">
                         <header class="er-sec-head">
                             <span class="er-sec-no" aria-hidden="true">4</span>
-                            <div><h2 class="er-h2" id="opd-sec4">แยกตามช่วงเวลา</h2><p class="er-sec-sub">ตามเวลาที่ลงทะเบียน</p></div>
+                            <div><h2 class="er-h2" id="opd-sec4">แยกตามช่วงเวลา <?= opd_info_btn('sec4', 'แยกตามช่วงเวลา') ?></h2><p class="er-sec-sub">ตามเวลาที่ลงทะเบียน</p></div>
                         </header>
                         <div class="er-stat" data-drill="night">
                             <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-moon"></i></span>ก่อนเวลาราชการ <small>20:01 – 07:59 น.</small></span>
@@ -177,7 +199,7 @@ include '../templates/sidebar.php';
                     <section class="er-panel er-col" aria-labelledby="opd-sec5">
                         <header class="er-sec-head">
                             <span class="er-sec-no" aria-hidden="true">5</span>
-                            <div><h2 class="er-h2" id="opd-sec5">สถานะการตรวจ</h2><p class="er-sec-sub">4 แถวรวมได้ยอดทั้งหมด</p></div>
+                            <div><h2 class="er-h2" id="opd-sec5">สถานะการตรวจ <?= opd_info_btn('sec5', 'สถานะการตรวจ') ?></h2><p class="er-sec-sub">4 แถวรวมได้ยอดทั้งหมด</p></div>
                         </header>
                         <div class="er-stat" data-drill="wait_triage">
                             <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-user-nurse"></i></span>รอซักประวัติ</span>
@@ -205,18 +227,18 @@ include '../templates/sidebar.php';
                     <header class="er-sec-head">
                         <span class="er-sec-no" aria-hidden="true">6</span>
                         <div>
-                            <h2 class="er-h2" id="opd-day-title">ข้อมูลผู้มารับบริการวันนี้</h2>
+                            <h2 class="er-h2"><span id="opd-day-title">ข้อมูลผู้มารับบริการวันนี้</span> <?= opd_info_btn('day', 'ข้อมูลของวันที่เลือก') ?></h2>
                             <p class="er-sec-sub">เปลี่ยนวันที่ได้จากตัวกรองด้านบน, นับเป็นครั้งที่มารับบริการ</p>
                         </div>
                     </header>
 
                     <div class="er-charts">
                         <figure class="er-chart opd-span-4">
-                            <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-chart-column"></i></span><span>ผู้ป่วยเข้า – พบแพทย์ รายชั่วโมง<small class="opd-cap-sub" id="flow-note">—</small></span></figcaption>
+                            <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-chart-column"></i></span><span>ผู้ป่วยเข้า – พบแพทย์ รายชั่วโมง <?= opd_info_btn('flow', 'ผู้ป่วยเข้า พบแพทย์ รายชั่วโมง') ?><small class="opd-cap-sub" id="flow-note">—</small></span></figcaption>
                             <div id="opd-flow-chart"></div>
                         </figure>
                         <figure class="er-chart opd-span-2">
-                            <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-stopwatch"></i></span><span>เวลารอเฉลี่ย<small class="opd-cap-sub" id="wait-note">—</small></span></figcaption>
+                            <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-stopwatch"></i></span><span>เวลารอเฉลี่ย <?= opd_info_btn('wait', 'เวลารอเฉลี่ย') ?><small class="opd-cap-sub" id="wait-note">—</small></span></figcaption>
                             <div id="opd-wait-list" class="opd-wait-list"></div>
                             <button type="button" class="opd-wait-more" data-goto-tab="quality">
                                 ดูรายละเอียดที่แท็บเวลารอ &amp; คุณภาพบริการ <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
@@ -224,29 +246,29 @@ include '../templates/sidebar.php';
                         </figure>
 
                         <figure class="er-chart opd-span-3">
-                            <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-user-doctor"></i></span><span>จุดตรวจของแพทย์<small class="opd-cap-sub">จำนวนที่ตรวจ, ตัวเลขในวงเล็บ = รอแพทย์เฉลี่ยหลังซักประวัติ (นาที)</small></span></figcaption>
+                            <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-user-doctor"></i></span><span>จุดตรวจของแพทย์ <?= opd_info_btn('room', 'จุดตรวจของแพทย์') ?><small class="opd-cap-sub">จำนวนที่ตรวจ, ตัวเลขในวงเล็บ = รอแพทย์เฉลี่ยหลังซักประวัติ (นาที)</small></span></figcaption>
                             <div id="opd-room-chart"></div>
                         </figure>
                         <figure class="er-chart opd-span-3">
-                            <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-calendar-xmark"></i></span><span>นัดหมายรายคลินิก<small class="opd-cap-sub" id="clinic-note">—</small></span></figcaption>
+                            <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-calendar-xmark"></i></span><span>นัดหมายรายคลินิก <?= opd_info_btn('clinic', 'นัดหมายรายคลินิก') ?><small class="opd-cap-sub" id="clinic-note">—</small></span></figcaption>
                             <div id="opd-clinic-chart"></div>
                         </figure>
 
                         <figure class="er-chart opd-span-3">
-                            <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-hospital"></i></span><span>แผนกที่ลงทะเบียน<small class="opd-cap-sub">10 แผนกที่มีผู้มารับบริการมากที่สุด</small></span></figcaption>
+                            <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-hospital"></i></span><span>แผนกที่ลงทะเบียน <?= opd_info_btn('dept', 'แผนกที่ลงทะเบียน') ?><small class="opd-cap-sub">10 แผนกที่มีผู้มารับบริการมากที่สุด</small></span></figcaption>
                             <div id="opd-dept-chart"></div>
                         </figure>
                         <figure class="er-chart opd-span-3">
-                            <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-id-card"></i></span><span>กลุ่มสิทธิ์การรักษา<small class="opd-cap-sub">ชี้ที่แท่งเพื่อดูสิทธิ์ย่อย</small></span></figcaption>
+                            <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-id-card"></i></span><span>กลุ่มสิทธิ์การรักษา <?= opd_info_btn('pttype', 'กลุ่มสิทธิ์การรักษา') ?><small class="opd-cap-sub">ชี้ที่แท่งเพื่อดูสิทธิ์ย่อย</small></span></figcaption>
                             <div id="pttype-chart" class="pttype-chart"></div>
                         </figure>
 
                         <figure class="er-chart opd-span-4">
-                            <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-clock"></i></span><span>การกระจายเวลานัดหมาย<small class="opd-cap-sub" id="appt-time-note">—</small></span></figcaption>
+                            <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-clock"></i></span><span>การกระจายเวลานัดหมาย <?= opd_info_btn('appttime', 'การกระจายเวลานัดหมาย') ?><small class="opd-cap-sub" id="appt-time-note">—</small></span></figcaption>
                             <div id="opd-appt-time-chart"></div>
                         </figure>
                         <figure class="er-chart opd-span-2">
-                            <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-earth-asia"></i></span><span>สัญชาติ<small class="opd-cap-sub" id="nation-note">—</small></span></figcaption>
+                            <figcaption class="er-h3"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-earth-asia"></i></span><span>สัญชาติ <?= opd_info_btn('nation', 'สัญชาติ') ?><small class="opd-cap-sub" id="nation-note">—</small></span></figcaption>
                             <div id="opd-nation-chart"></div>
                         </figure>
                     </div>
@@ -258,7 +280,7 @@ include '../templates/sidebar.php';
                         <header class="er-sec-head">
                             <span class="er-sec-no" aria-hidden="true">7</span>
                             <div>
-                                <h2 class="er-h2" id="opd-fy-title">ข้อมูลตามปีงบประมาณ</h2>
+                                <h2 class="er-h2" id="opd-fy-title">ข้อมูลตามปีงบประมาณ <?= opd_info_btn('fy', 'ข้อมูลตามปีงบประมาณ') ?></h2>
                                 <p class="er-sec-sub">ผู้ป่วยนอกทั้งหมด (ตรวจโรคทั่วไป + คลินิคพิเศษ) <span id="budget-date-text"></span></p>
                             </div>
                         </header>
@@ -281,7 +303,7 @@ include '../templates/sidebar.php';
                         <div id="opd-chart" style="height:470px;"></div>
                     </div>
 
-                    <h3 class="er-h3 er-h3-gap" id="opd-top10-title"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-trophy"></i></span>10 อันดับโรค/การวินิจฉัยผู้ป่วยนอก ปีงบประมาณ</h3>
+                    <h3 class="er-h3 er-h3-gap" id="opd-top10-title"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-trophy"></i></span>10 อันดับโรค/การวินิจฉัยผู้ป่วยนอก ปีงบประมาณ <?= opd_info_btn('top10', '10 อันดับโรค') ?></h3>
                     <div class="table-responsive">
                         <table class="table er-table table-ipd-top10" aria-labelledby="opd-top10-title">
                             <thead>
@@ -305,7 +327,7 @@ include '../templates/sidebar.php';
                         </table>
                     </div>
 
-                    <h3 class="er-h3 er-h3-gap"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-users"></i></span>กลุ่มอายุผู้ป่วย OPD ปีงบประมาณ</h3>
+                    <h3 class="er-h3 er-h3-gap"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-users"></i></span>กลุ่มอายุผู้ป่วย OPD ปีงบประมาณ <?= opd_info_btn('age', 'กลุ่มอายุผู้ป่วย') ?></h3>
                     <div class="row mb-3" id="opd-age-summary"></div>
                     <div id="opd-age-chart" style="height:360px;"></div>
                 </section>
@@ -320,7 +342,7 @@ include '../templates/sidebar.php';
                 <header class="er-mast">
                     <div class="er-mast-top">
                         <div class="er-mast-heading">
-                            <h1 class="er-mast-title">เวลารอและคุณภาพบริการผู้ป่วยนอก</h1>
+                            <div class="er-mast-title-row"><h1 class="er-mast-title">เวลารอและคุณภาพบริการผู้ป่วยนอก</h1><?= opd_info_btn('q_kpi', 'เวลารอและคุณภาพบริการ', true) ?></div>
                             <p class="er-mast-sub" id="oq-period">—</p>
                         </div>
                         <div class="oq-controls er-mast-controls">
@@ -351,7 +373,7 @@ include '../templates/sidebar.php';
                     <section class="er-panel" aria-labelledby="oq-sec1">
                         <header class="er-sec-head">
                             <span class="er-sec-no" aria-hidden="true">1</span>
-                            <div><h2 class="er-h2" id="oq-sec1">เวลาแต่ละขั้นเทียบเป้าหมาย (SLA)</h2></div>
+                            <div><h2 class="er-h2" id="oq-sec1">เวลาแต่ละขั้นเทียบเป้าหมาย (SLA) <?= opd_info_btn('q_sla', 'SLA') ?></h2></div>
                         </header>
                         <div class="table-responsive">
                             <table class="table table-sm oq-table">
@@ -364,7 +386,7 @@ include '../templates/sidebar.php';
                     <section class="er-panel" aria-labelledby="oq-sec2">
                         <header class="er-sec-head">
                             <span class="er-sec-no" aria-hidden="true">2</span>
-                            <div><h2 class="er-h2" id="oq-sec2">Patient Flow — % ที่บันทึกเวลาแต่ละขั้น</h2></div>
+                            <div><h2 class="er-h2" id="oq-sec2">Patient Flow — % ที่บันทึกเวลาแต่ละขั้น <?= opd_info_btn('q_funnel', 'Patient Flow') ?></h2></div>
                         </header>
                         <div id="oq-funnel"></div>
                         <p class="oq-note">ขั้นที่ % ต่ำผิดปกติ = จุดนั้นไม่ได้กดเวลาใน HOSxP ทำให้เวลารอของขั้นนั้นเชื่อได้น้อย</p>
@@ -374,7 +396,7 @@ include '../templates/sidebar.php';
                 <section class="er-panel" aria-labelledby="oq-sec3">
                     <header class="er-sec-head">
                         <span class="er-sec-no" aria-hidden="true">3</span>
-                        <div><h2 class="er-h2" id="oq-sec3">ผู้ป่วยตามชั่วโมงที่ลงทะเบียน — Walk-in / นัด</h2></div>
+                        <div><h2 class="er-h2" id="oq-sec3">ผู้ป่วยตามชั่วโมงที่ลงทะเบียน — Walk-in / นัด <?= opd_info_btn('q_hours', 'ผู้ป่วยตามชั่วโมง') ?></h2></div>
                     </header>
                     <div id="oq-hours" style="height:320px;"></div>
                     <p class="oq-note" id="oq-hours-note"></p>
@@ -383,7 +405,7 @@ include '../templates/sidebar.php';
                 <section class="er-panel" aria-labelledby="oq-sec4">
                     <header class="er-sec-head">
                         <span class="er-sec-no" aria-hidden="true">4</span>
-                        <div><h2 class="er-h2" id="oq-sec4">Alert &amp; Action</h2></div>
+                        <div><h2 class="er-h2" id="oq-sec4">Alert &amp; Action <?= opd_info_btn('q_alerts', 'Alert and Action') ?></h2></div>
                     </header>
                     <div class="table-responsive">
                         <table class="table table-sm oq-table">
@@ -396,7 +418,7 @@ include '../templates/sidebar.php';
                 <section class="er-panel" aria-labelledby="oq-sec5">
                     <header class="er-sec-head">
                         <span class="er-sec-no" aria-hidden="true">5</span>
-                        <div><h2 class="er-h2" id="oq-sec5">รายแผนก (แผนกส่งคิวแรก) — 20 อันดับ</h2></div>
+                        <div><h2 class="er-h2" id="oq-sec5">รายแผนก (แผนกส่งคิวแรก) — 20 อันดับ <?= opd_info_btn('q_deps', 'รายแผนก') ?></h2></div>
                     </header>
                     <div class="table-responsive">
                         <table class="table table-sm table-hover oq-table">
@@ -414,6 +436,8 @@ include '../templates/sidebar.php';
 
 <script src="<?= BASE_URL ?>assets/lib/highcharts/13.1.1/highcharts.js"></script>
 <script>window.BBH_CURRENT_FISCAL_YEAR = <?= $currentYear ?>;</script>
+<script src="<?= BASE_URL ?>assets/js/opd_info.js?v=<?= filemtime(__DIR__ . '/../assets/js/opd_info.js') ?>"></script>
+<script src="<?= BASE_URL ?>assets/js/er_info.js?v=<?= filemtime(__DIR__ . '/../assets/js/er_info.js') ?>"></script>
 <script src="<?= BASE_URL ?>assets/js/bbh_drill.js?v=<?= filemtime(__DIR__ . '/../assets/js/bbh_drill.js') ?>"></script>
 <script src="<?= BASE_URL ?>assets/js/opd_detail.js?v=<?= filemtime(__DIR__ . '/../assets/js/opd_detail.js') ?>"></script>
 <script src="<?= BASE_URL ?>assets/js/opd_quality.js?v=<?= filemtime(__DIR__ . '/../assets/js/opd_quality.js') ?>"></script>

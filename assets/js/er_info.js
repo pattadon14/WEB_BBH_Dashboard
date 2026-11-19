@@ -38,7 +38,8 @@
     const PERIOD = `ตามช่วงเวลาที่เลือกด้านบน (วันนี้ / เดือนนี้ / ปีงบประมาณ ต.ค.–ก.ย. / กำหนดเอง ไม่เกิน 400 วัน)
         นับตามวันที่มารับบริการ (${T('er_regist.vstdate')})`;
 
-    const INFO = {
+    // หน้าอื่น (เช่น OPD) ใช้หน้าต่างเดียวกันโดยตั้ง window.BBH_INFO = { key: { title, src, cond, def, limit, idea } } ก่อนโหลดไฟล์นี้
+    const INFO = window.BBH_INFO || {
         mast: {
             title: 'ผู้มารับบริการ ER (หัวหน้า)',
             src: [`${T('er_regist')} ทะเบียนผู้ป่วย ER ของ HOSxP (1 แถว = 1 visit ที่ผ่าน ER)`],

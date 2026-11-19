@@ -77,8 +77,8 @@
             tooltip: { shared: true },
             plotOptions: { column: { stacking: 'normal', borderWidth: 0 } },
             series: [
-                { name: 'Walk-in', data: h.map(x => x.walkin), color: '#1565d8' },
-                { name: 'นัด', data: h.map(x => x.appt), color: '#1e8e5a' },
+                { name: 'Walk-in', data: h.map(x => x.walkin), color: '#5fb98a' },
+                { name: 'นัด', data: h.map(x => x.appt), color: '#146c3c' },
             ],
         };
         if (chart) chart.destroy();

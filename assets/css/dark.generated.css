@@ -1405,6 +1405,7 @@ html[data-theme="dark"] .er-theme.opd-theme {
     --er-line: #323a35;
     --er-card-line: #303b34;
     --er-row-bg: #161817;
+    --opd-live-bg: rgba(22, 22, 22, 0.16);
 }
 html[data-theme="dark"] body:has(.er-theme.opd-theme) {
     --er-nav-text: #89d8a9;

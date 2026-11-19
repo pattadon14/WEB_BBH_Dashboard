@@ -61,6 +61,14 @@ $VISIT_FILTERS = [
     'dept'        => 'COALESCE(k.department, o.main_dep) = :key',
     'payer'       => "pt.hipdata_code = ANY(string_to_array(:key, ','))",
     'nation'      => "COALESCE(n.name, 'ไม่ระบุ') = :key",
+    // แท่งกราฟรายชั่วโมง / จุดตรวจ (api/opd_general_today.php): มาลงทะเบียน = ชั่วโมงของ vsttime,
+    // พบแพทย์ = ชั่วโมงของบันทึกพบแพทย์ครั้งแรกที่อยู่ในวันเดียวกัน, จุดตรวจ = แผนกของบันทึกพบแพทย์ครั้งแรก
+    'hour_in'     => 'EXTRACT(HOUR FROM o.vsttime)::int = CAST(:key AS int)',
+    'hour_seen'   => 'st.doctor_at::date = o.vstdate AND EXTRACT(HOUR FROM st.doctor_at)::int = CAST(:key AS int)',
+    'room'        => "(SELECT COALESCE(k2.department, t.depcode) FROM ovst_service_time t
+                         LEFT JOIN kskdepartment k2 ON k2.depcode = t.depcode
+                        WHERE t.vn = o.vn AND t.ovst_service_time_type_code = 'OPD-DOCTOR'
+                        ORDER BY t.service_begin_datetime LIMIT 1) = :key",
 ];
 $APPT_FILTERS = [
     'appt'      => "(($APPT_CAME) OR ($APPT_MISS))",
@@ -68,20 +76,42 @@ $APPT_FILTERS = [
     'appt_miss' => $APPT_MISS,
 ];
 
-$needsKey = in_array($type, ['dept', 'payer', 'nation'], true);
+$needsKey = in_array($type, ['dept', 'payer', 'nation', 'hour_in', 'hour_seen', 'room'], true);
 if ((!isset($VISIT_FILTERS[$type]) && !isset($APPT_FILTERS[$type])) || ($needsKey && $key === '')) {
     http_response_code(400);
     echo json_encode(['error' => 'ไม่รู้จักรายการที่เลือก'], JSON_UNESCAPED_UNICODE);
     exit;
 }
-if ($type === 'payer' && !preg_match('/^[A-Z]{2,4}(,[A-Z]{2,4})*$/', $key)) {
+if (($type === 'payer' && !preg_match('/^[A-Z]{2,4}(,[A-Z]{2,4})*$/', $key))
+    || (str_starts_with($type, 'hour_') && !preg_match('/^\d{1,2}$/', $key))) {
     http_response_code(400);
-    echo json_encode(['error' => 'รหัสสิทธิ์ไม่ถูกต้อง'], JSON_UNESCAPED_UNICODE);
+    echo json_encode(['error' => 'ค่าที่เลือกไม่ถูกต้อง'], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
 $params = [':d' => $date];
 if ($needsKey) $params[':key'] = $key;
+
+// นัดหมาย: กรองคลินิก (key = ชื่อคลินิกในกราฟนัดหมายรายคลินิก) และช่วงเวลานัด 30 นาที (slot = "HH:MM" | "ไม่ระบุ")
+$apptClinic = '';
+$apptSlot = '';
+if (isset($APPT_FILTERS[$type])) {
+    if ($key !== '') {
+        $apptClinic = " AND COALESCE(cl.name, oa.clinic, 'ไม่ระบุคลินิก') = :key";
+        $params[':key'] = $key;
+    }
+    $slot = (string)($_GET['slot'] ?? '');
+    if ($slot !== '') {
+        if (!preg_match('/^(\d{2}:\d{2}|ไม่ระบุ)$/u', $slot)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'ช่วงเวลานัดไม่ถูกต้อง'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        // ปัดเวลานัดแรกลงเป็นช่วง 30 นาที เหมือน appt_times ใน api/opd_visit_today.php
+        $apptSlot = "WHERE COALESCE(TO_CHAR(sort_time - (EXTRACT(MINUTE FROM sort_time)::int % 30) * INTERVAL '1 minute', 'HH24:MI'), 'ไม่ระบุ') = :slot";
+        $params[':slot'] = $slot;
+    }
+}
 
 try {
     if (isset($VISIT_FILTERS[$type])) {
@@ -151,9 +181,10 @@ try {
             LEFT JOIN ovst v        ON v.vn = oa.visit_vn
             LEFT JOIN pttype pt     ON pt.pttype = v.pttype
             LEFT JOIN nationality n ON n.nationality = p.nationality
-            WHERE {$APPT_FILTERS[$type]}
+            WHERE ({$APPT_FILTERS[$type]}){$apptClinic}
             ORDER BY COALESCE(NULLIF(oa.visit_vn, ''), 'hn:' || oa.hn), oa.nexttime NULLS LAST
         ) a
+        {$apptSlot}
         ORDER BY sort_time NULLS LAST, hn";
         $kind = 'appt';
     }

@@ -26,15 +26,19 @@ const PAYER_GROUPS = {
     PVT: 'ชำระเงินเอง / อื่นๆ'
 };
 
-// สีประจำกลุ่ม (ผ่านการตรวจแยกสีสำหรับคนตาบอดสีแล้ว) — สีผูกกับชื่อ ไม่เปลี่ยนตามอันดับ
-const CAT_COLORS = ['#16a34a', '#7c3aed', '#d97706', '#2563eb', '#dc2626', '#0891b2', '#db2777'];
+// ชุดสีกราฟหน้า OPD: เขียวเป็นหลัก (ตามธีม opd_theme.css) · แท่งแต่ละแถวมีชื่อกำกับอยู่แล้ว จึงใช้เขียวไล่เฉดสีเดียว
+// สีเสริมมีเฉพาะที่มีความหมาย: ยังไม่มา/ไม่มาตามนัด = ส้ม, เส้นแนวโน้ม = ส้มเข้ม · "อื่นๆ" = เทา
+const G = { light: '#5fb98a', main: '#22894f', dark: '#146c3c', deep: '#0f5132', soft: '#9fd3b5' };
 const OTHER_COLOR = '#9aa9a2';
-// แท่งกราฟที่มี point.drill = [type, key] คลิกแล้วเปิดรายชื่อ (แท่ง "อื่นๆ" ที่รวมหลายกลุ่มไม่มี drill)
+const MISS_COLOR = '#c2410c';   // ตัวเลขขาวบนแท่งผ่าน 5:1
+// ไล่เฉดตามทิศของแท่ง: bar (แนวนอน) ซ้าย→ขวา, column (แนวตั้ง) ล่าง→บน
+const gBar = (from = G.light, to = G.dark) => ({ linearGradient: { x1: 0, y1: 0, x2: 1, y2: 0 }, stops: [[0, from], [1, to]] });
+const gCol = (from = G.light, to = G.dark) => ({ linearGradient: { x1: 0, y1: 1, x2: 0, y2: 0 }, stops: [[0, from], [1, to]] });
+// แท่งกราฟที่มี point.drill = [type, key, label?, slot?] คลิกแล้วเปิดรายชื่อ (แท่ง "อื่นๆ" ที่รวมหลายกลุ่มไม่มี drill)
 const DRILL_BAR = {
     cursor: 'pointer',
-    point: { events: { click() { if (this.options.drill) openDrill(this.options.drill[0], this.options.drill[1], this.name); } } }
+    point: { events: { click() { const d = this.options.drill; if (d) openDrill(d[0], d[1], d[2] || this.name, d[3]); } } }
 };
-const NATION_COLORS = { 'ไทย': CAT_COLORS[0], 'พม่า': CAT_COLORS[1], 'กัมพูชา': CAT_COLORS[2], 'ลาว': CAT_COLORS[3], 'จีน': CAT_COLORS[4] };
 
 // กราฟแท่งแนวนอน: ชื่อยาวขึ้นบรรทัดใหม่แทนการตัด "..." และตัวเลขอยู่นอกแท่งเสมอ (ในแท่งสีเข้มอ่านไม่ออก)
 const BAR_LABEL_STYLE = { fontSize: '18px', width: '180px', textOverflow: 'none' };
@@ -242,7 +246,7 @@ async function loadChart() {
 
     const columnData = opdData.map((y, i) =>
         isCurrentYear && i === monthCount - 1
-            ? { y, color: '#8fd1b0', partial: true }   // เดือนที่ยังไม่จบ ใช้สีอ่อน
+            ? { y, color: G.soft, partial: true }   // เดือนที่ยังไม่จบ ใช้สีอ่อน
             : y
     );
 
@@ -293,7 +297,8 @@ async function loadChart() {
         series: [{
             type: 'column',
             name: 'ผู้ป่วยนอก',
-            color: '#198754',
+            color: gCol(G.main, G.dark),
+            borderRadius: 4,
             data: columnData,
             dataLabels: {
                 enabled: true,
@@ -344,13 +349,11 @@ async function loadPttypeChart(){
         g.y += n;
         g.subs.push({ name: row.pttype_name || 'ไม่ระบุสิทธิ์', n });
     });
-    // สีประจำกลุ่มสิทธิ์ตามลำดับใน PAYER_GROUPS (ไม่เปลี่ยนตามอันดับ) "ชำระเงินเอง / อื่นๆ" เป็นสีเทา
-    const payerNames = [...new Set(Object.values(PAYER_GROUPS))];
+    // แท่งเขียวไล่เฉด · "อื่นๆ" (ไม่อยู่ในกลุ่มใด) เป็นสีเทา
     const points = Object.values(groups).sort((a, b) => b.y - a.y).map(g => {
-        const i = payerNames.indexOf(g.name);
         // คลิกแท่งเพื่อดูรายชื่อ: ส่งรหัส hipdata ทุกตัวของกลุ่ม ("อื่นๆ" ที่ไม่มีรหัสในตาราง คลิกไม่ได้)
         const codes = Object.keys(PAYER_GROUPS).filter(c => PAYER_GROUPS[c] === g.name);
-        return { ...g, color: i >= 0 && i < CAT_COLORS.length ? CAT_COLORS[i] : OTHER_COLOR,
+        return { ...g, color: codes.length ? gBar() : OTHER_COLOR,
                  drill: codes.length ? ['payer', codes.join(',')] : null };
     });
     const total = points.reduce((s, p) => s + p.y, 0);
@@ -682,10 +685,9 @@ function renderNationChart(nations) {
 
     // ถ้าเกินมาแค่ 1 กลุ่ม แสดงชื่อจริงไปเลย ไม่ต้องรวมเป็น "อื่นๆ"
     const TOP = nations.length <= 7 ? 7 : 6;
-    let spare = 5;   // สัญชาติที่ไม่มีสีประจำ ใช้สีลำดับที่ 6–7 ที่เหลือ เกินจากนั้นเป็นสีเทา
     const points = nations.slice(0, TOP).map(r => ({
         name: r.name, y: r.total, people: r.people, drill: ['nation', r.name],
-        color: NATION_COLORS[r.name] || (r.name === 'ไม่ระบุ' ? OTHER_COLOR : CAT_COLORS[spare++] || OTHER_COLOR)
+        color: r.name === 'ไม่ระบุ' ? OTHER_COLOR : gBar()
     }));
     const rest = nations.slice(TOP);
     if (rest.length) {
@@ -751,7 +753,7 @@ function renderDeptChart(depts) {
         plotOptions: { bar: { borderRadius: 4, ...DRILL_BAR, dataLabels: { ...BAR_DATA_LABELS } } },
         credits: { enabled: false },
         legend: { enabled: false },
-        series: [{ name: 'ผู้มารับบริการ', color: '#198754', data: points }]
+        series: [{ name: 'ผู้มารับบริการ', color: gBar(), data: points }]
     });
 }
 
@@ -772,21 +774,25 @@ function renderApptTimeChart(times) {
         `(${Math.round(peak.total * 100 / total)}% ของนัด ${fmtN(total)} ราย) · ไม่นับนัดที่ยกเลิก`;
 
     Highcharts.chart('opd-appt-time-chart', {
-        chart: { type: 'spline', height: 320, style: { fontFamily: 'THSarabun' } },
+        chart: { type: 'areaspline', height: 320, style: { fontFamily: 'THSarabun' } },
         title: { text: null },
         xAxis: { categories: times.map(t => t.time), title: { text: 'เวลานัด (ช่วงละ 30 นาที)' } },
         yAxis: { allowDecimals: false, min: 0, title: { text: 'จำนวนนัด (ราย)' } },
-        tooltip: { headerFormat: '<b>{point.key} น.</b><br>', pointFormat: 'นัด <b>{point.y} ราย</b>' },
+        tooltip: { headerFormat: '<b>{point.key} น.</b><br>', pointFormat: 'นัด <b>{point.y} ราย</b><br>คลิกเพื่อดูรายชื่อ' },
         plotOptions: {
-            spline: {
+            areaspline: {
                 lineWidth: 3,
-                marker: { enabled: true, radius: 5 },
+                fillColor: { linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 }, stops: [[0, 'rgba(34, 137, 79, .35)'], [1, 'rgba(34, 137, 79, .02)']] },
+                marker: { enabled: true, radius: 5, fillColor: '#fff', lineWidth: 2, lineColor: G.dark },
+                ...DRILL_BAR,
                 dataLabels: { enabled: true, color: '#000', style: { fontSize: '17px', textOutline: '2px #fff' } }
             }
         },
         credits: { enabled: false },
         legend: { enabled: false },
-        series: [{ name: 'นัดหมาย', color: '#7c3aed', data: times.map(t => t.total) }]
+        // คลิกจุด = รายชื่อนัดของช่วง 30 นาทีนั้น (นับเหมือนกราฟ: เวลานัดแรกของแต่ละราย)
+        series: [{ name: 'นัดหมาย', color: G.dark,
+            data: times.map(t => ({ y: t.total, drill: ['appt', '', `ช่วง ${t.time}${t.time === 'ไม่ระบุ' ? '' : ' น.'}`, t.time] })) }]
     });
 }
 
@@ -844,6 +850,8 @@ function renderFlowChart(hours) {
     }
     const peak = arr => arr.reduce((b, v, i) => (v > arr[b] ? i : b), 0);
     const pa = peak(arrive), ps = peak(seen);
+    // คลิกแท่ง = รายชื่อของชั่วโมงนั้น (มาลงทะเบียน / พบแพทย์ครั้งแรก)
+    const hourPts = (arr, type) => arr.map((y, i) => ({ y, drill: y ? [type, String(from + i), `ช่วง ${cats[i]} น.`] : null }));
     setText('flow-note', `มาลงทะเบียนมากสุดช่วง ${cats[pa]} น. (${fmtN(arrive[pa])} ครั้ง) · ` +
         `พบแพทย์มากสุดช่วง ${cats[ps]} น. (${fmtN(seen[ps])} ครั้ง)`);
 
@@ -853,13 +861,14 @@ function renderFlowChart(hours) {
         xAxis: { categories: cats, title: { text: 'ช่วงเวลา (ชั่วโมง)' } },
         yAxis: { allowDecimals: false, min: 0, title: { text: 'จำนวน (ครั้ง)' } },
         tooltip: { shared: true, headerFormat: '<b>{point.key} น.</b><br>' },
-        plotOptions: { column: { borderRadius: 4, groupPadding: 0.12, pointPadding: 0.04,
+        plotOptions: { column: { borderRadius: 4, groupPadding: 0.12, pointPadding: 0.04, ...DRILL_BAR,
             dataLabels: { enabled: true, color: '#000', style: { fontSize: '15px', textOutline: 'none' } } } },
         legend: { itemStyle: { fontSize: '17px' } },
         credits: { enabled: false },
+        // สองชุดเขียวต่างความเข้ม: มาลงทะเบียน = อ่อน, พบแพทย์ = เข้ม
         series: [
-            { name: 'มาลงทะเบียน', color: '#2563eb', data: arrive },
-            { name: 'พบแพทย์', color: '#16a34a', data: seen }
+            { name: 'มาลงทะเบียน', color: gCol('#a9dcbd', G.light), data: hourPts(arrive, 'hour_in') },
+            { name: 'พบแพทย์', color: gCol(G.main, G.deep), data: hourPts(seen, 'hour_seen') }
         ]
     });
 }
@@ -870,7 +879,7 @@ function renderRoomChart(rooms) {
         return;
     }
     const TOP = 12;
-    const points = rooms.slice(0, TOP).map(r => ({ name: r.name.replace(/^\d+\s*/, ''), y: r.seen, wait: r.wait }));
+    const points = rooms.slice(0, TOP).map(r => ({ name: r.name.replace(/^\d+\s*/, ''), y: r.seen, wait: r.wait, drill: ['room', r.name] }));
     const rest = rooms.slice(TOP);
     if (rest.length) {
         points.push({ name: `จุดอื่นๆ (${rest.length} จุด)`, y: rest.reduce((s, r) => s + r.seen, 0), wait: null, color: OTHER_COLOR });
@@ -885,11 +894,11 @@ function renderRoomChart(rooms) {
                 return `ตรวจ <b>${fmtN(this.y)} ครั้ง</b>` + (this.wait != null ? `<br>รอแพทย์เฉลี่ย ${this.wait} นาที` : '');
             }
         },
-        plotOptions: { bar: { borderRadius: 4, dataLabels: { ...BAR_DATA_LABELS,
+        plotOptions: { bar: { borderRadius: 4, ...DRILL_BAR, dataLabels: { ...BAR_DATA_LABELS,
             formatter() { return fmtN(this.y) + (this.point.wait != null ? ` (${this.point.wait} นาที)` : ''); } } } },
         credits: { enabled: false },
         legend: { enabled: false },
-        series: [{ name: 'จุดตรวจ', color: '#2563eb', data: points }]
+        series: [{ name: 'จุดตรวจ', color: gBar(), data: points }]
     });
 }
 
@@ -918,14 +927,17 @@ function renderClinicChart(clinics, isToday) {
         xAxis: { categories: shown.map(c => c.name), labels: { style: BAR_LABEL_STYLE } },
         yAxis: { allowDecimals: false, reversedStacks: false, title: { text: 'จำนวน (ราย)' } },
         tooltip: { shared: true },
-        plotOptions: { bar: { stacking: 'normal', borderRadius: 3, borderWidth: 2, borderColor: '#fff',
+        plotOptions: { bar: { stacking: 'normal', borderRadius: 3, borderWidth: 2, borderColor: '#fff', ...DRILL_BAR,
             dataLabels: { enabled: true, color: '#fff', style: { fontSize: '15px', textOutline: 'none' },
                 filter: { property: 'y', operator: '>', value: 4 } } } },
         legend: { itemStyle: { fontSize: '17px' } },
         credits: { enabled: false },
+        // คลิกแท่ง = รายชื่อมาตามนัด / ยังไม่มา ของคลินิกนั้น ("คลินิกอื่นๆ" ที่รวมหลายคลินิกไม่มีรายชื่อ)
         series: [
-            { name: 'มาตามนัด', color: '#16a34a', data: shown.map(c => c.came) },
-            { name: missLabel, color: '#dc2626', data: shown.map(c => c.miss) }
+            { name: 'มาตามนัด', color: G.dark,
+              data: shown.map((c, i) => ({ y: c.came, drill: i < TOP && c.came ? ['appt_came', c.name, c.name] : null })) },
+            { name: missLabel, color: MISS_COLOR,
+              data: shown.map((c, i) => ({ y: c.miss, drill: i < TOP && c.miss ? ['appt_miss', c.name, c.name] : null })) }
         ]
     });
 }
@@ -933,7 +945,7 @@ function renderClinicChart(clinics, isToday) {
 function renderWaitList(data, isToday) {
     const steps = (data.steps || []).filter(s => s.avg != null);
     setText('wait-note', `ค่าเฉลี่ย${isToday ? 'วันนี้' : 'ของวันที่เลือก'} ${fmtN(data.kpi?.visits)} ครั้ง` +
-        ' (ไม่รวม Admit) · ปรับทุก 5 นาที');
+        ' (ไม่รวม Admit และ Telemed/PCU) · ปรับทุก 5 นาที');
     if (!steps.length) {
         emptyBox('opd-wait-list', 'ยังไม่มีบันทึกเวลา');
         return;
@@ -978,11 +990,13 @@ function initOpdServiceDateFilter() {
             b.setAttribute('aria-pressed', String(isoOf(d) === selected));
         });
 
+        // วันนี้: ชื่อแท็บ + ป้าย Live (ข้อมูลเรียลไทม์) · วันอื่น: ต่อท้ายด้วยวันที่
+        const isLive = selected === todayString;
         if (title) {
-            title.textContent =
-                'ผู้มารับบริการ' + SCOPE_NAMES[opdScope] + ' วันที่ ' +
-                formatThaiDate(selected);
+            title.textContent = 'ผู้มารับบริการ' + SCOPE_NAMES[opdScope] + (isLive ? '' : ' วันที่ ' + formatThaiDate(selected));
         }
+        const live = document.getElementById('opd-live-badge');
+        if (live) live.hidden = !isLive;
 
         const dayText = selected === todayString ? 'วันนี้' : 'วันที่ ' + formatThaiDate(selected);
         setText('opd-day-title', 'ข้อมูลผู้มารับบริการ' + dayText);
@@ -1164,6 +1178,9 @@ try {
     }
 
     const total = data.reduce((s, d) => s + d.total, 0);
+    // กลุ่มอายุเรียงจากเด็กไปผู้สูงอายุ → เขียวอ่อนไปเข้มตามลำดับ (แทนสีจาก API)
+    const AGE_GREENS = ['#7cc49b', '#3fa36a', '#22894f', '#0f5132'];
+    data.forEach((d, i) => { d.color = AGE_GREENS[Math.min(i, AGE_GREENS.length - 1)]; });
 
     /*
     ==========================
@@ -1243,7 +1260,7 @@ try {
             colorByPoint: true,
             data: data.map(d => ({
                 y:     d.total,
-                color: d.color,
+                color: gBar(G.light, d.color),
                 name:  d.name
             }))
         }]
@@ -1326,7 +1343,8 @@ const DRILL_TITLES = {
     night: 'ก่อนเวลาราชการ (20:01–07:59 น.)', morning: 'ในเวลาราชการ (08:00–15:59 น.)', evening: 'นอกเวลาราชการ (16:00–20:00 น.)',
     wait_triage: 'รอซักประวัติ', wait_exam: 'รอตรวจ', finish: 'ตรวจเสร็จแล้ว', no_doctor: 'ไม่มีบันทึกพบแพทย์', not_seen: 'ไม่มีบันทึกพบแพทย์',
     admit: 'Admit', refer: 'Refer ส่งต่อ',
-    dept: 'แผนก', payer: 'สิทธิ์', nation: 'สัญชาติ'
+    dept: 'แผนก', payer: 'สิทธิ์', nation: 'สัญชาติ',
+    hour_in: 'มาลงทะเบียน', hour_seen: 'พบแพทย์ (ครั้งแรก)', room: 'จุดตรวจ'
 };
 
 // ตัวเลือกคอลัมน์ (bbh_drill.js): nowrap = บรรทัดเดียว · short = ตัดรหัสนำหน้า "115 " / "77- " · max = ยาวเกินตัดด้วย …
@@ -1380,7 +1398,8 @@ function drillCell(r, k) {
     return undefined;
 }
 
-function openDrill(type, key, label) {
+// key = ค่าของแท่งที่คลิก (แผนก/สิทธิ์/สัญชาติ/ชั่วโมง/จุดตรวจ/คลินิก) · slot = ช่วงเวลานัด 30 นาที (กราฟการกระจายเวลานัด)
+function openDrill(type, key, label, slot) {
 
     const date = getSelectedServiceDate();
     const isToday = date === getTodayServiceDate();
@@ -1390,9 +1409,10 @@ function openDrill(type, key, label) {
 
     const qs = new URLSearchParams({ date, type, scope: opdScope });
     if (key) qs.set('key', key);
+    if (slot) qs.set('slot', slot);
 
     bbhDrill.open({
-        title: key ? `${DRILL_TITLES[type]}: ${label || key}` : DRILL_TITLES[type],
+        title: key || slot ? `${DRILL_TITLES[type]}: ${label || key || slot}` : DRILL_TITLES[type],
         sub: SCOPE_NAMES[opdScope] + ' · วันที่ ' + formatThaiDate(date),
         url: '../api/opd_visit_list.php?' + qs,
         placeholder: 'ค้นหา HN / ชื่อ / แผนก / สิทธิ์',
@@ -1401,7 +1421,7 @@ function openDrill(type, key, label) {
         filters: data => data.kind === 'appt' ? DRILL_FILTERS.appt : withDest(DRILL_FILTERS.visit, type),
         mapRows: data => data.rows.map(r => ({ ...r, ptkind: r.is_new ? 'ผู้ป่วยใหม่' : 'ผู้ป่วยเก่า' })),
         cell: drillCell,
-        file: `OPD_${type}_${date}.csv`,
+        file: `OPD_${type}${key ? '_' + key.replace(/[^\wก-๙]+/g, '-') : ''}_${date}.csv`,
         summary: (rows, data) =>
             `${fmtN(rows.length)} ${data.kind === 'appt' ? 'ราย' : 'ครั้ง'} (${fmtN(new Set(rows.map(r => r.hn)).size)} คน)`
     });
