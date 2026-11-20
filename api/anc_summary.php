@@ -11,6 +11,8 @@ header('Content-Type: application/json; charset=utf-8');
 require_once '../config/database.php';
 require_once '../config/anc.php';
 
+anc_require_login();
+
 try {
     $p = bbh_period();
     // ปีงบปัจจุบันนับถึงวันนี้ (เหมือนต้นแบบ) — วันอนาคตทำให้ "กำลังติดตาม" / "บันทึกวันคลอด" ผิด
@@ -27,7 +29,7 @@ try {
         [$pregs, $visits, $refers] = anc_load($conn, $p['start'], $p['end'], $nat);
         return ['d1' => $p['start'], 'd2' => $p['end'], 'scope' => $scope, 'nat' => $nat]
             + anc_summary($pregs, $visits, $refers, $p['start'], $p['end'], $scope === 'area', $nat !== '');
-    });
+    }, ANC_CACHE_LIVE_TTL);
 } catch (Throwable $e) {
     ipd_fail($e, 'anc_summary');
 }

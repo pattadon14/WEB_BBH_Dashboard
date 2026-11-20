@@ -41,6 +41,7 @@
     --anc-ok-text: #14633a;
     --anc-no-bg: #fde4e1;
     --anc-no-text: #9a1c12;
+    --anc-no-line: #f5b7b0;
 }
 
 /* ตัวเลือกช่วงเวลาบนแถบหัว · custom.css ตั้ง #budget-date-text เป็นเขียว → ใช้สีของแถบหัว */
@@ -79,12 +80,103 @@
 .er-theme.anc-page .anc-sub td:first-child { padding-left: 28px; }
 .er-theme.anc-page .is-faint td { opacity: .7; }
 .er-theme.anc-page .anc-st {
-    display: inline-block; padding: 0 10px; border-radius: 999px; font-size: 1rem; font-weight: 700; white-space: nowrap;
+    display: inline-block; padding: 0 12px; border-radius: 999px; font-size: 1rem; font-weight: 700; white-space: nowrap;
     background: var(--er-tint); color: var(--er-muted-text);
 }
 .er-theme.anc-page .anc-st.is-ok { background: var(--anc-ok-bg); color: var(--anc-ok-text); }
 .er-theme.anc-page .anc-st.is-no { background: var(--anc-no-bg); color: var(--anc-no-text); }
 
+/* หัวการ์ด: ชื่อยืดเต็ม ส่วนเสริม (สรุปผ่านเป้า / ยอดรวม) ชิดขวา */
+.er-theme.anc-page .anc-sec-title { flex: 1 1 auto; min-width: 0; }
+.er-theme.anc-page .anc-pass { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; }
+.er-theme.anc-page .anc-pass-of { font-size: 1rem; color: var(--er-muted-text); }
+.er-theme.anc-page .anc-count { flex: none; padding: 0 12px; border-radius: 999px; background: var(--er-tint); color: var(--er-text); font-weight: 700; white-space: nowrap; }
+.er-theme.anc-page .anc-total-btn {
+    flex: none; min-height: 44px; padding: 4px 16px; border: 1px solid var(--er-card-line); border-radius: 10px;
+    background: var(--er-wash); color: var(--er-ink-text); font: inherit; cursor: pointer; white-space: nowrap;
+    transition: background-color 150ms ease, border-color 150ms ease;
+}
+.er-theme.anc-page .anc-total-btn b { font-size: 1.6rem; color: var(--er-text); font-variant-numeric: tabular-nums; }
+.er-theme.anc-page .anc-total-btn:hover { background: var(--er-tint); border-color: var(--er-solid); }
+.er-theme.anc-page .anc-total-btn:active { background: var(--er-tint); }
+:root .er-theme.anc-page .anc-total-btn:focus-visible { outline: 2px solid var(--er-solid); outline-offset: 2px; }
+
+/* แถวตาราง/ช่องที่คลิกดูรายชื่อได้ */
+.er-theme.anc-page tr[data-drill], .er-theme.anc-page .anc-tile[data-drill] { cursor: pointer; }
+:root .er-theme.anc-page :is(tr[data-drill], .anc-tile[data-drill], .er-kpi[data-drill]):focus-visible { outline: 2px solid var(--er-solid); outline-offset: 2px; }
+.er-theme.anc-page .er-kpi[data-drill]:hover { filter: brightness(1.06); }
+
+/* ช่องผลลัพธ์ (6–8): การ์ดขาวขอบชมพู ตัวเลขใหญ่ · is-bad = ต้องดู (มีข้อความกำกับเสมอ) */
+.er-theme.anc-page .anc-tiles { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+.er-theme.anc-page .anc-tiles-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.er-theme.anc-page .anc-tiles-2 { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.er-theme.anc-page .anc-tile {
+    display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 12px 16px;
+    border: 1px solid var(--er-card-line); border-radius: 12px; background: var(--er-wash);
+    transition: border-color 150ms ease, background-color 150ms ease;
+}
+.er-theme.anc-page .anc-tile[data-drill]:hover { border-color: var(--er-solid); background: var(--er-tint); }
+.er-theme.anc-page .anc-tile-label { display: flex; align-items: flex-start; gap: 8px; font-weight: 700; line-height: 1.2; color: var(--er-ink-text); }
+.er-theme.anc-page .anc-tile-label i { margin-top: 2px; color: var(--er-text); }
+.er-theme.anc-page .anc-tile-num { font-size: 2.1rem; line-height: 1.1; color: var(--er-text); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.er-theme.anc-page .anc-tile small { font-size: 1rem; line-height: 1.3; color: var(--er-muted-text); }
+.er-theme.anc-page .anc-tile.is-bad { border-color: var(--anc-no-line); background: var(--anc-no-bg); }
+.er-theme.anc-page .anc-tile.is-bad .anc-tile-num { color: var(--anc-no-text); }
+.er-theme.anc-page .anc-bad { color: var(--anc-no-text); }
+.er-theme.anc-page .anc-split-in { margin: 16px 0 0; }
+.er-theme.anc-page .anc-h-note { font-size: 1rem; font-weight: 400; color: var(--er-muted-text); }
+.er-theme.anc-page .anc-bars li { cursor: default; }
+.er-theme.anc-page .anc-bars li[data-drill] { cursor: pointer; }
+
+/* ตารางย่อย */
+.er-theme.anc-page .anc-mini-table { margin-bottom: 0; font-variant-numeric: tabular-nums; }
+.er-theme.anc-page .anc-mini-table td, .er-theme.anc-page .anc-mini-table th { vertical-align: middle; padding: 8px 12px; }
+.er-theme.anc-page .anc-mini-table small { color: var(--er-muted-text); }
+.er-theme.anc-page .anc-total-row td { font-weight: 700; background: var(--er-wash); }
+.er-theme.anc-page .anc-scroll-y { max-height: 440px; overflow-y: auto; }
+.er-theme.anc-page .anc-third { grid-column: span 2; }
+
+/* รายการที่ต้องติดตาม */
+.er-theme.anc-page .anc-alerts { margin: 0; padding: 0; list-style: none; }
+.er-theme.anc-page .anc-alerts li { display: flex; align-items: flex-start; gap: 12px; padding: 8px 0; border-top: 1px solid var(--er-line); }
+.er-theme.anc-page .anc-alerts li:first-child { border-top: 0; }
+.er-theme.anc-page .anc-alerts b { display: block; color: var(--er-ink-text); }
+.er-theme.anc-page .anc-alerts small { display: block; font-size: 1rem; color: var(--er-muted-text); }
+.er-theme.anc-page .anc-lv { flex: none; min-width: 4.5em; padding: 0 8px; border-radius: 999px; text-align: center; font-size: 1rem; font-weight: 700; }
+.er-theme.anc-page .anc-lv.is-red { background: var(--anc-no-bg); color: var(--anc-no-text); }
+.er-theme.anc-page .anc-lv.is-amber { background: var(--anc-alert-bg); color: var(--anc-alert-text); }
+.er-theme.anc-page .anc-lv.is-info { background: var(--er-tint); color: var(--er-text); }
+
+/* 27 ข้อ: ตารางตามหมวด 2 คอลัมน์ · ป้ายที่มา F/C/D/T */
+.er-theme.anc-page .anc-r27-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 12px; }
+.er-theme.anc-page .anc-r27-box { min-width: 0; overflow-x: auto; }
+.er-theme.anc-page .anc-no { display: inline-block; min-width: 1.7em; margin-right: 8px; color: var(--er-muted-text); font-variant-numeric: tabular-nums; }
+.er-theme.anc-page .anc-srcb {
+    display: inline-block; min-width: 1.5em; margin: 0 2px; padding: 0 4px; border-radius: 6px; text-align: center;
+    background: var(--er-tint); color: var(--er-text); font-size: .95rem; font-weight: 700;
+}
+.er-theme.anc-page .anc-srcb.is-t { background: var(--anc-alert-bg); color: var(--anc-alert-text); }
+
+/* แนวโน้ม 3 ปี: ลูกศรมีข้อความ (title) และเครื่องหมาย ▲▼ กำกับ ไม่พึ่งสีอย่างเดียว */
+.er-theme.anc-page .anc-delta { margin-left: 4px; font-size: 1rem; font-weight: 700; white-space: nowrap; }
+.er-theme.anc-page .anc-delta.is-up { color: var(--anc-ok-text); }
+.er-theme.anc-page .anc-delta.is-down { color: var(--anc-no-text); }
+
+.er-theme.anc-page .anc-chart-sm { min-height: 320px; }
+
+@media (max-width: 1399.98px) {
+    .er-theme.anc-page .anc-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 1199.98px) {
+    .er-theme.anc-page .anc-r27-grid { grid-template-columns: minmax(0, 1fr); }
+    .er-theme.anc-page .anc-third { grid-column: 1 / -1; }
+}
 @media (max-width: 575px) {
     .er-theme.anc-page .anc-filters .bbh-seg + .anc-filter-label { margin-left: 0; }
+    .er-theme.anc-page .anc-tiles, .er-theme.anc-page .anc-tiles-5 { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .er-theme.anc-page .anc-tile-num { font-size: 1.8rem; }
+    .er-theme.anc-page .er-sec-head { flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .er-theme.anc-page :is(.anc-tile, .anc-total-btn) { transition: none; }
 }

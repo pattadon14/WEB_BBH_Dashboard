@@ -36,22 +36,48 @@ const ANC_TEEN_REPEAT_TARGETS = [2567 => 13.0, 2568 => 12.5, 2569 => 12.0, 2570 
 const ANC_QUALITY_PARTS = ['q_cbc' => 'CBC / Hct / Hb', 'q_thal' => 'คัดกรองธาลัสซีเมีย', 'q_us' => 'อัลตราซาวด์',
     'q_down' => 'คัดกรองดาวน์', 'q_dm' => 'คัดกรองเบาหวาน'];
 const ANC_LOW_BASE = 5;
+// ภาวะแทรกซ้อน: Dx (OPD/IPD) รหัส 3 หรือ 4 หลัก ระหว่าง LMP ถึงหลังคลอด 42 วัน
+const ANC_DX_HTN = ['O10', 'O11', 'O13', 'O14', 'O15', 'O16'];
+const ANC_DX_GDM = ['O244'];
+const ANC_DX_PPH = ['O72'];
+const ANC_DX_PRETERM = ['O60'];
+const ANC_COMPLICATIONS = ['cx_htn' => 'ความดันโลหิตสูง / ครรภ์เป็นพิษ', 'cx_gdm' => 'เบาหวานขณะตั้งครรภ์',
+    'cx_preterm' => 'เจ็บครรภ์คลอดก่อนกำหนด', 'cx_pph' => 'ตกเลือดหลังคลอด'];
+const ANC_ASPHYXIA_APGAR = 7;          // APGAR นาทีที่ 1 ต่ำกว่านี้ = ขาดออกซิเจน (หรือติ๊ก has_birth_asphyxia)
+const ANC_TARGET_ASPHYXIA = 25;        // ต่อ 1,000 เกิดมีชีพ
+const ANC_BBA_TYPES = ['3'];           // ipt_labour_infant.infant_delivery_type_id ที่ต้นแบบถือเป็น BBA (ต้องตรวจกับบ้านบึง)
+const ANC_PRETERM_DAYS = 37 * 7;
+const ANC_IND_LABELS = ['early12' => 'ฝากครรภ์ก่อน 12 wk', 'visit5' => 'ANC ครบ 5 ครั้ง', 'visit8' => 'ANC ครบ 8 ครั้ง',
+    'postnatal' => 'ดูแลหลังคลอดครบ 3 ครั้ง', 'quality' => 'ฝากครรภ์คุณภาพ', 'iodine' => 'ยาเม็ดไอโอดีน', 'dt' => 'วัคซีน dT',
+    'dental' => 'ตรวจช่องปาก', 'anemia' => 'โลหิตจางใกล้คลอด', 'lbw' => 'ทารก LBW', 'teen_repeat' => 'ตั้งครรภ์ซ้ำในวัยรุ่น'];
+const ANC_ACTIONS = ['early12' => 'ค้นหาหญิงตั้งครรภ์ในชุมชนร่วมกับ อสม.', 'visit5' => 'ติดตามนัด ANC ตามช่วงอายุครรภ์',
+    'visit8' => 'นัด ANC ให้ครบ 8 ช่วงอายุครรภ์ (≤12 · 13–20 · 21–26 · 27–30 · 31–34 · 35–36 · 37–38 · 39–40 wk)',
+    'postnatal' => 'นัดเยี่ยมหลังคลอดวันที่ 1–7, 8–15, 16–42 ร่วมกับ รพ.สต.',
+    'quality' => 'ตรวจกิจกรรมที่ขาด (lab / อัลตราซาวด์ / ดาวน์ / เบาหวาน)', 'iodine' => 'จ่ายยาเม็ดเสริมไอโอดีนทุกครั้งที่ฝากครรภ์',
+    'dt' => 'ตรวจการบันทึกวัคซีน dT / ฉีดตามนัด', 'dental' => 'ส่งตรวจฟันในวันฝากครรภ์ครั้งแรก',
+    'anemia' => 'ติดตามยาเสริมธาตุเหล็กและตรวจ Hct ซ้ำ', 'lbw' => 'ทบทวนรายที่คลอดน้ำหนักน้อย',
+    'teen_repeat' => 'ให้คำปรึกษาและคุมกำเนิดกึ่งถาวรหลังคลอด/แท้งในวัยรุ่น'];
 
-// รายการค่าคงที่ใส่ใน IN (...) — ค่าทั้งหมดมาจากค่าคงที่ข้างบน ไม่ใช่ input ผู้ใช้
-function anc_in_list(array $xs): string
+// มี Dx ในรหัสชุดนี้ (OPD vstdate หรือ IPD dchdate) ระหว่าง LMP (หรือวันลงทะเบียน) ถึงวันคลอด + 42 วัน (ยังไม่คลอด = d2)
+function anc_cx_sql(array $codes, string $d2): string
 {
-    return '(' . implode(', ', array_map(fn($x) => "'" . str_replace("'", "''", (string)$x) . "'", $xs)) . ')';
+    $in = anc_in_list($codes);
+    $win = "BETWEEN coalesce(a.lmp, a.anc_register_date) AND coalesce(a.labor_date + 42, DATE '$d2')";
+    return "(EXISTS (SELECT 1 FROM ovstdiag x WHERE x.hn = pt.hn AND (left(x.icd10, 3) IN $in OR left(x.icd10, 4) IN $in)
+                AND x.vstdate $win)
+            OR EXISTS (SELECT 1 FROM iptdiag y JOIN ipt ON ipt.an = y.an WHERE ipt.hn = pt.hn
+                AND (left(y.icd10, 3) IN $in OR left(y.icd10, 4) IN $in) AND ipt.dchdate $win))";
 }
 
 // เป้าตามปีงบประมาณ พ.ศ. ของวันสิ้นสุดช่วง (นอกตารางใช้ค่าขอบ)
-function anc_fy_target(array $table, string $d2): float
+function anc_fy_target(array $table, string $d2): int|float
 {
     $y = (int)substr($d2, 0, 4);
     $fy = ($y + ((int)substr($d2, 5, 2) >= 10 ? 1 : 0)) + 543;
     return $table[min(max($fy, min(array_keys($table))), max(array_keys($table)))];
 }
 
-function anc_rate_t(int $num, int $den, ?float $target, bool $lower): array
+function anc_rate_t(int $num, int $den, int|float|null $target, bool $lower): array
 {
     $value = anc_pct($num, $den);
     return ['num' => $num, 'den' => $den, 'value' => $value, 'target' => $target,
@@ -79,6 +105,11 @@ function anc_load_extra(PDO $conn, string $d1, string $d2): array
         SELECT a.person_anc_id AS anc_id, a.preg_no AS gravida,
                extract(year from age(a.labor_date, coalesce(pt.birthday, pe.birthdate)))::int AS age_labor,
                CASE WHEN a.blood_check2_date IS NOT NULL THEN a.blood_hct_result END AS hct_anc,
+               CASE WHEN pe.death = 'Y' THEN pe.death_date END AS death_date, lh.name AS labour_place,
+               " . anc_cx_sql(ANC_DX_HTN, $d2) . " AS cx_htn,
+               " . anc_cx_sql(ANC_DX_GDM, $d2) . " AS cx_gdm,
+               " . anc_cx_sql(ANC_DX_PPH, $d2) . " AS cx_pph,
+               " . anc_cx_sql(ANC_DX_PRETERM, $d2) . " AS cx_preterm,
                (a.vaccine_dtanc1_date IS NOT NULL OR a.vaccine_dtanc2_date IS NOT NULL OR a.vaccine_dtanc3_date IS NOT NULL
                 OR a.vaccine_dtanc4_date IS NOT NULL OR a.vaccine_dtanc5_date IS NOT NULL
                 OR EXISTS (SELECT 1 FROM ovst_vaccine ov
@@ -113,6 +144,7 @@ function anc_load_extra(PDO $conn, string $d1, string $d2): array
           JOIN person pe ON pe.person_id = a.person_id
           LEFT JOIN patient pt ON pt.hn = coalesce(nullif(pe.patient_hn, ''),
                 (SELECT p2.hn FROM patient p2 WHERE p2.cid = pe.cid AND pe.cid <> '' LIMIT 1))
+          LEFT JOIN hospcode lh ON lh.hospcode = a.labour_hospcode
          WHERE a.anc_register_date BETWEEN :rmin AND :d2";
     $st = $conn->prepare($sql);
     $st->execute([':rmin' => $rmin, ':d2' => $d2]);
@@ -169,6 +201,7 @@ function anc_load_extra(PDO $conn, string $d1, string $d2): array
     // ทารกเกิดใน รพ. ในช่วง · hn = HN มารดา (ipt_labour) · ตาย = ipt_newborn.dead='Y' หรือสถานะจำหน่ายทารกเป็นรหัสตาย
     $st = $conn->prepare("
         SELECT i.birth_date, i.birth_weight AS weight, coalesce(n.dead, 'N') AS dead, i.infant_dchstts AS dchstts,
+               i.apgar_score_min1 AS apgar1, i.has_birth_asphyxia AS asphyxia, i.infant_delivery_type_id AS delivery_type,
                pt.hn
           FROM ipt_labour_infant i
           JOIN ipt_labour il ON il.ipt_labour_id = i.ipt_labour_id
@@ -181,7 +214,10 @@ function anc_load_extra(PDO $conn, string $d1, string $d2): array
     foreach ($st->fetchAll(PDO::FETCH_ASSOC) as $r) {
         $infants[] = ['birth' => anc_day($r['birth_date']), 'weight' => (int)$r['weight'] ?: null,
             'alive' => strtoupper((string)$r['dead']) !== 'Y' && !in_array(trim((string)$r['dchstts']), ANC_DEAD_DCHSTTS, true),
-            'hn' => $r['hn'] ?: null];
+            'hn' => $r['hn'] ?: null,
+            'apgar1' => $r['apgar1'] === null || $r['apgar1'] === '' ? null : (int)$r['apgar1'],
+            'asphyxia' => strtoupper(trim((string)$r['asphyxia'])) === 'Y',
+            'delivery_type' => trim((string)$r['delivery_type']) ?: null];
     }
     return [$extra, $infants, $pnc];
 }
@@ -275,7 +311,7 @@ function anc_indicators(array $pregs, array $visits, array $extra, array $infant
     }
 
     $t = fn(string $k) => ANC_TARGETS_ALL[$k] ?? null;
-    $r = fn(string $k, int $n, int $d, ?float $target = null) => anc_rate_t($n, $d, $target ?? $t($k), in_array($k, ANC_LOWER_BETTER, true));
+    $r = fn(string $k, int $n, int $d, int|float|null $target = null) => anc_rate_t($n, $d, $target ?? $t($k), in_array($k, ANC_LOWER_BETTER, true));
     $q = [];
     foreach (ANC_QUALITY_PARTS as $k => $label) {
         $q[] = ['key' => $k, 'label' => $label, 'rate' => anc_rate_t($parts[$k], $den, null, false)];
@@ -310,4 +346,171 @@ function anc_is_ge_buckets(array $p, array $vs, array $buckets): bool
         }
     }
     return count($have) === count($buckets);
+}
+
+function anc_age_group(?int $age): ?string
+{
+    return $age === null ? null : ($age < 20 ? 'teen' : ($age < 35 ? 'repro' : 'elder'));
+}
+
+/*
+ * กลุ่มอายุแม่ ณ วันลงทะเบียน (metrics.by_age): รายใหม่ + สัดส่วน · ก่อน 12 wk / ครบ 5 ครั้ง / โลหิตจาง ของครรภ์ที่คลอดในช่วง
+ * teen แยก < 15 ปี และ 15–19 ปี
+ */
+function anc_by_age(array $pregs, array $visits, array $extra, string $d1s, string $d2s, bool $area): array
+{
+    $d1 = anc_day($d1s);
+    $d2 = anc_day($d2s);
+    $in = fn($d) => $d !== null && $d >= $d1 && $d <= $d2;
+    $nNew = 0;
+    $g = [];
+    foreach (['teen', 'repro', 'elder'] as $k) {
+        $g[$k] = ['new' => 0, 'den' => 0, 'e12' => 0, 'v5' => 0, 'an_n' => 0, 'an_d' => 0, 'lt15' => 0, '15_19' => 0];
+    }
+    foreach ($pregs as $id => $p) {
+        $grp = anc_age_group($p['age']);
+        if ($in($p['register'])) {
+            $nNew++;
+            if ($grp) {
+                $g[$grp]['new']++;
+                if ($grp === 'teen') {
+                    $g['teen'][$p['age'] < 15 ? 'lt15' : '15_19']++;
+                }
+            }
+        }
+        if ($grp && $in($p['labor']) && (!$area || anc_in_area($p))) {
+            $vs = $visits[$id] ?? [];
+            $g[$grp]['den']++;
+            $g[$grp]['e12'] += anc_is_early12($p, $vs) ? 1 : 0;
+            $g[$grp]['v5'] += anc_is_5visit($p, $vs) ? 1 : 0;
+            $h = $extra[$id]['hct_late'] ?? null;
+            if ($h !== null) {
+                $g[$grp]['an_d']++;
+                $g[$grp]['an_n'] += $h < ANC_HCT_CUTOFF ? 1 : 0;
+            }
+        }
+    }
+    $out = [];
+    foreach ($g as $k => $x) {
+        $out[$k] = ['new' => $x['new'], 'share' => anc_pct($x['new'], $nNew),
+            'early12' => anc_rate_t($x['e12'], $x['den'], ANC_TARGETS_ALL['early12'], false),
+            'visit5' => anc_rate_t($x['v5'], $x['den'], ANC_TARGETS_ALL['visit5'], false),
+            'anemia' => anc_rate_t($x['an_n'], $x['an_d'], ANC_TARGETS_ALL['anemia'], true)];
+        if ($k === 'teen') {
+            $out[$k]['lt15'] = $x['lt15'];
+            $out[$k]['15_19'] = $x['15_19'];
+        }
+    }
+    return $out;
+}
+
+/*
+ * ผลลัพธ์แม่และทารก (metrics.outcomes)
+ *   preterm   ครรภ์ที่คลอดในช่วง (area) ที่มี LMP · คลอดก่อน 37 สัปดาห์นับจาก LMP
+ *   asphyxia  ทารกเกิดมีชีพใน รพ. ที่ติ๊กขาดออกซิเจน หรือ APGAR นาทีแรก < 7 · ต่อ 1,000 เกิดมีชีพ
+ *   place     คลอดที่ รพ.บ้านบึง (labour_hospcode) / คลอดที่อื่น 5 อันดับ · bba / stillbirth = ทารกเกิดใน รพ.
+ *   maternal_death  มารดาเสียชีวิตระหว่างตั้งครรภ์ถึงหลังคลอด 42 วัน และวันตายอยู่ในช่วง (ทุกครรภ์ ไม่ใช้ตัวหาร area)
+ *   complications   Dx ระหว่าง LMP ถึงหลังคลอด 42 วัน ในครรภ์ที่คลอด
+ */
+function anc_outcomes(array $pregs, array $extra, array $infants, string $d1s, string $d2s, bool $area, bool $natFiltered): array
+{
+    $d1 = anc_day($d1s);
+    $d2 = anc_day($d2s);
+    $in = fn($d) => $d !== null && $d >= $d1 && $d <= $d2;
+    $den = $dated = $pre = $here = $mDeath = 0;
+    $cx = array_fill_keys(array_keys(ANC_COMPLICATIONS), 0);
+    $places = [];
+    foreach ($pregs as $id => $p) {
+        $x = $extra[$id] ?? [];
+        $dd = anc_day($x['death_date'] ?? null);
+        $start = $p['lmp'] ?? $p['register'];
+        if ($dd !== null && $start !== null && $start <= $dd
+            && ($p['labor'] === null || $dd <= $p['labor'] + ANC_POSTPARTUM_DAYS) && $in($dd)) {
+            $mDeath++;
+        }
+        if (!$in($p['labor']) || ($area && !anc_in_area($p))) {
+            continue;
+        }
+        $den++;
+        if ($p['lmp'] !== null) {
+            $dated++;
+            $pre += $p['labor'] - $p['lmp'] < ANC_PRETERM_DAYS ? 1 : 0;
+        }
+        foreach ($cx as $k => $_) {
+            $cx[$k] += !empty($x[$k]) ? 1 : 0;
+        }
+        $code = $p['labour_hospcode'];
+        if (in_array($code, ANC_HOSPCODES, true)) {
+            $here++;
+        } elseif ($code) {
+            $places[$code] ??= ['code' => $code, 'name' => ($x['labour_place'] ?? '') ?: $code, 'n' => 0];
+            $places[$code]['n']++;
+        }
+    }
+    usort($places, fn($a, $b) => [$b['n'], $a['code']] <=> [$a['n'], $b['code']]);
+
+    $hns = $natFiltered ? array_flip(array_map(fn($p) => (string)$p['hn'], array_filter($pregs, fn($p) => $p['hn']))) : null;
+    $live = $asph = $bba = $still = 0;
+    foreach ($infants as $i) {
+        if (($hns !== null && !isset($hns[(string)$i['hn']])) || !$in($i['birth'])) {
+            continue;
+        }
+        $bba += in_array((string)$i['delivery_type'], ANC_BBA_TYPES, true) ? 1 : 0;
+        if (!$i['alive']) {
+            $still++;
+            continue;
+        }
+        $live++;
+        $asph += $i['asphyxia'] || ($i['apgar1'] !== null && $i['apgar1'] < ANC_ASPHYXIA_APGAR) ? 1 : 0;
+    }
+    $per1000 = $live ? round($asph * 1000 / $live, 1, PHP_ROUND_HALF_EVEN) : null;
+
+    $comp = [];
+    foreach (ANC_COMPLICATIONS as $k => $label) {
+        $comp[] = ['key' => $k, 'label' => $label] + anc_rate_t($cx[$k], $den, null, false);
+    }
+    return [
+        'preterm' => anc_rate_t($pre, $dated, null, false),
+        'asphyxia' => ['num' => $asph, 'den' => $live, 'value' => $per1000, 'target' => ANC_TARGET_ASPHYXIA,
+            'ok' => $per1000 === null ? null : $per1000 <= ANC_TARGET_ASPHYXIA, 'low_base' => $live > 0 && $live < ANC_LOW_BASE],
+        'place' => ['here' => $here, 'den' => $den, 'pct_here' => anc_pct($here, $den), 'top' => array_slice($places, 0, 5)],
+        'bba' => $bba,
+        'stillbirth' => $still,
+        'maternal_death' => $mDeath,
+        'complications' => $comp,
+    ];
+}
+
+// รายการที่ต้องติดตาม (metrics.alerts — ไม่มีส่วน รพ.สต. เพราะยังไม่มีไฟล์จับคู่หมู่บ้าน)
+function anc_alerts(array $ind, array $age, array $outcome): array
+{
+    $out = [];
+    if ($outcome['maternal_death']) {
+        $out[] = ['level' => 'red', 'text' => "มารดาเสียชีวิต {$outcome['maternal_death']} ราย",
+            'owner' => 'งานแม่และเด็ก / ทีมนำทางคลินิก', 'action' => 'ทบทวนกรณีเสียชีวิต (Dead case conference)'];
+    }
+    $a = $outcome['asphyxia'];
+    if ($a['ok'] === false) {
+        $out[] = ['level' => 'red', 'text' => "ทารกแรกเกิดขาดออกซิเจน {$a['value']} ต่อ 1,000 เกิดมีชีพ (เป้า ≤ {$a['target']})",
+            'owner' => 'ห้องคลอด', 'action' => 'ทบทวนการเฝ้าระวังระหว่างคลอดและการกู้ชีพทารกแรกเกิด'];
+    }
+    foreach (ANC_IND_LABELS as $k => $label) {
+        $r = $ind[$k] ?? [];
+        if (($r['ok'] ?? null) === false) {
+            $sign = in_array($k, ANC_LOWER_BETTER, true) ? '≤' : '≥';
+            $out[] = ['level' => 'red', 'text' => "$label " . anc_num($r['value']) . "% (เป้า $sign " . anc_num($r['target']) . '%)',
+                'owner' => 'งานฝากครรภ์', 'action' => ANC_ACTIONS[$k]];
+        }
+    }
+    if ($age['teen']['lt15']) {
+        $out[] = ['level' => 'red', 'text' => "แม่อายุต่ำกว่า 15 ปี {$age['teen']['lt15']} ราย", 'owner' => 'งานแม่และเด็ก / ทีมสหวิชาชีพ',
+            'action' => 'ประเมินความปลอดภัยและส่งต่อทีมคุ้มครองเด็ก'];
+    }
+    return $out;
+}
+
+// ตัวเลขในข้อความแบบ Python str(): 63.4 · 12.0 · 75
+function anc_num($v): string
+{
+    return is_float($v) ? (floor($v) == $v ? number_format($v, 1, '.', '') : (string)$v) : (string)$v;
 }

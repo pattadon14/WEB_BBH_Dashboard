@@ -10,6 +10,18 @@
 
 require_once __DIR__ . '/period.php';
 require_once __DIR__ . '/ipd.php';   // ipd_cached() / ipd_fail(): cache ไฟล์และ error กลางแบบเดียวกับหน้า IPD
+require_once __DIR__ . '/../auth/provider.php';
+
+// ทุก API ของ ANC ต้อง login (หน้าเว็บต้อง login อยู่แล้ว) — จำนวนนับบางช่องน้อยมาก เช่น HIV / ซิฟิลิส / แม่อายุ < 15 ปี
+// ต้นแบบซ่อนค่าที่ < 5 ในมุมมองสาธารณะ ที่นี่จึงไม่เปิดให้เรียกโดยไม่ login
+function anc_require_login(): void
+{
+    if (!provider_is_logged_in()) {
+        http_response_code(401);
+        echo json_encode(['error' => 'กรุณาเข้าสู่ระบบ Provider ID'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
 
 // เขตบ้านบึง (ตัวหาร scope=area) · สัญชาติไทย
 const ANC_CHWPART = '20';
@@ -25,6 +37,8 @@ const ANC_GA_BUCKETS = [[0, 12], [13, 19], [20, 25], [26, 31], [32, 40]];
 // refer งานแม่และเด็ก = อยู่ในช่วงตั้งครรภ์–หลังคลอด 42 วันของครรภ์ในทะเบียน หรือ Dx หลักขึ้นต้นด้วยรหัสเหล่านี้
 const ANC_REFER_DX = ['O', 'Z32', 'Z33', 'Z34', 'Z35', 'Z36'];
 const ANC_LABOR_WARN_PCT = 80;
+// cache ช่วงที่รวมวันนี้ 5 นาที (ข้อมูลทะเบียนฝากครรภ์ไม่เปลี่ยนเร็ว และชุดตัวชี้วัดใช้เวลาคำนวณหลายวินาที)
+const ANC_CACHE_LIVE_TTL = 300;
 // เป้าตามเอกสาร KPI (ต้นแบบ .env ANC_TARGET_*)
 const ANC_TARGETS = ['early12' => 75, 'visit5' => 75];
 
@@ -34,6 +48,12 @@ const ANC_TARGETS = ['early12' => 75, 'visit5' => 75];
 function anc_day(?string $d): ?int
 {
     return $d === null || $d === '' ? null : intdiv(strtotime(substr($d, 0, 10) . ' 00:00:00 UTC'), 86400);
+}
+
+// รายการค่าคงที่ใส่ใน IN (...) — ใช้กับค่าคงที่ในโค้ดเท่านั้น ห้ามส่ง input ผู้ใช้
+function anc_in_list(array $xs): string
+{
+    return '(' . implode(', ', array_map(fn($x) => "'" . str_replace("'", "''", (string)$x) . "'", $xs)) . ')';
 }
 
 function anc_pct(int $num, int $den): ?float
@@ -84,6 +104,7 @@ function anc_load(PDO $conn, string $d1, string $d2, string $nat): array
 
     $st = $conn->prepare("
         SELECT a.person_anc_id AS anc_id, pt.hn,
+               extract(year from age(a.anc_register_date, coalesce(pt.birthday, pe.birthdate)))::int AS age,
                coalesce(nullif(pt.nationality, ''), pe.nationality) AS nationality, a.labour_hospcode,
                pt.chwpart, pt.amppart, pt.tmbpart, pt.moopart, v.village_code AS v_code,
                a.anc_register_date AS register_date, a.lmp, a.labor_date
@@ -104,6 +125,7 @@ function anc_load(PDO $conn, string $d1, string $d2, string $nat): array
         $id = (int)$r['anc_id'];
         $pregs[$id] = [
             'hn' => $r['hn'] ?: null,
+            'age' => $r['age'] === null ? null : (int)$r['age'],   // อายุแม่ (ปีเต็ม) ณ วันลงทะเบียน
             'thai' => $thai,
             'village' => anc_village($r),
             'labour_hospcode' => trim((string)$r['labour_hospcode']) ?: null,

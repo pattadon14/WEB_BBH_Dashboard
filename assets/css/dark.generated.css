@@ -18,6 +18,7 @@ html[data-theme="dark"] .er-theme.opd-theme.anc-theme {
     --anc-ok-text: #91daab;
     --anc-no-bg: #231a19;
     --anc-no-text: #ffafa2;
+    --anc-no-line: #463230;
 }
 
 /* ---- assets/css/custom.css ---- */

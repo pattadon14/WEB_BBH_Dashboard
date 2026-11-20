@@ -71,11 +71,11 @@ function ipd_readmit_prev_from(string $alias): string
 }
 
 // ส่ง JSON จาก cache ไฟล์ หรือสร้างใหม่ — ช่วงที่รวมวันนี้เก็บ 60 วินาที (เท่าหน้าแรก ผู้ป่วยตอนนี้จึงตรงกัน) ช่วงที่จบแล้ว 30 นาที
-function ipd_cached(string $name, array $p, callable $build): void
+function ipd_cached(string $name, array $p, callable $build, int $liveTtl = 60): void   // liveTtl: ช่วงที่รวมวันนี้ (ANC ใช้ 300)
 {
     $dir  = __DIR__ . '/../storage/cache/';
     $file = $dir . $name . '_' . $p['key'] . '.json';
-    $ttl  = $p['end'] >= date('Y-m-d') ? 60 : 30 * 60;
+    $ttl  = $p['end'] >= date('Y-m-d') ? $liveTtl : 30 * 60;
 
     if (is_file($file) && time() - filemtime($file) < $ttl) {
         echo file_get_contents($file);
