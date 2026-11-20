@@ -39,9 +39,11 @@ include 'templates/sidebar.php';
                                 Loading…
                             </h3>
 
+                            <!-- นิยามเดียวกับหน้า OPD หัวข้อ 7 (api/opd.php: ทุกแผนก OPD นับครั้ง) -->
                             <p class="kpi-title mb-0">
-                                ผู้มารับบริการผู้ป่วยนอกวันนี้
+                                ผู้ป่วยนอก (OPD) วันนี้
                             </p>
+                            <span class="kpi-scope">ตรวจโรคทั่วไป + คลินิคพิเศษ</span>
 
                             <small class="kpi-sub">
 
@@ -98,9 +100,11 @@ include 'templates/sidebar.php';
                                 Loading…
                             </h3>
 
+                            <!-- นิยามเดียวกับช่อง "รับใหม่" หน้า IPD (api/ipd.php: ipt.regdate ทุกหอ นับ AN) -->
                             <p class="kpi-title mb-0">
-                                Admit วันนี้
+                                ผู้ป่วยในรับใหม่ (Admit) วันนี้
                             </p>
+                            <span class="kpi-scope">ทุกหอผู้ป่วย</span>
 
                             <small class="kpi-sub">
 
@@ -116,7 +120,7 @@ include 'templates/sidebar.php';
                                     Loading…
                                 </span>
 
-                                ครั้ง)
+                                ราย)
 
                             </small>
 
@@ -147,9 +151,11 @@ include 'templates/sidebar.php';
                                 Loading…
                             </h3>
 
+                            <!-- นิยามเดียวกับ "ผู้มารับบริการ ER" หน้า ER (api/er.php: er_regist ทุกประเภท นับครั้ง) -->
                             <p class="kpi-title mb-0">
-                                ER วันนี้
+                                ผู้มารับบริการ ER วันนี้
                             </p>
+                            <span class="kpi-scope">ทุกประเภทผู้ป่วย ER</span>
 
                             <small class="kpi-sub">
 

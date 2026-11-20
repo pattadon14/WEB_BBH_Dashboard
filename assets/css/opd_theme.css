@@ -92,16 +92,7 @@
 :root .er-theme.opd-theme .oq-table thead th { background: var(--er-wash); color: var(--er-text); border-color: var(--er-line); }
 .er-theme.opd-theme .er-split .er-panel { min-width: 0; }
 
-/* แถบเมนูบน: er_theme.css เปลี่ยนเป็นแดงผ่าน body:has(.er-theme) → คืนเป็นเขียวของเว็บ */
-:root body:has(.er-theme.opd-theme) {
-    --er-nav-text: #146c43;
-    --er-nav-solid: #198754;
-    --er-nav-solid-hover: #157347;
-    --er-nav-tint: #eef7f2;
-    --er-nav-line: rgba(25, 135, 84, .25);
-    --er-nav-glow: rgba(25, 135, 84, .18);
-    --er-nav-stripe: #3cc48a;
-}
+/* แถบเมนูบน: โทนเขียวของหน้า OPD อยู่ใน assets/css/navbar.css */
 
 @media (max-width: 1399.98px) {
     .er-theme.opd-theme .opd-kpis { grid-template-columns: repeat(5, minmax(0, 1fr)); }

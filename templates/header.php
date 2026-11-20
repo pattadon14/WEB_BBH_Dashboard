@@ -60,6 +60,8 @@ require_once __DIR__ . '/../config/app.php';
 
     <!-- ธีมกลางทุกหน้า (โหลดท้ายสุด) -->
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/theme.css?v=<?= filemtime(__DIR__ . '/../assets/css/theme.css') ?>">
+    <!-- แถบเมนูบน: หน้าตาและโทนสีตามหน้า (เขียว / ER แดง / IPD ฟ้า–น้ำเงิน) — โหลดหลัง theme.css -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/navbar.css?v=<?= filemtime(__DIR__ . '/../assets/css/navbar.css') ?>">
 
     <!-- โหมดมืด: dark.generated.css สร้างจาก tools/build_dark_css.mjs · dark.css = ปรับด้วยมือ (ทำงานเฉพาะ html[data-theme="dark"]) -->
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/dark.generated.css?v=<?= filemtime(__DIR__ . '/../assets/css/dark.generated.css') ?>">

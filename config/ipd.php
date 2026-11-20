@@ -25,6 +25,35 @@ const IPD_DCH_NAMES = [
 const IPD_DEATH_TYPES = "'08', '09'";
 const IPD_REFER_TYPE = '04';
 
+/*
+ * Readmission ตามเกณฑ์มาตรฐาน: กลับมานอนซ้ำภายใน 28 วันหลังจำหน่าย ด้วยโรคเดิม โดยไม่ได้วางแผน
+ * - ครั้งนี้ ($alias) admit ภายใน 0–28 วันหลังวันจำหน่ายครั้งก่อนของ HN เดียวกัน
+ * - โรคเดิม = การวินิจฉัยหลัก (an_stat.pdx) กลุ่ม ICD-10 3 หลักเดียวกัน → ครั้งนี้ต้องจำหน่ายแล้ว (มี pdx) จึงตัดสินได้
+ * - ไม่นับ: ครั้งก่อนหรือครั้งนี้เป็น Observe ER (สังเกตอาการที่ ER ไม่ใช่การ admit), ครั้งก่อนจำหน่ายแบบส่งต่อ (รับกลับหลัง refer),
+ *   ครั้งนี้ลงว่านัด admit (ipt.plan_admit = Y — ปัจจุบันยังไม่มีการบันทึก)
+ * ใช้ร่วมกันใน api/ipd_kpi_summary.php และ api/ipd_visit_list.php — $alias เป็นค่าคงที่ในโค้ด
+ */
+const IPD_OBSERVE_WARD = '05';
+const IPD_READMIT_DAYS = 28;
+
+// เงื่อนไขของ AN ครั้งนี้ (ตัวหาร = admit ที่ผ่านเงื่อนไขนี้)
+function ipd_readmit_base(string $alias): string
+{
+    return "$alias.ward <> '" . IPD_OBSERVE_WARD . "' AND COALESCE($alias.plan_admit, '') <> 'Y'";
+}
+
+// FROM … WHERE ของ AN ครั้งก่อนที่ทำให้ครั้งนี้เป็น readmission (ใช้กับ EXISTS (SELECT 1 …) หรือ SELECT MAX(prev.dchdate) …)
+function ipd_readmit_prev_from(string $alias): string
+{
+    return "FROM ipt prev
+            JOIN an_stat pa ON pa.an = prev.an
+            WHERE prev.hn = $alias.hn AND prev.an <> $alias.an AND prev.dchdate IS NOT NULL
+              AND $alias.regdate >= prev.dchdate AND $alias.regdate <= prev.dchdate + " . IPD_READMIT_DAYS . "
+              AND prev.ward <> '" . IPD_OBSERVE_WARD . "'
+              AND COALESCE(prev.dchtype, '') <> '" . IPD_REFER_TYPE . "'
+              AND LEFT(pa.pdx, 3) = (SELECT LEFT(ca.pdx, 3) FROM an_stat ca WHERE ca.an = $alias.an)";
+}
+
 // ส่ง JSON จาก cache ไฟล์ หรือสร้างใหม่ — ช่วงที่รวมวันนี้เก็บ 60 วินาที (เท่าหน้าแรก ผู้ป่วยตอนนี้จึงตรงกัน) ช่วงที่จบแล้ว 30 นาที
 function ipd_cached(string $name, array $p, callable $build): void
 {

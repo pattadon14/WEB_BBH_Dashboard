@@ -32,7 +32,10 @@ foreach (($_SESSION['provider_auth']['organization'] ?? []) as $organization) {
 
     <a href="<?= BASE_URL ?>" class="navbar-brand fw-bold">
         <img class="brand-logo" src="<?= BASE_URL ?>assets/img/logo-bbh-mark.png" alt="" width="40" height="40">
-        <span class="brand-text-main">BBH DASHBOARD <span class="brand-sub">(โรงพยาบาลบ้านบึง)</span></span>
+        <span class="brand-text">
+            <span class="brand-text-main">BBH DASHBOARD</span>
+            <span class="brand-sub">โรงพยาบาลบ้านบึง</span>
+        </span>
     </a>
 
     <?php if (!empty($showLiveStatus)): ?>
@@ -52,7 +55,7 @@ foreach (($_SESSION['provider_auth']['organization'] ?? []) as $organization) {
             </button>
             <script>document.currentScript.previousElementSibling.setAttribute('aria-pressed', String(document.documentElement.getAttribute('data-theme') === 'dark'));</script>
         </li>
-        <li class="nav-item mr-3">
+        <li class="nav-item">
             <a href="https://docs.google.com/forms/d/e/1FAIpQLScKGR0_xvvq1uHqdwm3Npj0y6tEAZq0o5KEp9tQaufokUWzwg/viewform?usp=dialog" target="_blank" class="feedback-btn">
                 <i class="fas fa-comment-dots"></i>
                 <span class="btn-label">เสนอความคิดเห็น</span>

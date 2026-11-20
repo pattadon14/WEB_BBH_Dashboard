@@ -30,10 +30,9 @@ $deaths   = IPD_DEATH_TYPES;
 $validWard = "i.ward IN (SELECT ward FROM ward WHERE ward_active = 'Y' AND ward NOT IN ($excluded))";
 $byAdmit = 'i.regdate BETWEEN :d1 AND :d2';
 $byDch   = 'i.dchdate BETWEEN :d1 AND :d2';
-// รับกลับภายใน 30 วันหลังจำหน่ายครั้งก่อน (นิยามเดียวกับ readmission ใน api/ipd_kpi_summary.php)
-$prevDch = "(SELECT MAX(prev.dchdate) FROM ipt prev
-              WHERE prev.hn = i.hn AND prev.an <> i.an AND prev.dchdate IS NOT NULL
-                AND i.regdate >= prev.dchdate AND i.regdate <= prev.dchdate + 30)";
+// Readmission ตามเกณฑ์มาตรฐาน (config/ipd.php — ชุดเดียวกับ api/ipd_kpi_summary.php): วันจำหน่ายครั้งก่อนที่เข้าเงื่อนไข
+$prevDch = '(SELECT MAX(prev.dchdate) ' . ipd_readmit_prev_from('i') . ')';
+$readmitBase = ipd_readmit_base('i');
 
 // [เงื่อนไข, ใช้ช่วงวันที่ไหม, รูปแบบ key ที่ต้องมี] — ข้อความคงที่ทั้งหมด ค่าจากผู้ใช้ผ่าน :key / :d1 / :d2 เท่านั้น
 $TYPES = [
@@ -41,7 +40,7 @@ $TYPES = [
     'ward_current' => ['i.dchdate IS NULL AND i.ward = :key', false, '/^\d{2}$/'],
     'admit'        => [$byAdmit, true, null],
     'ward_admit'   => ["$byAdmit AND i.ward = :key", true, '/^\d{2}$/'],
-    'readmit'      => ["$byAdmit AND $prevDch IS NOT NULL", true, null],
+    'readmit'      => ["$byAdmit AND $readmitBase AND $prevDch IS NOT NULL", true, null],
     'dch'          => [$byDch, true, null],
     'dchtype'      => ["$byDch AND COALESCE(i.dchtype, '') = :key", true, '/^\d{0,2}$/'],
     'death'        => ["$byDch AND i.dchtype IN ($deaths)", true, null],

@@ -11,12 +11,15 @@ try {
     // ช่วงเวลา: ?d1&d2 หรือ ?year (config/period.php) — SQL ด้านล่างใช้ end แบบไม่รวม จึง +1 วัน
     $p = bbh_period();
 
-    ipd_cached('ipd_kpi_v3', $p, function () use ($conn, $p) {
+    ipd_cached('ipd_kpi_v4', $p, function () use ($conn, $p) {
 
         $startDate = $p['start'];
         $endDate   = date('Y-m-d', strtotime($p['end'] . ' +1 day'));
         $excluded  = IPD_EXCLUDED_WARDS;
         $bedSql    = ward_bedcount_sql();
+        // Readmission ตามเกณฑ์มาตรฐาน (config/ipd.php): ตัวหาร = admit ในช่วงที่ไม่ใช่ Observe ER / นัด admit
+        $readmitBase = ipd_readmit_base('i');
+        $readmitPrev = ipd_readmit_prev_from('i');
 
         /*
         ============================================
@@ -81,24 +84,20 @@ try {
                 WHERE i.dchdate >= p.start_date AND i.dchdate < p.end_date
             ),
             readmission AS (
-                SELECT COUNT(DISTINCT curr.an) AS readmission_cases
-                FROM ipt curr
-                INNER JOIN ipt prev
-                    ON prev.hn = curr.hn
-                   AND prev.an <> curr.an
-                   AND prev.dchdate IS NOT NULL
-                   AND curr.regdate >= prev.dchdate
-                   AND curr.regdate <= prev.dchdate + INTERVAL '30 days'
-                CROSS JOIN params p
-                WHERE curr.regdate >= p.start_date AND curr.regdate < p.end_date
+                SELECT
+                    COUNT(*) AS readmission_base,
+                    COUNT(*) FILTER (WHERE EXISTS (SELECT 1 $readmitPrev)) AS readmission_cases
+                FROM ipt i CROSS JOIN params p
+                WHERE i.regdate >= p.start_date AND i.regdate < p.end_date
+                  AND $readmitBase
             )
             SELECT
                 c.current_inpatients, a.admissions, d.discharges, b.total_beds,
                 pd.patient_days, pd.period_days,
                 ROUND((pd.patient_days * 100.0 / NULLIF(b.total_beds * pd.period_days, 0))::numeric, 1) AS occupancy_rate,
                 l.avg_los,
-                r.readmission_cases,
-                ROUND((r.readmission_cases * 100.0 / NULLIF(a.admissions, 0))::numeric, 1) AS readmission_rate
+                r.readmission_cases, r.readmission_base,
+                ROUND((r.readmission_cases * 100.0 / NULLIF(r.readmission_base, 0))::numeric, 1) AS readmission_rate
             FROM current_ipd c
             CROSS JOIN admissions a
             CROSS JOIN discharges d
@@ -186,6 +185,7 @@ try {
             'avg_los'            => (float)($row['avg_los'] ?? 0),
             'readmission_cases'  => (int)$row['readmission_cases'],
             'readmission_rate'   => (float)($row['readmission_rate'] ?? 0),
+            'readmission_base'   => (int)$row['readmission_base'],
             // อัตราต่อผู้ป่วยที่จำหน่ายในช่วงเดียวกัน
             'deaths'             => $deaths,
             'death_rate'         => $discharges > 0 ? round($deaths * 100 / $discharges, 1) : 0,

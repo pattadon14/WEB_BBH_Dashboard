@@ -1,0 +1,220 @@
+/* Hallmark · v2.0.0 · shape: app chrome · theme: brand (navbar tone per page: green / ER red / IPD blue) · scope: app
+ * Hallmark · waive 48 · tone tokens live on :root and body:has(...) blocks so tools/build_dark_css.mjs can derive dark mode
+ */
+
+/* =========================================================
+   แถบเมนูบน (templates/navbar.php) — ใช้ทุกหน้า
+   แก้หน้าตา navbar ที่ไฟล์นี้ที่เดียว (โหลดหลัง custom.css / login.css / sidebar.css / theme.css จึงทับกฎเดิม)
+   โทนสีตามหน้า: ค่าเริ่มต้นเขียวของเว็บ · หน้า ER แดง · หน้า OPD เขียว · หน้า IPD ฟ้า–น้ำเงิน
+   ตัวอักษรขาวบนพื้นปุ่มผ่าน 4.5:1 ทุกโทน
+========================================================= */
+:root {
+    --nav-text: #146c43;          /* ชื่อระบบ / ไอคอน */
+    --nav-solid: #198754;         /* พื้นปุ่มหลัก ตัวอักษรขาว 4.5:1 */
+    --nav-solid-deep: #0f5c38;    /* ปลายไล่สีปุ่มหลัก */
+    --nav-solid-hover: #146c43;
+    --nav-accent: #3cc48a;        /* เส้นไล่สีใต้แถบ */
+    --nav-tint: #eaf6ef;
+    --nav-line: rgba(25, 135, 84, .2);
+    --nav-glow: rgba(25, 135, 84, .16);
+    --nav-ink: #17241d;
+    --nav-muted: #5b6b63;
+    --nav-bg: rgba(255, 255, 255, .88);
+    --nav-on-solid: #fbfefc;
+}
+:root body:has(.er-theme) {
+    --nav-text: #b42318;
+    --nav-solid: #c62828;
+    --nav-solid-deep: #8f1a1a;
+    --nav-solid-hover: #a31d1d;
+    --nav-accent: #ef6b6b;
+    --nav-tint: #fdecea;
+    --nav-line: rgba(198, 40, 40, .22);
+    --nav-glow: rgba(198, 40, 40, .16);
+    --nav-ink: #2a1a19;
+    --nav-muted: #6f5553;
+}
+:root body:has(.er-theme.opd-theme) {
+    --nav-text: #146c43;
+    --nav-solid: #198754;
+    --nav-solid-deep: #0f5c38;
+    --nav-solid-hover: #146c43;
+    --nav-accent: #3cc48a;
+    --nav-tint: #eaf6ef;
+    --nav-line: rgba(25, 135, 84, .2);
+    --nav-glow: rgba(25, 135, 84, .16);
+    --nav-ink: #17241d;
+    --nav-muted: #5b6b63;
+}
+:root body:has(.er-theme.ipd-theme) {
+    --nav-text: #1e40af;
+    --nav-solid: #1d4ed8;
+    --nav-solid-deep: #1e3a8a;
+    --nav-solid-hover: #1e40af;
+    --nav-accent: #60a5fa;
+    --nav-tint: #e8effd;
+    --nav-line: rgba(29, 78, 216, .2);
+    --nav-glow: rgba(29, 78, 216, .16);
+    --nav-ink: #172033;
+    --nav-muted: #4b5a70;
+}
+
+/* ---------- แถบ: ขาวโปร่งแสงเบลอพื้นหลัง + เส้นไล่สีโทนหน้าใต้แถบ ---------- */
+:root .custom-navbar {
+    min-height: 64px;
+    padding: 8px 16px;
+    gap: 12px;
+    background: var(--nav-bg) !important;
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    backdrop-filter: blur(14px) saturate(160%);
+    border-bottom: 1px solid var(--nav-line);
+    box-shadow: 0 10px 28px -18px var(--nav-glow);
+}
+:root .custom-navbar::after {
+    height: 3px;
+    background: linear-gradient(90deg, var(--nav-solid), var(--nav-accent) 55%, transparent);
+}
+
+/* ---------- ชื่อระบบ: โลโก้ในกรอบ + ชื่อสองบรรทัด ---------- */
+:root .custom-navbar .navbar-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    margin: 0 0 0 4px;
+    padding: 0;
+    color: var(--nav-text) !important;
+    text-decoration: none;
+}
+:root .custom-navbar .brand-logo {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    padding: 4px;
+    border-radius: 12px;
+    border: 1px solid var(--nav-line);
+    background: #fbfdfc;   /* โลโก้ต้องอยู่บนพื้นสว่างทั้งสองโหมด */
+    box-shadow: 0 4px 12px var(--nav-glow);
+}
+:root .custom-navbar .brand-text { display: flex; flex-direction: column; min-width: 0; line-height: 1; }
+:root .custom-navbar .brand-text-main {
+    color: var(--nav-text);
+    font-size: 2.05rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+}
+:root .custom-navbar .brand-sub {
+    margin-top: 2px;
+    color: var(--nav-muted);
+    font-size: 1.15rem;
+    font-weight: 500;
+}
+
+/* ---------- ปุ่มไอคอน: เมนู / โหมดมืด / ออกจากระบบ — กรอบบาง พื้นโปร่ง ---------- */
+:root .custom-navbar :is(.bbh-menu-toggle, .theme-toggle, .logout-btn) {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--nav-line);
+    border-radius: 12px;
+    background: transparent;
+    font-size: 1.15rem;
+    box-shadow: none;
+    transform: none;
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+:root .custom-navbar :is(.bbh-menu-toggle, .logout-btn) { color: var(--nav-text) !important; }
+/* โหมดมืดคงไอคอนดวงอาทิตย์สีเหลืองของ dark.css */
+:root:not([data-theme="dark"]) .custom-navbar .theme-toggle { color: var(--nav-text); }
+:root .custom-navbar .bbh-menu-toggle { border-color: transparent; font-size: 1.45rem; }
+:root .custom-navbar :is(.bbh-menu-toggle, .theme-toggle, .logout-btn):is(:hover, :active) {
+    background: var(--nav-tint);
+    border-color: var(--nav-line);
+    transform: none;
+    box-shadow: none;
+}
+:root .custom-navbar .navbar-nav.ms-auto { margin-left: auto; gap: 8px; align-items: center; }
+:root .custom-navbar .navbar-nav .nav-item { margin: 0; }
+
+/* ---------- ปุ่มหลัก: เสนอความคิดเห็น / เข้าสู่ระบบ — พื้นไล่สีโทนหน้า ---------- */
+:root .custom-navbar :is(.feedback-btn, .login-btn) {
+    min-height: 44px;
+    padding: 0 20px;
+    gap: 8px;
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--nav-solid), var(--nav-solid-deep));
+    color: var(--nav-on-solid) !important;
+    font-size: 1.05rem;
+    font-weight: 600;
+    box-shadow: 0 6px 16px -6px var(--nav-glow), inset 0 1px 0 rgba(255, 255, 255, .18);
+    transform: none;
+    transition: filter 150ms ease, box-shadow 150ms ease;
+}
+:root .custom-navbar :is(.feedback-btn, .login-btn):is(:hover, :active) {
+    background: linear-gradient(135deg, var(--nav-solid-hover), var(--nav-solid-deep));
+    color: var(--nav-on-solid) !important;
+    transform: none;
+    box-shadow: 0 8px 20px -6px var(--nav-glow), inset 0 1px 0 rgba(255, 255, 255, .18);
+}
+
+/* ---------- ผู้ใช้: ชิปพร้อมไอคอนวงกลม ---------- */
+:root .custom-navbar .provider-user {
+    min-height: 44px;
+    padding: 4px 16px 4px 4px;
+    gap: 8px;
+    border: 1px solid var(--nav-line);
+    border-radius: 999px;
+    background: var(--nav-tint);
+    color: var(--nav-text);
+}
+:root .custom-navbar .provider-user-icon {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--nav-solid), var(--nav-solid-deep));
+    color: var(--nav-on-solid);
+    font-size: 1.25rem;
+}
+:root .custom-navbar .provider-user-name { color: var(--nav-ink); }
+:root .custom-navbar .provider-user-position { color: var(--nav-muted); }
+
+/* ---------- ป้าย LIVE ---------- */
+:root .custom-navbar .live-status {
+    min-height: 36px;
+    padding: 0 16px 0 12px;
+    border: 1px solid var(--nav-line);
+    background: var(--nav-tint);
+    color: var(--nav-muted);
+}
+:root .custom-navbar .live-label { color: var(--nav-text); }
+
+/* ---------- โฟกัสคีย์บอร์ด: วงแหวนโทนหน้า ขึ้นทันที ---------- */
+:root .custom-navbar :is(a, button):focus-visible {
+    outline: 2px solid var(--nav-solid);
+    outline-offset: 2px;
+    transition: none;
+}
+
+/* ---------- จอเล็ก ---------- */
+@media (max-width: 768px) {
+    :root .custom-navbar { padding: 8px 12px; gap: 8px; }
+    :root .custom-navbar .brand-text-main { font-size: 1.6rem; }
+    :root .custom-navbar :is(.bbh-menu-toggle, .theme-toggle, .logout-btn) { width: 40px; height: 40px; }
+    :root .custom-navbar .feedback-btn { width: 40px; min-height: 40px; padding: 0; justify-content: center; }
+    :root .custom-navbar .login-btn { min-height: 40px; padding: 0 12px; }
+}
+@media (max-width: 576px) {
+    :root .custom-navbar .brand-logo { width: 36px; height: 36px; flex-basis: 36px; }
+    :root .custom-navbar .provider-user { padding: 2px; }
+    :root .custom-navbar .provider-user-icon { width: 34px; height: 34px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    :root .custom-navbar :is(.bbh-menu-toggle, .theme-toggle, .logout-btn, .feedback-btn, .login-btn) { transition: none; }
+}

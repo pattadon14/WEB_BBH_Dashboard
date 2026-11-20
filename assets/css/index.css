@@ -78,6 +78,15 @@
     color: var(--bbh-text) !important;
 }
 
+/* ขอบเขตของตัวเลข (ตรงกับนิยามในหน้ารายละเอียด) ใต้ชื่อการ์ด */
+.home-dash .small-box .kpi-scope {
+    display: block;
+    margin-top: 2px;
+    font-size: 1.35rem;
+    line-height: 1.2;
+    color: var(--bbh-muted);
+}
+
 .home-dash .small-box .kpi-sub {
     display: inline-block;
     margin-top: 6px;

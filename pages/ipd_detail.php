@@ -131,7 +131,7 @@ $currentYear = date('Y') + 543 + (date('n') >= 10 ? 1 : 0);
                         <span class="er-stat-value"><b id="kpi-los">—</b> วัน</span>
                     </div>
                     <div class="er-stat" data-drill="readmit">
-                        <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-arrows-rotate"></i></span>Readmission 30 วัน <small id="readmit-status">—</small></span>
+                        <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-arrows-rotate"></i></span>Readmission 28 วัน <small>โรคเดิม ไม่ได้วางแผน</small> <small id="readmit-status">—</small></span>
                         <span class="er-stat-value"><b id="kpi-readmit">—</b> ราย <small id="kpi-readmit-rate">–</small></span>
                     </div>
                     <div class="er-stat" data-drill="death">
@@ -154,12 +154,12 @@ $currentYear = date('Y') + 543 + (date('n') >= 10 ? 1 : 0);
 
             </div>
 
-            <!-- 5 รายหอผู้ป่วย: การ์ดแบบหน้าแรก (ตัวเลขชุดเดียวกับ api/index_ward_bed.php) + ยอดของช่วงที่เลือก · การ์ดลิงก์ไปหน้ารายละเอียดหอ -->
+            <!-- 5 สถานะหอผู้ป่วย: การ์ดแบบหน้าแรก (ตัวเลขชุดเดียวกับ api/index_ward_bed.php) + ยอดของช่วงที่เลือก · การ์ดลิงก์ไปหน้ารายละเอียดหอ -->
             <section class="er-panel" aria-labelledby="ipd-sec5">
                 <header class="er-sec-head">
                     <span class="er-sec-no" aria-hidden="true">5</span>
                     <div>
-                        <h2 class="er-h2" id="ipd-sec5">รายหอผู้ป่วย <?= ipd_info_btn('wards', 'รายหอผู้ป่วย') ?></h2>
+                        <h2 class="er-h2" id="ipd-sec5">สถานะหอผู้ป่วย <?= ipd_info_btn('wards', 'สถานะหอผู้ป่วย') ?></h2>
                         <p class="er-sec-sub">ครองเตียงตอนนี้ (ตรงกับหน้าแรก) และยอดของช่วงที่เลือก · คลิกการ์ดเพื่อดูรายละเอียดหอ</p>
                     </div>
                 </header>

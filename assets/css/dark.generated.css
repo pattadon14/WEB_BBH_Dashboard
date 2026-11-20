@@ -1,5 +1,5 @@
 /* ไฟล์สร้างอัตโนมัติจาก tools/build_dark_css.mjs — ห้ามแก้ตรง ๆ (แก้ใน dark.css แทน)
- * แหล่ง: 19 ชุด CSS + style="…" 8 แบบ */
+ * แหล่ง: 20 ชุด CSS + style="…" 8 แบบ */
 
 /* ---- assets/css/custom.css ---- */
 html[data-theme="dark"] body {
@@ -529,11 +529,6 @@ html[data-theme="dark"] .er-theme {
 html[data-theme="dark"] .er-theme .er-info-dlg::backdrop {
     background: rgba(20, 8, 8, .45);
 }
-html[data-theme="dark"] body:has(.er-theme) {
-    --er-nav-text: #ffa698;
-    --er-nav-tint: #1f1918;
-    --er-nav-line: rgba(198, 40, 40, .25);
-}
 html[data-theme="dark"] .er-theme {
     --er-ref-in-bg: #141d1c;
     --er-ref-in-text: #7bd2c8;
@@ -763,6 +758,40 @@ html[data-theme="dark"] .provider-user-name {
 }
 html[data-theme="dark"] .provider-user-position {
     color: #b1c4bc;
+}
+
+/* ---- assets/css/navbar.css ---- */
+html[data-theme="dark"] {
+    --nav-text: #89d8a9;
+    --nav-tint: #171b19;
+    --nav-line: rgba(25, 135, 84, .2);
+    --nav-ink: #cfe0d6;
+    --nav-muted: #b3c5bc;
+    --nav-bg: rgba(22, 22, 22, 0.88);
+}
+html[data-theme="dark"] body:has(.er-theme) {
+    --nav-text: #ffa698;
+    --nav-tint: #1f1918;
+    --nav-line: rgba(198, 40, 40, .22);
+    --nav-ink: #edd6d4;
+    --nav-muted: #d9bbb9;
+}
+html[data-theme="dark"] body:has(.er-theme.opd-theme) {
+    --nav-text: #89d8a9;
+    --nav-tint: #171b19;
+    --nav-line: rgba(25, 135, 84, .2);
+    --nav-ink: #cfe0d6;
+    --nav-muted: #b3c5bc;
+}
+html[data-theme="dark"] body:has(.er-theme.ipd-theme) {
+    --nav-text: #b1c8fc;
+    --nav-tint: #181b20;
+    --nav-line: rgba(29, 78, 216, .2);
+    --nav-ink: #cfdcf6;
+    --nav-muted: #b5c6df;
+}
+html[data-theme="dark"] .custom-navbar .brand-logo {
+    background: #161717;
 }
 
 /* ---- assets/css/opd_quality.css ---- */
@@ -1358,11 +1387,6 @@ html[data-theme="dark"] .er-theme.opd-theme {
     --er-line: #323a35;
     --er-card-line: #303b34;
     --er-row-bg: #161817;
-}
-html[data-theme="dark"] body:has(.er-theme.opd-theme) {
-    --er-nav-text: #89d8a9;
-    --er-nav-tint: #171a18;
-    --er-nav-line: rgba(25, 135, 84, .25);
 }
 
 /* ---- assets/css/sidebar.css ---- */

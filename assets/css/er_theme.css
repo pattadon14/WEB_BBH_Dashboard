@@ -310,29 +310,7 @@
     .er-theme .opd-live-dot::after { animation: none; }
 }
 
-/* ---------- แถบเมนูบน (templates/navbar.php) เป็นแดงเฉพาะหน้า ER ----------
-   navbar อยู่นอก .er-theme จึงเลือกผ่าน body:has(.er-theme) และใช้ token ชุดของตัวเอง */
-:root body:has(.er-theme) {
-    --er-nav-text: #b42318;
-    --er-nav-solid: #c62828;          /* พื้นปุ่ม ตัวอักษรขาว 5.6:1 */
-    --er-nav-solid-hover: #a31d1d;
-    --er-nav-tint: #fdecea;
-    --er-nav-line: rgba(198, 40, 40, .25);
-    --er-nav-glow: rgba(198, 40, 40, .18);
-    --er-nav-stripe: #ef6b6b;
-}
-:root body:has(.er-theme) .custom-navbar { box-shadow: 0 2px 12px var(--er-nav-glow); }
-:root body:has(.er-theme) .custom-navbar::after { background: linear-gradient(90deg, var(--er-nav-solid), var(--er-nav-stripe) 60%, transparent); }
-:root body:has(.er-theme) .custom-navbar .navbar-brand { color: var(--er-nav-text) !important; }
-:root body:has(.er-theme) .custom-navbar .bbh-menu-toggle { color: var(--er-nav-text); }
-:root body:has(.er-theme) .custom-navbar .bbh-menu-toggle:hover { background: var(--er-nav-tint); color: var(--er-nav-text); }
-:root body:has(.er-theme) :is(.feedback-btn, .logout-btn) { background: var(--er-nav-solid); box-shadow: 0 4px 10px var(--er-nav-glow); }
-:root body:has(.er-theme) :is(.feedback-btn, .logout-btn):is(:hover, :focus-visible) { background: var(--er-nav-solid-hover); }
-:root body:has(.er-theme) .provider-user { border-color: var(--er-nav-line); background: var(--er-nav-tint); color: var(--er-nav-text); }
-:root body:has(.er-theme) .provider-user-name { color: var(--er-nav-text); }
-/* ปุ่มสลับโหมด: เฉพาะโหมดสว่าง — โหมดมืดคงไอคอนดวงอาทิตย์สีเหลือง */
-:root:not([data-theme="dark"]) body:has(.er-theme) .theme-toggle { border-color: var(--er-nav-line); color: var(--er-nav-text); }
-:root:not([data-theme="dark"]) body:has(.er-theme) .theme-toggle:is(:hover, :focus-visible) { background: var(--er-nav-tint); }
+/* แถบเมนูบน (templates/navbar.php): โทนแดงของหน้า ER อยู่ใน assets/css/navbar.css */
 
 /* ---------- หน้าต่างรายชื่อ (bbh_drill.js · ใช้ .opd-drill ของ opd_tabs.css) ---------- */
 :root .er-theme .opd-drill-head h3 { color: var(--er-text); }

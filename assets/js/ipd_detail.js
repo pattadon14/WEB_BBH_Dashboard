@@ -223,7 +223,7 @@ function diagCell(th, en) {
 /* ---------- รายชื่อ (api/ipd_visit_list.php) ---------- */
 const LIST_TITLES = {
     current: 'ผู้ป่วยในตอนนี้', admit: 'รับใหม่', dch: 'จำหน่าย', death: 'เสียชีวิต',
-    dchtype: 'จำหน่าย', readmit: 'Readmission ภายใน 30 วัน', pdx: 'การวินิจฉัยหลัก'
+    dchtype: 'จำหน่าย', readmit: 'Readmission ภายใน 28 วัน (โรคเดิม)', pdx: 'การวินิจฉัยหลัก'
 };
 
 function openList(type, key, label, d1, d2) {
