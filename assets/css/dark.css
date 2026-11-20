@@ -77,6 +77,10 @@ html[data-theme="dark"] body {
 html[data-theme="dark"] .content-wrapper {
     background: linear-gradient(180deg, #16201b 0, var(--bbh-bg) 280px) !important;
 }
+/* หน้ารายละเอียดหอผู้ป่วย: ไล่สีน้ำเงินเข้มตามโทนผู้ป่วยใน */
+html[data-theme="dark"] .content-wrapper.ipd-ward-page {
+    background: linear-gradient(180deg, #141b2b 0, #11151d 280px) !important;
+}
 
 html[data-theme="dark"] .theme-toggle {
     border-color: #2c3631;

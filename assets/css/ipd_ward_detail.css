@@ -1,3 +1,8 @@
+/* พื้นหลังหน้า: ไล่สีฟ้าอ่อนตามโทนผู้ป่วยใน (theme.css ตั้ง .content-wrapper เป็นเขียวของเว็บ) */
+.content-wrapper.ipd-ward-page {
+    background: linear-gradient(180deg, #e6eefc 0, #f2f5fb 280px) !important;
+}
+
 /* =========================================================
    IPD WARD DETAIL - STANDARD TYPOGRAPHY
 ========================================================= */

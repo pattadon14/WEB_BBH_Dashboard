@@ -649,6 +649,23 @@ include 'templates/sidebar.php';
 
                                                 <div class="service-name">
 
+                                                    <i class="fa-solid fa-cash-register"></i>
+                                                    ห้องเก็บเงิน
+
+                                                </div>
+
+                                                <div class="service-total" id="cashier_total">
+
+                                                    Loading…
+
+                                                </div>
+
+                                            </div>
+
+                                            <div class="service-item">
+
+                                                <div class="service-name">
+
                                                     <i class="fa-solid fa-scale-balanced"></i>
                                                     ศูนย์พิทักษ์สิทธิ์
 
@@ -663,6 +680,11 @@ include 'templates/sidebar.php';
                                             </div>
 
                                         </div>
+
+                                        <!-- แสดงเมื่อมีรายการเกิน 10 และยังเลื่อนไม่สุด (fitServiceList) -->
+                                        <p class="service-more" id="service-more" hidden>
+                                            <i class="fa-solid fa-angles-down" aria-hidden="true"></i> เลื่อนลงดูอีก <b>0</b> รายการ
+                                        </p>
 
                                     </div>
 
@@ -691,6 +713,19 @@ include 'templates/sidebar.php';
             </div>
             <button type="button" class="opd-drill-close" id="svc-detail-close" aria-label="ปิด"><i class="fa-solid fa-xmark"></i></button>
         </header>
+        <!-- เลือกวันที่ดูข้อมูล (service_detail.js โหลดบริการเดิมของวันที่เลือก) -->
+        <div class="svc-date-bar">
+            <div class="svc-seg" role="group" aria-label="เลือกวันด่วน">
+                <button type="button" data-svc-day="0" aria-pressed="true">วันนี้</button>
+                <button type="button" data-svc-day="1" aria-pressed="false">เมื่อวาน</button>
+                <button type="button" data-svc-day="7" aria-pressed="false">สัปดาห์ก่อน</button>
+            </div>
+            <!-- ช่องวันที่แบบเดียวกับตัวเลือกช่วงเวลา (theme.css .bbh-range/.bbh-date): แสดง พ.ศ. ทับ input date ที่โปร่งใส -->
+            <div class="bbh-range">
+                <i class="fa-solid fa-calendar-day" aria-hidden="true"></i>
+                <label class="bbh-date"><span id="svc-detail-date-text"></span><input type="date" id="svc-detail-date" aria-label="เลือกวันที่"></label>
+            </div>
+        </div>
         <div class="svc-detail-scroll">
             <div class="svc-detail-summary" id="svc-detail-summary"></div>
             <div class="svc-detail-list" id="svc-detail-list" hidden>
@@ -960,58 +995,50 @@ async function loadServiceSummary() {
     const data =
         await response.json();
 
-    document.getElementById('scope_total').innerHTML =
-        data.scope_total + ' ราย';
-
-    document.getElementById('observe_total').innerHTML =
-        data.observe_total + ' ราย';
-
-    document.getElementById('or_total').innerHTML =
-        data.or_total + ' ราย';
-
-    document.getElementById('lr_total').innerHTML =
-        data.lr_total + ' ราย';
-
-    document.getElementById('pt_total').innerHTML =
-        data.pt_total + ' ราย';
-
-    document.getElementById('thai_total').innerHTML =
-        data.thai_total + ' ราย';
-
-    document.getElementById('dent_total').innerHTML =
-        data.dent_total + ' ราย';
-
-    document.getElementById('xray_total').innerHTML =
-        data.xray_total + ' ราย';
-
-    document.getElementById('hemo_total').innerHTML =
-        data.hemo_total + ' ราย';
-    document.getElementById('wound_total').innerHTML =
-        data.wound_total + ' ราย';
-    document.getElementById('us_total').innerHTML =
-        data.us_total + ' ราย';
-    document.getElementById('lab_total').innerHTML =
-        data.lab_total + ' ราย';
-
-    document.getElementById('ct_total').innerHTML =
-        data.ct_total + ' ราย';
-
-    document.getElementById('rights_total').innerHTML =
-        data.rights_total + ' ราย';
+    // ตัวเลขแต่ละบริการ: key ของ API (<บริการ>_total) = id ในการ์ด (config/services.php)
+    Object.entries(data).forEach(([id, n]) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = Number(n).toLocaleString('th-TH') + ' ราย';
+    });
 
     // เรียงมากไปน้อย และทำให้รายการที่เป็น 0 เป็นสีเทา ให้เห็นบริการที่มีผู้ใช้ก่อน (sort แบบ stable: เท่ากันคงลำดับเดิม)
     const serviceBox = document.getElementById('service-container');
     [...serviceBox.children]
-        .map(el => [el, parseInt(el.querySelector('.service-total').textContent, 10) || 0])
+        .map(el => [el, parseInt(el.querySelector('.service-total').textContent.replace(/,/g, ''), 10) || 0])
         .sort((a, b) => b[1] - a[1])
         .forEach(([el, total]) => {
             el.classList.toggle('is-zero', total === 0);
             serviceBox.appendChild(el);
         });
+    fitServiceList();
 
     markUpdated();
 
 }
+
+// การ์ดบริการแสดง 10 รายการแรก (เรียงมากไปน้อย) ที่เหลือเลื่อนดูในกรอบ — สูงพอดี 10 รายการ วัดจากหน้าจอจริง
+const SERVICE_VISIBLE = 10;
+function fitServiceList() {
+    const box = document.getElementById('service-container');
+    const items = box.children;
+    const more = document.getElementById('service-more');
+    const extra = items.length - SERVICE_VISIBLE;
+    box.style.maxHeight = '';
+    box.classList.toggle('is-scroll', extra > 0);
+    if (extra > 0) {
+        const last = items[SERVICE_VISIBLE - 1];
+        box.style.maxHeight = (last.offsetTop + last.offsetHeight - items[0].offsetTop) + 'px';
+    }
+    if (more) {
+        more.hidden = extra <= 0 || box.scrollTop + box.clientHeight >= box.scrollHeight - 4;
+        more.querySelector('b').textContent = Math.max(extra, 0);
+    }
+}
+document.getElementById('service-container').addEventListener('scroll', () => {
+    const box = document.getElementById('service-container');
+    document.getElementById('service-more').hidden = box.scrollTop + box.clientHeight >= box.scrollHeight - 4;
+}, { passive: true });
+window.addEventListener('resize', fitServiceList);
 
 loadServiceSummary();
 

@@ -444,6 +444,25 @@
     color: var(--bbh-muted);
 }
 
+/* รายการเกิน 10: กรอบสูงพอดี 10 รายการ (ตั้งใน index.php fitServiceList) เลื่อนดูที่เหลือ + ข้อความบอกว่ามีอีก */
+.home-dash #service-container { position: relative; }
+.home-dash #service-container.is-scroll {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--bbh-green-soft) transparent;
+    padding-right: 4px;
+}
+.home-dash .service-more {
+    margin: 8px 0 0;
+    padding-top: 8px;
+    border-top: 1px dashed var(--bbh-border);
+    color: var(--bbh-muted);
+    font-size: 1.15rem;
+    text-align: center;
+}
+.home-dash .service-more b { color: var(--bbh-green); font-variant-numeric: tabular-nums; }
+
 /* =========================================================
    Popup รายละเอียดบริการ (การ์ดสถิติการใช้บริการอื่นๆ) — ต่อยอดจาก .opd-drill ใน opd_tabs.css
 ========================================================= */
@@ -451,6 +470,20 @@
 .home-dash .service-item:focus-visible { outline: none; box-shadow: var(--bbh-ring); }
 
 .svc-detail { width: min(1180px, calc(100% - 32px)); }
+
+/* แถบเลือกวันที่ในหน้าต่างรายละเอียดบริการ */
+.svc-date-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 0 24px 12px; }
+.svc-seg { display: inline-flex; padding: 4px; gap: 4px; border: 1px solid var(--bbh-border); border-radius: 12px; background: var(--bbh-green-50); }
+.svc-seg button {
+    min-height: 40px; padding: 0 16px; border: 0; border-radius: 8px; background: transparent;
+    color: var(--bbh-green-700, #146c43); font-size: 1.1rem; font-weight: 600; cursor: pointer;
+    transition: background-color 150ms ease, color 150ms ease;
+}
+.svc-seg button:is(:hover, :active) { background: var(--bbh-green-100); }
+.svc-seg button[aria-pressed="true"] { background: var(--bbh-green); color: #fbfefc; }
+.svc-seg button:focus-visible { outline: 2px solid var(--bbh-green); outline-offset: 2px; }
+.svc-date-bar .bbh-range { height: 50px; }
+@media (prefers-reduced-motion: reduce) { .svc-seg button { transition: none; } }
 .badge.bg-info { background-color: #117a8b !important; }
 .svc-detail-scroll { flex: 1; min-height: 0; overflow: auto; }
 .svc-detail .opd-drill-body { overflow: visible; }

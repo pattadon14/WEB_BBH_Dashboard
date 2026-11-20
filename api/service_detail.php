@@ -43,7 +43,8 @@ try {
                TO_CHAR(COALESCE(x.t, ov.vsttime, i.regtime), 'HH24:MI') AS time,
                COALESCE(k.department, w.name, '') AS dep,
                COALESCE(pt.name, ov.pttype, i.pttype, '') AS pttype,
-               COALESCE(x.item, '') AS item
+               COALESCE(x.item, '') AS item,
+               CASE WHEN i.an IS NOT NULL THEN 'ผู้ป่วยใน' ELSE 'ผู้ป่วยนอก' END AS kind
         FROM ({$def['sql']}) x
         LEFT JOIN ovst ov          ON ov.vn = x.vn
         LEFT JOIN ipt i            ON i.an = x.an

@@ -98,7 +98,9 @@ $isProviderLoggedIn = provider_is_logged_in();
                     <li><a href="#" data-ipd-ward-key="surgery"><i class="fa-solid fa-user-doctor"></i><span>ศัลยกรรม</span></a></li>
                     <li><a href="#" data-ipd-ward-key="private5"><i class="fa-solid fa-door-open"></i><span>ผู้ป่วยห้องพิเศษ ชั้น 5</span></a></li>
                     <li><a href="#" data-ipd-ward-key="stroke"><i class="fa-solid fa-brain"></i><span>STROKE UNIT (หลอดเลือดสมอง)</span></a></li>
-                    <li><a href="#" data-ipd-ward-key="lr"><i class="fa-solid fa-person-pregnant"></i><span>LR (ห้องคลอด)</span></a></li>
+                    <?php /* ห้องคลอด (ward 04) ไม่มีการ์ดหน้าแรก (api/index_ward_bed.php ไม่นับ) จึงลิงก์ตรงด้วยรหัส ward */ ?>
+                    <li><a href="<?= BASE_URL ?>pages/ipd_ward_detail.php?ward=04"
+                            class="<?= $currentPage === 'ipd_ward_detail.php' && $currentWard === '04' ? 'active' : '' ?>"><i class="fa-solid fa-person-pregnant"></i><span>LR (ห้องคลอด)</span></a></li>
                     <li><a href="#" data-ipd-ward-key="icu"><i class="fa-solid fa-heart-pulse"></i><span>ICU (ผู้ป่วยหนัก)</span></a></li>
                     <li><a href="#" data-ipd-ward-key="snb"><i class="fa-solid fa-baby"></i><span>SNB (ทารกแรกเกิดป่วย)</span></a></li>
                     <li><a href="#" data-ipd-ward-key="pp"><i class="fa-solid fa-person-breastfeeding"></i><span>PP (มารดาหลังคลอด)</span></a></li>
@@ -130,9 +132,17 @@ $isProviderLoggedIn = provider_is_logged_in();
 
         <div class="bbh-sidebar-divider"></div>
 
+        <?php /* Dashboard ตามงาน — หน้ายังไม่มี จึงเป็นรายการปิดไว้ (เปลี่ยนเป็นลิงก์เมื่อสร้างหน้าแล้ว) */ ?>
+        <div class="bbh-sidebar-section-title">Dashboard ตามงาน</div>
+        <ul class="bbh-sidebar-menu">
+            <li><a href="#" class="bbh-sidebar-static-item" aria-disabled="true" tabindex="-1" title="งานฝากครรภ์ (ANC)"><i class="fa-solid fa-person-pregnant"></i><span>ANC Dashboard</span><small class="bbh-soon">เร็วๆ นี้</small></a></li>
+            <li><a href="#" class="bbh-sidebar-static-item" aria-disabled="true" tabindex="-1" title="โรคไม่ติดต่อเรื้อรัง (NCD) เช่น เบาหวาน ความดันโลหิตสูง"><i class="fa-solid fa-heart-circle-bolt"></i><span>NCD Dashboard</span><small class="bbh-soon">เร็วๆ นี้</small></a></li>
+            <li><a href="#" class="bbh-sidebar-static-item" aria-disabled="true" tabindex="-1" title="การเงินและรายได้"><i class="fa-solid fa-sack-dollar"></i><span>Finance Dashboard</span><small class="bbh-soon">เร็วๆ นี้</small></a></li>
+        </ul>
+
         <div class="bbh-sidebar-section-title">ระบบ</div>
         <ul class="bbh-sidebar-menu">
-            <li><a href="<?= BASE_URL ?>" title="กลับหน้าหลัก"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a></li>
+            <li><a href="<?= BASE_URL ?>" title="ภาพรวมการให้บริการทั้งโรงพยาบาลวันนี้ (หน้าแรก)"><i class="fa-solid fa-hospital"></i><span>ภาพรวมบริการ รพ.วันนี้</span></a></li>
         </ul>
     </div>
 </aside>

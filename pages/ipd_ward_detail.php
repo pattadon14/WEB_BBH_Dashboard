@@ -742,7 +742,8 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     }
 
     async function loadWardOverview() {
-        const response = await fetch(baseUrl + 'api/index_ward_bed.php', {
+        // all=1: รวมห้องคลอด (04) ที่หน้าแรกไม่แสดงการ์ด
+        const response = await fetch(baseUrl + 'api/index_ward_bed.php?all=1', {
             cache: 'no-store'
         });
         if (!response.ok) throw new Error('ไม่สามารถโหลดข้อมูลสรุป Ward ได้');

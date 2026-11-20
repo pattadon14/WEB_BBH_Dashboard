@@ -22,6 +22,12 @@ include '../templates/sidebar.php';
 
         <div class="er-page">
 
+            <div class="opd-toolbar">
+                <a class="opd-tool-btn" href="<?= BASE_URL ?>index.php">
+                    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> หน้าแรก
+                </a>
+            </div>
+
             <!-- สรุปรายวัน (api/er_today_summary.php · er_d2d.php · er_los.php · assets/js/er_summary.js)
                  ทุกตัวเลขที่มี data-drill ต้องอยู่ใน #er-summary (bbhDrill.bind) · หัวข้อมีเลขลำดับ (.er-sec-no) แยกส่วนให้ชัด -->
             <div id="er-summary">

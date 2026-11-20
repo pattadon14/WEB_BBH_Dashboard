@@ -630,6 +630,12 @@ html[data-theme="dark"] .home-dash .service-item:hover {
 html[data-theme="dark"] .home-dash .service-item.is-zero .service-total {
     background: #191a19;
 }
+html[data-theme="dark"] .svc-seg button {
+    color: var(--bbh-green-700, #89d8a9);
+}
+html[data-theme="dark"] .svc-seg button[aria-pressed="true"] {
+    color: #fbfefc;
+}
 html[data-theme="dark"] .badge.bg-info {
     background-color: #117a8b !important;
 }
@@ -690,6 +696,9 @@ html[data-theme="dark"] .er-theme.ipd-page .ward-status-danger {
 }
 
 /* ---- assets/css/ipd_ward_detail.css ---- */
+html[data-theme="dark"] .content-wrapper.ipd-ward-page {
+    background: linear-gradient(180deg, #191c21 0, #18191b 280px) !important;
+}
 html[data-theme="dark"] .ipd-ward-page .ward-page-header {
     background: #1d4ed8;
 }

@@ -1,12 +1,13 @@
 <?php
 
-ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
 header('Content-Type: application/json; charset=utf-8');
 
 require_once '../config/cache.php';
-api_cache('home_ward_bed'); // คำตอบเดียวกันทุกจอ รีเฟรชทุก 60 วินาที
+// ?all=1 = หน้ารายละเอียดหอ (pages/ipd_ward_detail.php): รวมห้องคลอด (04) ด้วย — หน้าแรก/เมนูไม่ส่ง จึงไม่มีการ์ดห้องคลอด
+$all = ($_GET['all'] ?? '') === '1';
+api_cache($all ? 'home_ward_bed_all' : 'home_ward_bed'); // คำตอบเดียวกันทุกจอ รีเฟรชทุก 60 วินาที
 require_once '../config/database.php';
 require_once '../config/ward.php';
 
@@ -26,7 +27,7 @@ FROM
 	AND i.dchdate IS NULL 
 WHERE
 	w.ward_active = 'Y' 
-	AND w.ward NOT IN ('10','11','05','04')
+	AND w.ward NOT IN ('10','11','05'" . ($all ? '' : ",'04'") . ")
 GROUP BY
 	w.ward,
 	w.NAME,

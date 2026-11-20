@@ -11,6 +11,9 @@
 
 date_default_timezone_set('Asia/Bangkok'); // เซิร์ฟเวอร์เป็น UTC — "วันนี้" และเวลาเทียบสัปดาห์ก่อนต้องเป็นเวลาไทย
 
+// จุดการเงินทุกจุด (kskdepartment ที่ชื่อมี "เงิน") — ชุดเดียวกับ EXIT_DEPS ใน api/opd_visit_list.php ส่วนที่เป็นการเงิน
+const SVC_CASHIER_DEPS = "'014', '053', '077', '083', '200', '225', '234'";
+
 // visit ของวันนั้นที่ผ่านแผนก — ดู opd_dep_queue ด้วย เพราะ ovst.cur_dep เปลี่ยนทันทีเมื่อผู้ป่วยย้ายออกจากห้อง
 function svc_visit_through(string $deps, bool $mainDep = true): string
 {
@@ -123,6 +126,19 @@ function service_defs(): array
             SELECT MIN(h.hn) hn, h.vn, h.vn an, MIN(h.order_time) t, string_agg(DISTINCT h.form_name, ' | ') item
             FROM lab_head h WHERE h.order_date = :d AND h.vn IS NOT NULL
             GROUP BY h.vn"],
+
+        // ห้องเก็บเงิน: visit ที่ผ่านจุดการเงินทุกจุด (014 ห้องเก็บเงินหลัก, 053 ทันตกรรม, 077 คลินิคหวัด, 083 กายภาพ, 200 ARI,
+        // 225 คลินิกพิเศษ, 234 PCU) — นับ visit, เวลา = เข้าคิวการเงินครั้งแรก, รายการ = จุดการเงินที่ผ่าน (ชื่อแผนกตัดรหัสนำหน้า)
+        'cashier' => ['label' => 'ห้องเก็บเงิน', 'by' => 'item', 'sql' => "
+            SELECT o.hn, o.vn, NULL::varchar an,
+                COALESCE((SELECT MIN(q.queue_datetime)::time FROM opd_dep_queue q
+                          WHERE q.vn = o.vn AND q.depcode IN (" . SVC_CASHIER_DEPS . ")), o.vsttime) t,
+                COALESCE((SELECT string_agg(DISTINCT regexp_replace(k.department, '^[0-9]+ *', ''), ' | ')
+                          FROM opd_dep_queue q JOIN kskdepartment k ON k.depcode = q.depcode
+                          WHERE q.vn = o.vn AND q.depcode IN (" . SVC_CASHIER_DEPS . ")),
+                         (SELECT regexp_replace(k2.department, '^[0-9]+ *', '') FROM kskdepartment k2
+                          WHERE k2.depcode = o.cur_dep)) item
+            FROM ovst o WHERE " . svc_visit_through(SVC_CASHIER_DEPS, false)],
 
         'ct' => ['label' => 'CT Scan', 'by' => 'item', 'sql' => "
             SELECT MIN(h.hn) hn, h.vn, h.vn an, MIN(COALESCE(h.order_time, h.order_date_time::time)) t, string_agg(DISTINCT h.xray_list, ' | ') item

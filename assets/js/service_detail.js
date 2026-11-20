@@ -14,9 +14,23 @@
     const fmt = n => Number(n).toLocaleString('th-TH');
     const PAGE = 50;
     const BY_LABEL = { item: 'แยกตามรายการ', dep: 'แยกตามแผนกที่ลงทะเบียน', pttype: 'แยกตามสิทธิ์' };
-    const FILTERS = [['dep', 'แผนก / วอร์ด'], ['pttype', 'สิทธิ์']];
+    // ตัวกรองรายชื่อ (แสดงเฉพาะที่มีค่ามากกว่า 1 แบบ) — item: 1 รายมีได้หลายรายการ กรองแบบ "มีรายการนี้"
+    const FILTERS = [['kind', 'ประเภทผู้ป่วย'], ['shift', 'ช่วงเวลา'], ['item', 'รายการ'], ['dep', 'แผนก / วอร์ด'], ['pttype', 'สิทธิ์']];
+    const SHIFTS = ['ในเวลาราชการ (08:00–15:59)', 'นอกเวลา (16:00–23:59)', 'นอกเวลา (00:00–07:59)'];
+    const shiftOf = t => {
+        if (!t) return '';
+        const h = Number(t.slice(0, 2));
+        return h >= 8 && h < 16 ? SHIFTS[0] : h >= 16 ? SHIFTS[1] : SHIFTS[2];
+    };
+
+    // วันที่ดูข้อมูล: ค่าเริ่มต้นวันนี้ (เวลาเครื่องผู้ใช้ = เวลาไทย) เลือกย้อนหลังได้ ไม่เกินวันนี้
+    const iso = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    const today = () => iso(new Date());
+    const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return iso(d); };
+    const dateInput = $('svc-detail-date');
 
     let state = { rows: [], cols: [], file: '', page: 1 };
+    let current = { svc: '', icon: '' };   // บริการที่เปิดอยู่ (เปลี่ยนวันที่แล้วโหลดบริการเดิม)
     let seq = 0;   // กันคำตอบของบริการก่อนหน้ามาทับ เมื่อกดเปลี่ยนเร็ว ๆ
     let chart = null;
 
@@ -34,7 +48,8 @@
             e.preventDefault();
         }
         const total = el.querySelector('.service-total');
-        open(total.id.replace(/_total$/, ''), el.querySelector('.service-name i')?.className || '');
+        // เปิดจากการ์ด = วันนี้เสมอ (การ์ดเป็นยอดวันนี้)
+        open(total.id.replace(/_total$/, ''), el.querySelector('.service-name i')?.className || '', today());
     };
     box.addEventListener('click', trigger);
     box.addEventListener('keydown', trigger);
@@ -51,6 +66,15 @@
         renderTable();
     });
     $('svc-detail-export').addEventListener('click', exportCsv);
+    // เปลี่ยนวันที่: ปุ่มลัด หรือปฏิทิน → โหลดบริการเดิมของวันนั้น
+    dlg.querySelectorAll('[data-svc-day]').forEach(b => b.addEventListener('click', () => {
+        if (current.svc) open(current.svc, current.icon, daysAgo(Number(b.dataset.svcDay)));
+    }));
+    dateInput.addEventListener('click', () => { try { dateInput.showPicker(); } catch (e) { /* เบราว์เซอร์เก่า: ปฏิทินปกติ */ } });
+    dateInput.addEventListener('change', () => {
+        if (!dateInput.value || !current.svc) return;
+        open(current.svc, current.icon, dateInput.value > today() ? today() : dateInput.value);
+    });
     // คลิกแถบ "แยกตาม…" = ค้นหารายชื่อด้วยค่านั้น
     const pickGroup = e => {
         const g = e.target.closest('[data-group]');
@@ -69,9 +93,16 @@
     $('svc-detail-summary').addEventListener('click', pickGroup);
     $('svc-detail-summary').addEventListener('keydown', pickGroup);
 
-    async function open(svc, iconClass) {
+    async function open(svc, iconClass, date) {
 
         const my = ++seq;
+        current = { svc, icon: iconClass };
+        dateInput.max = today();
+        dateInput.value = date;
+        $('svc-detail-date-text').textContent = new Date(date + 'T00:00:00')
+            .toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' });
+        dlg.querySelectorAll('[data-svc-day]').forEach(b =>
+            b.setAttribute('aria-pressed', String(daysAgo(Number(b.dataset.svcDay)) === date)));
         $('svc-detail-title').innerHTML = `<i class="${esc(iconClass)}" aria-hidden="true"></i> กำลังโหลด…`;
         $('svc-detail-sub').textContent = '';
         $('svc-detail-summary').innerHTML = '<p class="opd-drill-msg"><i class="fa-solid fa-spinner fa-spin"></i> กำลังโหลดข้อมูล…</p>';
@@ -80,7 +111,7 @@
         if (!dlg.open) dlg.showModal();
 
         try {
-            const res = await fetch('api/service_detail.php?svc=' + encodeURIComponent(svc));
+            const res = await fetch('api/service_detail.php?svc=' + encodeURIComponent(svc) + '&date=' + encodeURIComponent(date));
             const data = await res.json();
             if (my !== seq) return;
             if (!res.ok || data.error) throw new Error(data.error || 'โหลดข้อมูลไม่สำเร็จ');
@@ -88,7 +119,7 @@
             const thDate = new Date(data.date + 'T00:00:00').toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' });
             const now = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
             $('svc-detail-title').innerHTML = `<i class="${esc(iconClass)}" aria-hidden="true"></i> ${esc(data.label)}`;
-            $('svc-detail-sub').textContent = `วันที่ ${thDate} · ข้อมูล ณ ${now} น.`;
+            $('svc-detail-sub').textContent = `วันที่ ${thDate}` + (data.date === today() ? ` · ข้อมูล ณ ${now} น.` : '');
             renderSummary(data);
             renderList(data);
 
@@ -113,11 +144,12 @@
         const rest = d.groups.slice(10);
         const max = groups.length ? groups[0].n : 1;
         const canFilter = Array.isArray(d.rows) && d.rows.length > 0;
+        const isToday = d.date === today();
 
         $('svc-detail-summary').innerHTML = `
             <div class="svc-kpis">
-                <div class="svc-kpi"><span>ยอดวันนี้</span><strong>${fmt(d.total)}</strong> ราย</div>
-                <div class="svc-kpi"><span>สัปดาห์ก่อน (วันเดียวกัน ถึงเวลาเดียวกัน)</span><strong>${fmt(d.prev)}</strong> ราย ${trend}</div>
+                <div class="svc-kpi"><span>${isToday ? 'ยอดวันนี้' : 'ยอดวันที่เลือก'}</span><strong>${fmt(d.total)}</strong> ราย</div>
+                <div class="svc-kpi"><span>สัปดาห์ก่อน (วันเดียวกัน${isToday ? ' ถึงเวลาเดียวกัน' : ''})</span><strong>${fmt(d.prev)}</strong> ราย ${trend}</div>
                 <div class="svc-kpi"><span>ช่วงเวลาที่มากที่สุด</span>${peak.h === null ? '<strong>–</strong>'
                     : `<strong>${hh(peak.h)}:00–${hh(peak.h)}:59</strong> ${fmt(peak.n)} ราย`}</div>
             </div>
@@ -190,17 +222,20 @@
         }
 
         tools.hidden = false;
-        const cols = [['time', 'เวลา'], ['hn', 'HN'], ['name', 'ชื่อ-สกุล'], ['dep', 'แผนก / วอร์ด'], ['pttype', 'สิทธิ์']];
+        const cols = [['time', 'เวลา'], ['hn', 'HN'], ['name', 'ชื่อ-สกุล'], ['kind', 'ประเภท'], ['dep', 'แผนก / วอร์ด'], ['pttype', 'สิทธิ์']];
         if (d.rows.some(r => r.item)) cols.push(['item', 'รายการ']);
-        state = { rows: d.rows, cols, by: d.by, file: `${d.svc}_${d.date}.csv`, page: 1 };
-        $('svc-detail-export').disabled = !d.rows.length;
+        // ช่วงเวลา (จากเวลาที่รับบริการ) + รายการแยกเป็นชุด สำหรับตัวกรอง
+        const rows = d.rows.map(r => ({ ...r, shift: shiftOf(r.time), items: r.item ? r.item.split(' · ') : [] }));
+        state = { rows, cols, by: d.by, file: `${d.svc}_${d.date}.csv`, page: 1 };
+        $('svc-detail-export').disabled = !rows.length;
 
         $('svc-detail-filters').innerHTML = FILTERS.map(([k, label]) => {
             const counts = new Map();
-            d.rows.forEach(r => { if (r[k]) counts.set(r[k], (counts.get(r[k]) || 0) + 1); });
+            rows.forEach(r => (k === 'item' ? r.items : [r[k]]).forEach(v => { if (v) counts.set(v, (counts.get(v) || 0) + 1); }));
             if (counts.size < 2) return '';
-            const opts = [...counts].sort((a, b) => b[1] - a[1])
-                .map(([v, n]) => `<option value="${esc(v)}">${esc(v)} (${fmt(n)})</option>`).join('');
+            const order = k === 'shift' ? [...counts].sort((a, b) => SHIFTS.indexOf(a[0]) - SHIFTS.indexOf(b[0]))
+                : [...counts].sort((a, b) => b[1] - a[1]);
+            const opts = order.map(([v, n]) => `<option value="${esc(v)}">${esc(v)} (${fmt(n)})</option>`).join('');
             return `<label class="opd-drill-filter"><span>${label}</span>
                 <select data-filter="${k}"><option value="">ทั้งหมด</option>${opts}</select></label>`;
         }).join('');
@@ -212,7 +247,7 @@
         const q = $('svc-detail-q').value.trim().toLowerCase();
         const picks = [...$('svc-detail-filters').querySelectorAll('select')].filter(s => s.value).map(s => [s.dataset.filter, s.value]);
         return state.rows.filter(r =>
-            picks.every(([k, v]) => r[k] === v) &&
+            picks.every(([k, v]) => (k === 'item' ? r.items.includes(v) : r[k] === v)) &&
             (!q || state.cols.some(([k]) => String(r[k] ?? '').toLowerCase().includes(q))));
     }
 
@@ -227,7 +262,7 @@
 
         if (!rows.length) {
             pager.innerHTML = '';
-            body.innerHTML = `<p class="opd-drill-msg">${all ? 'ไม่พบรายการตามที่ค้นหา/กรอง' : 'ยังไม่มีผู้รับบริการวันนี้'}</p>`;
+            body.innerHTML = `<p class="opd-drill-msg">${all ? 'ไม่พบรายการตามที่ค้นหา/กรอง' : 'ไม่มีผู้รับบริการในวันที่เลือก'}</p>`;
             return;
         }
 

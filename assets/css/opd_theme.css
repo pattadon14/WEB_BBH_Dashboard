@@ -34,19 +34,10 @@
     --opd-3d-solid: #0f5132;
 }
 
-/* แถบบน: กลับหน้าแรก | แท็บ | 3D Monitor */
-.er-theme.opd-theme .opd-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 16px; }
+/* แถบบน: กลับหน้าแรก | แท็บ | 3D Monitor — ปุ่มพื้นฐาน (.opd-toolbar / .opd-tool-btn) อยู่ใน er_theme.css ใช้ร่วมกับหน้า ER / IPD */
 .er-theme.opd-theme .opd-toolbar .opd-page-tabs { flex: 0 1 auto; }
-.er-theme.opd-theme .opd-tool-btn {
-    display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 16px;
-    border: 1px solid var(--er-card-line); border-radius: 10px; background: var(--er-page-bg); color: var(--er-text);
-    font-size: 1.15rem; font-weight: 700; line-height: 1.1; text-decoration: none; white-space: nowrap;
-    transition: background-color 150ms ease, color 150ms ease;
-}
-.er-theme.opd-theme .opd-tool-btn:hover { background: var(--er-tint); color: var(--er-text); text-decoration: none; }
 .er-theme.opd-theme .opd-tool-btn.is-3d { margin-left: auto; background: var(--opd-3d-solid); border-color: var(--opd-3d-solid); color: var(--er-on-solid); }
 .er-theme.opd-theme .opd-tool-btn.is-3d:hover { background: var(--er-solid); color: var(--er-on-solid); }
-:root .er-theme.opd-theme .opd-tool-btn:focus-visible { outline: 2px solid var(--er-solid); outline-offset: 2px; }
 
 /* ป้าย Live บนแถบหัว: อยู่ใน er_theme.css (ใช้ร่วมกับหน้า ER / IPD) */
 
@@ -99,9 +90,6 @@
 }
 @media (max-width: 991.98px) {
     .er-theme.opd-theme .opd-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-}
-@media (prefers-reduced-motion: reduce) {
-    .er-theme.opd-theme .opd-tool-btn { transition: none; }
 }
 @media (max-width: 991.98px) {
     .er-theme.opd-theme .opd-tool-btn.is-3d { margin-left: 0; }
