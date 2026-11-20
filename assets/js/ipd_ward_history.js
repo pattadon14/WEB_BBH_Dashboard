@@ -34,13 +34,13 @@
             .ipd-ward-page .ipd-history-trigger {
                 display:inline-flex; align-items:center; justify-content:center; gap:8px;
                 min-width:150px; min-height:42px; padding:8px 16px;
-                border:1px solid #198754; border-radius:8px; background:#fff; color:#198754;
+                border:1px solid #1d4ed8; border-radius:8px; background:#fff; color:#1d4ed8;
                 font-size:16px; font-weight:700; box-shadow:0 2px 7px rgba(31,45,61,.08);
                 transition:background-color .18s ease, color .18s ease, box-shadow .18s ease, transform .18s ease; cursor:pointer;
             }
             .ipd-ward-page .ipd-history-trigger:hover,
             .ipd-ward-page .ipd-history-trigger:focus-visible {
-                background:#198754; color:#fff; box-shadow:0 4px 12px rgba(25,135,84,.22);
+                background:#1d4ed8; color:#fff; box-shadow:0 4px 12px rgba(29,78,216,.22);
                 transform:translateY(-1px);
             }
             /* <dialog> เต็มจอ ทำหน้าที่เป็นพื้นหลังมืด — browser ดูแล focus ให้อยู่ในหน้าต่าง และปิดด้วย Esc */
@@ -62,9 +62,9 @@
             }
             .bbh-history-modal-head {
                 display:flex; align-items:center; justify-content:space-between; gap:15px;
-                padding:16px 20px 13px; border-bottom:1px solid #e7ece9; background:#f8faf9;
+                padding:16px 20px 13px; border-bottom:1px solid #e7ece9; background:#f6f8fd;
             }
-            .bbh-history-modal-title { margin:0; color:#147447; font-size:21px; font-weight:700; }
+            .bbh-history-modal-title { margin:0; color:#1e3a8a; font-size:21px; font-weight:700; }
             .bbh-history-modal-subtitle { margin:3px 0 0; color:#5b6773; font-size:15px; }
             .bbh-history-modal-close {
                 width:44px; height:44px; flex:0 0 44px; border:1px solid #d9e1dd; border-radius:10px;
@@ -79,8 +79,8 @@
             }
             .bbh-history-year-label { color:#66727b; font-size:16px; font-weight:600; }
             .bbh-history-year {
-                min-width:165px; height:40px; padding:6px 12px; border:1px solid #198754; border-radius:8px;
-                background:#fff; color:#146c43; font-size:16px; font-weight:700;
+                min-width:165px; height:40px; padding:6px 12px; border:1px solid #1d4ed8; border-radius:8px;
+                background:#fff; color:#1e40af; font-size:16px; font-weight:700;
             }
             .bbh-history-tabs {
                 display:flex; gap:4px; padding:10px 20px 0; border-bottom:1px solid #dfe7e3; background:#fff;
@@ -89,9 +89,9 @@
                 border:0; border-bottom:3px solid transparent; border-radius:7px 7px 0 0;
                 padding:10px 18px 9px; background:transparent; color:#66727b; font-size:16px; font-weight:700; cursor:pointer;
             }
-            .bbh-history-tab:hover { background:#f4f8f6; color:#146c43; }
+            .bbh-history-tab:hover { background:#f3f6fd; color:#1e40af; }
             .bbh-history-tab:focus-visible { outline-offset:-3px; }
-            .bbh-history-tab.active { color:#146c43; border-bottom-color:#198754; background:#f8faf9; }
+            .bbh-history-tab.active { color:#1e40af; border-bottom-color:#1d4ed8; background:#f6f8fd; }
             .bbh-history-panel { min-height:460px; overflow:auto; padding:10px 14px 14px; }
             .bbh-history-panel[hidden] { display:none; }
             .bbh-history-chart { width:100%; height:440px; }
@@ -278,9 +278,9 @@
             xAxis: { categories:categories, labels:{ style:{ fontSize:'14px' } }, lineColor:'#dfe7e3' },
             yAxis: { min:0, max:axis.max, tickInterval:axis.tick, allowDecimals:false, title:{ text:'จำนวนผู้ป่วย (ราย)', style:{ fontSize:'14px' } }, labels:{ style:{ fontSize:'13px' } }, gridLineColor:'#edf1ef' },
             tooltip: { shared:false, valueSuffix:' ราย', style:{ fontSize:'14px' } },
-            plotOptions: { column:{ borderRadius:4, pointPadding:.08, groupPadding:.10, color:'#198754', borderColor:'#147447', dataLabels:{ enabled:true, crop:false, overflow:'allow', formatter:function(){ return this.y > 0 ? Highcharts.numberFormat(this.y,0) : null; }, style:{ fontSize:'13px', fontWeight:'bold', textOutline:'none' } } } },
+            plotOptions: { column:{ borderRadius:4, pointPadding:.08, groupPadding:.10, color:'#1d4ed8', borderColor:'#1e3a8a', dataLabels:{ enabled:true, crop:false, overflow:'allow', formatter:function(){ return this.y > 0 ? Highcharts.numberFormat(this.y,0) : null; }, style:{ fontSize:'13px', fontWeight:'bold', textOutline:'none' } } } },
             credits:{ enabled:false }, legend:{ enabled:false },
-            series:[{ name:'ผู้ป่วย Admit', color:'#198754', data:values }]
+            series:[{ name:'ผู้ป่วย Admit', color:'#1d4ed8', data:values }]
         });
     }
 
@@ -296,9 +296,9 @@
             xAxis:{ categories:categories, labels:{ style:{ fontSize:'14px' } }, lineColor:'#dfe7e3' },
             yAxis:{ min:0, max:axis.max, tickInterval:axis.tick, title:{ text:'อัตราครองเตียง (%)', style:{ fontSize:'14px' } }, labels:{ format:'{value}%', style:{ fontSize:'13px' } }, gridLineColor:'#edf1ef' },
             tooltip:{ shared:false, valueDecimals:2, valueSuffix:'%', style:{ fontSize:'14px' } },
-            plotOptions:{ line:{ lineWidth:3, color:'#198754', marker:{ enabled:true, radius:4, fillColor:'#198754', lineColor:'#147447', lineWidth:1 }, dataLabels:{ enabled:true, formatter:function(){ return Highcharts.numberFormat(this.y,1)+'%'; }, style:{ fontSize:'12px', fontWeight:'bold', textOutline:'none' } } } },
+            plotOptions:{ line:{ lineWidth:3, color:'#1d4ed8', marker:{ enabled:true, radius:4, fillColor:'#1d4ed8', lineColor:'#1e3a8a', lineWidth:1 }, dataLabels:{ enabled:true, formatter:function(){ return Highcharts.numberFormat(this.y,1)+'%'; }, style:{ fontSize:'12px', fontWeight:'bold', textOutline:'none' } } } },
             credits:{ enabled:false }, legend:{ enabled:false },
-            series:[{ name:'อัตราการครองเตียง', color:'#198754', data:values }]
+            series:[{ name:'อัตราการครองเตียง', color:'#1d4ed8', data:values }]
         });
     }
 

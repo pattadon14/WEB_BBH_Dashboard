@@ -52,7 +52,7 @@
 .ipd-ward-page .ward-page-header {
     position: relative;
     min-height: 96px;
-    background: #198754;
+    background: #1d4ed8;
     border-radius: 12px;
 }
 
@@ -99,21 +99,21 @@
     min-height: 44px;
     border: 1px solid #ffffff;
     background: #ffffff;
-    color: #146c43;
+    color: #1e40af;
     font-size: 18px !important;
     font-weight: 600;
     line-height: 1.2;
-    box-shadow: 0 2px 7px rgba(25, 135, 84, .16);
+    box-shadow: 0 2px 7px rgba(29, 78, 216, .16);
     transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;
     margin-left: 30px;
 }
 
 .ipd-ward-page .back-btn:hover,
 .ipd-ward-page .back-btn:focus {
-    background: #147447;
-    border-color: #147447;
+    background: #1e3a8a;
+    border-color: #1e3a8a;
     color: #ffffff;
-    box-shadow: 0 4px 12px rgba(25, 135, 84, .24);
+    box-shadow: 0 4px 12px rgba(29, 78, 216, .24);
     transform: translateY(-1px);
 }
 
@@ -191,7 +191,7 @@
     font-size: 16px !important;
     font-weight: 700;
     border-radius: 8px;
-    box-shadow: 0 1px 4px rgba(25, 135, 84, .06);
+    box-shadow: 0 1px 4px rgba(29, 78, 216, .06);
 }
 
 .ipd-ward-page .ipd-history-grid {
@@ -199,7 +199,7 @@
 }
 
 .ipd-ward-page .ipd-history-card {
-    border: 1px solid #d9e3de;
+    border: 1px solid #d6e0ee;
     border-radius: 13px;
     box-shadow: 0 4px 14px rgba(31, 45, 61, .08);
 }
@@ -207,7 +207,7 @@
 .ipd-ward-page .ipd-history-card-head {
     min-height: 48px;
     padding: 13px 18px 7px;
-    border-bottom: 1px solid #edf1ef;
+    border-bottom: 1px solid #edf1f7;
     background: #fbfcfc;
     color: #3f4c54;
     font-size: 17px !important;
@@ -215,7 +215,7 @@
 }
 
 .ipd-ward-page .ipd-history-card-head i {
-    color: #198754;
+    color: #1d4ed8;
 }
 
 .ipd-ward-page .ipd-history-chart,

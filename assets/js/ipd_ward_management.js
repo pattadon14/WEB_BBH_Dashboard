@@ -48,7 +48,7 @@
             .ipd-ward-page .ipd-flow-item { padding:12px 15px; border-right:1px solid #e7ece9; }
             .ipd-ward-page .ipd-flow-item:last-child { border-right:0; }
             .ipd-ward-page .ipd-flow-label { color:#5b6773; font-size:14px; }
-            .ipd-ward-page .ipd-flow-value { margin-top:2px; color:#198754; font-size:23px; font-weight:800; line-height:1.2; }
+            .ipd-ward-page .ipd-flow-value { margin-top:2px; color:#1d4ed8; font-size:23px; font-weight:800; line-height:1.2; }
             .ipd-ward-page .ipd-flow-value.blue { color:#0e6ba8; }
             .ipd-ward-page .ipd-flow-value.red { color:#b02a37; }
             .ipd-ward-page .ipd-flow-value.orange { color:#b45309; }
@@ -59,11 +59,11 @@
             .ipd-ward-page .ipd-quick-label { color:#66727b; font-size:14px; font-weight:700; margin-right:2px; }
             .ipd-ward-page .ipd-quick-btn {
                 border:1px solid #cfe1d7; border-radius:18px; padding:6px 11px;
-                background:#fff; color:#198754; font-size:14px; font-weight:700; cursor:pointer;
+                background:#fff; color:#1d4ed8; font-size:14px; font-weight:700; cursor:pointer;
                 transition:all .15s ease;
             }
             .ipd-ward-page .ipd-quick-btn:hover,
-            .ipd-ward-page .ipd-quick-btn.active { background:#198754; border-color:#198754; color:#fff; }
+            .ipd-ward-page .ipd-quick-btn.active { background:#1d4ed8; border-color:#1d4ed8; color:#fff; }
             .ipd-ward-page .ipd-quick-btn.export { margin-left:auto; color:#0e6ba8; border-color:#cfe0ec; }
             .ipd-ward-page .ipd-quick-btn.export:hover { background:#1683c5; border-color:#1683c5; color:#fff; }
             .ipd-ward-page .ipd-filter-extra-group { display:flex; align-items:center; gap:6px; }
@@ -87,7 +87,7 @@
             .ipd-history-insight .ipd-insight-label,
             #ipd-history-insight .ipd-insight-label { color:#5b6773; font-size:13px; }
             .ipd-history-insight .ipd-insight-value,
-            #ipd-history-insight .ipd-insight-value { color:#198754; font-size:19px; font-weight:800; margin-top:2px; line-height:1.25; }
+            #ipd-history-insight .ipd-insight-value { color:#1d4ed8; font-size:19px; font-weight:800; margin-top:2px; line-height:1.25; }
             .ipd-history-insight .ipd-insight-value.red,
             #ipd-history-insight .ipd-insight-value.red { color:#b02a37; }
             .ipd-history-insight .ipd-insight-value.blue,

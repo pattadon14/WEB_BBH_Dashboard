@@ -60,17 +60,17 @@
 
             .ipd-ward-page .ipd-filter-input:focus,
             .ipd-ward-page .ipd-filter-select:focus {
-                border-color: #198754;
-                box-shadow: 0 0 0 2px rgba(25, 135, 84, .10);
+                border-color: #1d4ed8;
+                box-shadow: 0 0 0 2px rgba(29, 78, 216, .10);
             }
 
             .ipd-ward-page .ipd-filter-reset {
                 height: 38px;
                 padding: 6px 12px;
-                border: 1px solid #198754;
+                border: 1px solid #1d4ed8;
                 border-radius: 7px;
                 background: #fff;
-                color: #198754;
+                color: #1d4ed8;
                 font-size: 14px;
                 font-weight: 600;
                 cursor: pointer;
@@ -78,7 +78,7 @@
             }
 
             .ipd-ward-page .ipd-filter-reset:hover {
-                background: #198754;
+                background: #1d4ed8;
                 color: #fff;
             }
 

@@ -691,7 +691,7 @@ html[data-theme="dark"] .er-theme.ipd-page .ward-status-danger {
 
 /* ---- assets/css/ipd_ward_detail.css ---- */
 html[data-theme="dark"] .ipd-ward-page .ward-page-header {
-    background: #198754;
+    background: #1d4ed8;
 }
 html[data-theme="dark"] .ipd-ward-page .ward-page-title {
     color: #ffffff !important;
@@ -702,12 +702,12 @@ html[data-theme="dark"] .ipd-ward-page .ward-page-subtitle {
 html[data-theme="dark"] .ipd-ward-page .back-btn {
     border: 1px solid #383838;
     background: #161616;
-    color: #89d8a9;
+    color: #b1c8fc;
 }
 html[data-theme="dark"] .ipd-ward-page .back-btn:hover,
 html[data-theme="dark"] .ipd-ward-page .back-btn:focus {
-    background: #147447;
-    border-color: #147447;
+    background: #1e3a8a;
+    border-color: #1e3a8a;
     color: #ffffff;
 }
 html[data-theme="dark"] .ipd-ward-page .back-btn:active {
@@ -718,15 +718,15 @@ html[data-theme="dark"] .ipd-ward-page .ipd-history-section {
     border-top: 1px solid #343937;
 }
 html[data-theme="dark"] .ipd-ward-page .ipd-history-card {
-    border: 1px solid #323a36;
+    border: 1px solid #313943;
 }
 html[data-theme="dark"] .ipd-ward-page .ipd-history-card-head {
-    border-bottom: 1px solid #363937;
+    border-bottom: 1px solid #35383d;
     background: #171717;
     color: #becdd6;
 }
 html[data-theme="dark"] .ipd-ward-page .ipd-history-card-head i {
-    color: #72d39c;
+    color: #a7c2f9;
 }
 
 /* ---- assets/css/login.css ---- */
@@ -783,7 +783,8 @@ html[data-theme="dark"] body:has(.er-theme.opd-theme) {
     --nav-ink: #cfe0d6;
     --nav-muted: #b3c5bc;
 }
-html[data-theme="dark"] body:has(.er-theme.ipd-theme) {
+html[data-theme="dark"] body:has(.er-theme.ipd-theme),
+html[data-theme="dark"] body:has(.ipd-ward-page) {
     --nav-text: #b1c8fc;
     --nav-tint: #181b20;
     --nav-line: rgba(29, 78, 216, .2);
@@ -1595,9 +1596,10 @@ html[data-theme="dark"] .bbh-sidebar-logo {
 
 /* ---- pages/ipd_ward_detail.php <style> ---- */
 html[data-theme="dark"] .ipd-ward-page {
+    --ipd-main-text: #b1c8fc;
     --ipd-text: #bbbcc5;
     --ipd-muted: #aabac8;
-    --ipd-border: #333a37;
+    --ipd-border: #323942;
 }
 html[data-theme="dark"] .ipd-ward-page .ward-page-title {
     color: #ffffff;
@@ -1609,10 +1611,10 @@ html[data-theme="dark"] .ipd-ward-page .ward-main-card {
     background: #161616;
 }
 html[data-theme="dark"] .ipd-ward-page .overview-card {
-    background: #161b18;
+    background: #181b20;
 }
 html[data-theme="dark"] .ipd-ward-page .overview-card::after {
-    background: rgba(25, 135, 84, .08);
+    background: rgba(29, 78, 216, .08);
 }
 html[data-theme="dark"] .ipd-ward-page .overview-card.blue {
     background: #161a1c;
@@ -1648,14 +1650,14 @@ html[data-theme="dark"] .ipd-ward-page .occupancy-bar {
     background: rgba(22, 22, 22, 0.75);
 }
 html[data-theme="dark"] .ipd-ward-page .patient-count-badge {
-    background: #161b19;
-    border: 1px solid #2a3d33;
+    background: #181b20;
+    border: 1px solid #303848;
 }
 html[data-theme="dark"] .ipd-ward-page .patient-card {
     background: #161616;
 }
 html[data-theme="dark"] .ipd-ward-page .patient-avatar {
-    background: #171b19;
+    background: #181b20;
 }
 html[data-theme="dark"] .ipd-ward-page .patient-avatar.avatar-male,
 html[data-theme="dark"] .ipd-ward-page .patient-avatar.avatar-child-male {
@@ -1714,15 +1716,15 @@ html[data-theme="dark"] .ipd-ward-page .ipd-filter-select {
 }
 html[data-theme="dark"] .ipd-ward-page .ipd-filter-input:focus,
 html[data-theme="dark"] .ipd-ward-page .ipd-filter-select:focus {
-    border-color: #198754;
+    border-color: #1d4ed8;
 }
 html[data-theme="dark"] .ipd-ward-page .ipd-filter-reset {
-    border: 1px solid #198754;
+    border: 1px solid #1d4ed8;
     background: #161616;
-    color: #72d39c;
+    color: #a7c2f9;
 }
 html[data-theme="dark"] .ipd-ward-page .ipd-filter-reset:hover {
-    background: #198754;
+    background: #1d4ed8;
     color: #fff;
 }
 html[data-theme="dark"] .ipd-ward-page .ipd-filter-result {
@@ -1731,13 +1733,13 @@ html[data-theme="dark"] .ipd-ward-page .ipd-filter-result {
 
 /* ---- assets/js/ipd_ward_history.js (js style) ---- */
 html[data-theme="dark"] .ipd-ward-page .ipd-history-trigger {
-    border: 1px solid #198754;
+    border: 1px solid #1d4ed8;
     background: #161616;
-    color: #72d39c;
+    color: #a7c2f9;
 }
 html[data-theme="dark"] .ipd-ward-page .ipd-history-trigger:hover,
 html[data-theme="dark"] .ipd-ward-page .ipd-history-trigger:focus-visible {
-    background: #198754;
+    background: #1d4ed8;
     color: #fff;
 }
 html[data-theme="dark"] .bbh-history-modal-backdrop {
@@ -1749,10 +1751,10 @@ html[data-theme="dark"] .bbh-history-modal {
 }
 html[data-theme="dark"] .bbh-history-modal-head {
     border-bottom: 1px solid #353937;
-    background: #171818;
+    background: #17181a;
 }
 html[data-theme="dark"] .bbh-history-modal-title {
-    color: #81d7a4;
+    color: #b7cdfe;
 }
 html[data-theme="dark"] .bbh-history-modal-subtitle {
     color: #b4c2cf;
@@ -1775,9 +1777,9 @@ html[data-theme="dark"] .bbh-history-year-label {
     color: #b1bec8;
 }
 html[data-theme="dark"] .bbh-history-year {
-    border: 1px solid #198754;
+    border: 1px solid #1d4ed8;
     background: #161616;
-    color: #89d8a9;
+    color: #b1c8fc;
 }
 html[data-theme="dark"] .bbh-history-tabs {
     border-bottom: 1px solid #333a37;
@@ -1787,13 +1789,13 @@ html[data-theme="dark"] .bbh-history-tab {
     color: #b1bec8;
 }
 html[data-theme="dark"] .bbh-history-tab:hover {
-    background: #171918;
-    color: #89d8a9;
+    background: #18191b;
+    color: #b1c8fc;
 }
 html[data-theme="dark"] .bbh-history-tab.active {
-    color: #89d8a9;
-    border-bottom-color: #198754;
-    background: #171818;
+    color: #b1c8fc;
+    border-bottom-color: #1d4ed8;
+    background: #17181a;
 }
 html[data-theme="dark"] .bbh-history-loading,
 html[data-theme="dark"] .bbh-history-error,
@@ -1847,7 +1849,7 @@ html[data-theme="dark"] .ipd-ward-page .ipd-flow-label {
     color: #b4c2cf;
 }
 html[data-theme="dark"] .ipd-ward-page .ipd-flow-value {
-    color: #72d39c;
+    color: #a7c2f9;
 }
 html[data-theme="dark"] .ipd-ward-page .ipd-flow-value.blue {
     color: #88c7fd;
@@ -1868,12 +1870,12 @@ html[data-theme="dark"] .ipd-ward-page .ipd-quick-label {
 html[data-theme="dark"] .ipd-ward-page .ipd-quick-btn {
     border: 1px solid #2d3c34;
     background: #161616;
-    color: #72d39c;
+    color: #a7c2f9;
 }
 html[data-theme="dark"] .ipd-ward-page .ipd-quick-btn:hover,
 html[data-theme="dark"] .ipd-ward-page .ipd-quick-btn.active {
-    background: #198754;
-    border-color: #198754;
+    background: #1d4ed8;
+    border-color: #1d4ed8;
     color: #fff;
 }
 html[data-theme="dark"] .ipd-ward-page .ipd-quick-btn.export {
@@ -1901,7 +1903,7 @@ html[data-theme="dark"] #ipd-history-insight .ipd-insight-label {
 }
 html[data-theme="dark"] .ipd-history-insight .ipd-insight-value,
 html[data-theme="dark"] #ipd-history-insight .ipd-insight-value {
-    color: #72d39c;
+    color: #a7c2f9;
 }
 html[data-theme="dark"] .ipd-history-insight .ipd-insight-value.red,
 html[data-theme="dark"] #ipd-history-insight .ipd-insight-value.red {

@@ -16,14 +16,15 @@ $ward = trim((string)($_GET['ward'] ?? ''));
    IPD WARD DETAIL - PROFESSIONAL HOSPITAL UI
 ========================================================= */
 .ipd-ward-page {
-    --ipd-green: #198754;
-    --ipd-green-dark: #147447;
+    /* สีหลักโทนฟ้า–น้ำเงินของผู้ป่วยใน (ชุดเดียวกับหน้า IPD) — main = พื้น/เส้น, main-text = ตัวอักษร/ไอคอน (โหมดมืดเปลี่ยนใน dark.css) */
+    --ipd-main: #1d4ed8;
+    --ipd-main-text: #1e40af;
     --ipd-blue: #0e6ba8;
     --ipd-orange: #f59e0b;
     --ipd-red: #dc3545;
     --ipd-text: #6c6d75;
     --ipd-muted: #71808d;
-    --ipd-border: #dfe7e3;
+    --ipd-border: #dbe4f0;
 }
 
 .ipd-ward-page .content {
@@ -90,7 +91,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 }
 
 .ipd-ward-page .ward-overview-title i {
-    color: var(--ipd-green);
+    color: var(--ipd-main-text);
 }
 
 .ipd-ward-page .ward-overview-grid {
@@ -115,7 +116,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     padding: 18px 22px;
     border: 1px solid var(--ipd-border);
     border-radius: 12px;
-    background: #eaf7f0;
+    background: #e8effd;
     box-shadow: 0 4px 10px rgba(31, 45, 61, .08);
     overflow: hidden;
 }
@@ -128,7 +129,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     right: -30px;
     bottom: -55px;
     border-radius: 50%;
-    background: rgba(25, 135, 84, .08);
+    background: rgba(29, 78, 216, .08);
 }
 
 .ipd-ward-page .overview-card.blue {
@@ -173,7 +174,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     justify-content: center;
     border-radius: 14px;
     background: rgba(255, 255, 255, .78);
-    color: var(--ipd-green);
+    color: var(--ipd-main-text);
     font-size: 1.7rem;
     box-shadow: 0 2px 5px rgba(31, 45, 61, .06);
 }
@@ -210,7 +211,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 }
 
 .ipd-ward-page .overview-value {
-    color: var(--ipd-green);
+    color: var(--ipd-main-text);
     font-size: 2.55rem;
     line-height: 1;
     font-weight: 800;
@@ -246,7 +247,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 .ipd-ward-page .occupancy-fill {
     height: 100%;
     width: 0;
-    background: var(--ipd-green);
+    background: var(--ipd-main);
     border-radius: inherit;
 }
 
@@ -279,13 +280,13 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 }
 
 .ipd-ward-page .patient-section-title i {
-    color: var(--ipd-green);
+    color: var(--ipd-main-text);
 }
 
 .ipd-ward-page .patient-count-badge {
-    background: #e9f6ef;
-    color: var(--ipd-green);
-    border: 1px solid #cfe9da;
+    background: #e8effd;
+    color: var(--ipd-main-text);
+    border: 1px solid #c9d8f6;
     border-radius: 20px;
     padding: 6px 13px;
     font-size: .92rem;
@@ -309,7 +310,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     min-height: 205px;
     background: #fff;
     border: 1px solid var(--ipd-border);
-    border-top: 4px solid var(--ipd-green);
+    border-top: 4px solid var(--ipd-main);
     border-radius: 10px;
     padding: 14px 15px 13px;
     box-shadow: 0 3px 8px rgba(31, 45, 61, .075);
@@ -331,8 +332,8 @@ $ward = trim((string)($_GET['ward'] ?? ''));
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background: #edf6f1;
-    color: var(--ipd-green);
+    background: #eaf0fd;
+    color: var(--ipd-main-text);
     font-size: 1.6rem;
 }
 
@@ -382,7 +383,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 }
 
 .ipd-ward-page .patient-badge.bed-badge {
-    background: var(--ipd-green);
+    background: var(--ipd-main);
 }
 
 .ipd-ward-page .patient-info {
@@ -421,7 +422,7 @@ $ward = trim((string)($_GET['ward'] ?? ''));
 }
 
 .ipd-ward-page .doctor-row i {
-    color: var(--ipd-green);
+    color: var(--ipd-main-text);
     width: 16px;
     text-align: center;
 }

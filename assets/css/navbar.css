@@ -46,7 +46,8 @@
     --nav-ink: #17241d;
     --nav-muted: #5b6b63;
 }
-:root body:has(.er-theme.ipd-theme) {
+:root body:has(.er-theme.ipd-theme),
+:root body:has(.ipd-ward-page) {   /* หน้ารายละเอียดหอผู้ป่วย (pages/ipd_ward_detail.php) ใช้โทนเดียวกับหน้า IPD */
     --nav-text: #1e40af;
     --nav-solid: #1d4ed8;
     --nav-solid-deep: #1e3a8a;
