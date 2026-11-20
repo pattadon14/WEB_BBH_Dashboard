@@ -25,7 +25,9 @@
         const date = input.value || today(), isToday = date === today(), my = ++seq;
 
         $('er-date-text').textContent = thai(date);
-        $('er-day-title').textContent = 'ผู้มารับบริการ ER ' + (isToday ? 'วันนี้' : 'วันที่ ' + thai(date));
+        // วันนี้: ชื่อ + ป้าย Live (รีเฟรชทุก 60 วินาที) · วันอื่น: ต่อท้ายด้วยวันที่ — แบบเดียวกับหน้า OPD
+        $('er-day-title').textContent = 'ผู้มารับบริการ ER' + (isToday ? '' : ' วันที่ ' + thai(date));
+        if (!isToday) window.bbhSetLive(false, 'er-live-badge');
         buttons.forEach(b => b.setAttribute('aria-pressed', String(daysAgo(Number(b.dataset.erDay)) === date)));
 
         loadD2D(date, my);
@@ -39,6 +41,7 @@
         }
         if (my !== seq) return;
         if (data.error) { $('er-compare').textContent = data.error; return; }
+        window.bbhSetLive(isToday, 'er-live-badge');   // เวลาใน navbar = เวลาที่โหลดสำเร็จล่าสุด
 
         const map = {
             'er-total': data.total, 'er-people': data.people, 'er-ems': data.ems, 'er-refer-in': data.refer_in,

@@ -1,4 +1,6 @@
 <?php
+// ป้าย LIVE ใน navbar แบบหน้าแรก — er_summary.js แสดงเฉพาะตอนดูวันนี้ (bbhSetLive ใน header.php)
+$showLiveStatus = true;
 
 require_once __DIR__ . '/../auth/provider.php';
 provider_require_login_page();   // ยังไม่ login → กลับหน้าแรก
@@ -28,7 +30,7 @@ include '../templates/sidebar.php';
                 <header class="er-mast" id="er-summary-card">
                     <div class="er-mast-top">
                         <div class="er-mast-heading">
-                            <div class="er-mast-title-row"><h1 class="er-mast-title" id="er-day-title">ผู้มารับบริการ ER วันนี้</h1><button type="button" class="er-info-btn is-on-mast" data-info="mast" aria-label="ที่มาและนิยามของข้อมูล: ผู้มารับบริการ ER" title="ที่มาและนิยามของข้อมูล"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></button></div>
+                            <div class="er-mast-title-row"><h1 class="er-mast-title" id="er-day-title">ผู้มารับบริการ ER</h1><span class="opd-live" id="er-live-badge" title="ข้อมูลวันนี้ รีเฟรชทุก 60 วินาที" hidden><span class="opd-live-dot" aria-hidden="true"></span>Live</span><button type="button" class="er-info-btn is-on-mast" data-info="mast" aria-label="ที่มาและนิยามของข้อมูล: ผู้มารับบริการ ER" title="ที่มาและนิยามของข้อมูล"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></button></div>
                             <p class="er-mast-sub" id="er-compare">—</p>
                         </div>
 

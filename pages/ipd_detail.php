@@ -1,4 +1,6 @@
 <?php
+// ป้าย LIVE ใน navbar แบบหน้าแรก — ipd_detail.js แสดงเฉพาะตอนเลือก "วันนี้" (bbhSetLive ใน header.php)
+$showLiveStatus = true;
 
 require_once __DIR__ . '/../auth/provider.php';
 provider_require_login_page();   // ยังไม่ login → กลับหน้าแรก
@@ -18,13 +20,13 @@ function ipd_info_btn(string $key, string $label, bool $onMast = false): string
 $currentYear = date('Y') + 543 + (date('n') >= 10 ? 1 : 0);
 ?>
 
-<!-- โครงหน้าเดียวกับหน้า ER/OPD (er_theme.css) ชุดสีเขียวของเว็บ (opd_theme.css) · หน้าต่างรายชื่อใช้ opd_tabs.css -->
+<!-- โครงหน้าเดียวกับหน้า ER/OPD (er_theme.css + ส่วนเสริม opd_theme.css) ชุดสีฟ้า–น้ำเงิน (ipd_detail.css) · หน้าต่างรายชื่อใช้ opd_tabs.css -->
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_tabs.css?v=<?= filemtime(__DIR__ . '/../assets/css/opd_tabs.css') ?>">
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/er_theme.css?v=<?= filemtime(__DIR__ . '/../assets/css/er_theme.css') ?>">
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_theme.css?v=<?= filemtime(__DIR__ . '/../assets/css/opd_theme.css') ?>">
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/ipd_detail.css?v=<?= filemtime(__DIR__ . '/../assets/css/ipd_detail.css') ?>">
 
-<div class="content-wrapper er-theme opd-theme ipd-page">
+<div class="content-wrapper er-theme opd-theme ipd-theme ipd-page">
     <section class="content">
         <div class="er-page" id="ipd-page">
 
@@ -34,12 +36,13 @@ $currentYear = date('Y') + 543 + (date('n') >= 10 ? 1 : 0);
                 </a>
             </div>
 
-            <!-- แถบหัวเขียว: ชื่อหน้า + ช่วงเวลา (assets/js/period_filter.js เติมปุ่มและช่องวันที่) -->
+            <!-- แถบหัว: ชื่อหน้า + ป้าย Live (เลือก "วันนี้") + ช่วงเวลา (assets/js/period_filter.js เติมปุ่มและช่องวันที่) -->
             <header class="er-mast">
                 <div class="er-mast-top">
                     <div class="er-mast-heading">
                         <div class="er-mast-title-row">
                             <h1 class="er-mast-title">ผู้ป่วยใน (IPD)</h1>
+                            <span class="opd-live" id="ipd-live-badge" title="ข้อมูลวันนี้ รีเฟรชทุก 60 วินาที" hidden><span class="opd-live-dot" aria-hidden="true"></span>Live</span>
                             <?= ipd_info_btn('mast', 'ผู้ป่วยใน', true) ?>
                         </div>
                         <p class="er-mast-sub" id="budget-date-text">—</p>
@@ -151,17 +154,16 @@ $currentYear = date('Y') + 543 + (date('n') >= 10 ? 1 : 0);
 
             </div>
 
-            <!-- 5 รายหอผู้ป่วย · แถวลิงก์ไปหน้ารายละเอียดหอผู้ป่วย -->
+            <!-- 5 รายหอผู้ป่วย: การ์ดแบบหน้าแรก (ตัวเลขชุดเดียวกับ api/index_ward_bed.php) + ยอดของช่วงที่เลือก · การ์ดลิงก์ไปหน้ารายละเอียดหอ -->
             <section class="er-panel" aria-labelledby="ipd-sec5">
                 <header class="er-sec-head">
                     <span class="er-sec-no" aria-hidden="true">5</span>
                     <div>
                         <h2 class="er-h2" id="ipd-sec5">รายหอผู้ป่วย <?= ipd_info_btn('wards', 'รายหอผู้ป่วย') ?></h2>
-                        <p class="er-sec-sub">คลิกชื่อหอเพื่อดูรายละเอียดหอผู้ป่วย</p>
+                        <p class="er-sec-sub">ครองเตียงตอนนี้ (ตรงกับหน้าแรก) และยอดของช่วงที่เลือก · คลิกการ์ดเพื่อดูรายละเอียดหอ</p>
                     </div>
                 </header>
-                <div class="er-rows-head ipd-ward-row" aria-hidden="true"><span>หอผู้ป่วย</span><span>ผู้ป่วยตอนนี้ / เตียง</span><span>อัตราครองเตียงของช่วงที่เลือก</span></div>
-                <div class="er-rows" id="ipd-ward-list" aria-live="polite"><p class="er-note">กำลังโหลดข้อมูล…</p></div>
+                <div class="ipd-ward-grid" id="ipd-ward-list" aria-live="polite"><p class="er-note">กำลังโหลดข้อมูล…</p></div>
             </section>
 
             <!-- 6 แนวโน้ม -->

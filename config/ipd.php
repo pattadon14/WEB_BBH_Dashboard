@@ -9,6 +9,8 @@ require_once __DIR__ . '/period.php';
 // ward ที่ไม่นับเตียง/อัตราครองเตียง/ผู้ป่วยปัจจุบัน: 10 ส่องกล้อง, 11 ผ่าตัด, 05 Observe ER, 04 LR, 23 Home Ward
 // (รับใหม่/จำหน่าย/LOS/Readmission/10 อันดับโรค ยังนับทุก ward ตามนิยามเดิม)
 const IPD_EXCLUDED_WARDS = "'10', '11', '05', '04', '23'";
+// Home Ward: ผู้ป่วยนอนที่บ้าน ไม่นับเตียงรวม แต่หน้าแรกแสดงเป็นการ์ดท้ายสุด (api/index_ward_bed.php) — หน้า IPD แสดงเหมือนกัน
+const IPD_HOME_WARD = '23';
 
 // ประเภทการจำหน่าย (ipt.dchtype) — ชื่อไทยแทนชื่ออังกฤษในตาราง dchtype
 const IPD_DCH_NAMES = [
@@ -23,12 +25,12 @@ const IPD_DCH_NAMES = [
 const IPD_DEATH_TYPES = "'08', '09'";
 const IPD_REFER_TYPE = '04';
 
-// ส่ง JSON จาก cache ไฟล์ หรือสร้างใหม่ — ช่วงที่รวมวันนี้เก็บ 5 นาที ช่วงที่จบแล้ว 30 นาที
+// ส่ง JSON จาก cache ไฟล์ หรือสร้างใหม่ — ช่วงที่รวมวันนี้เก็บ 60 วินาที (เท่าหน้าแรก ผู้ป่วยตอนนี้จึงตรงกัน) ช่วงที่จบแล้ว 30 นาที
 function ipd_cached(string $name, array $p, callable $build): void
 {
     $dir  = __DIR__ . '/../storage/cache/';
     $file = $dir . $name . '_' . $p['key'] . '.json';
-    $ttl  = $p['end'] >= date('Y-m-d') ? 5 * 60 : 30 * 60;
+    $ttl  = $p['end'] >= date('Y-m-d') ? 60 : 30 * 60;
 
     if (is_file($file) && time() - filemtime($file) < $ttl) {
         echo file_get_contents($file);

@@ -524,6 +524,7 @@ html[data-theme="dark"] .er-theme {
     --er-row-bg: #181717;
     --er-page-bg: #161616;
     --er-on-mast-rule: rgba(56, 56, 56, 0.3);
+    --opd-live-bg: rgba(22, 22, 22, 0.16);
 }
 html[data-theme="dark"] .er-theme .er-info-dlg::backdrop {
     background: rgba(20, 8, 8, .45);
@@ -651,6 +652,46 @@ html[data-theme="dark"] .svc-login {
 }
 html[data-theme="dark"] .svc-login:hover {
     color: #fff;
+}
+
+/* ---- assets/css/ipd_detail.css ---- */
+html[data-theme="dark"] .er-theme.opd-theme.ipd-theme {
+    --er-text: #b1c8fc;
+    --er-ink-text: #cfdcf6;
+    --er-muted-text: #b5c6df;
+    --er-tint: #191c21;
+    --er-wash: #17191b;
+    --er-line: #323842;
+    --er-card-line: #2f3946;
+    --er-row-bg: #17181a;
+}
+html[data-theme="dark"] .er-theme.ipd-page .ward-rate-success {
+    color: #89d8a9;
+}
+html[data-theme="dark"] .er-theme.ipd-page .ward-rate-info {
+    color: #7fd0e6;
+}
+html[data-theme="dark"] .er-theme.ipd-page .ward-rate-warning {
+    color: #eab56e;
+}
+html[data-theme="dark"] .er-theme.ipd-page .ward-rate-danger {
+    color: #fba7a5;
+}
+html[data-theme="dark"] .er-theme.ipd-page .ward-status-success {
+    color: #89d8a9;
+    background: #171d19;
+}
+html[data-theme="dark"] .er-theme.ipd-page .ward-status-info {
+    color: #7fd0e6;
+    background: #141c1e;
+}
+html[data-theme="dark"] .er-theme.ipd-page .ward-status-warning {
+    color: #eab56e;
+    background: #1e190a;
+}
+html[data-theme="dark"] .er-theme.ipd-page .ward-status-danger {
+    color: #fba7a5;
+    background: #231a1b;
 }
 
 /* ---- assets/css/ipd_ward_detail.css ---- */
@@ -1317,7 +1358,6 @@ html[data-theme="dark"] .er-theme.opd-theme {
     --er-line: #323a35;
     --er-card-line: #303b34;
     --er-row-bg: #161817;
-    --opd-live-bg: rgba(22, 22, 22, 0.16);
 }
 html[data-theme="dark"] body:has(.er-theme.opd-theme) {
     --er-nav-text: #89d8a9;

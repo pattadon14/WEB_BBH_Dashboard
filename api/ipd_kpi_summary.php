@@ -11,7 +11,7 @@ try {
     // ช่วงเวลา: ?d1&d2 หรือ ?year (config/period.php) — SQL ด้านล่างใช้ end แบบไม่รวม จึง +1 วัน
     $p = bbh_period();
 
-    ipd_cached('ipd_kpi_v2', $p, function () use ($conn, $p) {
+    ipd_cached('ipd_kpi_v3', $p, function () use ($conn, $p) {
 
         $startDate = $p['start'];
         $endDate   = date('Y-m-d', strtotime($p['end'] . ' +1 day'));
@@ -135,7 +135,9 @@ try {
             }
         }
 
-        // รายหอผู้ป่วย (ward ชุดเดียวกับเตียง) — ผู้ป่วยตอนนี้ / รับใหม่ในช่วง / อัตราครองเตียงของช่วง
+        // รายหอผู้ป่วย (ward ชุดเดียวกับเตียง + Home Ward ท้ายสุด เหมือนหน้าแรก api/index_ward_bed.php)
+        // ผู้ป่วยตอนนี้ / ครองเตียงตอนนี้ (= หน้าแรก) / รับใหม่ในช่วง / อัตราครองเตียงเฉลี่ยของช่วง
+        $homeWard = IPD_HOME_WARD;
         $stmt = $conn->prepare("
             WITH params AS (
                 SELECT CAST(:startDate AS date) AS s,
@@ -150,7 +152,7 @@ try {
                    FROM ipt i, params p
                   WHERE i.ward = w.ward AND i.regdate < p.u AND COALESCE(i.dchdate, CURRENT_DATE + 1) > p.s) AS patient_days
             FROM ward w
-            WHERE w.ward_active = 'Y' AND w.ward NOT IN ($excluded)
+            WHERE w.ward_active = 'Y' AND (w.ward NOT IN ($excluded) OR w.ward = '$homeWard')
             ORDER BY w.ward
         ");
         $stmt->execute([':startDate' => $startDate, ':endDate' => $endDate, ':endDate2' => $endDate]);
@@ -158,13 +160,18 @@ try {
         $wards = array_map(fn($w) => [
             'ward'           => $w['ward'],
             'name'           => $w['name'],
+            'home'           => $w['ward'] === IPD_HOME_WARD,   // ไม่นับรวมเตียงทั้งหมด
             'beds'           => (int)$w['beds'],
             'current'        => (int)$w['current'],
+            // ครองเตียงตอนนี้ = ผู้ป่วยตอนนี้ ÷ เตียง (สูตรและทศนิยมเดียวกับการ์ดหน้าแรก)
+            'current_rate'   => (int)$w['beds'] > 0 ? round($w['current'] * 100 / $w['beds'], 2) : 0,
             'admissions'     => (int)$w['admissions'],
             'occupancy_rate' => (int)$w['beds'] > 0 && $periodDays > 0
                 ? round($w['patient_days'] * 100 / ($w['beds'] * $periodDays), 1)
                 : 0,
         ], $stmt->fetchAll(PDO::FETCH_ASSOC));
+        // ลำดับเดียวกับหน้าแรก: ครองเตียงตอนนี้น้อยไปมาก, Home Ward ท้ายสุด
+        usort($wards, fn($a, $b) => [$a['home'], $a['current_rate']] <=> [$b['home'], $b['current_rate']]);
 
         $discharges = (int)$row['discharges'];
         return [

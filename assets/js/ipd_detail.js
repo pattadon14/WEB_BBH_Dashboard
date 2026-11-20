@@ -4,7 +4,7 @@
    คลิกตัวเลข/แท่ง/แถว → รายชื่อ (api/ipd_visit_list.php ต้อง login) ผ่าน bbhDrill
 ========================================================= */
 
-const G = { light: '#5fb98a', main: '#22894f', dark: '#146c3c', soft: '#9fd3b5' };
+const G = { light: '#60a5fa', main: '#2563eb', dark: '#1e40af', soft: '#bfdbfe' };   // ชุดฟ้า–น้ำเงินของหน้า IPD (ชื่อ G คงไว้แบบหน้า OPD)
 const OCC_WARN = '#b45309';   // ครองเตียง 90–100%
 const OCC_BAD = '#c2410c';    // เกิน 100%
 const gCol = (top, bottom) => ({ linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 }, stops: [[0, top], [1, bottom]] });
@@ -72,21 +72,8 @@ async function loadKpi() {
                 <span class="er-stat-value"><b>${fmtN(t.n)}</b> ราย <small>${total ? fmtP(t.n * 100 / total) : '–'}</small></span>
             </div>`).join('') : '<p class="er-note">ไม่มีผู้ป่วยจำหน่ายในช่วงนี้</p>';
 
-        // 5 รายหอผู้ป่วย: ผู้ป่วยตอนนี้ / เตียง + อัตราครองเตียงของช่วง
-        document.getElementById('ipd-ward-list').innerHTML = d.wards.map(w => {
-            const level = w.occupancy_rate > 100 ? 'bad' : w.occupancy_rate >= 90 ? 'warn' : 'good';
-            const nowPct = w.beds ? Math.round(w.current * 100 / w.beds) : 0;
-            return `
-            <a class="er-row ipd-ward-row" href="ipd_ward_detail.php?ward=${encodeURIComponent(w.ward)}">
-                <span class="er-row-key"><span>${esc(w.name)}<i class="fa-solid fa-arrow-right ipd-ward-go" aria-hidden="true"></i>
-                    <small>รับใหม่ในช่วงนี้ ${fmtN(w.admissions)} ราย</small></span></span>
-                <span class="er-row-num"><b>${fmtN(w.current)}</b> / ${fmtN(w.beds)} เตียง <small>ตอนนี้ ${nowPct}%</small></span>
-                <span class="er-row-bar">
-                    <span class="er-meter is-${level}" role="img" aria-label="อัตราครองเตียง ${fmtP(w.occupancy_rate)}"><span style="width:${Math.min(100, w.occupancy_rate)}%"></span></span>
-                    <small class="${level === 'good' ? '' : 'ipd-flag-' + level}">${fmtP(w.occupancy_rate)}${level === 'bad' ? ' เกินเตียง' : level === 'warn' ? ' ใกล้เต็ม' : ''}</small>
-                </span>
-            </a>`;
-        }).join('') || '<p class="er-note">ไม่พบข้อมูลหอผู้ป่วย</p>';
+        // 5 รายหอผู้ป่วย: การ์ดแบบหน้าแรก (index.php loadWardBed) — ครองเตียงตอนนี้ + ยอดของช่วงที่เลือก
+        document.getElementById('ipd-ward-list').innerHTML = d.wards.map(wardCard).join('') || '<p class="er-note">ไม่พบข้อมูลหอผู้ป่วย</p>';
 
     } catch (err) {
         console.error('IPD KPI error:', err);
@@ -94,6 +81,35 @@ async function loadKpi() {
         document.getElementById('ipd-dch-list').innerHTML = '<p class="er-note">โหลดข้อมูลไม่สำเร็จ</p>';
         document.getElementById('ipd-ward-list').innerHTML = '<p class="er-note">โหลดข้อมูลไม่สำเร็จ</p>';
     }
+}
+
+// ไอคอนตามชื่อ Ward ชุดเดียวกับหน้าแรก (index.php WARD_ICONS) — "หลังคลอด" ต้องมาก่อน "คลอด"
+const WARD_ICONS = [
+    [/พิเศษ/, 'fa-door-open'], [/หลังคลอด|^pp/i, 'fa-person-breastfeeding'], [/ทารก|snb/i, 'fa-baby'],
+    [/เด็ก/, 'fa-child'], [/stroke/i, 'fa-brain'], [/icu/i, 'fa-heart-pulse'], [/ศัลย/, 'fa-user-doctor'],
+    [/หญิง/, 'fa-person-dress'], [/ชาย/, 'fa-person'], [/คลอด|^lr/i, 'fa-person-pregnant'], [/home/i, 'fa-house-user']
+];
+const wardIcon = name => (WARD_ICONS.find(([re]) => re.test(String(name || '').trim())) || [0, 'fa-bed'])[1];
+// เกณฑ์สีและป้ายเดียวกับการ์ดหน้าแรก: ≥100 เต็ม/เกิน · ≥75 ใกล้เต็ม · ≥50 ปานกลาง · ต่ำกว่านั้น ว่าง
+const WARD_LABEL = { success: 'ว่าง', info: 'ปานกลาง', warning: 'ใกล้เต็ม', danger: 'เต็ม/เกิน' };
+const wardLevel = r => (r >= 100 ? 'danger' : r >= 75 ? 'warning' : r >= 50 ? 'info' : 'success');
+
+function wardCard(w) {
+    const level = wardLevel(w.current_rate);
+    const free = w.current >= w.beds ? '<span class="bed-full">เต็ม</span>' : `ว่าง ${fmtN(w.beds - w.current)}`;
+    const avg = w.occupancy_rate.toLocaleString('th-TH', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    return `
+    <a class="ward-card" href="ipd_ward_detail.php?ward=${encodeURIComponent(w.ward)}" aria-label="${esc(w.name)} ดูรายละเอียดหอผู้ป่วย">
+        <span class="ward-icon text-${level}" aria-hidden="true"><i class="fa-solid ${wardIcon(w.name)}"></i></span>
+        <div class="ward-name">${esc(w.name)}</div>
+        <div class="ward-detail">Admit ${fmtN(w.current)} / ${fmtN(w.beds)} เตียง (${free})</div>
+        <div class="ward-percent">
+            <span>ครองเตียง <strong class="ward-rate-${level}">${w.current_rate}%</strong></span>
+            <span class="ward-status ward-status-${level}">${WARD_LABEL[level]}</span>
+        </div>
+        <div class="progress ward-progress" role="img" aria-label="ครองเตียงตอนนี้ ${w.current_rate}%"><div class="progress-bar bg-${level}" style="width:${Math.min(w.current_rate, 100)}%"></div></div>
+        <div class="ward-period">ช่วงที่เลือก: รับใหม่ <b>${fmtN(w.admissions)}</b> ราย · ครองเตียงเฉลี่ย <b>${avg}%</b>${w.home ? '<br>ไม่นับรวมในเตียงทั้งหมด (ผู้ป่วยนอนที่บ้าน)' : ''}</div>
+    </a>`;
 }
 
 function dchIcon(code) {
@@ -182,10 +198,10 @@ async function loadTop10() {
             const name = (row.tname || '').trim() || row.diag || row.pdx;
             return `
             <tr data-drill="pdx" data-key="${esc(row.pdx)}" data-label="${esc(row.pdx + ' ' + name)}" role="button" tabindex="0" title="คลิกเพื่อดูรายชื่อ">
-                <td class="text-center"><span class="rank-badge" style="${rankColor[i + 1] || 'background:#198754;color:#fff;'}">${i + 1}</span></td>
+                <td class="text-center"><span class="rank-badge${rankColor[i + 1] ? '' : ' ipd-rank'}" style="${rankColor[i + 1] || ''}">${i + 1}</span></td>
                 <td class="text-center"><span class="badge bg-secondary" style="font-size:14px;letter-spacing:1px">${esc(row.pdx)}</span></td>
                 <td>${diagCell(row.tname, row.diag)}</td>
-                <td class="text-center fw-bold text-success">${fmtN(row.total_case)}</td>
+                <td class="text-center fw-bold er-total">${fmtN(row.total_case)}</td>
                 <td class="text-center" style="color:#2563eb">${fmtN(row.male)}</td>
                 <td class="text-center" style="color:#be185d">${fmtN(row.female)}</td>
             </tr>`;
@@ -253,9 +269,16 @@ function openList(type, key, label, d1, d2) {
 // การ์ด/แถวที่มี data-drill ทั้งหน้า (แถวที่สร้างภายหลังใช้ event delegation เดียวกัน)
 bbhDrill.bind(document.getElementById('ipd-page'), (type, n) => openList(type, n.dataset.key || '', n.dataset.label || ''));
 
+// เลือก "วันนี้" (ช่วง 1 วัน = วันนี้) = Live: ป้ายบนแถบหัว + LIVE ใน navbar และรีเฟรชทุก 60 วินาที (cache API 60 วินาที)
+const isLive = () => { const s = bbhPeriod.state; return s.d1 === todayIso() && s.d2 === todayIso(); };
+
 async function reloadAll() {
+    const live = isLive();
+    if (!live) window.bbhSetLive(false, 'ipd-live-badge');   // เปลี่ยนไปช่วงอื่น: ซ่อนทันที ไม่รอโหลดเสร็จ
     await Promise.all([loadKpi(), loadTrend(), loadTop10()]);
+    window.bbhSetLive(live && isLive(), 'ipd-live-badge');
 }
 
 reloadAll();
 document.getElementById('budget-year').addEventListener('change', reloadAll);
+bbhPoll(() => { if (isLive()) reloadAll(); }, 60000);

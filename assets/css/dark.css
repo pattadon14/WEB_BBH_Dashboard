@@ -184,3 +184,5 @@ html[data-theme="dark"] .highcharts-heatmap-series .highcharts-point { stroke: v
 html[data-theme="dark"] body .er-theme { --er-canvas: #120e0e; --er-mast: #6e1a15; --er-on-mast-veil: #84302a; }
 /* หน้า OPD (โครงเดียวกับ ER ชุดสีเขียว — opd_theme.css) */
 html[data-theme="dark"] body .er-theme.opd-theme { --er-canvas: #0e1210; --er-mast: #144d2e; --er-on-mast-veil: #23613f; }
+/* หน้า IPD (ชุดฟ้า–น้ำเงิน — ipd_detail.css) */
+html[data-theme="dark"] body .er-theme.opd-theme.ipd-theme { --er-canvas: #0d1119; --er-mast: #1b2f63; --er-on-mast-veil: #2a4180; }

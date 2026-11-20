@@ -31,8 +31,6 @@
 
     --opd-walkin-fill: #5fb98a;   /* สัดส่วน Walk-in: เขียวอ่อน (ชุดเดียวกับกราฟ) */
     --opd-appt-fill: #146c3c;     /* สัดส่วนมาตามนัด: เขียวเข้ม */
-    --opd-live-fill: #22c55e;     /* จุด Live บนแถบหัวเขียวเข้ม */
-    --opd-live-bg: rgba(255, 255, 255, .16);
     --opd-3d-solid: #0f5132;
 }
 
@@ -50,19 +48,7 @@
 .er-theme.opd-theme .opd-tool-btn.is-3d:hover { background: var(--er-solid); color: var(--er-on-solid); }
 :root .er-theme.opd-theme .opd-tool-btn:focus-visible { outline: 2px solid var(--er-solid); outline-offset: 2px; }
 
-/* ป้าย Live บนแถบหัว: จุดเขียวกระพริบ (ปิดเมื่อผู้ใช้ลดการเคลื่อนไหว) */
-.er-theme.opd-theme .opd-live {
-    display: inline-flex; align-items: center; gap: 8px; flex: none; padding: 2px 12px 2px 10px; border-radius: 999px;
-    background: var(--opd-live-bg); color: var(--er-on-mast); font-size: 1.2rem; font-weight: 700; letter-spacing: 0;
-}
-.er-theme.opd-theme .opd-live[hidden] { display: none; }
-.er-theme.opd-theme .opd-live-dot { position: relative; width: 10px; height: 10px; border-radius: 50%; background: var(--opd-live-fill); }
-.er-theme.opd-theme .opd-live-dot::after {
-    content: ""; position: absolute; inset: 0; border-radius: 50%; background: var(--opd-live-fill);
-    animation: opdLivePulse 1.6s ease-out infinite;
-}
-@keyframes opdLivePulse { from { transform: scale(1); opacity: .7; } to { transform: scale(2.6); opacity: 0; } }
-.er-theme.opd-theme .er-mast-title-row { flex-wrap: wrap; gap: 6px 10px; }
+/* ป้าย Live บนแถบหัว: อยู่ใน er_theme.css (ใช้ร่วมกับหน้า ER / IPD) */
 
 /* 5 ช่องภาพรวม */
 .er-theme.opd-theme .opd-kpis { grid-template-columns: repeat(5, minmax(0, 1fr)); }
@@ -124,7 +110,6 @@
     .er-theme.opd-theme .opd-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (prefers-reduced-motion: reduce) {
-    .er-theme.opd-theme .opd-live-dot::after { animation: none; }
     .er-theme.opd-theme .opd-tool-btn { transition: none; }
 }
 @media (max-width: 991.98px) {

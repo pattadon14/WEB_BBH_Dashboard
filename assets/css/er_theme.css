@@ -47,6 +47,8 @@
     --er-good-fill: #1f9d55;   /* แถบทันเป้า */
     --er-bad-fill: #d0342c;    /* แถบเกินเป้า */
     --er-warn-fill: #e07b12;   /* แถบสัดส่วนที่เกินเกณฑ์เวลา */
+    --opd-live-fill: #22c55e;  /* จุด Live บนแถบหัว (ทุกหน้า ER/OPD/IPD) */
+    --opd-live-bg: rgba(255, 255, 255, .16);
 
     /* ส่วนประกอบกลางที่ใช้ token เขียวของเว็บ (ตัวกรองช่วงเวลา, ปีงบ, ช่องวันที่) เปลี่ยนเป็นแดงในหน้านี้ */
     --bbh-green: var(--er-solid);
@@ -289,8 +291,23 @@
     .er-theme .er-row { grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding-inline: 8px; }
     .er-theme .er-row-bar { grid-column: 1 / -1; }
 }
+/* ป้าย Live บนแถบหัว (ดูข้อมูลวันนี้): จุดเขียวกระพริบ — ใช้ทั้ง ER / OPD / IPD */
+.er-theme .er-mast-title-row { flex-wrap: wrap; gap: 6px 10px; }
+.er-theme .opd-live {
+    display: inline-flex; align-items: center; gap: 8px; flex: none; padding: 2px 12px 2px 10px; border-radius: 999px;
+    background: var(--opd-live-bg); color: var(--er-on-mast); font-size: 1.2rem; font-weight: 700; letter-spacing: 0;
+}
+.er-theme .opd-live[hidden] { display: none; }
+.er-theme .opd-live-dot { position: relative; width: 10px; height: 10px; border-radius: 50%; background: var(--opd-live-fill); }
+.er-theme .opd-live-dot::after {
+    content: ""; position: absolute; inset: 0; border-radius: 50%; background: var(--opd-live-fill);
+    animation: opdLivePulse 1.6s ease-out infinite;
+}
+@keyframes opdLivePulse { from { transform: scale(1); opacity: .7; } to { transform: scale(2.6); opacity: 0; } }
+
 @media (prefers-reduced-motion: reduce) {
     .er-theme .er-stat { transition: none; }
+    .er-theme .opd-live-dot::after { animation: none; }
 }
 
 /* ---------- แถบเมนูบน (templates/navbar.php) เป็นแดงเฉพาะหน้า ER ----------

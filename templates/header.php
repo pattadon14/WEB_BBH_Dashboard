@@ -165,6 +165,24 @@ require_once __DIR__ . '/../config/app.php';
                 if (!document.hidden && Date.now() - last >= ms) run();
             });
         };
+
+        // ป้าย Live: แถบหัวของหน้า (badgeId) + ป้าย LIVE ใน navbar (ต้องตั้ง $showLiveStatus ก่อน include navbar.php)
+        // แสดงเฉพาะตอนดูข้อมูลวันนี้ซึ่งรีเฟรชอัตโนมัติ — เรียกทุกครั้งหลังโหลดข้อมูลสำเร็จ เวลาใน navbar จะเป็นเวลาล่าสุด
+        window.bbhSetLive = function (isLive, badgeId) {
+            const badge = badgeId && document.getElementById(badgeId);
+            if (badge) badge.hidden = !isLive;
+            const box = document.getElementById('live-status');
+            if (!box) return;
+            box.style.display = isLive ? '' : 'none';
+            if (!isLive) return;
+            const now = new Date();
+            const text = 'ข้อมูล ณ วันที่ ' +
+                now.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) +
+                ' เวลา ' + now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' น.';
+            const label = document.getElementById('last-updated');
+            if (label) label.textContent = text;
+            box.title = text;   // จอเล็กซ่อนข้อความยาว ดูได้จาก tooltip
+        };
     </script>
 
 </head>
