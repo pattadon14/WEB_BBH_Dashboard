@@ -706,39 +706,43 @@ include 'templates/sidebar.php';
 
     <!-- รายละเอียดเมื่อคลิกบริการในการ์ด "สถิติการใช้บริการอื่นๆ วันนี้" (assets/js/service_detail.js · รายชื่อต้อง login) -->
     <dialog class="opd-drill svc-detail" id="svc-detail" aria-labelledby="svc-detail-title">
-        <header class="opd-drill-head">
-            <div>
+        <!-- หัวหน้าต่าง: ชื่อบริการ | เลือกวันที่ (service_detail.js โหลดบริการเดิมของวันที่เลือก) | ปิด — จอแคบวันที่ลงบรรทัดใหม่ใต้ชื่อ -->
+        <header class="opd-drill-head svc-head">
+            <div class="svc-head-title">
                 <h3 id="svc-detail-title">รายละเอียดบริการ</h3>
                 <p id="svc-detail-sub"></p>
             </div>
+            <div class="svc-date-bar">
+                <div class="svc-seg" role="group" aria-label="เลือกวันด่วน">
+                    <button type="button" data-svc-day="0" aria-pressed="true">วันนี้</button>
+                    <button type="button" data-svc-day="1" aria-pressed="false">เมื่อวาน</button>
+                    <button type="button" data-svc-day="7" aria-pressed="false">สัปดาห์ก่อน</button>
+                </div>
+                <!-- ช่องวันที่แบบเดียวกับตัวเลือกช่วงเวลา (theme.css .bbh-range/.bbh-date): แสดง พ.ศ. ทับ input date ที่โปร่งใส -->
+                <div class="bbh-range">
+                    <i class="fa-solid fa-calendar-day" aria-hidden="true"></i>
+                    <label class="bbh-date"><span id="svc-detail-date-text"></span><input type="date" id="svc-detail-date" aria-label="เลือกวันที่"></label>
+                </div>
+            </div>
             <button type="button" class="opd-drill-close" id="svc-detail-close" aria-label="ปิด"><i class="fa-solid fa-xmark"></i></button>
         </header>
-        <!-- เลือกวันที่ดูข้อมูล (service_detail.js โหลดบริการเดิมของวันที่เลือก) -->
-        <div class="svc-date-bar">
-            <div class="svc-seg" role="group" aria-label="เลือกวันด่วน">
-                <button type="button" data-svc-day="0" aria-pressed="true">วันนี้</button>
-                <button type="button" data-svc-day="1" aria-pressed="false">เมื่อวาน</button>
-                <button type="button" data-svc-day="7" aria-pressed="false">สัปดาห์ก่อน</button>
-            </div>
-            <!-- ช่องวันที่แบบเดียวกับตัวเลือกช่วงเวลา (theme.css .bbh-range/.bbh-date): แสดง พ.ศ. ทับ input date ที่โปร่งใส -->
-            <div class="bbh-range">
-                <i class="fa-solid fa-calendar-day" aria-hidden="true"></i>
-                <label class="bbh-date"><span id="svc-detail-date-text"></span><input type="date" id="svc-detail-date" aria-label="เลือกวันที่"></label>
-            </div>
-        </div>
         <div class="svc-detail-scroll">
             <div class="svc-detail-summary" id="svc-detail-summary"></div>
             <div class="svc-detail-list" id="svc-detail-list" hidden>
                 <h4 class="svc-list-title">รายชื่อผู้รับบริการ</h4>
-                <div class="opd-drill-tools">
-                    <label class="opd-drill-search">
-                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                        <input type="search" id="svc-detail-q" placeholder="ค้นหา HN / ชื่อ / แผนก / สิทธิ์ / รายการ" aria-label="ค้นหาในรายชื่อ">
-                    </label>
-                    <span class="opd-drill-count" id="svc-detail-count" aria-live="polite"></span>
-                    <button type="button" class="opd-drill-export" id="svc-detail-export"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
+                <!-- แผงค้นหา + ตัวกรอง + Export รวมกล่องเดียว -->
+                <div class="svc-filterbar">
+                    <div class="opd-drill-tools">
+                        <label class="opd-drill-search">
+                            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                            <input type="search" id="svc-detail-q" placeholder="ค้นหา HN / ชื่อ / แผนก / สิทธิ์ / รายการ" aria-label="ค้นหาในรายชื่อ">
+                        </label>
+                        <span class="opd-drill-count" id="svc-detail-count" aria-live="polite"></span>
+                        <button type="button" class="svc-filter-reset" id="svc-detail-reset" hidden><i class="fa-solid fa-rotate-left" aria-hidden="true"></i> ล้างตัวกรอง</button>
+                        <button type="button" class="opd-drill-export" id="svc-detail-export"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
+                    </div>
+                    <div class="opd-drill-filters" id="svc-detail-filters"></div>
                 </div>
-                <div class="opd-drill-filters" id="svc-detail-filters"></div>
                 <div class="opd-drill-body" id="svc-detail-body"></div>
                 <nav class="opd-drill-pager" id="svc-detail-pager" aria-label="เปลี่ยนหน้ารายชื่อ"></nav>
             </div>

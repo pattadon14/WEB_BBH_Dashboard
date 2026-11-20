@@ -636,6 +636,12 @@ html[data-theme="dark"] .svc-seg button {
 html[data-theme="dark"] .svc-seg button[aria-pressed="true"] {
     color: #fbfefc;
 }
+html[data-theme="dark"] .svc-filterbar .opd-drill-search {
+    background: var(--bbh-surface, #161717);
+}
+html[data-theme="dark"] .svc-filter-reset {
+    background: var(--bbh-surface, #161717);
+}
 html[data-theme="dark"] .badge.bg-info {
     background-color: #117a8b !important;
 }

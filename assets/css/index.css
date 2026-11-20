@@ -471,8 +471,11 @@
 
 .svc-detail { width: min(1180px, calc(100% - 32px)); }
 
-/* แถบเลือกวันที่ในหน้าต่างรายละเอียดบริการ */
-.svc-date-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 0 24px 12px; }
+/* หัวหน้าต่าง: ชื่อ (ซ้าย) | เลือกวันที่ (ขวา) | ปิด — จอแคบวันที่ลงบรรทัดใหม่เต็มความกว้าง */
+.svc-head { flex-wrap: wrap; align-items: center; gap: 12px 16px; padding-bottom: 12px; }
+.svc-head-title { flex: 1 1 260px; min-width: 0; }
+.svc-head .opd-drill-close { order: 3; }
+.svc-date-bar { order: 2; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-left: auto; }
 .svc-seg { display: inline-flex; padding: 4px; gap: 4px; border: 1px solid var(--bbh-border); border-radius: 12px; background: var(--bbh-green-50); }
 .svc-seg button {
     min-height: 40px; padding: 0 16px; border: 0; border-radius: 8px; background: transparent;
@@ -483,6 +486,35 @@
 .svc-seg button[aria-pressed="true"] { background: var(--bbh-green); color: #fbfefc; }
 .svc-seg button:focus-visible { outline: 2px solid var(--bbh-green); outline-offset: 2px; }
 .svc-date-bar .bbh-range { height: 50px; }
+
+/* แผงค้นหา + ตัวกรอง + Export รวมกล่องเดียว ตัวกรองเรียงเป็นกริดเท่ากัน */
+.svc-filterbar {
+    margin: 0 20px 12px;
+    padding: 12px 16px;
+    border: 1px solid var(--bbh-border);
+    border-radius: 12px;
+    background: var(--bbh-green-50);
+}
+.svc-filterbar .opd-drill-tools { padding: 0; }
+.svc-filterbar .opd-drill-search { background: var(--bbh-surface, #fbfdfc); max-width: none; }
+.svc-filterbar .opd-drill-filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px 12px;
+    margin-top: 12px;
+    padding: 12px 0 0;
+    border-top: 1px dashed var(--bbh-border);
+}
+.svc-filterbar .opd-drill-filter { min-width: 0; }
+.svc-filterbar .opd-drill-filter select { width: 100%; min-width: 0; max-width: none; min-height: 40px; }
+.svc-filter-reset {
+    display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 12px;
+    border: 1px solid var(--bbh-border); border-radius: 10px; background: var(--bbh-surface, #fbfdfc);
+    color: var(--bbh-text); font-size: 1.05rem; cursor: pointer;
+}
+.svc-filter-reset[hidden] { display: none; }
+.svc-filter-reset:is(:hover, :active) { background: var(--bbh-green-100); }
+.svc-filter-reset:focus-visible { outline: 2px solid var(--bbh-green); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { .svc-seg button { transition: none; } }
 .badge.bg-info { background-color: #117a8b !important; }
 .svc-detail-scroll { flex: 1; min-height: 0; overflow: auto; }
@@ -563,4 +595,11 @@
     .svc-panels { grid-template-columns: 1fr; padding: 12px 16px; }
     .svc-kpis { padding: 12px 16px 0; }
     .svc-list-title { padding: 6px 16px 0; }
+    .svc-filterbar { margin: 0 16px 12px; padding: 12px; }
+    /* หัวหน้าต่าง: ชื่อ + ปิด บรรทัดแรก, วันที่เต็มบรรทัดที่สอง */
+    .svc-head-title { flex: 1 1 0; }
+    .svc-head .opd-drill-close { order: 2; flex: none; }
+    .svc-date-bar { order: 3; flex-basis: 100%; margin-left: 0; }
+    .svc-date-bar .svc-seg { flex: 1 1 auto; }
+    .svc-date-bar .svc-seg button { flex: 1 1 0; padding: 0 8px; }
 }

@@ -16,6 +16,7 @@
     const BY_LABEL = { item: 'แยกตามรายการ', dep: 'แยกตามแผนกที่ลงทะเบียน', pttype: 'แยกตามสิทธิ์' };
     // ตัวกรองรายชื่อ (แสดงเฉพาะที่มีค่ามากกว่า 1 แบบ) — item: 1 รายมีได้หลายรายการ กรองแบบ "มีรายการนี้"
     const FILTERS = [['kind', 'ประเภทผู้ป่วย'], ['shift', 'ช่วงเวลา'], ['item', 'รายการ'], ['dep', 'แผนก / วอร์ด'], ['pttype', 'สิทธิ์']];
+    const NOWRAP = new Set(['time', 'hn', 'kind']);   // คอลัมน์สั้นที่ไม่ควรตัดบรรทัด
     const SHIFTS = ['ในเวลาราชการ (08:00–15:59)', 'นอกเวลา (16:00–23:59)', 'นอกเวลา (00:00–07:59)'];
     const shiftOf = t => {
         if (!t) return '';
@@ -57,6 +58,13 @@
     $('svc-detail-close').addEventListener('click', () => dlg.close());
     dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
     const refilter = () => { state.page = 1; renderTable(); };
+    // ล้างค้นหาและตัวกรองทั้งหมด (ปุ่มแสดงเมื่อมีการกรองอยู่ — renderTable)
+    $('svc-detail-reset').addEventListener('click', () => {
+        $('svc-detail-q').value = '';
+        $('svc-detail-filters').querySelectorAll('select').forEach(s => { s.value = ''; });
+        refilter();
+        $('svc-detail-q').focus();
+    });
     $('svc-detail-q').addEventListener('input', refilter);
     $('svc-detail-filters').addEventListener('change', refilter);
     $('svc-detail-pager').addEventListener('click', e => {
@@ -206,7 +214,7 @@
 
         const list = $('svc-detail-list');
         list.hidden = false;
-        const tools = list.querySelector('.opd-drill-tools');
+        const tools = list.querySelector('.svc-filterbar');   // ค้นหา + ตัวกรอง + Export (ซ่อนเมื่อยังไม่ login)
 
         if (!Array.isArray(d.rows)) {
             tools.hidden = true;
@@ -257,6 +265,8 @@
         const rows = filtered();
         const all = state.rows.length;
         $('svc-detail-count').textContent = rows.length !== all ? `พบ ${fmt(rows.length)} จาก ${fmt(all)} รายการ` : '';
+        $('svc-detail-reset').hidden = !$('svc-detail-q').value.trim()
+            && ![...$('svc-detail-filters').querySelectorAll('select')].some(s => s.value);
         const pager = $('svc-detail-pager');
         const body = $('svc-detail-body');
 
@@ -275,7 +285,7 @@
             <table class="opd-drill-table">
                 <thead><tr><th>#</th>${state.cols.map(([, t]) => `<th>${t}</th>`).join('')}</tr></thead>
                 <tbody>${rows.slice(start, start + PAGE).map((r, i) =>
-                    `<tr><td>${start + i + 1}</td>${state.cols.map(([k]) => `<td>${cell(r[k])}</td>`).join('')}</tr>`).join('')}</tbody>
+                    `<tr><td>${start + i + 1}</td>${state.cols.map(([k]) => `<td${NOWRAP.has(k) ? ' class="text-nowrap"' : ''}>${cell(r[k])}</td>`).join('')}</tr>`).join('')}</tbody>
             </table>`;
 
         const btn = (p, label, aria, disabled, current) =>
