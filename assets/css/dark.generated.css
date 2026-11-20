@@ -653,94 +653,6 @@ html[data-theme="dark"] .svc-login:hover {
     color: #fff;
 }
 
-/* ---- assets/css/ipd_detail.css ---- */
-html[data-theme="dark"] .ipd-kpi-card {
-    border: 1px solid #333a37;
-    background: #161616;
-}
-html[data-theme="dark"] .ipd-kpi-icon {
-    background: #161b18;
-    color: #72d39c;
-}
-html[data-theme="dark"] .ipd-kpi-label {
-    color: #b7c7d1;
-}
-html[data-theme="dark"] .ipd-kpi-value {
-    color: #72d39c;
-}
-html[data-theme="dark"] .ipd-kpi-unit {
-    color: #b4c1ca;
-}
-html[data-theme="dark"] .kpi-discharge .ipd-kpi-icon {
-    background: #1d1818;
-    color: #fba7a5;
-}
-html[data-theme="dark"] .kpi-beds .ipd-kpi-icon {
-    background: #171a1d;
-    color: #90baff;
-}
-html[data-theme="dark"] .kpi-los .ipd-kpi-icon {
-    background: #1b1811;
-    color: #f5aa63;
-}
-html[data-theme="dark"] .kpi-readmission .ipd-kpi-icon {
-    background: #1b191e;
-    color: #c5b4fb;
-}
-html[data-theme="dark"] .kpi-discharge .ipd-kpi-value {
-    color: #fba7a5;
-}
-html[data-theme="dark"] .kpi-beds .ipd-kpi-value {
-    color: #90baff;
-}
-html[data-theme="dark"] .kpi-los .ipd-kpi-value {
-    color: #f5aa63;
-}
-html[data-theme="dark"] .kpi-readmission .ipd-kpi-value {
-    color: #c5b4fb;
-}
-html[data-theme="dark"] .ipd-kpi-status {
-    background: #161b18;
-    color: #89d8a9;
-}
-html[data-theme="dark"] .kpi-status-warning {
-    border-color: #403726;
-    background: #191713;
-}
-html[data-theme="dark"] .kpi-status-warning .ipd-kpi-value {
-    color: #f5aa63;
-}
-html[data-theme="dark"] .kpi-status-warning .ipd-kpi-icon {
-    background: #1b1811;
-    color: #f5aa63;
-}
-html[data-theme="dark"] .kpi-status-warning .ipd-kpi-status {
-    background: #1e190a;
-    color: #e9bc79;
-}
-html[data-theme="dark"] .kpi-status-danger {
-    border-color: #dc3545;
-    background: #1b1718;
-}
-html[data-theme="dark"] .kpi-status-danger .ipd-kpi-value {
-    color: #fba7a5 !important;
-}
-html[data-theme="dark"] .kpi-status-danger .ipd-kpi-icon {
-    background: #23191a;
-    color: #fba7a5;
-}
-html[data-theme="dark"] .kpi-status-danger .ipd-kpi-status {
-    background: #dc3545;
-    color: #ffffff;
-}
-html[data-theme="dark"] .kpi-status-normal .ipd-kpi-status {
-    background: #161b18;
-    color: #89d8a9;
-}
-html[data-theme="dark"] .kpi-status-normal {
-    border-color: #2a3d33;
-}
-
 /* ---- assets/css/ipd_ward_detail.css ---- */
 html[data-theme="dark"] .ipd-ward-page .ward-page-header {
     background: #198754;
@@ -1990,6 +1902,10 @@ html[data-theme="dark"] [style*="color:#b02a37"],
 html[data-theme="dark"] [style*="color: #b02a37"] {
     color: #fba7a5 !important;
 }
+html[data-theme="dark"] [style*="color:#1f1f1f"],
+html[data-theme="dark"] [style*="color: #1f1f1f"] {
+    color: #dcdcdc !important;
+}
 html[data-theme="dark"] [style*="color:#2563eb"],
 html[data-theme="dark"] [style*="color: #2563eb"] {
     color: #99bcff !important;
@@ -1997,10 +1913,6 @@ html[data-theme="dark"] [style*="color: #2563eb"] {
 html[data-theme="dark"] [style*="color:#be185d"],
 html[data-theme="dark"] [style*="color: #be185d"] {
     color: #fe9eb6 !important;
-}
-html[data-theme="dark"] [style*="color:#1f1f1f"],
-html[data-theme="dark"] [style*="color: #1f1f1f"] {
-    color: #dcdcdc !important;
 }
 html[data-theme="dark"] [style*="background:#fff"],
 html[data-theme="dark"] [style*="background: #fff"] {

@@ -1,441 +1,261 @@
+/* =========================================================
+   หน้าผู้ป่วยใน (pages/ipd_detail.php)
+   ช่วงเวลา: assets/js/period_filter.js (bbhPeriod) · ตัวเลข: api/ipd_kpi_summary.php, bed_occupancy_trend.php, ipd_top10_disease.php
+   คลิกตัวเลข/แท่ง/แถว → รายชื่อ (api/ipd_visit_list.php ต้อง login) ผ่าน bbhDrill
+========================================================= */
 
-async function loadKpiSummary() {
+const G = { light: '#5fb98a', main: '#22894f', dark: '#146c3c', soft: '#9fd3b5' };
+const OCC_WARN = '#b45309';   // ครองเตียง 90–100%
+const OCC_BAD = '#c2410c';    // เกิน 100%
+const gCol = (top, bottom) => ({ linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 }, stops: [[0, top], [1, bottom]] });
+const esc = bbhDrill.esc;
+const fmtN = n => Number(n || 0).toLocaleString('th-TH');
+const fmtP = n => Number(n || 0).toLocaleString('th-TH', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
+const isoDate = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+const todayIso = () => isoDate(new Date());
+const thaiDate = iso => iso ? new Date(iso + 'T00:00:00').toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+const shortDate = iso => { const [y, m, d] = String(iso || '').split('-').map(Number); return y ? `${d}/${m}/${String(y + 543).slice(2)}` : ''; };
+const setText = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
 
+async function getJson(url) {
+    const res = await fetch(url);
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error || 'HTTP ' + res.status);
+    return data;
+}
 
+/* ---------- 1–5 ตัวเลขสรุป ---------- */
+async function loadKpi() {
     try {
-
-        const response =
-            await fetch(
-                '../api/ipd_kpi_summary.php?' + bbhPeriod.query(),
-                { cache: 'no-store' }
-            );
-
-        if (!response.ok) {
-            throw new Error('HTTP ' + response.status);
-        }
-
-        const data =
-            await response.json();
-
-        if (data.error) {
-            throw new Error(data.error);
-        }
-
-        const numberFormat = new Intl.NumberFormat('th-TH');
-
-        document.getElementById('kpi-current-inpatients').textContent =
-            numberFormat.format(data.current_inpatients);
-
-        document.getElementById('kpi-admissions').textContent =
-            numberFormat.format(data.admissions);
-
-        document.getElementById('kpi-discharges').textContent =
-            numberFormat.format(data.discharges);
-
-        document.getElementById('kpi-total-beds').textContent =
-            numberFormat.format(data.total_beds);
-
-        const occupancyRate = Number(data.occupancy_rate || 0);
-
-        document.getElementById('kpi-occupancy-rate').textContent =
-            occupancyRate.toLocaleString('th-TH', {
-                minimumFractionDigits: 1,
-                maximumFractionDigits: 1
-            }) + '%';
-
-        const occupancyCard =
-            document.querySelector('.ipd-kpi-card.kpi-occupancy');
-
-        const occupancyStatus =
-            document.getElementById('kpi-occupancy-status');
-
-        if (occupancyCard && occupancyStatus) {
-
-            occupancyCard.classList.remove(
-                'kpi-status-normal',
-                'kpi-status-warning',
-                'kpi-status-danger'
-            );
-
-            if (occupancyRate > 100) {
-
-                occupancyCard.classList.add('kpi-status-danger');
-                occupancyStatus.innerHTML =
-                    '<i class="fa-solid fa-triangle-exclamation"></i> เกิน 100% — เตียงเต็มเกินศักยภาพ';
-
-            } else if (occupancyRate >= 90) {
-
-                occupancyCard.classList.add('kpi-status-warning');
-                occupancyStatus.innerHTML =
-                    '<i class="fa-solid fa-circle-exclamation"></i> 90–100% — ใกล้เต็ม';
-
-            } else {
-
-                occupancyCard.classList.add('kpi-status-normal');
-                occupancyStatus.innerHTML =
-                    '<i class="fa-solid fa-circle-check"></i> ต่ำกว่า 90%';
-
-            }
-        }
-
-        document.getElementById('kpi-avg-los').textContent =
-            Number(data.avg_los || 0).toLocaleString('th-TH', {
-                minimumFractionDigits: 1,
-                maximumFractionDigits: 1
-            });
-
-        const readmissionRate = Number(data.readmission_rate || 0);
-
-        document.getElementById('kpi-readmission-rate').textContent =
-            readmissionRate.toLocaleString('th-TH', {
-                minimumFractionDigits: 1,
-                maximumFractionDigits: 1
-            }) + '%';
-
-        document.getElementById('kpi-readmission-cases').textContent =
-            numberFormat.format(data.readmission_cases) + ' ราย';
-
-        const readmissionCard =
-            document.querySelector('.ipd-kpi-card.kpi-readmission');
-
-        const readmissionStatus =
-            document.getElementById('kpi-readmission-status');
-
-        if (readmissionCard && readmissionStatus) {
-
-            readmissionCard.classList.remove(
-                'kpi-status-normal',
-                'kpi-status-warning',
-                'kpi-status-danger'
-            );
-
-            if (readmissionRate > 10) {
-
-                readmissionCard.classList.add('kpi-status-danger');
-                readmissionStatus.innerHTML =
-                    '<i class="fa-solid fa-triangle-exclamation"></i> สูงกว่า 10%';
-
-            } else if (readmissionRate >= 8) {
-
-                readmissionCard.classList.add('kpi-status-warning');
-                readmissionStatus.innerHTML =
-                    '<i class="fa-solid fa-circle-exclamation"></i> ช่วงเฝ้าระวัง 8–10%';
-
-            } else {
-
-                readmissionCard.classList.add('kpi-status-normal');
-                readmissionStatus.innerHTML =
-                    '<i class="fa-solid fa-circle-check"></i> เป้าหมาย < 8%';
-
-            }
-        }
-
-    } catch (error) {
-
-        console.error('IPD KPI Summary Error:', error);
-
-        [
-            'kpi-current-inpatients',
-            'kpi-admissions',
-            'kpi-discharges',
-            'kpi-total-beds',
-            'kpi-occupancy-rate',
-            'kpi-avg-los',
-            'kpi-readmission-rate'
-        ].forEach(id => {
-
-            const element =
-                document.getElementById(id);
-
-            if (element) {
-                element.textContent = '-';
-            }
-
-        });
-
-        const cases =
-            document.getElementById('kpi-readmission-cases');
-
-        if (cases) {
-            cases.textContent = 'โหลดข้อมูลไม่สำเร็จ';
-        }
-
-        const occupancyStatus =
-            document.getElementById('kpi-occupancy-status');
-
-        if (occupancyStatus) {
-            occupancyStatus.textContent = 'ไม่สามารถประเมินได้';
-        }
-
-        const readmissionStatus =
-            document.getElementById('kpi-readmission-status');
-
-        if (readmissionStatus) {
-            readmissionStatus.textContent = 'ไม่สามารถประเมินได้';
-        }
-    }
-}
-
-async function loadChart() {
-
-    /*
-    ==========================
-    รับใหม่ + อัตราครองเตียง ต่อช่อง (วัน/เดือน ตามช่วงที่เลือก) — api/bed_occupancy_trend.php
-    ==========================
-    */
-
-    const bedResponse =
-        await fetch(
-            '../api/bed_occupancy_trend.php?' + bbhPeriod.query()
-        );
-
-    const bedData =
-        await bedResponse.json();
-
-    if (bedData.error) {
-        console.error('IPD trend API error:', bedData.error);
-        return;
-    }
-
-    const months = bedData.data.map(row => row.label);
-    const ipdData = bedData.data.map(row => Number(row.admit) || 0);
-    const occupancyData = bedData.data.map(row => Number(row.occupancy_rate) || 0);
-    /*
-    ==========================
-    กราฟผู้ป่วยใน
-    ==========================
-    */
-
-    Highcharts.chart('ipd-chart', {
-
-        chart: {
-            type: 'column',
-            backgroundColor: '#ffffff',
-            style: {
-                fontFamily: 'THSarabun'
-            }
-        },
-
-        title: { text: null },
-
-        xAxis: {
-            categories: months
-        },
-
-        yAxis: {
-
-            title: {
-                text: 'จำนวน'
-            },
-
-            allowDecimals: false
-        },
-
-        credits: {
-            enabled: false
-        },
-
-        series: [
-
-            {
-
-                name: 'ผู้ป่วยใน',
-
-                color: '#4aafbd',
-
-                data: ipdData,
-
-                dataLabels: {
-
-                    enabled: months.length <= 16, // รายวันหลายแท่ง ป้ายตัวเลขจะทับกัน
-
-                    color: '#333333',
-
-                    style: {
-                        fontSize: '15px',
-                        fontWeight: 'bold',
-                        textOutline: 'none'
-                    }
-                }
-
-            }
-
-        ]
-
-    });
-
-    /*
-    ==========================
-    กราฟอัตราครองเตียง
-    ==========================
-    */
-
-    Highcharts.chart('bed-occupancy-chart', {
-
-        chart: {
-            zoomType: 'xy',
-            backgroundColor: '#ffffff',
-            style: {
-                fontFamily: 'THSarabun'
-            }
-        },
-
-        title: { text: null },
-
-        xAxis: {
-            categories: months
-        },
-
-        // แกนเดียว: เดิมมีเส้น "แนวโน้ม" ที่เป็นข้อมูลชุดเดียวกับแท่งซ้ำบนแกนที่ 2
-        yAxis: {
-            min: 0,
-            softMax: 100,
-            title: {
-                text: 'อัตราการครองเตียง (%)'
-            },
-            labels: {
-                format: '{value}%'
-            }
-        },
-
-        tooltip: {
-
-            shared: true,
-
-            valueSuffix: '%'
-        },
-
-        credits: {
-            enabled: false
-        },
-
-        series: [
-
-            {
-
-                type: 'column',
-
-                name: 'อัตราครองเตียง',
-
-                color: '#4aafbd',
-
-                data: occupancyData,
-
-                dataLabels: {
-
-                    enabled: months.length <= 16, // รายวันหลายแท่ง ป้ายตัวเลขจะทับกัน
-
-                    format: '{y:.1f}%',
-
-                    style: {
-                        fontSize: '15px',
-                        fontWeight: 'bold',
-                        textOutline: 'none',
-                        color: '#333333'
-                    }
-                }
-
-            }
-
-        ]
-
-    });
-
-}
-async function reloadAll() {
-
-    await loadKpiSummary();
-
-    await loadChart();
-
-    await loadTop10Disease();
-
-}
-
-reloadAll();
-
-document.getElementById('budget-year')
-    .addEventListener('change', reloadAll);
-
-async function loadTop10Disease() {
-
-    try {
-
-
-        const response =
-            await fetch(
-                '../api/ipd_top10_disease.php?' + bbhPeriod.query()
-            );
-
-        const data =
-            await response.json();
-
-        console.log('TOP10 IPD', data);
-
-        const rankColor = {
-            1: 'background:#FFD700;color:#333;',
-            2: 'background:#C0C0C0;color:#333;',
-            3: 'background:#CD7F32;color:#1f1f1f;',
-        };
-
-        let html = '';
-
-        data.forEach((row, index) => {
-
-            const rank      = index + 1;
-            const badgeStyle = rankColor[rank]
-                ? rankColor[rank]
-                : 'background:#198754;color:#fff;';
-
-
-            html += `
-                <tr>
-                    <td class="text-center">
-                        <span class="rank-badge" style="${badgeStyle}">
-                            ${rank}
-                        </span>
-                    </td>
-                    <td class="text-center">
-                        <span class="badge bg-secondary"
-                              style="font-size:14px;letter-spacing:1px">
-                            ${row.pdx ?? '—'}
-                        </span>
-                    </td>
-                    <td>${diagCell(row.tname, row.diag)}</td>
-                    <td class="text-center fw-bold text-success">
-                        ${Number(row.total_case || 0).toLocaleString()}
-                    </td>
-                    <td class="text-center" style="color:#2563eb">
-                        ${Number(row.male || 0).toLocaleString()}
-                    </td>
-                    <td class="text-center" style="color:#be185d">
-                        ${Number(row.female || 0).toLocaleString()}
-                    </td>
-                </tr>
-            `;
-        });
-
-        document.getElementById('top10-ipd-body').innerHTML = html ||
-            '<tr><td colspan="6" class="text-center text-muted py-3">ไม่พบข้อมูลผู้ป่วยที่จำหน่ายในช่วงนี้</td></tr>';
+        const d = await getJson('../api/ipd_kpi_summary.php?' + bbhPeriod.query());
+
+        setText('kpi-current', fmtN(d.current_inpatients));
+        setText('kpi-beds', fmtN(d.total_beds));
+        setText('kpi-admit', fmtN(d.admissions));
+        setText('kpi-dch', fmtN(d.discharges));
+        setText('kpi-death', fmtN(d.deaths));
+        setText('kpi-death-rate', fmtP(d.death_rate));
+        setText('kpi-refer', fmtN(d.refers));
+        setText('kpi-refer-rate', fmtP(d.refer_rate));
+
+        // 2 เตียง: เกณฑ์ < 90% ปกติ · 90–100% ใกล้เต็ม · > 100% เกินศักยภาพ (ข้อความกำกับเสมอ ไม่พึ่งสีอย่างเดียว)
+        const occ = Number(d.occupancy_rate || 0);
+        setText('kpi-occ', fmtP(occ));
+        const occLevel = occ > 100 ? 'bad' : occ >= 90 ? 'warn' : 'good';
+        const occStatus = document.getElementById('occ-status');
+        occStatus.textContent = { bad: 'เกิน 100% เตียงเต็มเกินศักยภาพ', warn: '90–100% ใกล้เต็ม', good: 'ต่ำกว่า 90%' }[occLevel];
+        occStatus.className = occLevel === 'good' ? '' : 'ipd-flag-' + occLevel;
+        const meter = document.getElementById('occ-meter');
+        meter.className = 'er-meter is-' + occLevel;
+        meter.firstElementChild.style.width = Math.min(100, occ) + '%';
+        meter.setAttribute('aria-label', 'อัตราครองเตียง ' + fmtP(occ));
+        setText('kpi-beds2', fmtN(d.total_beds));
+        setText('kpi-pdays', fmtN(d.patient_days));
+
+        // 3 คุณภาพ: Readmission เป้า < 8% · 8–10% เฝ้าระวัง · > 10% สูง
+        setText('kpi-los', Number(d.avg_los || 0).toLocaleString('th-TH', { minimumFractionDigits: 1, maximumFractionDigits: 1 }));
+        setText('kpi-readmit', fmtN(d.readmission_cases));
+        setText('kpi-readmit-rate', fmtP(d.readmission_rate));
+        const rr = Number(d.readmission_rate || 0);
+        const rs = document.getElementById('readmit-status');
+        rs.textContent = rr > 10 ? 'สูงกว่า 10%' : rr >= 8 ? 'เฝ้าระวัง 8–10%' : 'ตามเป้า < 8%';
+        rs.className = rr > 10 ? 'ipd-flag-bad' : rr >= 8 ? 'ipd-flag-warn' : '';
+        setText('kpi-death-rate2', fmtP(d.death_rate));
+        setText('kpi-refer-rate2', fmtP(d.refer_rate));
+
+        // 4 สถานะการจำหน่าย — แถวที่เพิ่มทีหลังต้องใส่ role/tabindex เอง (bbhDrill.bind ตั้งให้เฉพาะตอนผูก)
+        const total = d.discharges || 0;
+        const types = [...d.dch_types].sort((a, b) => b.n - a.n);
+        document.getElementById('ipd-dch-list').innerHTML = types.length ? types.map(t => `
+            <div class="er-stat" data-drill="dchtype" data-key="${esc(t.code)}" data-label="${esc(t.name)}" role="button" tabindex="0" title="คลิกเพื่อดูรายชื่อ">
+                <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid ${dchIcon(t.code)}"></i></span>${esc(t.name)}</span>
+                <span class="er-stat-value"><b>${fmtN(t.n)}</b> ราย <small>${total ? fmtP(t.n * 100 / total) : '–'}</small></span>
+            </div>`).join('') : '<p class="er-note">ไม่มีผู้ป่วยจำหน่ายในช่วงนี้</p>';
+
+        // 5 รายหอผู้ป่วย: ผู้ป่วยตอนนี้ / เตียง + อัตราครองเตียงของช่วง
+        document.getElementById('ipd-ward-list').innerHTML = d.wards.map(w => {
+            const level = w.occupancy_rate > 100 ? 'bad' : w.occupancy_rate >= 90 ? 'warn' : 'good';
+            const nowPct = w.beds ? Math.round(w.current * 100 / w.beds) : 0;
+            return `
+            <a class="er-row ipd-ward-row" href="ipd_ward_detail.php?ward=${encodeURIComponent(w.ward)}">
+                <span class="er-row-key"><span>${esc(w.name)}<i class="fa-solid fa-arrow-right ipd-ward-go" aria-hidden="true"></i>
+                    <small>รับใหม่ในช่วงนี้ ${fmtN(w.admissions)} ราย</small></span></span>
+                <span class="er-row-num"><b>${fmtN(w.current)}</b> / ${fmtN(w.beds)} เตียง <small>ตอนนี้ ${nowPct}%</small></span>
+                <span class="er-row-bar">
+                    <span class="er-meter is-${level}" role="img" aria-label="อัตราครองเตียง ${fmtP(w.occupancy_rate)}"><span style="width:${Math.min(100, w.occupancy_rate)}%"></span></span>
+                    <small class="${level === 'good' ? '' : 'ipd-flag-' + level}">${fmtP(w.occupancy_rate)}${level === 'bad' ? ' เกินเตียง' : level === 'warn' ? ' ใกล้เต็ม' : ''}</small>
+                </span>
+            </a>`;
+        }).join('') || '<p class="er-note">ไม่พบข้อมูลหอผู้ป่วย</p>';
 
     } catch (err) {
-
-        console.error('Top10 Disease Error', err);
-
-        document.getElementById('top10-ipd-body').innerHTML = `
-            <tr>
-                <td colspan="6" class="text-center text-danger">
-                    ไม่สามารถโหลดข้อมูลได้
-                </td>
-            </tr>
-        `;
+        console.error('IPD KPI error:', err);
+        ['kpi-current', 'kpi-admit', 'kpi-dch', 'kpi-death', 'kpi-refer', 'kpi-occ', 'kpi-los', 'kpi-readmit'].forEach(id => setText(id, '—'));
+        document.getElementById('ipd-dch-list').innerHTML = '<p class="er-note">โหลดข้อมูลไม่สำเร็จ</p>';
+        document.getElementById('ipd-ward-list').innerHTML = '<p class="er-note">โหลดข้อมูลไม่สำเร็จ</p>';
     }
 }
 
-// ชื่อโรค: ไทยเป็นหลัก อังกฤษตัวเล็กใต้ชื่อ (ไม่แสดงซ้ำถ้าเหมือนกันหรือไม่มีชื่อไทย) — ใช้รูปแบบเดียวกันทั้งหน้า OPD / IPD / ER
+function dchIcon(code) {
+    return { '01': 'fa-house-medical-circle-check', '02': 'fa-user-xmark', '03': 'fa-person-running', '04': 'fa-truck-medical', '08': 'fa-heart-crack', '09': 'fa-heart-crack' }[code] || 'fa-circle-question';
+}
+
+/* ---------- 6 แนวโน้ม ---------- */
+async function loadTrend() {
+    let json;
+    try {
+        json = await getJson('../api/bed_occupancy_trend.php?' + bbhPeriod.query());
+    } catch (err) {
+        console.error('IPD trend error:', err);
+        return;
+    }
+    const s = bbhPeriod.state;
+    const rows = json.data;
+    const isDay = json.unit === 'day';
+    const labels = rows.map(r => r.label);
+    const lastPartial = rows.length > 0 && s.d2 === todayIso();   // วัน/เดือนสุดท้ายยังไม่จบ
+    const many = rows.length > 16;                               // รายวันหลายแท่ง ป้ายตัวเลขจะทับกัน
+
+    const bucket = r => {
+        let d2 = r.start;
+        if (!isDay) { const [y, m] = r.start.split('-').map(Number); d2 = isoDate(new Date(y, m, 0)); }
+        return { d1: r.start < s.d1 ? s.d1 : r.start, d2: d2 > s.d2 ? s.d2 : d2 };
+    };
+
+    Highcharts.chart('ipd-chart', {
+        chart: { type: 'column', style: { fontFamily: 'THSarabun' } },
+        title: { text: null },
+        subtitle: { text: lastPartial ? `แท่งสีอ่อน = ${isDay ? 'วันนี้ (ยังไม่จบวัน)' : 'เดือนปัจจุบัน (ยังไม่ครบเดือน)'}` : null },
+        xAxis: { categories: labels },
+        yAxis: { min: 0, allowDecimals: false, title: { text: 'จำนวน (ราย)' } },
+        legend: { enabled: false },
+        credits: { enabled: false },
+        tooltip: { pointFormat: 'รับใหม่: <b>{point.y:,.0f} ราย</b>' },
+        plotOptions: {
+            column: {
+                maxPointWidth: 72, borderRadius: 4, borderWidth: 0, cursor: 'pointer',
+                point: { events: { click() {
+                    const r = rows[this.index], b = bucket(r);
+                    if (this.y) openList('admit', '', (isDay ? 'วันที่ ' : 'เดือน') + r.label, b.d1, b.d2);
+                } } }
+            }
+        },
+        series: [{
+            name: 'รับใหม่',
+            color: gCol(G.main, G.dark),
+            data: rows.map((r, i) => (lastPartial && i === rows.length - 1 ? { y: r.admit, color: G.soft } : r.admit)),
+            dataLabels: { enabled: !many, style: { fontSize: '16px', textOutline: 'none', color: '#17241d' } }
+        }]
+    });
+
+    Highcharts.chart('bed-occupancy-chart', {
+        chart: { type: 'column', style: { fontFamily: 'THSarabun' } },
+        title: { text: null },
+        xAxis: { categories: labels },
+        yAxis: {
+            min: 0, softMax: 105, title: { text: 'อัตราครองเตียง (%)' }, labels: { format: '{value}%' },
+            plotLines: [
+                { value: 90, color: OCC_WARN, dashStyle: 'Dash', width: 1, zIndex: 4, label: { text: '90%', align: 'right', style: { color: OCC_WARN } } },
+                { value: 100, color: OCC_BAD, dashStyle: 'Dash', width: 1, zIndex: 4, label: { text: '100%', align: 'right', style: { color: OCC_BAD } } }
+            ]
+        },
+        legend: { enabled: false },
+        credits: { enabled: false },
+        tooltip: { pointFormat: 'อัตราครองเตียง: <b>{point.y:.1f}%</b>' },
+        plotOptions: { column: { maxPointWidth: 72, borderRadius: 4, borderWidth: 0 } },
+        series: [{
+            name: 'อัตราครองเตียง',
+            // สีตามเกณฑ์ (เส้นประ 90% / 100% บอกความหมายด้วย)
+            data: rows.map(r => ({ y: r.occupancy_rate, color: r.occupancy_rate > 100 ? OCC_BAD : r.occupancy_rate >= 90 ? OCC_WARN : G.main })),
+            dataLabels: { enabled: !many, format: '{y:.1f}%', style: { fontSize: '16px', textOutline: 'none', color: '#17241d' } }
+        }]
+    });
+}
+
+/* ---------- 7 10 อันดับโรค ---------- */
+async function loadTop10() {
+    const body = document.getElementById('top10-ipd-body');
+    try {
+        const data = await getJson('../api/ipd_top10_disease.php?' + bbhPeriod.query());
+        const rankColor = { 1: 'background:#FFD700;color:#333;', 2: 'background:#C0C0C0;color:#333;', 3: 'background:#CD7F32;color:#1f1f1f;' };
+        body.innerHTML = data.map((row, i) => {
+            const name = (row.tname || '').trim() || row.diag || row.pdx;
+            return `
+            <tr data-drill="pdx" data-key="${esc(row.pdx)}" data-label="${esc(row.pdx + ' ' + name)}" role="button" tabindex="0" title="คลิกเพื่อดูรายชื่อ">
+                <td class="text-center"><span class="rank-badge" style="${rankColor[i + 1] || 'background:#198754;color:#fff;'}">${i + 1}</span></td>
+                <td class="text-center"><span class="badge bg-secondary" style="font-size:14px;letter-spacing:1px">${esc(row.pdx)}</span></td>
+                <td>${diagCell(row.tname, row.diag)}</td>
+                <td class="text-center fw-bold text-success">${fmtN(row.total_case)}</td>
+                <td class="text-center" style="color:#2563eb">${fmtN(row.male)}</td>
+                <td class="text-center" style="color:#be185d">${fmtN(row.female)}</td>
+            </tr>`;
+        }).join('') || '<tr><td colspan="6" class="text-center text-muted py-3">ไม่พบข้อมูลผู้ป่วยที่จำหน่ายในช่วงนี้</td></tr>';
+    } catch (err) {
+        console.error('IPD top10 error:', err);
+        body.innerHTML = '<tr><td colspan="6" class="text-center text-danger py-3">ไม่สามารถโหลดข้อมูลได้</td></tr>';
+    }
+}
+
+// ชื่อโรค: ไทยเป็นหลัก อังกฤษตัวเล็กใต้ชื่อ — รูปแบบเดียวกันทั้งหน้า OPD / IPD / ER
 function diagCell(th, en) {
     th = (th || '').trim();
     en = (en || '').trim();
-    const sub = th && en && th !== en ? `<div class="diag-en">${en}</div>` : '';
-    return `<div>${th || en || '—'}</div>${sub}`;
+    const sub = th && en && th !== en ? `<div class="diag-en">${esc(en)}</div>` : '';
+    return `<div>${esc(th || en || '—')}</div>${sub}`;
 }
+
+/* ---------- รายชื่อ (api/ipd_visit_list.php) ---------- */
+const LIST_TITLES = {
+    current: 'ผู้ป่วยในตอนนี้', admit: 'รับใหม่', dch: 'จำหน่าย', death: 'เสียชีวิต',
+    dchtype: 'จำหน่าย', readmit: 'Readmission ภายใน 30 วัน', pdx: 'การวินิจฉัยหลัก'
+};
+
+function openList(type, key, label, d1, d2) {
+    const s = bbhPeriod.state;
+    d1 = d1 || s.d1;
+    d2 = d2 || s.d2;
+    const now = type === 'current';
+    const qs = new URLSearchParams({ type });
+    if (key) qs.set('key', key);
+    if (!now) { qs.set('d1', d1); qs.set('d2', d2); }
+
+    const date = { nowrap: true, display: shortDate };
+    const cols = [
+        ['an', 'AN', { nowrap: true }], ['hn', 'HN', { nowrap: true }], ['name', 'ชื่อ-สกุล', { nowrap: true }],
+        ['age', 'อายุ'], ['sex', 'เพศ'], ['ward', 'หอผู้ป่วย', { max: '10em' }],
+        ['regdate', 'วันที่ Admit', date],
+        ...(now ? [] : [['dchdate', 'วันที่จำหน่าย', date]]),
+        ...(type === 'readmit' ? [['prev_dch', 'จำหน่ายครั้งก่อน', date]] : []),
+        ['los', now ? 'นอนมาแล้ว (วัน)' : 'วันนอน'],
+        ['pdx', 'การวินิจฉัยหลัก', { max: '16em' }],
+        ...(now ? [] : [['dchtype', 'สถานะจำหน่าย']]),
+        ['pttype', 'สิทธิ์', { short: true, max: '12em' }]
+    ];
+    const head = type === 'dchtype' || type === 'pdx' ? `${LIST_TITLES[type]}: ${label}` : LIST_TITLES[type] + (label ? `: ${label}` : '');
+
+    bbhDrill.open({
+        title: head,
+        sub: now ? 'ผู้ป่วยที่ยังไม่จำหน่าย ณ ตอนนี้ (ไม่นับ LR, Observe ER, Home Ward)' : `${thaiDate(d1)} – ${thaiDate(d2)}`,
+        url: '../api/ipd_visit_list.php?' + qs,
+        placeholder: 'ค้นหา AN / HN / ชื่อ / หอผู้ป่วย / โรค',
+        cols,
+        exportCols: cols.map(c => (c[0] === 'pdx' ? ['pdx_text', 'การวินิจฉัยหลัก'] : c)),
+        filters: [['ward', 'หอผู้ป่วย'], ...(now ? [] : [['dchtype', 'สถานะจำหน่าย']]), ['pttype', 'สิทธิ์']],
+        mapRows: data => data.rows.map(r => ({ ...r, pdx_text: r.pdx ? `${r.pdx} ${r.diag_th || r.diag_en || ''}`.trim() : '' })),
+        cell: (r, k) => (k === 'pdx' && r.pdx ? `<b>${esc(r.pdx)}</b> ${esc(r.diag_th || r.diag_en || '')}` : undefined),
+        searchKeys: ['an', 'hn', 'name', 'ward', 'pdx_text', 'pttype'],
+        unit: 'ราย',
+        file: `IPD_${type}${key ? '_' + key : ''}${now ? '' : '_' + d1 + '_' + d2}.csv`,
+        summary: rows => `${fmtN(rows.length)} ราย (${fmtN(new Set(rows.map(r => r.hn)).size)} คน)`
+    });
+}
+
+// การ์ด/แถวที่มี data-drill ทั้งหน้า (แถวที่สร้างภายหลังใช้ event delegation เดียวกัน)
+bbhDrill.bind(document.getElementById('ipd-page'), (type, n) => openList(type, n.dataset.key || '', n.dataset.label || ''));
+
+async function reloadAll() {
+    await Promise.all([loadKpi(), loadTrend(), loadTop10()]);
+}
+
+reloadAll();
+document.getElementById('budget-year').addEventListener('change', reloadAll);

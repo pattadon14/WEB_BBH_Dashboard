@@ -3,230 +3,192 @@
 header('Content-Type: application/json; charset=utf-8');
 
 require_once '../config/database.php';
-require_once '../config/period.php';
 require_once '../config/ward.php';
+require_once '../config/ipd.php';
 
 try {
 
     // ช่วงเวลา: ?d1&d2 หรือ ?year (config/period.php) — SQL ด้านล่างใช้ end แบบไม่รวม จึง +1 วัน
     $p = bbh_period();
-    $startDate = $p['start'];
-    $endDate   = date('Y-m-d', strtotime($p['end'] . ' +1 day'));
 
-    /*
-    ============================================
-    IPD KPI SUMMARY
+    ipd_cached('ipd_kpi_v2', $p, function () use ($conn, $p) {
 
-    Current Inpatients
-    = ผู้ป่วยที่ยัง Admit อยู่ ณ ปัจจุบัน (เฉพาะ valid_wards ให้ตรงกับ "Admit อยู่" หน้าหลัก)
+        $startDate = $p['start'];
+        $endDate   = date('Y-m-d', strtotime($p['end'] . ' +1 day'));
+        $excluded  = IPD_EXCLUDED_WARDS;
+        $bedSql    = ward_bedcount_sql();
 
-    Occupancy Rate
-    = อัตราครองเตียงเฉลี่ยของช่วงที่เลือก (ปีงบ หรือ d1–d2) (วิธีเดียวกับ bed_occupancy_trend.php)
-
-    Admissions / Discharges / LOS / Readmission
-    = คำนวณตามปีงบประมาณที่เลือก
-
-    Total Beds
-    = Ward ที่ใช้งาน และใช้ชุดเดียวกับ
-      bed_occupancy_trend.php
-    ============================================
-    */
-
-    $sql = "
-        WITH params AS (
+        /*
+        ============================================
+        IPD KPI SUMMARY
+        - ผู้ป่วยในปัจจุบัน = ยัง Admit อยู่ ณ ตอนนี้ (เฉพาะ valid_wards ให้ตรงกับ "Admit อยู่" หน้าหลัก)
+        - อัตราครองเตียง = วันนอนจริงในช่วง / (เตียง x จำนวนวันที่ผ่านไปของช่วง) (วิธีเดียวกับ bed_occupancy_trend.php)
+        - รับใหม่ / จำหน่าย / LOS / Readmission = ทุก ward ตามช่วงที่เลือก
+        - เตียงทั้งหมด = ward ที่ใช้งาน ชุดเดียวกับ bed_occupancy_trend.php
+        ============================================
+        */
+        $sql = "
+            WITH params AS (
+                SELECT
+                    CAST(:startDate AS date) AS start_date,
+                    CAST(:endDate AS date) AS end_date
+            ),
+            valid_wards AS (
+                SELECT ward, $bedSql AS bedcount
+                FROM ward
+                WHERE ward_active = 'Y'
+                  AND ward NOT IN ($excluded)
+            ),
+            current_ipd AS (
+                SELECT COUNT(DISTINCT i.an) AS current_inpatients
+                FROM ipt i
+                WHERE i.dchdate IS NULL
+                  AND i.ward IN (SELECT ward FROM valid_wards)
+            ),
+            occupancy_period AS (
+                SELECT start_date, LEAST(end_date, CURRENT_DATE + 1) AS until_date
+                FROM params
+            ),
+            patient_days AS (
+                SELECT
+                    COALESCE(SUM(GREATEST(0,
+                        LEAST(COALESCE(i.dchdate, CURRENT_DATE + 1), op.until_date)
+                        - GREATEST(i.regdate, op.start_date)
+                    )), 0) AS patient_days,
+                    MAX(op.until_date - op.start_date) AS period_days
+                FROM occupancy_period op
+                LEFT JOIN ipt i
+                    ON i.regdate < op.until_date
+                   AND COALESCE(i.dchdate, CURRENT_DATE + 1) > op.start_date
+                   AND i.ward IN (SELECT ward FROM valid_wards)
+            ),
+            total_beds AS (
+                SELECT COALESCE(SUM(bedcount), 0) AS total_beds FROM valid_wards
+            ),
+            admissions AS (
+                SELECT COUNT(DISTINCT i.an) AS admissions
+                FROM ipt i CROSS JOIN params p
+                WHERE i.regdate >= p.start_date AND i.regdate < p.end_date
+            ),
+            discharges AS (
+                SELECT COUNT(DISTINCT i.an) AS discharges
+                FROM ipt i CROSS JOIN params p
+                WHERE i.dchdate >= p.start_date AND i.dchdate < p.end_date
+            ),
+            avg_los AS (
+                SELECT ROUND(AVG(i.admdate)::numeric, 1) AS avg_los
+                FROM an_stat i CROSS JOIN params p
+                WHERE i.dchdate >= p.start_date AND i.dchdate < p.end_date
+            ),
+            readmission AS (
+                SELECT COUNT(DISTINCT curr.an) AS readmission_cases
+                FROM ipt curr
+                INNER JOIN ipt prev
+                    ON prev.hn = curr.hn
+                   AND prev.an <> curr.an
+                   AND prev.dchdate IS NOT NULL
+                   AND curr.regdate >= prev.dchdate
+                   AND curr.regdate <= prev.dchdate + INTERVAL '30 days'
+                CROSS JOIN params p
+                WHERE curr.regdate >= p.start_date AND curr.regdate < p.end_date
+            )
             SELECT
-                CAST(:startDate AS date) AS start_date,
-                CAST(:endDate AS date) AS end_date
-        ),
+                c.current_inpatients, a.admissions, d.discharges, b.total_beds,
+                pd.patient_days, pd.period_days,
+                ROUND((pd.patient_days * 100.0 / NULLIF(b.total_beds * pd.period_days, 0))::numeric, 1) AS occupancy_rate,
+                l.avg_los,
+                r.readmission_cases,
+                ROUND((r.readmission_cases * 100.0 / NULLIF(a.admissions, 0))::numeric, 1) AS readmission_rate
+            FROM current_ipd c
+            CROSS JOIN admissions a
+            CROSS JOIN discharges d
+            CROSS JOIN total_beds b
+            CROSS JOIN avg_los l
+            CROSS JOIN readmission r
+            CROSS JOIN patient_days pd
+        ";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([':startDate' => $startDate, ':endDate' => $endDate]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        valid_wards AS (
-            SELECT
-                ward,
-                " . ward_bedcount_sql() . " AS bedcount
-            FROM ward
-            WHERE ward_active = 'Y'
-              AND ward NOT IN ('10', '11', '05', '04', '23')
-        ),
-
-        current_ipd AS (
-            SELECT
-                COUNT(DISTINCT i.an) AS current_inpatients
+        // ประเภทการจำหน่าย (ทุก ward) — รวมทุกแถว = จำหน่าย
+        $stmt = $conn->prepare("
+            SELECT COALESCE(i.dchtype, '') AS dchtype, COUNT(DISTINCT i.an) AS n
             FROM ipt i
-            WHERE i.dchdate IS NULL
-              AND i.ward IN (SELECT ward FROM valid_wards)
-        ),
+            WHERE i.dchdate >= CAST(:startDate AS date) AND i.dchdate < CAST(:endDate AS date)
+            GROUP BY 1
+            ORDER BY 1
+        ");
+        $stmt->execute([':startDate' => $startDate, ':endDate' => $endDate]);
+        $dchTypes = [];
+        $deaths = 0;
+        $refers = 0;
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $t) {
+            $code = $t['dchtype'];
+            $n = (int)$t['n'];
+            $dchTypes[] = ['code' => $code, 'name' => IPD_DCH_NAMES[$code] ?? ($code === '' ? 'ไม่ระบุ' : 'รหัส ' . $code), 'n' => $n];
+            if (str_contains(IPD_DEATH_TYPES, "'$code'")) {
+                $deaths += $n;
+            }
+            if ($code === IPD_REFER_TYPE) {
+                $refers += $n;
+            }
+        }
 
-        -- วันนอนจริงในช่วงปีงบ (นับคืน: วันจำหน่ายไม่นับ, ยังไม่จำหน่ายนับถึงวันนี้) ตัดช่วงที่อยู่นอกปีงบออก
-        occupancy_period AS (
-            SELECT
-                start_date,
-                LEAST(end_date, CURRENT_DATE + 1) AS until_date
-            FROM params
-        ),
+        // รายหอผู้ป่วย (ward ชุดเดียวกับเตียง) — ผู้ป่วยตอนนี้ / รับใหม่ในช่วง / อัตราครองเตียงของช่วง
+        $stmt = $conn->prepare("
+            WITH params AS (
+                SELECT CAST(:startDate AS date) AS s,
+                       LEAST(CAST(:endDate AS date), CURRENT_DATE + 1) AS u,
+                       CAST(:endDate2 AS date) AS e
+            )
+            SELECT w.ward, w.name, " . ward_bedcount_sql('w') . " AS beds,
+                (SELECT COUNT(*) FROM ipt i WHERE i.ward = w.ward AND i.dchdate IS NULL) AS current,
+                (SELECT COUNT(*) FROM ipt i, params p
+                  WHERE i.ward = w.ward AND i.regdate >= p.s AND i.regdate < p.e) AS admissions,
+                (SELECT COALESCE(SUM(GREATEST(0, LEAST(COALESCE(i.dchdate, CURRENT_DATE + 1), p.u) - GREATEST(i.regdate, p.s))), 0)
+                   FROM ipt i, params p
+                  WHERE i.ward = w.ward AND i.regdate < p.u AND COALESCE(i.dchdate, CURRENT_DATE + 1) > p.s) AS patient_days
+            FROM ward w
+            WHERE w.ward_active = 'Y' AND w.ward NOT IN ($excluded)
+            ORDER BY w.ward
+        ");
+        $stmt->execute([':startDate' => $startDate, ':endDate' => $endDate, ':endDate2' => $endDate]);
+        $periodDays = (int)$row['period_days'];
+        $wards = array_map(fn($w) => [
+            'ward'           => $w['ward'],
+            'name'           => $w['name'],
+            'beds'           => (int)$w['beds'],
+            'current'        => (int)$w['current'],
+            'admissions'     => (int)$w['admissions'],
+            'occupancy_rate' => (int)$w['beds'] > 0 && $periodDays > 0
+                ? round($w['patient_days'] * 100 / ($w['beds'] * $periodDays), 1)
+                : 0,
+        ], $stmt->fetchAll(PDO::FETCH_ASSOC));
 
-        patient_days AS (
-            SELECT
-                COALESCE(SUM(GREATEST(0,
-                    LEAST(COALESCE(i.dchdate, CURRENT_DATE + 1), op.until_date)
-                    - GREATEST(i.regdate, op.start_date)
-                )), 0) AS patient_days,
-                MAX(op.until_date - op.start_date) AS period_days
-            FROM occupancy_period op
-            LEFT JOIN ipt i
-                ON i.regdate < op.until_date
-               AND COALESCE(i.dchdate, CURRENT_DATE + 1) > op.start_date
-               AND i.ward IN (SELECT ward FROM valid_wards)
-        ),
-
-        total_beds AS (
-            SELECT
-                COALESCE(SUM(bedcount), 0) AS total_beds
-            FROM valid_wards
-        ),
-
-        admissions AS (
-            SELECT
-                COUNT(DISTINCT i.an) AS admissions
-            FROM ipt i
-            CROSS JOIN params p
-            WHERE i.regdate >= p.start_date
-              AND i.regdate < p.end_date
-        ),
-
-        discharges AS (
-            SELECT
-                COUNT(DISTINCT i.an) AS discharges
-            FROM ipt i
-            CROSS JOIN params p
-            WHERE i.dchdate >= p.start_date
-              AND i.dchdate < p.end_date
-        ),
-
-        avg_los AS (
-            SELECT
-                ROUND(
-                    AVG(i.admdate)::numeric,
-                    1
-                ) AS avg_los
-            FROM an_stat i
-            CROSS JOIN params p
-            WHERE i.dchdate >= p.start_date
-              AND i.dchdate < p.end_date
-        ),
-
-        readmission_data AS (
-            SELECT DISTINCT
-                curr.an
-
-            FROM ipt curr
-
-            INNER JOIN ipt prev
-                ON prev.hn = curr.hn
-               AND prev.an <> curr.an
-               AND prev.dchdate IS NOT NULL
-               AND curr.regdate >= prev.dchdate
-               AND curr.regdate <= prev.dchdate + INTERVAL '30 days'
-
-            CROSS JOIN params p
-
-            WHERE curr.regdate >= p.start_date
-              AND curr.regdate < p.end_date
-        ),
-
-        readmission AS (
-            SELECT
-                COUNT(*) AS readmission_cases
-            FROM readmission_data
-        )
-
-        SELECT
-
-            c.current_inpatients,
-
-            a.admissions,
-
-            d.discharges,
-
-            b.total_beds,
-
-            -- อัตราครองเตียงเฉลี่ยปีงบ = วันนอนรวม / (เตียง x จำนวนวันที่ผ่านไปของปีงบ)
-            ROUND(
-                (
-                    pd.patient_days * 100.0
-                    / NULLIF(b.total_beds * pd.period_days, 0)
-                )::numeric,
-                1
-            ) AS occupancy_rate,
-
-            l.avg_los,
-
-            r.readmission_cases,
-
-            ROUND(
-                (
-                    r.readmission_cases * 100.0
-                    / NULLIF(a.admissions, 0)
-                )::numeric,
-                1
-            ) AS readmission_rate
-
-        FROM current_ipd c
-        CROSS JOIN admissions a
-        CROSS JOIN discharges d
-        CROSS JOIN total_beds b
-        CROSS JOIN avg_los l
-        CROSS JOIN readmission r
-        CROSS JOIN patient_days pd
-    ";
-
-    $stmt = $conn->prepare($sql);
-
-    $stmt->execute([
-        ':startDate' => $startDate,
-        ':endDate'   => $endDate
-    ]);
-
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if (!$row) {
-        throw new Exception('ไม่พบข้อมูล IPD KPI');
-    }
-
-    $result = [
-        'start_date' => $startDate,
-        'end_date' => date('Y-m-d', strtotime($endDate . ' -1 day')),
-
-        'current_inpatients' => (int)$row['current_inpatients'],
-        'admissions' => (int)$row['admissions'],
-        'discharges' => (int)$row['discharges'],
-        'total_beds' => (int)$row['total_beds'],
-
-        'occupancy_rate' => $row['occupancy_rate'] !== null
-            ? (float)$row['occupancy_rate']
-            : 0,
-
-        'avg_los' => $row['avg_los'] !== null
-            ? (float)$row['avg_los']
-            : 0,
-
-        'readmission_cases' => (int)$row['readmission_cases'],
-
-        'readmission_rate' => $row['readmission_rate'] !== null
-            ? (float)$row['readmission_rate']
-            : 0
-    ];
-
-    echo json_encode(
-        $result,
-        JSON_UNESCAPED_UNICODE
-    );
+        $discharges = (int)$row['discharges'];
+        return [
+            'start_date'         => $startDate,
+            'end_date'           => $p['end'],
+            'current_inpatients' => (int)$row['current_inpatients'],
+            'admissions'         => (int)$row['admissions'],
+            'discharges'         => $discharges,
+            'total_beds'         => (int)$row['total_beds'],
+            'patient_days'       => (int)$row['patient_days'],
+            'occupancy_rate'     => (float)($row['occupancy_rate'] ?? 0),
+            'avg_los'            => (float)($row['avg_los'] ?? 0),
+            'readmission_cases'  => (int)$row['readmission_cases'],
+            'readmission_rate'   => (float)($row['readmission_rate'] ?? 0),
+            // อัตราต่อผู้ป่วยที่จำหน่ายในช่วงเดียวกัน
+            'deaths'             => $deaths,
+            'death_rate'         => $discharges > 0 ? round($deaths * 100 / $discharges, 1) : 0,
+            'refers'             => $refers,
+            'refer_rate'         => $discharges > 0 ? round($refers * 100 / $discharges, 1) : 0,
+            'dch_types'          => $dchTypes,
+            'wards'              => $wards,
+        ];
+    });
 
 } catch (Throwable $e) {
-
-    http_response_code(500);
-
-    echo json_encode([
-        'error' => 'ไม่สามารถโหลดข้อมูล IPD KPI ได้',
-        'detail' => $e->getMessage()
-    ], JSON_UNESCAPED_UNICODE);
+    ipd_fail($e, 'ipd_kpi_summary');
 }
