@@ -124,34 +124,6 @@ $currentYear = date('Y') + 543 + (date('n') >= 10 ? 1 : 0);
                 <div id="anc-trend-chart" class="anc-chart"></div>
             </section>
 
-            <!-- 3 ตัวชี้วัดคุณภาพ (api/anc_indicators.php) -->
-            <section class="er-panel" aria-labelledby="anc-sec3">
-                <header class="er-sec-head">
-                    <span class="er-sec-no" aria-hidden="true">3</span>
-                    <div>
-                        <h2 class="er-h2" id="anc-sec3">ตัวชี้วัดคุณภาพ</h2>
-                        <p class="er-sec-sub" id="anc-ind-sub">ANC 11 ตัว · ตัวหารในเขต</p>
-                    </div>
-                </header>
-                <div class="table-responsive">
-                    <table class="table er-table anc-ind-table" aria-labelledby="anc-sec3">
-                        <thead>
-                            <tr>
-                                <th>ตัวชี้วัด</th>
-                                <th class="text-right">ผลงาน</th>
-                                <th class="text-right">ตัวตั้ง/ตัวหาร</th>
-                                <th class="text-right">เป้า</th>
-                                <th>สถานะ</th>
-                            </tr>
-                        </thead>
-                        <tbody id="anc-ind-body"><tr><td colspan="5" class="er-note">กำลังโหลดข้อมูล…</td></tr></tbody>
-                    </table>
-                </div>
-                <p class="er-note" id="anc-ind-note">ตัวหาร ≤12 wk / ครบ 5 และ 8 ครั้ง / คุณภาพ / dT / ช่องปาก = ครรภ์ที่คลอดในช่วง · หลังคลอด = คลอดในช่วงและพ้น 42 วัน ·
-                    ไอโอดีน = ครรภ์ที่มาฝากครรภ์ที่ รพ. ในช่วง · โลหิตจาง = คลอดและมีผล Hct · LBW = ทารกเกิดมีชีพ ·
-                    ตั้งครรภ์ซ้ำวัยรุ่น = คลอด/แท้งในช่วงและแม่อายุ &lt; 20 ปี · วัคซีน dT นับรหัส 106 · ค่าจาง = ตัวหารน้อยกว่า 5</p>
-            </section>
-
         </div>
     </section>
 </div>

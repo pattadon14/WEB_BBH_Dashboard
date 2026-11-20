@@ -37,10 +37,6 @@
     --anc-alert-bg: #fff3d6;
     --anc-alert-text: #7a4f00;
     --anc-alert-line: #f3d48a;
-    --anc-ok-bg: #dcf3e4;
-    --anc-ok-text: #14633a;
-    --anc-no-bg: #fde4e1;
-    --anc-no-text: #9a1c12;
 }
 
 /* ตัวเลือกช่วงเวลาบนแถบหัว · custom.css ตั้ง #budget-date-text เป็นเขียว → ใช้สีของแถบหัว */
@@ -70,20 +66,6 @@
 .er-theme.anc-page .anc-alert[hidden] { display: none; }
 
 .er-theme.anc-page .anc-chart { min-height: 360px; }
-
-/* ตารางตัวชี้วัด: ตัวเลขชิดขวา ฟอนต์ตัวเลขกว้างเท่ากัน · สถานะมีข้อความกำกับเสมอ (ไม่พึ่งสีอย่างเดียว) */
-.er-theme.anc-page .anc-ind-table td, .er-theme.anc-page .anc-ind-table th { vertical-align: middle; font-variant-numeric: tabular-nums; }
-.er-theme.anc-page .anc-ind-table b { font-size: 1.3rem; color: var(--er-text); }
-.er-theme.anc-page .anc-src { display: block; font-size: 1rem; color: var(--er-muted-text); }
-.er-theme.anc-page .anc-sub td { padding-top: 4px; padding-bottom: 4px; color: var(--er-muted-text); }
-.er-theme.anc-page .anc-sub td:first-child { padding-left: 28px; }
-.er-theme.anc-page .is-faint td { opacity: .7; }
-.er-theme.anc-page .anc-st {
-    display: inline-block; padding: 0 10px; border-radius: 999px; font-size: 1rem; font-weight: 700; white-space: nowrap;
-    background: var(--er-tint); color: var(--er-muted-text);
-}
-.er-theme.anc-page .anc-st.is-ok { background: var(--anc-ok-bg); color: var(--anc-ok-text); }
-.er-theme.anc-page .anc-st.is-no { background: var(--anc-no-bg); color: var(--anc-no-text); }
 
 @media (max-width: 575px) {
     .er-theme.anc-page .anc-filters .bbh-seg + .anc-filter-label { margin-left: 0; }

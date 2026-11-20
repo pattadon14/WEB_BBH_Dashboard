@@ -8,7 +8,6 @@ const fmtN = n => (n === null || n === undefined ? '—' : Number(n).toLocaleStr
 const fmtP = n => (n === null || n === undefined ? '—' : Number(n).toLocaleString('th-TH', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%');
 const setText = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
 const opts = { scope: 'area', nat: '' };
-const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 async function getJson(url) {
     const res = await fetch(url);
@@ -34,7 +33,6 @@ function rate(key, r, label) {
 async function load() {
     const qs = bbhPeriod.query() + '&scope=' + opts.scope + (opts.nat ? '&nat=' + opts.nat : '');
     let d;
-    loadIndicators();   // ตารางตัวชี้วัด โหลดคู่ขนาน (API แยก)
     try {
         d = await getJson('../api/anc_summary.php?' + qs);
     } catch (err) {
@@ -89,54 +87,6 @@ function drawTrend(rows) {
               dataLabels: { ...label, style: { ...label.style, color: '#9a3412' } }, tooltip: { valueSuffix: ' ครั้ง' } }
         ]
     });
-}
-
-/* ---------- 3 ตัวชี้วัดคุณภาพ ---------- */
-const IND_ROWS = [
-    ['early12', 'ฝากครรภ์ครั้งแรก ≤ 12 wk', 'person_anc_service.pa_week · person_anc_other_precare'],
-    ['visit5', 'ANC ครบ 5 ครั้งตามเกณฑ์ (≤12 · 13–<20 · 20–<26 · 26–<32 · 32–40 wk)', 'person_anc_service.pa_week · person_anc.labor_date'],
-    ['visit8', 'ANC ครบ 8 ครั้งตามเกณฑ์ (≤12 · 13–20 · 21–26 · 27–30 · 31–34 · 35–36 · 37–38 · 39–40 wk) · เป้าตามปีงบ', 'person_anc_service.pa_week · person_anc.labor_date'],
-    ['postnatal', 'ดูแลหลังคลอดครบ 3 ครั้ง (วันที่ 1–7 · 8–15 · 16–42)', 'person_anc_preg_care · person_anc.post_labor_service'],
-    ['quality', 'ฝากครรภ์คุณภาพ (HDC) — ครบ 5 กิจกรรม', 'lab_order · thalassaemia_result · doctor_operation · ovstdiag'],
-    ['iodine', 'ยาเม็ดไอโอดีน (Workload) — ในหญิงที่มาฝากครรภ์', 'opitemrece · drugitems.did'],
-    ['dt', 'วัคซีน dT', 'ovst_vaccine · person_anc'],
-    ['dental', 'ตรวจช่องปาก', 'dtmain · person_anc'],
-    ['anemia', 'โลหิตจางใกล้คลอด (Hct < 33% · GA ≥ 28)', 'person_anc_lab · person_anc'],
-    ['lbw', 'ทารก LBW (< 2500 g)', 'ipt_labour_infant'],
-    ['teen_repeat', 'ตั้งครรภ์ซ้ำในหญิงอายุ < 20 ปี (ครรภ์ที่ ≥ 2 · คลอด/แท้งในช่วง) · เป้าตามปีงบ', 'person_anc.preg_no · person_anc.labor_date']
-];
-const LOWER = ['anemia', 'lbw', 'teen_repeat'];
-
-function indRow(key, label, src, r) {
-    const nd = r.den === null ? '—' : `${fmtN(r.num)}/${fmtN(r.den)}`;
-    const target = r.target === null ? '—' : `${LOWER.includes(key) ? '≤' : '≥'} ${r.target}%`;
-    const status = r.ok === true ? '<span class="anc-st is-ok">ผ่าน</span>'
-        : r.ok === false ? '<span class="anc-st is-no">ไม่ผ่าน</span>'
-        : r.target !== null ? '<span class="anc-st">ไม่มีข้อมูล</span>' : '';
-    const faint = r.low_base ? ' class="is-faint" title="ตัวหารน้อยกว่า 5 ใช้เทียบเป้าไม่ได้"' : '';
-    return `<tr${faint}><td>${esc(label)}<span class="anc-src">HOSxP: ${esc(src)}</span></td>
-        <td class="text-right"><b>${fmtP(r.value)}</b></td><td class="text-right">${nd}</td>
-        <td class="text-right">${target}</td><td>${status}</td></tr>`;
-}
-
-async function loadIndicators() {
-    const body = document.getElementById('anc-ind-body');
-    const qs = bbhPeriod.query() + '&scope=' + opts.scope + (opts.nat ? '&nat=' + opts.nat : '');
-    document.getElementById('anc-ind-sub').textContent = 'ANC 11 ตัว · ตัวหาร' + (opts.scope === 'area' ? 'ในเขต' : 'ทุกครรภ์');
-    try {
-        const d = await getJson('../api/anc_indicators.php?' + qs);
-        body.innerHTML = IND_ROWS.map(([key, label, src]) => {
-            let html = indRow(key, label, src, d[key]);
-            if (key === 'quality') {
-                html += d.quality_parts.map(p => `<tr class="anc-sub"><td>↳ ${esc(p.label)}</td>
-                    <td class="text-right">${fmtP(p.rate.value)}</td><td class="text-right">${fmtN(p.rate.num)}/${fmtN(p.rate.den)}</td><td></td><td></td></tr>`).join('');
-            }
-            return html;
-        }).join('');
-    } catch (err) {
-        console.error('ANC indicators error:', err);
-        body.innerHTML = `<tr><td colspan="5" class="er-note">โหลดข้อมูลไม่สำเร็จ: ${esc(err.message)}</td></tr>`;
-    }
 }
 
 function bbhEsc(s) {

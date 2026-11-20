@@ -14,10 +14,6 @@ html[data-theme="dark"] .er-theme.opd-theme.anc-theme {
     --anc-alert-bg: #1e190e;
     --anc-alert-text: #ecbb7b;
     --anc-alert-line: #3e3726;
-    --anc-ok-bg: #151e19;
-    --anc-ok-text: #91daab;
-    --anc-no-bg: #231a19;
-    --anc-no-text: #ffafa2;
 }
 
 /* ---- assets/css/custom.css ---- */
