@@ -284,6 +284,28 @@
 
 .bbh-sidebar-static-item { opacity: .98; }
 
+/* ANC Dashboard: ไฮไลต์ชมพูกุหลาบตามโทนหน้างานฝากครรภ์ (anc_theme.css) — ชมพูเข้มบนพื้นชมพูอ่อน 6.4:1 */
+.bbh-sidebar-menu a.bbh-sidebar-anc {
+    background: #fdf2f7;
+    color: #9d174d;
+    border-color: #f7d3e4;
+}
+.bbh-sidebar-menu a.bbh-sidebar-anc i { color: #be185d; }
+.bbh-sidebar-menu a.bbh-sidebar-anc:hover {
+    background: #fce7f1;
+    color: #831843;
+    border-color: #f2b8d3;
+}
+.bbh-sidebar-menu a.bbh-sidebar-anc:hover i { color: #9d174d; }
+.bbh-sidebar-menu a.bbh-sidebar-anc.active {
+    background: linear-gradient(135deg, #be185d, #db2777);
+    color: #fff;
+    border-color: #be185d;
+    box-shadow: 0 3px 9px rgba(190, 24, 93, .2);
+}
+.bbh-sidebar-menu a.bbh-sidebar-anc.active i { color: #fff; }
+.bbh-sidebar-menu a.bbh-sidebar-anc:focus-visible { outline: 2px solid #be185d; outline-offset: 2px; }
+
 .bbh-sidebar-divider {
     height: 1px;
     margin: 12px 8px;
