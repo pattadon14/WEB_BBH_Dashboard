@@ -11,7 +11,7 @@ try {
     // ช่วงเวลา: ?d1&d2 หรือ ?year (config/period.php) — SQL ด้านล่างใช้ end แบบไม่รวม จึง +1 วัน
     $p = bbh_period();
 
-    ipd_cached('ipd_kpi_v5', $p, function () use ($conn, $p) {
+    ipd_cached('ipd_kpi_v6', $p, function () use ($conn, $p) {
 
         $startDate = $p['start'];
         $endDate   = date('Y-m-d', strtotime($p['end'] . ' +1 day'));

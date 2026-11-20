@@ -30,7 +30,10 @@ const IPD_REFER_TYPE = '04';
  * - ครั้งนี้ ($alias) admit ภายใน 1 เดือนปฏิทินหลังวันจำหน่ายครั้งก่อนของ HN เดียวกัน (จำหน่าย 15 ม.ค. → นับถึง 15 ก.พ.)
  * - โรคเดิม = การวินิจฉัยหลัก (an_stat.pdx) กลุ่ม ICD-10 3 หลักเดียวกัน → ครั้งนี้ต้องจำหน่ายแล้ว (มี pdx) จึงตัดสินได้
  * - ไม่นับ: ครั้งก่อนหรือครั้งนี้เป็น Observe ER (สังเกตอาการที่ ER ไม่ใช่การ admit),
- *   Refer Back = ครั้งก่อนจำหน่ายแบบส่งต่อ (ipt.dchtype 04) หรือครั้งนี้มีใบรับส่งต่อเข้า (referin) — รับกลับหลังส่งไป รพ.อื่น,
+ *   Refer Back (ทีมคุณภาพ: เคย admit ที่ รพ.บ้านบึง ถูก Refer ไปที่อื่นชั่วคราวแล้วกลับมา admit ต่อ) =
+ *     · ครั้งก่อนเป็นการ admit ที่มี Refer ออก (จำหน่ายแบบส่งต่อ dchtype 04 หรือมีใบ referout ของ visit นั้น — ผู้ป่วยที่ส่งไปชั่วคราวแล้วกลับมามักไม่ได้ลงจำหน่ายแบบส่งต่อ)
+ *     · มี admit ที่ Refer ออกจำหน่ายภายใน 1 เดือนก่อนครั้งนี้ (ครั้งนี้คือการกลับมาจากการส่งต่อ แม้จะมี admit ก่อนหน้านั้นที่โรคเดียวกัน)
+ *     · ครั้งนี้มีใบรับส่งต่อเข้า (referin)
  *   ครั้งนี้ลงว่านัด admit (ipt.plan_admit = Y — ปัจจุบันยังไม่มีการบันทึก)
  * ใช้ร่วมกันใน api/ipd_kpi_summary.php และ api/ipd_visit_list.php — $alias เป็นค่าคงที่ในโค้ด
  */
@@ -43,17 +46,28 @@ function ipd_readmit_base(string $alias): string
     return "$alias.ward <> '" . IPD_OBSERVE_WARD . "' AND COALESCE($alias.plan_admit, '') <> 'Y'";
 }
 
+// admit ($a = ชื่อย่อตาราง ipt) ที่มีการ Refer ออก: จำหน่ายแบบส่งต่อ หรือมีใบ referout ของ visit นั้น
+function ipd_referred_out_sql(string $a): string
+{
+    return "($a.dchtype = '" . IPD_REFER_TYPE . "' OR EXISTS (SELECT 1 FROM referout ro WHERE ro.vn = $a.vn))";
+}
+
 // FROM … WHERE ของ AN ครั้งก่อนที่ทำให้ครั้งนี้เป็น readmission (ใช้กับ EXISTS (SELECT 1 …) หรือ SELECT MAX(prev.dchdate) …)
 function ipd_readmit_prev_from(string $alias): string
 {
+    $win = IPD_READMIT_WINDOW;
     return "FROM ipt prev
             JOIN an_stat pa ON pa.an = prev.an
             WHERE prev.hn = $alias.hn AND prev.an <> $alias.an AND prev.dchdate IS NOT NULL
-              AND $alias.regdate >= prev.dchdate AND $alias.regdate <= prev.dchdate + " . IPD_READMIT_WINDOW . "
-              AND NOT EXISTS (SELECT 1 FROM referin rb WHERE rb.vn = $alias.vn)
+              AND $alias.regdate >= prev.dchdate AND $alias.regdate <= prev.dchdate + $win
               AND prev.ward <> '" . IPD_OBSERVE_WARD . "'
-              AND COALESCE(prev.dchtype, '') <> '" . IPD_REFER_TYPE . "'
-              AND LEFT(pa.pdx, 3) = (SELECT LEFT(ca.pdx, 3) FROM an_stat ca WHERE ca.an = $alias.an)";
+              AND NOT " . ipd_referred_out_sql('prev') . "
+              AND LEFT(pa.pdx, 3) = (SELECT LEFT(ca.pdx, 3) FROM an_stat ca WHERE ca.an = $alias.an)
+              AND NOT EXISTS (SELECT 1 FROM referin rb WHERE rb.vn = $alias.vn)
+              AND NOT EXISTS (SELECT 1 FROM ipt rbk
+                               WHERE rbk.hn = $alias.hn AND rbk.an <> $alias.an AND rbk.dchdate IS NOT NULL
+                                 AND $alias.regdate >= rbk.dchdate AND $alias.regdate <= rbk.dchdate + $win
+                                 AND " . ipd_referred_out_sql('rbk') . ")";
 }
 
 // ส่ง JSON จาก cache ไฟล์ หรือสร้างใหม่ — ช่วงที่รวมวันนี้เก็บ 60 วินาที (เท่าหน้าแรก ผู้ป่วยตอนนี้จึงตรงกัน) ช่วงที่จบแล้ว 30 นาที
