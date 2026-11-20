@@ -28,7 +28,8 @@ $type = $_GET['type'] ?? '';
 $key  = trim((string)($_GET['key'] ?? ''));
 
 $isDate = fn($s) => ($o = DateTime::createFromFormat('Y-m-d', (string)$s)) && $o->format('Y-m-d') === $s;
-// ช่วงวันที่ (?d1=&d2=) ใช้กับส่วนปีงบประมาณ: แท่งรายเดือน (all), กลุ่มอายุ (age), 10 อันดับโรค (pdx) — ไม่เกิน 400 วัน
+// ช่วงวันที่ (?d1=&d2=) ใช้กับส่วนช่วงเวลา: แท่งรายวัน/รายเดือน (all), 10 อันดับโรค (pdx) — ไม่เกิน 400 วัน
+// กลุ่มอายุไม่มีรายชื่อ (ทั้งปีของวัยทำงาน ~150,000 ครั้ง หนักเกินเซิร์ฟเวอร์)
 $isRange = isset($_GET['d1']) || isset($_GET['d2']);
 // รายชื่อช่วงยาวจำกัดจำนวนแถว: ทั้งปีของกลุ่มใหญ่ (เช่น วัยทำงาน ~150,000 ครั้ง) เกินหน่วยความจำ PHP และหนักเกินเบราว์เซอร์
 const OPD_LIST_MAX = 35000;
@@ -36,7 +37,7 @@ if ($isRange) {
     $d1 = (string)($_GET['d1'] ?? '');
     $d2 = (string)($_GET['d2'] ?? '');
     if (!$isDate($d1) || !$isDate($d2) || $d2 < $d1 || (strtotime($d2) - strtotime($d1)) / 86400 > 400
-        || !in_array($type, ['all', 'age', 'pdx'], true)) {
+        || !in_array($type, ['all', 'pdx'], true)) {
         http_response_code(400);
         echo json_encode(['error' => 'ช่วงวันที่ไม่ถูกต้อง'], JSON_UNESCAPED_UNICODE);
         exit;
@@ -86,13 +87,7 @@ $VISIT_FILTERS = [
                          LEFT JOIN kskdepartment k2 ON k2.depcode = t.depcode
                         WHERE t.vn = o.vn AND t.ovst_service_time_type_code = 'OPD-DOCTOR'
                         ORDER BY t.service_begin_datetime LIMIT 1) = :key",
-    // ส่วนปีงบประมาณ: กลุ่มอายุ ณ วันที่มา (นิยามเดียวกับ api/opd_age_group.php) และการวินิจฉัยหลัก (api/opd_top10_disease.php)
-    'age'         => "p.birthday IS NOT NULL AND CASE
-                        WHEN DATE_PART('year', AGE(o.vstdate, p.birthday)) BETWEEN 0 AND 5 THEN 1
-                        WHEN DATE_PART('year', AGE(o.vstdate, p.birthday)) BETWEEN 6 AND 14 THEN 2
-                        WHEN DATE_PART('year', AGE(o.vstdate, p.birthday)) BETWEEN 15 AND 59 THEN 3
-                        WHEN DATE_PART('year', AGE(o.vstdate, p.birthday)) >= 60 THEN 4
-                        ELSE 0 END = CAST(:key AS int)",
+    // ส่วนช่วงเวลา: การวินิจฉัยหลัก (นิยามเดียวกับ api/opd_top10_disease.php)
     'pdx'         => 'EXISTS (SELECT 1 FROM vn_stat vs WHERE vs.vn = o.vn AND vs.pdx = :key)',
 ];
 $APPT_FILTERS = [
@@ -101,7 +96,7 @@ $APPT_FILTERS = [
     'appt_miss' => $APPT_MISS,
 ];
 
-$needsKey = in_array($type, ['dept', 'payer', 'nation', 'hour_in', 'hour_seen', 'room', 'age', 'pdx'], true);
+$needsKey = in_array($type, ['dept', 'payer', 'nation', 'hour_in', 'hour_seen', 'room', 'pdx'], true);
 if ((!isset($VISIT_FILTERS[$type]) && !isset($APPT_FILTERS[$type])) || ($needsKey && $key === '')) {
     http_response_code(400);
     echo json_encode(['error' => 'ไม่รู้จักรายการที่เลือก'], JSON_UNESCAPED_UNICODE);
@@ -109,7 +104,6 @@ if ((!isset($VISIT_FILTERS[$type]) && !isset($APPT_FILTERS[$type])) || ($needsKe
 }
 if (($type === 'payer' && !preg_match('/^[A-Z]{2,4}(,[A-Z]{2,4})*$/', $key))
     || (str_starts_with($type, 'hour_') && !preg_match('/^\d{1,2}$/', $key))
-    || ($type === 'age' && !preg_match('/^[1-4]$/', $key))
     || ($type === 'pdx' && !preg_match('/^[A-Z][0-9A-Z.]{1,7}$/', $key))) {
     http_response_code(400);
     echo json_encode(['error' => 'ค่าที่เลือกไม่ถูกต้อง'], JSON_UNESCAPED_UNICODE);
@@ -224,7 +218,7 @@ try {
     if ($isRange && count($rows) > OPD_LIST_MAX) {
         http_response_code(413);
         echo json_encode(['error' => 'รายชื่อเกิน ' . number_format(OPD_LIST_MAX) . ' ครั้ง แสดงไม่ได้ในครั้งเดียว'
-            . ' กรุณาคลิกแท่งรายเดือนในกราฟด้านบนเพื่อดูทีละเดือน'], JSON_UNESCAPED_UNICODE);
+            . ' กรุณาเลือกช่วงเวลาให้สั้นลง หรือคลิกแท่งในกราฟด้านบนเพื่อดูทีละเดือน'], JSON_UNESCAPED_UNICODE);
         exit;
     }
 

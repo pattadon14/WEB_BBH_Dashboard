@@ -56,22 +56,11 @@ Highcharts.setOptions({
 });
 
 /*
-ส่วนปีงบประมาณ (ต.ค.–ก.ย., OPD ทั้งหมด) คลิกดูรายชื่อตามช่วงวันที่ — api/opd_visit_list.php?scope=all&d1=&d2=
+ส่วนช่วงเวลา (วันนี้ / เดือนนี้ / ปีงบ / กำหนดเอง — assets/js/period_filter.js, OPD ทั้งหมด)
+คลิกดูรายชื่อตามช่วงวันที่ — api/opd_visit_list.php?scope=all&d1=&d2=
 point.drill = [type, key, label, d1, d2]
 */
 const isoDate = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-const clampToday = iso => (iso > getTodayServiceDate() ? getTodayServiceDate() : iso);
-// ช่วงทั้งปีงบ (ปีปัจจุบันถึงวันนี้)
-function fyRange(yearBE) {
-    const y = Number(yearBE) - 543;
-    return { d1: `${y - 1}-10-01`, d2: clampToday(`${y}-09-30`) };
-}
-// เดือนที่ i ของปีงบ (0 = ต.ค.)
-function fyMonth(yearBE, i) {
-    const y = Number(yearBE) - 543 - (i < 3 ? 1 : 0);
-    const m = i < 3 ? 9 + i : i - 3;   // เดือนแบบ JS (0 = ม.ค.)
-    return { d1: isoDate(new Date(y, m, 1)), d2: clampToday(isoDate(new Date(y, m + 1, 0))) };
-}
 const FY_DRILL = {
     cursor: 'pointer',
     point: { events: { click() { const d = this.options.drill; if (d) openFyDrill(d[0], d[1], d[2], d[3], d[4]); } } }
@@ -99,178 +88,30 @@ const opdQs = () => `date=${encodeURIComponent(getSelectedServiceDate())}&scope=
 
 async function loadChart() {
 
-    const year =
-        document.getElementById(
-            'budget-year'
-        ).value;
+    // ช่วงสั้น (≤ 62 วัน) API คืนรายวัน นอกนั้นรายเดือน พร้อม label ของแต่ละช่อง (config/period.php)
+    const response = await fetch('../api/service_trend.php?' + bbhPeriod.query());
+    const json = await response.json();
 
-    /*
-    แสดงช่วงวันที่ปีงบประมาณ
-    */
-
-    const yearAD =
-        parseInt(year) - 543;
-
-    const startDateText =
-        `1 ตุลาคม ${year - 1}`;
-
-    /*
-    ปีปัจจุบันไหม
-    */
-
-    const now = new Date();
-    const currentThaiYear =
-        Number(window.BBH_CURRENT_FISCAL_YEAR) ||
-        (now.getFullYear() + 543 + (now.getMonth() + 1 >= 10 ? 1 : 0));
-
-    let endDateText;
-
-    if (parseInt(year) === currentThaiYear) {
-
-        const today =
-            new Date();
-
-        const thaiMonths = [
-            'มกราคม',
-            'กุมภาพันธ์',
-            'มีนาคม',
-            'เมษายน',
-            'พฤษภาคม',
-            'มิถุนายน',
-            'กรกฎาคม',
-            'สิงหาคม',
-            'กันยายน',
-            'ตุลาคม',
-            'พฤศจิกายน',
-            'ธันวาคม'
-        ];
-
-        endDateText =
-            `${today.getDate()} ${
-                thaiMonths[today.getMonth()]
-            } ${today.getFullYear() + 543}`;
-
-    } else {
-
-        endDateText =
-            `30 กันยายน ${year}`;
-
+    if (json.error) {
+        console.error('OPD trend API error:', json.error);
+        return;
     }
 
-    /*
-    แสดงข้อความ
-    */
+    const s = bbhPeriod.state;
+    const trend = json.trend;
+    const isDay = json.unit === 'day';
+    // ช่องสุดท้ายยังไม่จบ (วันนี้ / เดือนนี้) เมื่อช่วงที่เลือกสิ้นสุดวันนี้: แท่งสีอ่อน และเส้นช่วงสุดท้ายเป็นจุดไข่ปลา
+    const lastPartial = trend.length > 0 && s.d2 === getTodayServiceDate();
+    const partialText = isDay ? 'วันนี้ (ยังไม่จบวัน)' : 'เดือนปัจจุบัน (ยังไม่ครบเดือน)';
 
-    document.getElementById(
-        'budget-date-text'
-    ).innerHTML = `
-
-        ปีงบประมาณ ${year}
-        (${startDateText} - ${endDateText})
-
-    `;
-
-    const response = await fetch(
-        '../api/service_trend.php?year=' + year
-    );
-
-    const data = await response.json();
-
-    /*
-    Current month ตามปีงบประมาณ
-    */
-    const allMonths = [
-    'ต.ค.',
-    'พ.ย.',
-    'ธ.ค.',
-    'ม.ค.',
-    'ก.พ.',
-    'มี.ค.',
-    'เม.ย.',
-    'พ.ค.',
-    'มิ.ย.',
-    'ก.ค.',
-    'ส.ค.',
-    'ก.ย.'
-    ];
-
-    /*
-    ปีปัจจุบันไหม
-    */
-
-    let months = allMonths;
-
-    let monthCount = 12;
-
-    /*
-    ถ้าเป็นปีปัจจุบัน
-    ให้แสดงถึงเดือนปัจจุบัน
-    */
-
-    if (parseInt(year) === currentThaiYear) {
-
-        const currentDate =
-            new Date();
-
-        const currentMonth =
-            currentDate.getMonth() + 1;
-
-        let currentFiscalIndex;
-
-        if (currentMonth >= 10) {
-
-            currentFiscalIndex =
-                currentMonth - 10;
-
-        } else {
-
-            currentFiscalIndex =
-                currentMonth + 2;
-        }
-
-        monthCount =
-            currentFiscalIndex + 1;
-
-        months =
-            allMonths.slice(0, monthCount);
-    }
-
-    /*
-    สร้าง array ตามจำนวนเดือน
-    */
-
-    let opdData =
-        Array(monthCount).fill(0);
-
-    /*
-    ใส่ข้อมูล
-    */
-
-    data.forEach(row => {
-
-        let month =
-            parseInt(row.month);
-
-        let index =
-            month >= 10
-            ? month - 10
-            : month + 2;
-
-        if (index < monthCount) {
-
-            opdData[index] +=
-                parseInt(row.opd);
-        }
-    });
-
-    // เดือนปัจจุบันของปีงบนี้ยังไม่ครบเดือน: แท่งสีอ่อน และเส้นช่วงสุดท้ายเป็นจุดไข่ปลา
-    const isCurrentYear = parseInt(year) === currentThaiYear;
-
-    // คลิกแท่ง = รายชื่อ visit ของเดือนนั้น (OPD ทั้งหมด) — เดือนปัจจุบันถึงวันนี้
-    const columnData = opdData.map((y, i) => {
-        const m = fyMonth(year, i);
-        const p = { y, drill: y ? ['all', '', `เดือน${months[i]} (${m.d1.slice(0, 4) * 1 + 543})`, m.d1, m.d2] : null };
-        return isCurrentYear && i === monthCount - 1 ? { ...p, color: G.soft, partial: true } : p;   // เดือนที่ยังไม่จบ ใช้สีอ่อน
+    // คลิกแท่ง = รายชื่อ visit ของวัน/เดือนนั้น (OPD ทั้งหมด) ตัดให้อยู่ในช่วงที่เลือก
+    const columnData = trend.map((t, i) => {
+        let d2 = t.start;
+        if (!isDay) { const [y, m] = t.start.split('-').map(Number); d2 = isoDate(new Date(y, m, 0)); }
+        const d1 = t.start < s.d1 ? s.d1 : t.start;
+        if (d2 > s.d2) d2 = s.d2;
+        const p = { y: t.opd, drill: t.opd ? ['all', '', (isDay ? 'วันที่ ' : 'เดือน') + t.label, d1, d2] : null };
+        return lastPartial && i === trend.length - 1 ? { ...p, color: G.soft, partial: true } : p;
     });
 
     Highcharts.chart('opd-chart', {
@@ -282,24 +123,22 @@ async function loadChart() {
         },
 
         title: {
-            text:
-            'จำนวนครั้งที่มารับบริการผู้ป่วยนอก ปีงบประมาณ ' + year
+            text: 'จำนวนครั้งที่มารับบริการผู้ป่วยนอก ' + (isDay ? 'รายวัน' : 'รายเดือน')
         },
 
         subtitle: {
-            text: isCurrentYear ? 'แท่งสีอ่อน / เส้นจุดไข่ปลา = เดือนปัจจุบัน (ยังไม่ครบเดือน)' : null
+            text: lastPartial ? `แท่งสีอ่อน / เส้นจุดไข่ปลา = ${partialText}` : null
         },
 
         xAxis: {
-            categories: months
+            categories: trend.map(t => t.label)
         },
 
         yAxis: {
-
+            min: 0,
             title: {
                 text: 'จำนวน (ครั้ง)'
             }
-
         },
 
         legend: {
@@ -312,9 +151,13 @@ async function loadChart() {
 
         tooltip: {
             pointFormatter: function () {
-                const note = this.options.partial ? ' (ยังไม่ครบเดือน)' : '';
+                const note = this.options.partial ? (isDay ? ' (ยังไม่จบวัน)' : ' (ยังไม่ครบเดือน)') : '';
                 return `${this.series.name}: <b>${Math.round(this.y).toLocaleString()} ครั้ง</b>${note}`;
             }
+        },
+
+        plotOptions: {
+            column: { maxPointWidth: 72 }   // ต้นปีงบ / เดือนนี้มีไม่กี่แท่ง แท่งจะกว้างเต็มจอ
         },
 
         series: [{
@@ -325,28 +168,27 @@ async function loadChart() {
             ...FY_DRILL,
             data: columnData,
             dataLabels: {
-                enabled: true,
+                enabled: trend.length <= 16,   // รายวันหลายแท่ง ป้ายตัวเลขจะทับกัน
                 color: '#000000',
                 style: {
                     fontSize: '17px',
                 }
             }
         }, {
-            // เส้นแนวโน้ม: ลากต่อกันทุกเดือนตามยอดจริง
+            // เส้นแนวโน้ม: ลากต่อกันทุกช่องตามยอดจริง
             type: 'spline',
             name: 'แนวโน้ม',
             color: '#c2410c',
             lineWidth: 3,
-            marker: { enabled: true, radius: 5, fillColor: '#fff', lineWidth: 2, lineColor: '#c2410c' },
+            marker: { enabled: trend.length <= 31, radius: 5, fillColor: '#fff', lineWidth: 2, lineColor: '#c2410c' },
             data: columnData.map(p => (p.partial ? { y: p.y, partial: true } : p.y)),
             zoneAxis: 'x',
-            zones: isCurrentYear ? [{ value: monthCount - 2 }, { dashStyle: 'Dot' }] : []
+            zones: lastPartial ? [{ value: trend.length - 2 }, { dashStyle: 'Dot' }] : []
         }]
 
     });
 
 }
-
 loadChart();
 
 async function loadPttypeChart(){
@@ -1081,9 +923,6 @@ Top 10 Diagnosis OPD
 
 async function loadOpdTop10Table() {
 
-const year =
-    document.getElementById('budget-year').value;
-
 const tbody =
     document.getElementById('opd-top10-tbody');
 
@@ -1097,7 +936,7 @@ tbody.innerHTML = `
 
 try {
 
-    const response = await fetch('../api/opd_top10_disease.php?year=' + year);
+    const response = await fetch('../api/opd_top10_disease.php?' + bbhPeriod.query());
     const data     = await response.json();
 
     if (data.error) {
@@ -1135,7 +974,7 @@ try {
             : 'background:#198754;color:#fff;';
 
 
-        // คลิกแถว = รายชื่อ visit ที่มีการวินิจฉัยหลักนี้ทั้งปีงบ
+        // คลิกแถว = รายชื่อ visit ที่มีการวินิจฉัยหลักนี้ในช่วงที่เลือก
         const dxName = escHtml(row.diag_th || row.diag_en || row.icd10);
         html += `
             <tr${row.icd10 ? ` data-pdx="${escHtml(row.icd10)}" data-dx="${dxName}" tabindex="0" aria-label="ดูรายชื่อ ${dxName}"` : ''}>
@@ -1184,18 +1023,15 @@ document
     .addEventListener('change', loadOpdTop10Table);
 /*
 ============================================================
-Age Group Chart — กลุ่มอายุผู้ป่วย OPD
+กลุ่มอายุผู้ป่วย OPD — การ์ดสรุปตามช่วงเวลาที่เลือก (ไม่มีกราฟ / ไม่มีรายชื่อ เพื่อลดภาระเซิร์ฟเวอร์)
 ============================================================
 */
 
 async function loadAgeGroupChart() {
 
-const year =
-    document.getElementById('budget-year').value;
-
 try {
 
-    const response = await fetch('../api/opd_age_group.php?year=' + year);
+    const response = await fetch('../api/opd_age_group.php?' + bbhPeriod.query());
     const data     = await response.json();
 
     if (data.error) {
@@ -1206,113 +1042,17 @@ try {
     const total = data.reduce((s, d) => s + d.total, 0);
     // กลุ่มอายุเรียงจากเด็กไปผู้สูงอายุ → เขียวอ่อนไปเข้มตามลำดับ (แทนสีจาก API)
     const AGE_GREENS = ['#7cc49b', '#3fa36a', '#22894f', '#0f5132'];
-    const fy = fyRange(year);
-    data.forEach((d, i) => { d.color = AGE_GREENS[Math.min(i, AGE_GREENS.length - 1)]; });
-
-    /*
-    ==========================
-    Bar Chart แนวนอน
-    ==========================
-    */
-
-    Highcharts.chart('opd-age-chart', {
-
-        chart: {
-            type: 'bar',
-            backgroundColor: '#ffffff',
-            style: { fontFamily: 'THSarabun' }
-        },
-
-        title: {
-            text: 'กลุ่มอายุผู้ป่วย OPD ปีงบประมาณ ' + year,
-            style: { fontSize: '20px' }
-        },
-
-        xAxis: {
-            categories: data.map(d => d.name),
-            labels: {
-                style: {
-                    fontSize: '18px',
-                    fontFamily: 'THSarabun',
-                    fontWeight: 'normal'
-                }
-            }
-        },
-
-        yAxis: {
-            min: 0,
-            maxPadding: 0.2,
-            title: { text: 'จำนวน (ครั้ง)' }
-        },
-
-        tooltip: {
-            formatter: function () {
-                const row    = data.find(d => d.name === this.x);
-                const pct    = total > 0 ? ((this.y / total) * 100).toFixed(2) : '0.00';
-                const male   = row ? row.male.toLocaleString()   : 0;
-                const female = row ? row.female.toLocaleString() : 0;
-                return `<b>${this.x}</b><br/>
-                        รวม: <b>${this.y.toLocaleString()} ครั้ง</b> (${pct}%)<br/>
-                        ชาย: <span style="color:#2563eb">${male}</span> |
-                        หญิง: <span style="color:#be185d">${female}</span>`;
-            }
-        },
-
-        plotOptions: {
-            bar: {
-                borderRadius: 4,
-                dataLabels: {
-                    enabled: true,
-                    formatter: function () {
-                        const pct = total > 0
-                            ? ((this.y / total) * 100).toFixed(1)
-                            : '0.0';
-                        return `${this.y.toLocaleString()} ครั้ง (${pct}%)`;
-                    },
-                    style: {
-                        fontSize: '17px',
-                        fontFamily: 'THSarabun',
-                        fontWeight: 'normal',
-                        textOutline: 'none'
-                    }
-                }
-            }
-        },
-
-        legend: { enabled: false },
-        credits: { enabled: false },
-
-        series: [{
-            name: 'จำนวนผู้ป่วย',
-            colorByPoint: true,
-            ...FY_DRILL,
-            data: data.map(d => ({
-                y:     d.total,
-                color: gBar(G.light, d.color),
-                name:  d.name,
-                drill: d.total ? ['age', String(d.id), d.name, fy.d1, fy.d2] : null
-            }))
-        }]
-
-    });
-
-    /*
-    ==========================
-    Summary Cards แยกชาย/หญิง
-    ==========================
-    */
 
     let cardHtml = '';
-    data.forEach(d => {
+    data.forEach((d, i) => {
         const pct = total > 0
             ? ((d.total / total) * 100).toFixed(1)
             : '0.0';
+        const color = AGE_GREENS[Math.min(i, AGE_GREENS.length - 1)];
 
-        // การ์ดคลิกดูรายชื่อได้เหมือนแท่งกราฟ (data-age → คลิกที่ #opd-age-summary)
         cardHtml += `
             <div class="col-xl-3 col-md-6 mb-2">
-                <div class="opd-age-card" role="button" tabindex="0" data-age="${d.id}" data-label="${escHtml(d.name)}"
-                     aria-label="ดูรายชื่อ ${escHtml(d.name)}" style="
+                <div class="opd-age-card" style="
                     background:#fff;
                     border-radius:12px;
                     padding:12px 16px;
@@ -1320,9 +1060,9 @@ try {
                     box-shadow:rgba(0,0,0,0.08) 0 2px 6px;
                 ">
                     <div style="font-size:19px;font-weight:600;color:#333;margin-bottom:6px">
-                        <span aria-hidden="true" style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${d.color};margin-right:6px"></span>${d.name}
+                        <span aria-hidden="true" style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${color};margin-right:6px"></span>${escHtml(d.name)}
                     </div>
-                    <div style="font-size:32px;font-weight:bold;color:#333;line-height:1">
+                    <div style="font-size:32px;font-weight:bold;color:#333;line-height:1;font-variant-numeric:tabular-nums">
                         ${d.total.toLocaleString()}
                         <span style="font-size:18px;font-weight:normal;color:#555">
                             ครั้ง (${pct}%)
@@ -1338,11 +1078,7 @@ try {
     });
 
     const summaryEl = document.getElementById('opd-age-summary');
-    if (summaryEl) {
-        summaryEl.innerHTML = cardHtml;
-        summaryEl.dataset.d1 = fy.d1;
-        summaryEl.dataset.d2 = fy.d2;
-    }
+    if (summaryEl) summaryEl.innerHTML = cardHtml;
 
 } catch (e) {
     console.error('loadAgeGroupChart error:', e);
@@ -1462,14 +1198,14 @@ function openDrill(type, key, label, slot) {
     });
 }
 
-// รายชื่อของส่วนปีงบประมาณ: ช่วงวันที่ d1–d2, OPD ทั้งหมด (ไม่ขึ้นกับแท็บ) · type = all (รายเดือน) | age | pdx
+// รายชื่อของส่วนช่วงเวลา: ช่วงวันที่ d1–d2, OPD ทั้งหมด (ไม่ขึ้นกับแท็บ) · type = all (รายวัน/รายเดือน) | pdx
 const fmtShortDate = iso => { const [y, m, d] = String(iso).split('-').map(Number); return y ? `${d}/${m}/${String(y + 543).slice(2)}` : ''; };
 function openFyDrill(type, key, label, d1, d2) {
     const qs = new URLSearchParams({ type, scope: 'all', d1, d2 });
     if (key) qs.set('key', key);
     const dateCol = ['vstdate', 'วันที่', { nowrap: true, display: fmtShortDate }];
     const withDate = list => [...list.slice(0, 2), dateCol, ...list.slice(2)];
-    const titles = { all: 'ผู้มารับบริการ', age: 'กลุ่มอายุ', pdx: 'การวินิจฉัยหลัก' };
+    const titles = { all: 'ผู้มารับบริการ', pdx: 'การวินิจฉัยหลัก' };
     bbhDrill.open({
         title: `${titles[type]}: ${label}`,
         sub: `OPD ทั้งหมด · ${formatThaiDate(d1)} – ${formatThaiDate(d2)}`,
@@ -1485,7 +1221,7 @@ function openFyDrill(type, key, label, d1, d2) {
     });
 }
 
-// การ์ดกลุ่มอายุ / แถว 10 อันดับโรค: คลิกหรือ Enter/Space
+// แถว 10 อันดับโรค: คลิกหรือ Enter/Space
 function bindFyRows(el, sel, open) {
     if (!el) return;
     el.addEventListener('click', e => { const t = e.target.closest(sel); if (t) open(t); });
@@ -1494,13 +1230,9 @@ function bindFyRows(el, sel, open) {
         if (t && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); open(t); }
     });
 }
-bindFyRows(document.getElementById('opd-age-summary'), '[data-age]', t => {
-    const box = document.getElementById('opd-age-summary');
-    openFyDrill('age', t.dataset.age, t.dataset.label, box.dataset.d1, box.dataset.d2);
-});
 bindFyRows(document.getElementById('opd-top10-tbody'), 'tr[data-pdx]', t => {
-    const fy = fyRange(document.getElementById('budget-year').value);
-    openFyDrill('pdx', t.dataset.pdx, `${t.dataset.pdx} ${t.dataset.dx}`, fy.d1, fy.d2);
+    const s = bbhPeriod.state;
+    openFyDrill('pdx', t.dataset.pdx, `${t.dataset.pdx} ${t.dataset.dx}`, s.d1, s.d2);
 });
 
 // ตัวเลข/การ์ดที่คลิกได้ในแท็บตรวจโรคทั่วไป (แท่งกราฟเรียก openDrill ผ่าน DRILL_BAR)

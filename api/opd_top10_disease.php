@@ -3,32 +3,25 @@
 header('Content-Type: application/json; charset=utf-8');
 
 require_once '../config/database.php';
+require_once '../config/period.php';
 require_once '../config/opd.php';
 
 try {
 
-    $year = isset($_GET['year'])
-        ? (int)$_GET['year']
-        : date('Y') + 543 + (date('n') >= 10 ? 1 : 0);
+    // ช่วงเวลา: ?d1&d2 หรือ ?year (config/period.php)
+    $p         = bbh_period();
+    $startDate = $p['start'];
+    $endDate   = $p['end'];
 
     /*
     ==========================
-    ปีงบประมาณ
-    ==========================
-    */
-
-    $startDate = ($year - 544) . '-10-01';
-    $endDate   = ($year - 543) . '-09-30';
-
-    /*
-    ==========================
-    Cache Settings
+    Cache Settings — ช่วงที่รวมวันนี้ 5 นาที, ช่วงที่จบแล้ว 30 นาที
     ==========================
     */
 
     $cacheDir  = __DIR__ . '/../storage/cache/';
-    $cacheFile = $cacheDir . 'opd_top10_dx_' . $year . '.json';
-    $cacheTTL  = 30 * 60; // 30 นาที
+    $cacheFile = $cacheDir . 'opd_top10_dx_' . $p['key'] . '.json';
+    $cacheTTL  = $endDate >= date('Y-m-d') ? 5 * 60 : 30 * 60;
 
     if (
         file_exists($cacheFile) &&
@@ -116,10 +109,11 @@ try {
 
     echo $json;
 
+} catch (InvalidArgumentException $e) {
+    http_response_code(400);   // ช่วงวันที่ผิด — ข้อความของเราเอง แสดงได้
+    echo json_encode(['error' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
 } catch (Exception $e) {
-
-    echo json_encode([
-        'error' => $e->getMessage()
-    ]);
-
+    error_log('opd_top10_disease: ' . $e->getMessage());   // ไม่ส่งรายละเอียดฐานข้อมูลออกไปหน้าเว็บ
+    http_response_code(500);
+    echo json_encode(['error' => 'โหลดข้อมูลไม่สำเร็จ'], JSON_UNESCAPED_UNICODE);
 }

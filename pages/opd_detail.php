@@ -274,17 +274,18 @@ function opd_info_btn(string $key, string $label, bool $onMast = false): string
                     </div>
                 </section>
 
-                <!-- 7 ข้อมูลตามปีงบประมาณ — OPD ทั้งหมด (ทั่วไป + คลินิคพิเศษ) เหมือนการ์ดหน้าหลัก แสดงเหมือนกันทั้ง 2 แท็บ -->
+                <!-- 7 ข้อมูลตามช่วงเวลา (assets/js/period_filter.js: วันนี้ / เดือนนี้ / ปีงบ / กำหนดเอง) — OPD ทั้งหมด (ทั่วไป + คลินิคพิเศษ) แสดงเหมือนกันทั้ง 2 แท็บ -->
                 <section class="er-panel er-stats" aria-labelledby="opd-fy-title">
                     <div class="er-stats-head">
                         <header class="er-sec-head">
                             <span class="er-sec-no" aria-hidden="true">7</span>
                             <div>
-                                <h2 class="er-h2" id="opd-fy-title">ข้อมูลตามปีงบประมาณ <?= opd_info_btn('fy', 'ข้อมูลตามปีงบประมาณ') ?></h2>
-                                <p class="er-sec-sub">ผู้ป่วยนอกทั้งหมด (ตรวจโรคทั่วไป + คลินิคพิเศษ) <span id="budget-date-text"></span></p>
+                                <h2 class="er-h2" id="opd-fy-title">ข้อมูลตามช่วงเวลา <?= opd_info_btn('fy', 'ข้อมูลตามช่วงเวลา') ?></h2>
+                                <p class="er-sec-sub">ผู้ป่วยนอกทั้งหมด (ตรวจโรคทั่วไป + คลินิคพิเศษ) · <span id="budget-date-text"></span></p>
                             </div>
                         </header>
 
+                        <div id="period-filter" class="bbh-period">
                         <div class="budget-select-wrapper">
                             <select id="budget-year" class="form-control budget-select" aria-label="ปีงบประมาณ">
                                 <?php
@@ -296,19 +297,19 @@ function opd_info_btn(string $key, string $label, bool $onMast = false): string
                             </select>
                             <i class="fas fa-chevron-down budget-select-icon" aria-hidden="true"></i>
                         </div>
+                        </div>
                     </div>
 
-                    <p class="er-sec-sub er-refer-hint"><i class="fa-solid fa-hand-pointer" aria-hidden="true"></i> คลิกแท่งรายเดือน การ์ด/แท่งกลุ่มอายุ หรือแถวโรค เพื่อดูรายชื่อผู้ป่วยของปีงบที่เลือก</p>
+                    <p class="er-sec-sub er-refer-hint"><i class="fa-solid fa-hand-pointer" aria-hidden="true"></i> คลิกแท่งกราฟ หรือแถวโรค เพื่อดูรายชื่อผู้ป่วยของช่วงเวลาที่เลือก</p>
                     <!-- กราฟมีชื่อในตัว (opd_detail.js) -->
                     <div class="er-chart">
                         <div id="opd-chart" style="height:470px;"></div>
                     </div>
 
-                    <h3 class="er-h3 er-h3-gap"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-users"></i></span>กลุ่มอายุผู้ป่วย OPD ปีงบประมาณ <?= opd_info_btn('age', 'กลุ่มอายุผู้ป่วย') ?></h3>
+                    <h3 class="er-h3 er-h3-gap"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-users"></i></span>กลุ่มอายุผู้ป่วย OPD <?= opd_info_btn('age', 'กลุ่มอายุผู้ป่วย') ?></h3>
                     <div class="row mb-3" id="opd-age-summary"></div>
-                    <div id="opd-age-chart" style="height:360px;"></div>
 
-                    <h3 class="er-h3 er-h3-gap" id="opd-top10-title"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-trophy"></i></span>10 อันดับโรค/การวินิจฉัยผู้ป่วยนอก ปีงบประมาณ <?= opd_info_btn('top10', '10 อันดับโรค') ?></h3>
+                    <h3 class="er-h3 er-h3-gap" id="opd-top10-title"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-trophy"></i></span>10 อันดับโรค/การวินิจฉัยผู้ป่วยนอก <?= opd_info_btn('top10', '10 อันดับโรค') ?></h3>
                     <div class="table-responsive">
                         <table class="table er-table table-ipd-top10" aria-labelledby="opd-top10-title">
                             <thead>
@@ -436,7 +437,7 @@ function opd_info_btn(string $key, string $label, bool $onMast = false): string
 </div>
 
 <script src="<?= BASE_URL ?>assets/lib/highcharts/13.1.1/highcharts.js"></script>
-<script>window.BBH_CURRENT_FISCAL_YEAR = <?= $currentYear ?>;</script>
+<script src="<?= BASE_URL ?>assets/js/period_filter.js?v=<?= filemtime(__DIR__ . '/../assets/js/period_filter.js') ?>"></script>
 <script src="<?= BASE_URL ?>assets/js/opd_info.js?v=<?= filemtime(__DIR__ . '/../assets/js/opd_info.js') ?>"></script>
 <script src="<?= BASE_URL ?>assets/js/er_info.js?v=<?= filemtime(__DIR__ . '/../assets/js/er_info.js') ?>"></script>
 <script src="<?= BASE_URL ?>assets/js/bbh_drill.js?v=<?= filemtime(__DIR__ . '/../assets/js/bbh_drill.js') ?>"></script>
