@@ -131,7 +131,7 @@ $currentYear = date('Y') + 543 + (date('n') >= 10 ? 1 : 0);
                         <span class="er-stat-value"><b id="kpi-los">—</b> วัน</span>
                     </div>
                     <div class="er-stat" data-drill="readmit">
-                        <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-arrows-rotate"></i></span>Readmission 28 วัน <small>โรคเดิม ไม่ได้วางแผน</small> <small id="readmit-status">—</small></span>
+                        <span class="er-stat-label"><span class="er-ico" aria-hidden="true"><i class="fa-solid fa-arrows-rotate"></i></span>Readmission 1 เดือน <small>โรคเดิม ไม่นับ Refer Back</small> <small id="readmit-status">—</small></span>
                         <span class="er-stat-value"><b id="kpi-readmit">—</b> ราย <small id="kpi-readmit-rate">–</small></span>
                     </div>
                     <div class="er-stat" data-drill="death">
