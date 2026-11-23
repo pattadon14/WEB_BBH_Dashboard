@@ -560,6 +560,7 @@ html[data-theme="dark"] .er-theme {
 html[data-theme="dark"] .home-dash {
     --bbh-green-soft: #171c19;
     --bbh-text: #b6d9cd;
+    --bbh-accent-text: #89d8a9;
     --bbh-muted: #b1c4bc;
 }
 html[data-theme="dark"] .home-dash .col-12 > h5.text-success i {
@@ -589,6 +590,9 @@ html[data-theme="dark"] .home-dash .small-box-footer {
 html[data-theme="dark"] .home-dash .small-box-footer:hover,
 html[data-theme="dark"] .home-dash .small-box-footer:focus-visible {
     color: #fff !important;
+}
+html[data-theme="dark"] .home-dash .er-info-dlg::backdrop {
+    background: rgba(8, 20, 14, .45);
 }
 html[data-theme="dark"] .home-dash .card.shadow-sm {
     border: 1px solid rgba(25, 135, 84, .10);

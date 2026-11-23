@@ -7,6 +7,14 @@ include 'templates/header.php';
 include 'templates/navbar.php';
 include 'templates/sidebar.php';
 
+// ปุ่ม (i) ข้างหัวข้อ → หน้าต่างที่มาของข้อมูล (เนื้อหา assets/js/home_info.js, หน้าต่าง assets/js/er_info.js)
+function home_info_btn(string $key, string $label): string
+{
+    return '<button type="button" class="er-info-btn" data-info="' . $key . '"'
+        . ' aria-label="ที่มาและนิยามของข้อมูล: ' . htmlspecialchars($label) . '" title="ที่มาและนิยามของข้อมูล">'
+        . '<i class="fa-solid fa-circle-info" aria-hidden="true"></i></button>';
+}
+
 ?>
 
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/index.css?v=<?= filemtime(__DIR__ . '/assets/css/index.css') ?>">
@@ -31,7 +39,8 @@ include 'templates/sidebar.php';
 
                 <div class="col-lg-4 col-md-6 col-12 mb-2">
 
-                    <div class="small-box elevation-3 opd-monitor-card">
+                    <!-- สีการ์ด = สีแถบหัวของหน้ารายละเอียด (kpi-opd เขียว / kpi-ipd น้ำเงิน / kpi-er แดง ใน index.css) -->
+                    <div class="small-box elevation-3 opd-monitor-card kpi-tile kpi-opd">
 
                         <div class="inner">
 
@@ -41,7 +50,7 @@ include 'templates/sidebar.php';
 
                             <!-- นิยามเดียวกับหน้า OPD หัวข้อ 7 (api/opd.php: ทุกแผนก OPD นับครั้ง) -->
                             <p class="kpi-title mb-0">
-                                ผู้ป่วยนอก (OPD) วันนี้
+                                ผู้ป่วยนอก (OPD) วันนี้ <?= home_info_btn('opd', 'ผู้ป่วยนอกวันนี้') ?>
                             </p>
                             <span class="kpi-scope">ตรวจโรคทั่วไป + คลินิคพิเศษ</span>
 
@@ -92,7 +101,7 @@ include 'templates/sidebar.php';
                 </div>
                 <div class="col-lg-4 col-md-6 col-12 mb-2">
 
-                    <div class="small-box elevation-3">
+                    <div class="small-box elevation-3 kpi-tile kpi-ipd">
 
                         <div class="inner">
 
@@ -102,7 +111,7 @@ include 'templates/sidebar.php';
 
                             <!-- นิยามเดียวกับช่อง "รับใหม่" หน้า IPD (api/ipd.php: ipt.regdate ทุกหอ นับ AN) -->
                             <p class="kpi-title mb-0">
-                                ผู้ป่วยในรับใหม่ (Admit) วันนี้
+                                ผู้ป่วยในรับใหม่ (Admit) วันนี้ <?= home_info_btn('ipd', 'ผู้ป่วยในรับใหม่วันนี้') ?>
                             </p>
                             <span class="kpi-scope">ทุกหอผู้ป่วย</span>
 
@@ -143,7 +152,7 @@ include 'templates/sidebar.php';
                 </div>
                 <div class="col-lg-4 col-md-12 col-12 mb-2"><!-- แท็บเล็ต: การ์ด ER เต็มแถว ไม่เหลือช่องว่าง -->
 
-                    <div class="small-box elevation-3">
+                    <div class="small-box elevation-3 kpi-tile kpi-er">
 
                         <div class="inner">
 
@@ -153,7 +162,7 @@ include 'templates/sidebar.php';
 
                             <!-- นิยามเดียวกับ "ผู้มารับบริการ ER" หน้า ER (api/er.php: er_regist ทุกประเภท นับครั้ง) -->
                             <p class="kpi-title mb-0">
-                                ผู้มารับบริการ ER วันนี้
+                                ผู้มารับบริการ ER วันนี้ <?= home_info_btn('er', 'ผู้มารับบริการ ER วันนี้') ?>
                             </p>
                             <span class="kpi-scope">ทุกประเภทผู้ป่วย ER</span>
 
@@ -203,7 +212,7 @@ include 'templates/sidebar.php';
                 <div class="col-12 mb-2">
                     <h5 class="text-success mb-0" style="font-weight:bold;">
                         <i class="fa-solid fa-fire-flame-curved"></i>
-                        ภาระงานแต่ละแผนกตามช่วงเวลา วันนี้
+                        ภาระงานแต่ละแผนกตามช่วงเวลา วันนี้ <?= home_info_btn('heatmap', 'ภาระงานแต่ละแผนก') ?>
                     </h5>
                 </div>
 
@@ -258,7 +267,7 @@ include 'templates/sidebar.php';
                 <div class="col-12 mb-2">
                     <h5 class="text-success mb-0" style="font-weight:bold;">
                         <i class="fa-solid fa-bed-pulse"></i>
-                        สถานะเตียงและบริการวันนี้
+                        สถานะเตียงและบริการวันนี้ <?= home_info_btn('wards', 'สถานะเตียงรายหอผู้ป่วย') ?>
                     </h5>
                 </div>
 
@@ -294,7 +303,7 @@ include 'templates/sidebar.php';
 
                                                 <div class="summary-title">
 
-                                                    สถิติผู้ป่วยในวันนี้
+                                                    สถิติผู้ป่วยในวันนี้ <?= home_info_btn('beds', 'สถิติผู้ป่วยในวันนี้') ?>
 
                                                 </div>
 
@@ -422,7 +431,7 @@ include 'templates/sidebar.php';
 
                                             <i class="fa-solid fa-hospital"></i>
 
-                                            สถิติการใช้บริการอื่นๆ วันนี้
+                                            สถิติการใช้บริการอื่นๆ วันนี้ <?= home_info_btn('services', 'สถิติการใช้บริการอื่นๆ') ?>
 
                                         </div>
 
@@ -709,7 +718,11 @@ include 'templates/sidebar.php';
         <!-- หัวหน้าต่าง: ชื่อบริการ | เลือกวันที่ (service_detail.js โหลดบริการเดิมของวันที่เลือก) | ปิด — จอแคบวันที่ลงบรรทัดใหม่ใต้ชื่อ -->
         <header class="opd-drill-head svc-head">
             <div class="svc-head-title">
-                <h3 id="svc-detail-title">รายละเอียดบริการ</h3>
+                <!-- ปุ่ม (i) อยู่นอก h3 เพราะ service_detail.js เขียนทับ h3 ทุกครั้งที่เปิด · data-info = svc_<key> ตั้งตอนเปิด -->
+                <div class="svc-head-row">
+                    <h3 id="svc-detail-title">รายละเอียดบริการ</h3>
+                    <?= home_info_btn('', 'บริการนี้') ?>
+                </div>
                 <p id="svc-detail-sub"></p>
             </div>
             <div class="svc-date-bar">
@@ -756,6 +769,8 @@ include 'templates/sidebar.php';
 <script src="assets/lib/highcharts/13.1.1/modules/heatmap.js"></script>
 <script src="assets/js/dashboard.js?v=<?= filemtime(__DIR__ . '/assets/js/dashboard.js') ?>"></script>
 <script src="assets/js/service_detail.js?v=<?= filemtime(__DIR__ . '/assets/js/service_detail.js') ?>"></script>
+<script src="assets/js/home_info.js?v=<?= filemtime(__DIR__ . '/assets/js/home_info.js') ?>"></script>
+<script src="assets/js/er_info.js?v=<?= filemtime(__DIR__ . '/assets/js/er_info.js') ?>"></script>
 <script>
 // เรียกหลังโหลดข้อมูลสำเร็จเท่านั้น ถ้า API ล่ม เวลาจะค้างไว้ที่ครั้งล่าสุดที่ได้ข้อมูลจริง
 function markUpdated() {

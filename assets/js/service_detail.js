@@ -105,6 +105,7 @@
 
         const my = ++seq;
         current = { svc, icon: iconClass };
+        dlg.querySelector('.svc-head-row .er-info-btn').dataset.info = 'svc_' + svc;   // นิยามบริการ (home_info.js)
         dateInput.max = today();
         dateInput.value = date;
         $('svc-detail-date-text').textContent = new Date(date + 'T00:00:00')
