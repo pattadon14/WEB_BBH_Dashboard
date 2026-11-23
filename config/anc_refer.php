@@ -95,7 +95,7 @@ function anc_refer_list(array $pregs, array $refers, bool $natFiltered): array
             continue;
         }
         $age = $hit && $hit[2] !== null ? $hit[2] : ($r['age'] === null ? null : (int)$r['age']);
-        $out[] = $r + ['day' => $day, 'age_used' => $age, 'group' => anc_age_group_r($age),
+        $out[] = $r + ['day' => $day, 'age_used' => $age, 'group' => anc_age_group($age),
             'reason' => $hit && $isDx ? 'ทะเบียน + Dx' : ($hit ? 'อยู่ในทะเบียนฝากครรภ์' : 'Dx งานแม่และเด็ก')];
     }
     return $out;
@@ -166,9 +166,4 @@ function anc_refer_summary(array $pregs, array $refers, string $d1s, string $d2s
     }
     return ['monthly' => array_values($monthly), 'top_dx' => $top, 'dest' => $dest, 'table' => $rows, 'total' => $total,
         'dx_excluded' => $excluded, 'dx_exclude' => ANC_REFER_DX_EXCLUDE];
-}
-
-function anc_age_group_r(?int $age): ?string
-{
-    return $age === null ? null : ($age < 20 ? 'teen' : ($age < 35 ? 'repro' : 'elder'));
 }

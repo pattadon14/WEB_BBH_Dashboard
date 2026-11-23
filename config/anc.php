@@ -21,6 +21,7 @@ function anc_require_login(): void
         echo json_encode(['error' => 'กรุณาเข้าสู่ระบบ Provider ID'], JSON_UNESCAPED_UNICODE);
         exit;
     }
+    session_write_close();   // API อ่าน session อย่างเดียว — ปล่อย lock ให้ request อื่นของผู้ใช้คนเดิมรันขนานกันได้
 }
 
 // เขตบ้านบึง (ตัวหาร scope=area) · สัญชาติไทย
@@ -61,12 +62,26 @@ function anc_pct(int $num, int $den): ?float
     return $den ? round($num * 100 / $den, 1, PHP_ROUND_HALF_EVEN) : null;
 }
 
-function anc_rate(string $key, int $num, int $den): array
+// อัตรา (metrics._rate): ok = เทียบเป้า (lower = ยิ่งต่ำยิ่งดี) · low_base = ตัวหารน้อยกว่า 5 เทียบเป้าไม่ได้
+const ANC_LOW_BASE = 5;
+function anc_rate(int $num, int $den, int|float|null $target = null, bool $lower = false): array
 {
     $value = anc_pct($num, $den);
-    $target = ANC_TARGETS[$key] ?? null;
     return ['num' => $num, 'den' => $den, 'value' => $value, 'target' => $target,
-            'ok' => $value === null || $target === null ? null : $value >= $target];
+            'ok' => $value === null || $target === null ? null : ($lower ? $value <= $target : $value >= $target),
+            'low_base' => $den > 0 && $den < ANC_LOW_BASE];
+}
+
+// ค่าตัวเลขที่ > 0 (ว่าง/0/ไม่ใช่ตัวเลข = ไม่มีผล) — ส่วนสูง น้ำหนัก Hct
+function anc_pos($v): ?float
+{
+    $v = trim((string)$v);
+    return is_numeric($v) && (float)$v > 0 ? (float)$v : null;
+}
+
+function anc_age_group(?int $age): ?string
+{
+    return $age === null ? null : ($age < 20 ? 'teen' : ($age < 35 ? 'repro' : 'elder'));
 }
 
 // หมู่บ้าน 8 หลักจากที่อยู่ใน patient (จังหวัด อำเภอ ตำบล หมู่ ส่วนละ 2 หลัก) · ไม่ครบใช้ village.village_code ของ person
@@ -158,11 +173,7 @@ function anc_load(PDO $conn, string $d1, string $d2, string $nat): array
         $visits[$id][] = ['date' => anc_day($r['d']), 'ga' => $ga ?: null, 'precare' => (bool)$r['precare']];
     }
 
-    $st = $conn->prepare("SELECT referout_id, refer_date, hn, pdx FROM referout WHERE refer_date BETWEEN :d1 AND :d2");
-    $st->execute([':d1' => $d1, ':d2' => $d2]);
-    $refers = $st->fetchAll(PDO::FETCH_ASSOC);
-
-    return [$pregs, $visits, $refers];
+    return [$pregs, $visits];
 }
 
 /* ---------- ตัวชี้วัด (metrics.py) ---------- */
@@ -190,20 +201,39 @@ function anc_is_early12(array $p, array $vs): bool
     return $ga !== null && $ga <= 12;
 }
 
-// ANC ครบ 5 ครั้งตามเกณฑ์: มี visit (รวม precare) ครบทั้ง 5 ช่วงอายุครรภ์
-function anc_is_5visit(array $p, array $vs): bool
+// มี visit (รวม precare) ครบทุกช่วงอายุครรภ์ของชุดที่ส่งมา (ANC ครบ 5 / 8 ครั้ง)
+function anc_is_ge_buckets(array $p, array $vs, array $buckets): bool
 {
     $have = [];
     foreach ($vs as $v) {
         $ga = anc_visit_ga($v, $p['lmp']);
-        foreach (ANC_GA_BUCKETS as $i => [$lo, $hi]) {
+        foreach ($buckets as $i => [$lo, $hi]) {
             if ($ga !== null && $ga >= $lo && $ga <= $hi) {
                 $have[$i] = true;
                 break;
             }
         }
     }
-    return count($have) === count(ANC_GA_BUCKETS);
+    return count($have) === count($buckets);
+}
+
+function anc_is_5visit(array $p, array $vs): bool
+{
+    return anc_is_ge_buckets($p, $vs, ANC_GA_BUCKETS);
+}
+
+// กำลังติดตาม ณ วัน d2: ลงทะเบียนแล้ว ยังไม่คลอด และไม่เกิน 44 สัปดาห์จาก LMP (ไม่มี LMP ใช้วันลงทะเบียน)
+function anc_is_open(array $p, int $d2): bool
+{
+    $start = $p['lmp'] ?? $p['register'];
+    return $start !== null && $p['register'] !== null && $p['register'] <= $d2
+        && !($p['labor'] !== null && $p['labor'] <= $d2) && $d2 - $start <= ANC_MAX_PREG_DAYS;
+}
+
+// ควรคลอดแล้ว (ครบ 42 สัปดาห์จาก LMP ณ d2 และ LMP ไม่เกิน 1 ปีก่อน d1) — ตัวหารของ "บันทึกวันคลอด"
+function anc_is_due(array $p, int $d1, int $d2): bool
+{
+    return $p['lmp'] !== null && $d2 - $p['lmp'] >= 42 * 7 && $p['lmp'] >= $d1 - 365;
 }
 
 // จำนวนเดือน (เศษตามสัดส่วนวัน) ของช่วง — ตัวหาร "เฉลี่ยครั้ง/เดือน"
@@ -230,7 +260,7 @@ function anc_months(string $d1, string $d2): float
  *   early12 / visit5  ตัวหาร = ครรภ์ที่คลอดในช่วง (scope=area: เฉพาะในเขต)
  *   refer      ส่งต่องานแม่และเด็ก (นับครั้ง referout_id) · labor = ครรภ์ครบ 42 สัปดาห์ (LMP ไม่เกิน 1 ปีก่อน d1) ที่ลงวันคลอดแล้ว
  */
-function anc_summary(array $pregs, array $visits, array $refers, string $d1s, string $d2s, bool $area, bool $natFiltered): array
+function anc_summary(array $pregs, array $visits, array $refers, string $d1s, string $d2s, bool $area): array
 {
     $d1 = anc_day($d1s);
     $d2 = anc_day($d2s);
@@ -244,7 +274,6 @@ function anc_summary(array $pregs, array $visits, array $refers, string $d1s, st
     }
 
     $new = $nVisits = $open = $due = $recorded = $e12 = $v5 = $den = 0;
-    $windows = [];
     foreach ($pregs as $id => $p) {
         $vs = $visits[$id] ?? [];
         if ($in($p['register'])) {
@@ -257,12 +286,8 @@ function anc_summary(array $pregs, array $visits, array $refers, string $d1s, st
                 $trend[$monthOf($v['date'])]['visits']++;
             }
         }
-        $start = $p['lmp'] ?? $p['register'];
-        if ($start !== null && $p['register'] !== null && $p['register'] <= $d2
-            && !($p['labor'] !== null && $p['labor'] <= $d2) && $d2 - $start <= ANC_MAX_PREG_DAYS) {
-            $open++;
-        }
-        if ($p['lmp'] !== null && $d2 - $p['lmp'] >= 42 * 7 && $p['lmp'] >= $d1 - 365) {
+        $open += anc_is_open($p, $d2) ? 1 : 0;
+        if (anc_is_due($p, $d1, $d2)) {
             $due++;
             $recorded += $p['labor'] !== null ? 1 : 0;
         }
@@ -271,44 +296,15 @@ function anc_summary(array $pregs, array $visits, array $refers, string $d1s, st
             $e12 += anc_is_early12($p, $vs) ? 1 : 0;
             $v5 += anc_is_5visit($p, $vs) ? 1 : 0;
         }
-        if ($p['lmp'] !== null && $p['hn']) {
-            $end = $p['labor'] !== null ? $p['labor'] + ANC_POSTPARTUM_DAYS : $p['lmp'] + ANC_MAX_PREG_DAYS;
-            $windows[$p['hn']][] = [$p['lmp'], $end];
-        }
     }
 
-    // refer: อยู่ในช่วงครรภ์ของทะเบียน หรือ Dx งานแม่และเด็ก · กรองสัญชาติแล้ว เหลือเฉพาะ HN ที่ตรงกับครรภ์ที่กรอง
-    // ครรภ์ไม่มี HN ใช้คีย์ '' (ต้นแบบเทียบ None == None จึงเก็บ refer ที่ไม่มี HN ไว้ด้วย)
-    $hns = $natFiltered ? array_flip(array_map(fn($p) => (string)$p['hn'], $pregs)) : null;
-    $nRefer = 0;
-    $seen = [];
+    // $refers = refer ที่นับแล้ว (anc_refer_list ใน config/anc_refer.php — ชุดเดียวกับส่วน Refer และรายชื่อ)
     foreach ($refers as $r) {
-        $rid = (int)$r['referout_id'];
-        $day = anc_day($r['refer_date']);
-        if (isset($seen[$rid])) {
-            continue;
-        }
-        $hit = false;
-        foreach ($windows[(string)$r['hn']] ?? [] as [$a, $b]) {
-            if ($day !== null && $day >= $a && $day <= $b) {
-                $hit = true;
-                break;
-            }
-        }
-        $code = strtoupper(trim(str_replace('.', '', (string)$r['pdx'])));
-        $dx = $code !== '' && array_filter(ANC_REFER_DX, fn($x) => str_starts_with($code, $x));
-        if (!$hit && !$dx) {
-            continue;
-        }
-        $seen[$rid] = true;
-        if ($hns !== null && !isset($hns[(string)$r['hn']])) {
-            continue;
-        }
-        $nRefer++;
-        if (isset($trend[$monthOf($day)])) {
-            $trend[$monthOf($day)]['refer']++;
+        if (isset($trend[$monthOf($r['day'])])) {
+            $trend[$monthOf($r['day'])]['refer']++;
         }
     }
+    $nRefer = count($refers);
 
     $months = anc_months($d1s, $d2s);
     return [
@@ -317,8 +313,8 @@ function anc_summary(array $pregs, array $visits, array $refers, string $d1s, st
         // ปัดแบบ round() ของ Python (เศษ .x5 พอดีปัดเข้าเลขคู่) ให้ตรงต้นแบบ เช่น 2907/12 = 242.25 → 242.2
         'per_month' => $months ? round($nVisits / $months, 1, PHP_ROUND_HALF_EVEN) : null,
         'open' => $open,
-        'early12' => anc_rate('early12', $e12, $den),
-        'visit5' => anc_rate('visit5', $v5, $den),
+        'early12' => anc_rate($e12, $den, ANC_TARGETS['early12']),
+        'visit5' => anc_rate($v5, $den, ANC_TARGETS['visit5']),
         'refer' => $nRefer,
         'labor' => ['due' => $due, 'recorded' => $recorded, 'pct' => anc_pct($recorded, $due), 'warn_pct' => ANC_LABOR_WARN_PCT],
         'trend' => array_values($trend),

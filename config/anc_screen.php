@@ -99,15 +99,6 @@ const ANC_RISK_FROM = "
   LEFT JOIN patient pt ON pt.hn = coalesce(nullif(pe.patient_hn, ''),
         (SELECT p2.hn FROM patient p2 WHERE p2.cid = pe.cid AND pe.cid <> '' LIMIT 1))";
 
-function anc_pos(?string $v): ?float
-{
-    $v = trim((string)$v);
-    if ($v === '' || !is_numeric($v)) {
-        return null;
-    }
-    return (float)$v > 0 ? (float)$v : null;
-}
-
 // หลักฐานรายครรภ์ (ครรภ์ที่ลงทะเบียนในช่วง): form = ข้อที่ติ๊ก Y · dx = รหัส 3/4 หลัก · text = key ที่พบ · body = (ส่วนสูง, น้ำหนัก) visit แรก
 function anc_risk_hits(PDO $conn, string $d1, string $d2): array
 {
@@ -384,18 +375,11 @@ function anc_sti(PDO $conn, array $pregs, string $d1, string $d2): array
         }
         $cnt = array_count_values($tested) + ['pos' => 0, 'unclear' => 0];
         $out[] = ['key' => $k, 'label' => $label,
-            'tested' => anc_rate_n(count($tested), count($new)),
-            'pos' => anc_rate_n($cnt['pos'], count($tested)),
+            'tested' => anc_rate(count($tested), count($new)),
+            'pos' => anc_rate($cnt['pos'], count($tested)),
             'unclear' => $cnt['unclear'], 'untested' => count($new) - count($tested)];
     }
     return $out;
-}
-
-// อัตราที่ไม่มีเป้า (รูปแบบเดียวกับ metrics._rate)
-function anc_rate_n(int $num, int $den): array
-{
-    return ['num' => $num, 'den' => $den, 'value' => anc_pct($num, $den), 'target' => null, 'ok' => null,
-        'low_base' => $den > 0 && $den < 5];
 }
 
 /* ================= OGTT ================= */
@@ -486,7 +470,7 @@ function anc_ogtt(PDO $conn, array $pregs, string $d1, string $d2): array
         }
         $c = array_count_values($tested) + ['abn' => 0, 'one' => 0];
         $rows[] = ['key' => $k, 'label' => $label, 'tested' => count($tested), 'abn' => $c['abn'], 'one' => $c['one'],
-            'rate' => anc_rate_n($c['abn'], count($tested))];
+            'rate' => anc_rate($c['abn'], count($tested))];
     }
     $points = [];
     foreach (ANC_OGTT_TYPES as [$k, , $pts]) {
@@ -574,6 +558,6 @@ function anc_anemia(PDO $conn, array $pregs, string $d1s, string $d2s, bool $are
     foreach (ANC_ANEMIA_GROUPS as $k => $label) {
         $groups[] = ['key' => $k, 'label' => $label, 'n' => $c[$k] ?? 0];
     }
-    return ['tested' => anc_rate_n(count($got), $den), 'untested' => $den - count($got),
+    return ['tested' => anc_rate(count($got), $den), 'untested' => $den - count($got),
         'anemic' => count($got) - ($c['normal'] ?? 0), 'normal' => $c['normal'] ?? 0, 'groups' => $groups];
 }

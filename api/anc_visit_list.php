@@ -8,20 +8,13 @@
  *   ตัวชี้วัดที่หารด้วยครรภ์ที่คลอด: คืนทุกรายในตัวหาร พร้อมคอลัมน์ "ผล" (ผ่าน / ไม่ผ่าน) ให้กรองในหน้าต่างรายชื่อ
  */
 
-require_once __DIR__ . '/../auth/provider.php';
-
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, private');
 
-if (!provider_is_logged_in()) {
-    http_response_code(401);
-    echo json_encode(['error' => 'กรุณาเข้าสู่ระบบ Provider ID เพื่อดูรายชื่อ'], JSON_UNESCAPED_UNICODE);
-    exit;
-}
-
-require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/anc_ind.php';
 require_once __DIR__ . '/../config/anc_refer.php';
+anc_require_login();
+require_once __DIR__ . '/../config/database.php';
 
 const ANC_LIST_TYPES = ['new', 'open', 'labor_missing', 'early12', 'visit5', 'visit8', 'postnatal', 'quality', 'iodine',
     'dt', 'dental', 'anemia', 'teen_repeat', 'preterm', 'refer'];
@@ -40,7 +33,7 @@ try {
     $area = ($_GET['scope'] ?? 'area') !== 'all';
     $nat = in_array($_GET['nat'] ?? '', ['th', 'fr'], true) ? $_GET['nat'] : '';
 
-    [$pregs, $visits, $refRows] = anc_load($conn, $d1s, $d2s, $nat);
+    [$pregs, $visits] = anc_load($conn, $d1s, $d2s, $nat);
     $needExtra = in_array($type, ['postnatal', 'quality', 'iodine', 'dt', 'dental', 'anemia', 'teen_repeat'], true);
     [$extra, , $pnc] = $needExtra ? anc_load_extra($conn, $d1s, $d2s) : [[], [], []];
     $d1 = anc_day($d1s);
@@ -68,28 +61,18 @@ try {
                     if (!$in($pp['register'])) continue 2;
                     break;
                 case 'open':
-                    $start = $pp['lmp'] ?? $pp['register'];
-                    if (!($start !== null && $pp['register'] !== null && $pp['register'] <= $d2
-                        && !($pp['labor'] !== null && $pp['labor'] <= $d2) && $d2 - $start <= ANC_MAX_PREG_DAYS)) continue 2;
+                    if (!anc_is_open($pp, $d2)) continue 2;
                     break;
                 case 'labor_missing':
-                    if (!($pp['lmp'] !== null && $d2 - $pp['lmp'] >= 42 * 7 && $pp['lmp'] >= $d1 - 365 && $pp['labor'] === null)) continue 2;
+                    if (!anc_is_due($pp, $d1, $d2) || $pp['labor'] !== null) continue 2;
                     break;
                 case 'iodine':
-                    $came = false;
-                    foreach ($vs as $v) {
-                        $came = $came || (!$v['precare'] && $in($v['date']));
-                    }
-                    if (!$came) continue 2;
+                    if (!anc_came_in($vs, $d1, $d2)) continue 2;
                     $res = !empty($x['has_iodine']);
                     break;
                 case 'postnatal':
-                    if (!$delivered($pp) || $d2 - $pp['labor'] < ANC_PNC_WINDOWS[2][1]) continue 2;
-                    $days = array_map(fn($d) => $d - $pp['labor'], $pnc[$id] ?? []);
-                    $res = true;
-                    foreach (ANC_PNC_WINDOWS as [$lo, $hi]) {
-                        $res = $res && (bool)array_filter($days, fn($v) => $v >= $lo && $v <= $hi);
-                    }
+                    if (!$delivered($pp) || !anc_pnc_due($pp, $d2)) continue 2;
+                    $res = anc_pnc_ok($pp, $pnc[$id] ?? []);
                     break;
                 default:   // ตัวหาร = ครรภ์ที่คลอดในช่วง
                     if (!$delivered($pp)) continue 2;
@@ -107,8 +90,7 @@ try {
                             'early12' => anc_is_early12($pp, $vs),
                             'visit5' => anc_is_5visit($pp, $vs),
                             'visit8' => anc_is_ge_buckets($pp, $vs, ANC_GA_BUCKETS_8),
-                            'quality' => (!empty($x['has_hct']) || !empty($x['q_cbc'])) && !empty($x['q_thal']) && !empty($x['q_us'])
-                                && !empty($x['q_down']) && !empty($x['q_dm']),
+                            'quality' => !in_array(false, array_map(fn($k) => anc_quality_part($x, $k), array_keys(ANC_QUALITY_PARTS)), true),
                             'dt' => !empty($x['has_dt']),
                             'dental' => !empty($x['has_dental']),
                         };

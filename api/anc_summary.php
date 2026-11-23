@@ -9,7 +9,7 @@
 header('Content-Type: application/json; charset=utf-8');
 
 require_once '../config/database.php';
-require_once '../config/anc.php';
+require_once '../config/anc_refer.php';
 
 anc_require_login();
 
@@ -26,9 +26,10 @@ try {
     $p['key'] = $p['start'] . '_' . $p['end'];
 
     ipd_cached("anc_summary_v1_{$scope}_" . ($nat ?: 'all'), $p, function () use ($conn, $p, $scope, $nat) {
-        [$pregs, $visits, $refers] = anc_load($conn, $p['start'], $p['end'], $nat);
+        [$pregs, $visits] = anc_load($conn, $p['start'], $p['end'], $nat);
+        $refers = anc_refer_list($pregs, anc_load_refers($conn, $p['start'], $p['end']), $nat !== '');
         return ['d1' => $p['start'], 'd2' => $p['end'], 'scope' => $scope, 'nat' => $nat]
-            + anc_summary($pregs, $visits, $refers, $p['start'], $p['end'], $scope === 'area', $nat !== '');
+            + anc_summary($pregs, $visits, $refers, $p['start'], $p['end'], $scope === 'area');
     }, ANC_CACHE_LIVE_TTL);
 } catch (Throwable $e) {
     ipd_fail($e, 'anc_summary');

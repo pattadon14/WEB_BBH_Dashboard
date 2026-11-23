@@ -21,9 +21,13 @@ const monthLabel = ym => { const [y, m] = ym.split('-').map(Number); return `${T
 const opts = { scope: 'area', nat: '' };
 const errRow = (cols, err) => `<tr><td colspan="${cols}" class="er-note">โหลดข้อมูลไม่สำเร็จ: ${esc(err.message)}</td></tr>`;
 
+// loadSeq เพิ่มทุกครั้งที่ loadAll() — คำตอบของรอบเก่าที่มาช้าไม่ถูก render ทับตัวกรองใหม่ (promise ค้างไว้ ไม่ resolve)
+let loadSeq = 0;
 async function getJson(url) {
+    const seq = loadSeq;
     const res = await fetch(url);
     const data = await res.json();
+    if (seq !== loadSeq) return new Promise(() => {});
     if (!res.ok || data.error) throw new Error(data.error || 'HTTP ' + res.status);
     return data;
 }
@@ -296,9 +300,7 @@ async function loadRefer() {
 }
 
 /* ---------- 12 แนวโน้ม 3 ปีงบ (ช่วงของปีงบที่มีวันสิ้นสุด และ 2 ปีก่อนหน้า) ---------- */
-let fy3Seq = 0;
 async function loadFy3() {
-    const seq = ++fy3Seq;
     const d2 = bbhPeriod.state.d2;
     const [y, m] = d2.split('-').map(Number);
     const start = m >= 10 ? y : y - 1;
@@ -310,7 +312,6 @@ async function loadFy3() {
     setHtml('anc-fy3-head', `<tr><th>ตัวชี้วัด</th>${years.map(x => `<th class="text-right">${x.label}${x.partial ? '<small> ถึง ' + shortDate(x.d2) + '</small>' : ''}</th>`).join('')}<th class="text-right">เป้า</th></tr>`);
     try {
         const data = await Promise.all(years.map(x => getJson(`../api/anc_indicators.php?d1=${x.d1}&d2=${x.d2}&scope=${opts.scope}${opts.nat ? '&nat=' + opts.nat : ''}`)));
-        if (seq !== fy3Seq) return;
         setHtml('anc-fy3-body', IND_ROWS.map(([key]) => {
             const cells = data.map((d, i) => {
                 const r = d[key];
@@ -326,7 +327,7 @@ async function loadFy3() {
             return `<tr><td>${esc(IND_SHORT[key])}</td>${cells}<td class="text-right">${t === null ? '—' : (LOWER.includes(key) ? '≤ ' : '≥ ') + t + '%'}</td></tr>`;
         }).join(''));
     } catch (err) {
-        if (seq === fy3Seq) setHtml('anc-fy3-body', errRow(5, err));
+        setHtml('anc-fy3-body', errRow(5, err));
     }
 }
 
@@ -369,6 +370,7 @@ bbhDrill.bind(document.getElementById('anc-page'), (type, n) => openList(type, n
 
 /* ---------- โหลดทั้งหน้า ---------- */
 function loadAll() {
+    loadSeq++;
     loadSummary();
     loadIndicators();
     loadRefer();

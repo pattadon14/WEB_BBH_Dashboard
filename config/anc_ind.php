@@ -35,7 +35,6 @@ const ANC_VISIT8_TARGETS = [2566 => 50, 2567 => 55, 2568 => 60, 2569 => 65, 2570
 const ANC_TEEN_REPEAT_TARGETS = [2567 => 13.0, 2568 => 12.5, 2569 => 12.0, 2570 => 11.5];
 const ANC_QUALITY_PARTS = ['q_cbc' => 'CBC / Hct / Hb', 'q_thal' => 'คัดกรองธาลัสซีเมีย', 'q_us' => 'อัลตราซาวด์',
     'q_down' => 'คัดกรองดาวน์', 'q_dm' => 'คัดกรองเบาหวาน'];
-const ANC_LOW_BASE = 5;
 // ภาวะแทรกซ้อน: Dx (OPD/IPD) รหัส 3 หรือ 4 หลัก ระหว่าง LMP ถึงหลังคลอด 42 วัน
 const ANC_DX_HTN = ['O10', 'O11', 'O13', 'O14', 'O15', 'O16'];
 const ANC_DX_GDM = ['O244'];
@@ -77,12 +76,37 @@ function anc_fy_target(array $table, string $d2): int|float
     return $table[min(max($fy, min(array_keys($table))), max(array_keys($table)))];
 }
 
-function anc_rate_t(int $num, int $den, int|float|null $target, bool $lower): array
+// หลังคลอด: ตัวหาร = คลอดแล้วพ้น 42 วัน ณ d2 · ผ่าน = ได้ดูแลครบทั้ง 3 ช่วงวัน ($days = เลขวันของการดูแล)
+function anc_pnc_due(array $p, int $d2): bool
 {
-    $value = anc_pct($num, $den);
-    return ['num' => $num, 'den' => $den, 'value' => $value, 'target' => $target,
-            'ok' => $value === null || $target === null ? null : ($lower ? $value <= $target : $value >= $target),
-            'low_base' => $den > 0 && $den < ANC_LOW_BASE];
+    return $p['labor'] !== null && $d2 - $p['labor'] >= ANC_PNC_WINDOWS[2][1];
+}
+
+function anc_pnc_ok(array $p, array $days): bool
+{
+    foreach (ANC_PNC_WINDOWS as [$lo, $hi]) {
+        if (!array_filter($days, fn($d) => $d - $p['labor'] >= $lo && $d - $p['labor'] <= $hi)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// กิจกรรมฝากครรภ์คุณภาพแต่ละข้อ (q_cbc ผ่านได้ด้วยผล Hct)
+function anc_quality_part(array $x, string $k): bool
+{
+    return $k === 'q_cbc' ? (!empty($x['has_hct']) || !empty($x['q_cbc'])) : !empty($x[$k]);
+}
+
+// มาฝากครรภ์ที่ รพ. (ไม่นับ precare) ในช่วง — ตัวหารไอโอดีน
+function anc_came_in(array $vs, int $d1, int $d2): bool
+{
+    foreach ($vs as $v) {
+        if (!$v['precare'] && $v['date'] !== null && $v['date'] >= $d1 && $v['date'] <= $d2) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /*
@@ -177,7 +201,7 @@ function anc_load_extra(PDO $conn, string $d1, string $d2): array
         }
     }
     foreach ($extra as $id => &$x) {
-        $x['hct_late'] = anc_pos_float($latest[$id][1] ?? null) ?? anc_pos_float($x['hct_anc']);
+        $x['hct_late'] = anc_pos($latest[$id][1] ?? null) ?? anc_pos($x['hct_anc']);
     }
     unset($x);
 
@@ -222,16 +246,6 @@ function anc_load_extra(PDO $conn, string $d1, string $d2): array
     return [$extra, $infants, $pnc];
 }
 
-// ค่าตัวเลขที่ > 0 (ผล Hct ว่าง/0/ไม่ใช่ตัวเลข = ไม่มีผล)
-function anc_pos_float($v): ?float
-{
-    if ($v === null || !is_numeric(trim((string)$v))) {
-        return null;
-    }
-    $f = (float)trim((string)$v);
-    return $f > 0 ? $f : null;
-}
-
 /*
  * ตัวชี้วัด 10 ตัว (metrics.indicators)
  *   ตัวหาร = ครรภ์ที่คลอดในช่วง (scope=area: เฉพาะในเขต) ยกเว้น
@@ -262,7 +276,7 @@ function anc_indicators(array $pregs, array $visits, array $extra, array $infant
             $cnt['visit8'] += anc_is_ge_buckets($p, $vs, ANC_GA_BUCKETS_8) ? 1 : 0;
             $all = true;
             foreach (array_keys(ANC_QUALITY_PARTS) as $k) {
-                $ok = $k === 'q_cbc' ? (!empty($x['has_hct']) || !empty($x['q_cbc'])) : !empty($x[$k]);
+                $ok = anc_quality_part($x, $k);
                 $parts[$k] += $ok ? 1 : 0;
                 $all = $all && $ok;
             }
@@ -279,22 +293,13 @@ function anc_indicators(array $pregs, array $visits, array $extra, array $infant
             }
         }
         // หลังคลอด: ตัวหารกรองด้วย area (pregs ที่ส่งเข้ามา) · คลอดในช่วงและครบ 42 วัน
-        if ($in($p['labor']) && (!$area || anc_in_area($p)) && $d2 - $p['labor'] >= ANC_PNC_WINDOWS[2][1]) {
+        if ($in($p['labor']) && (!$area || anc_in_area($p)) && anc_pnc_due($p, $d2)) {
             $cnt['pnc_d']++;
-            $days = array_map(fn($d) => $d - $p['labor'], $pnc[$id] ?? []);
-            $okAll = true;
-            foreach (ANC_PNC_WINDOWS as [$lo, $hi]) {
-                $okAll = $okAll && count(array_filter($days, fn($v) => $v >= $lo && $v <= $hi)) > 0;
-            }
-            $cnt['pnc_n'] += $okAll ? 1 : 0;
+            $cnt['pnc_n'] += anc_pnc_ok($p, $pnc[$id] ?? []) ? 1 : 0;
         }
-        // ไอโอดีน: มาฝากครรภ์ที่ รพ. (ไม่นับ precare) ในช่วง
-        foreach ($vs as $v) {
-            if (!$v['precare'] && $in($v['date'])) {
-                $cnt['iod_d']++;
-                $cnt['iod_n'] += !empty($x['has_iodine']) ? 1 : 0;
-                break;
-            }
+        if (anc_came_in($vs, $d1, $d2)) {
+            $cnt['iod_d']++;
+            $cnt['iod_n'] += !empty($x['has_iodine']) ? 1 : 0;
         }
     }
 
@@ -311,10 +316,10 @@ function anc_indicators(array $pregs, array $visits, array $extra, array $infant
     }
 
     $t = fn(string $k) => ANC_TARGETS_ALL[$k] ?? null;
-    $r = fn(string $k, int $n, int $d, int|float|null $target = null) => anc_rate_t($n, $d, $target ?? $t($k), in_array($k, ANC_LOWER_BETTER, true));
+    $r = fn(string $k, int $n, int $d, int|float|null $target = null) => anc_rate($n, $d, $target ?? $t($k), in_array($k, ANC_LOWER_BETTER, true));
     $q = [];
     foreach (ANC_QUALITY_PARTS as $k => $label) {
-        $q[] = ['key' => $k, 'label' => $label, 'rate' => anc_rate_t($parts[$k], $den, null, false)];
+        $q[] = ['key' => $k, 'label' => $label, 'rate' => anc_rate($parts[$k], $den)];
     }
     return [
         'early12' => $r('early12', $cnt['early12'], $den),
@@ -330,27 +335,6 @@ function anc_indicators(array $pregs, array $visits, array $extra, array $infant
         'lbw' => $r('lbw', $lbwN, $lbwD),
         'teen_repeat' => $r('teen_repeat', $cnt['teen_n'], $cnt['teen_d'], anc_fy_target(ANC_TEEN_REPEAT_TARGETS, $d2s)),
     ];
-}
-
-// มี visit (รวม precare) ครบทุกช่วงอายุครรภ์ของชุดที่ส่งมา (ใช้กับ ANC ครบ 8 ครั้ง)
-function anc_is_ge_buckets(array $p, array $vs, array $buckets): bool
-{
-    $have = [];
-    foreach ($vs as $v) {
-        $ga = anc_visit_ga($v, $p['lmp']);
-        foreach ($buckets as $i => [$lo, $hi]) {
-            if ($ga !== null && $ga >= $lo && $ga <= $hi) {
-                $have[$i] = true;
-                break;
-            }
-        }
-    }
-    return count($have) === count($buckets);
-}
-
-function anc_age_group(?int $age): ?string
-{
-    return $age === null ? null : ($age < 20 ? 'teen' : ($age < 35 ? 'repro' : 'elder'));
 }
 
 /*
@@ -393,9 +377,9 @@ function anc_by_age(array $pregs, array $visits, array $extra, string $d1s, stri
     $out = [];
     foreach ($g as $k => $x) {
         $out[$k] = ['new' => $x['new'], 'share' => anc_pct($x['new'], $nNew),
-            'early12' => anc_rate_t($x['e12'], $x['den'], ANC_TARGETS_ALL['early12'], false),
-            'visit5' => anc_rate_t($x['v5'], $x['den'], ANC_TARGETS_ALL['visit5'], false),
-            'anemia' => anc_rate_t($x['an_n'], $x['an_d'], ANC_TARGETS_ALL['anemia'], true)];
+            'early12' => anc_rate($x['e12'], $x['den'], ANC_TARGETS_ALL['early12']),
+            'visit5' => anc_rate($x['v5'], $x['den'], ANC_TARGETS_ALL['visit5']),
+            'anemia' => anc_rate($x['an_n'], $x['an_d'], ANC_TARGETS_ALL['anemia'], true)];
         if ($k === 'teen') {
             $out[$k]['lt15'] = $x['lt15'];
             $out[$k]['15_19'] = $x['15_19'];
@@ -467,10 +451,10 @@ function anc_outcomes(array $pregs, array $extra, array $infants, string $d1s, s
 
     $comp = [];
     foreach (ANC_COMPLICATIONS as $k => $label) {
-        $comp[] = ['key' => $k, 'label' => $label] + anc_rate_t($cx[$k], $den, null, false);
+        $comp[] = ['key' => $k, 'label' => $label] + anc_rate($cx[$k], $den);
     }
     return [
-        'preterm' => anc_rate_t($pre, $dated, null, false),
+        'preterm' => anc_rate($pre, $dated),
         'asphyxia' => ['num' => $asph, 'den' => $live, 'value' => $per1000, 'target' => ANC_TARGET_ASPHYXIA,
             'ok' => $per1000 === null ? null : $per1000 <= ANC_TARGET_ASPHYXIA, 'low_base' => $live > 0 && $live < ANC_LOW_BASE],
         'place' => ['here' => $here, 'den' => $den, 'pct_here' => anc_pct($here, $den), 'top' => array_slice($places, 0, 5)],
