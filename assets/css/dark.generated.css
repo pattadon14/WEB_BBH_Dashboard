@@ -591,6 +591,22 @@ html[data-theme="dark"] .home-dash .small-box-footer:hover,
 html[data-theme="dark"] .home-dash .small-box-footer:focus-visible {
     color: #fff !important;
 }
+html[data-theme="dark"] .home-dash .q-panel {
+    --q-ok-text: #83d7a5;
+    --q-bad-text: #ffa698;
+    --q-warn-text: #f2ad67;
+    --q-ok-line: #1f9d55;
+    --q-bad-line: #d0342c;
+    --q-warn-line: #e07b12;
+}
+html[data-theme="dark"] .home-dash .q-opd {
+    --q-accent-text: #89d9a3;
+    --q-tint-bg: #171a18;
+}
+html[data-theme="dark"] .home-dash .q-er {
+    --q-accent-text: #ffa698;
+    --q-tint-bg: #1c1818;
+}
 html[data-theme="dark"] .home-dash .er-info-dlg::backdrop {
     background: rgba(8, 20, 14, .45);
 }

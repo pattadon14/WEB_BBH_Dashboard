@@ -229,6 +229,42 @@
 :root .home-dash .kpi-tile .opd-monitor-launch:hover,
 :root .home-dash .kpi-tile .opd-monitor-launch:focus-visible { background: var(--kpi-deep); color: var(--kpi-on) !important; outline: 2px solid var(--kpi-on); }
 
+/* บรรทัดเทียบสัปดาห์ก่อนใต้การ์ด (dashboard.js) */
+.home-dash .kpi-trend { display: block; margin-top: 6px; font-size: 1.25rem; line-height: 1.25; font-variant-numeric: tabular-nums; }
+:root .home-dash .kpi-tile .kpi-trend { color: var(--kpi-dim); }
+
+/* ---------- คุณภาพบริการวันนี้ (assets/js/home_quality.js) — โทนตามหน้ารายละเอียด: OPD เขียว / ER แดง ----------
+   *-text / *-bg / *-line ให้ build_dark_css.mjs แปลงโหมดมืด · --q-accent (พื้นไอคอนหัว) ไม่มีบทบาท คงสีเดิม */
+.home-dash .q-panel {
+    --q-on: #ffffff; --q-ok-text: #157347; --q-bad-text: #b42318; --q-warn-text: #9a5b00;
+    --q-ok-line: #1f9d55; --q-bad-line: #d0342c; --q-warn-line: #e07b12;
+    height: 100%; padding: 14px 16px 16px; border: 1px solid var(--bbh-border); border-radius: 16px;
+    background: var(--bbh-surface); box-shadow: var(--bbh-shadow);
+}
+.home-dash .q-opd { --q-accent: #157a43; --q-accent-text: #146c3c; --q-tint-bg: #edf7f1; }
+.home-dash .q-er  { --q-accent: #b3261e; --q-accent-text: #b42318; --q-tint-bg: #fdf3f2; }
+.home-dash .q-head { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; min-width: 0; }
+.home-dash .q-head h6 { display: flex; align-items: center; gap: 8px; min-width: 0; margin: 0; font-size: 1.45rem; font-weight: 700; color: var(--q-accent-text); }
+.home-dash .q-head h6 > i { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 32px; height: 32px; border-radius: 9px; background: var(--q-accent); color: var(--q-on); font-size: 1rem; }
+.home-dash .q-head small { font-size: 1.1rem; font-weight: 400; color: var(--bbh-muted); }
+.home-dash .q-more { margin-left: auto; font-size: 1.15rem; color: var(--q-accent-text); white-space: nowrap; }
+.home-dash .q-more:hover { color: var(--q-accent-text); text-decoration: underline; }
+:root .home-dash .q-more:focus-visible { outline: 2px solid var(--q-accent); outline-offset: 2px; border-radius: 4px; }
+.home-dash .q-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.home-dash .q-tile { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 10px 12px; border-left: 4px solid transparent; border-radius: 12px; background: var(--q-tint-bg); }
+.home-dash .q-tile.is-ok { border-left-color: var(--q-ok-line); }
+.home-dash .q-tile.is-bad { border-left-color: var(--q-bad-line); }
+.home-dash .q-tile.is-warn { border-left-color: var(--q-warn-line); }
+.home-dash .q-label { font-size: 1.15rem; font-weight: 700; line-height: 1.15; color: var(--bbh-text); overflow-wrap: break-word; }
+.home-dash .q-value b { font-size: 2.3rem; line-height: 1.1; font-variant-numeric: tabular-nums; color: var(--q-accent-text); }
+.home-dash .q-value small { font-size: 1.1rem; color: var(--bbh-muted); }
+.home-dash .q-state { font-size: 1.1rem; font-weight: 700; }
+.home-dash .is-ok .q-state { color: var(--q-ok-text); }
+.home-dash .is-bad .q-state { color: var(--q-bad-text); }
+.home-dash .is-warn .q-state { color: var(--q-warn-text); }
+.home-dash .q-sub { font-size: 1.05rem; line-height: 1.2; color: var(--bbh-muted); }
+.home-dash .q-msg { grid-column: 1 / -1; margin: 0; color: var(--bbh-muted); }
+
 /* ---------- ปุ่ม (i) + หน้าต่างที่มาของข้อมูล (assets/js/er_info.js, เนื้อหา home_info.js) — แบบเดียวกับ er_theme.css ด้วย token หน้าแรก ---------- */
 .home-dash .er-info-btn {
     display: inline-flex; align-items: center; justify-content: center; flex: none;

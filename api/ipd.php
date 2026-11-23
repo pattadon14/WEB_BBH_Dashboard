@@ -15,7 +15,9 @@ try {
         COUNT(DISTINCT CASE
             WHEN regdate = CURRENT_DATE
             THEN an
-        END) AS today
+        END) AS today,
+        -- วันเดียวกันของสัปดาห์ก่อน ถึงเวลาเดียวกับตอนนี้
+        (SELECT COUNT(DISTINCT an) FROM ipt WHERE regdate = CURRENT_DATE - 7 AND regtime <= LOCALTIME) AS prev_week
     FROM ipt
     WHERE regdate BETWEEN
         DATE_TRUNC('month', CURRENT_DATE)
@@ -30,8 +32,8 @@ try {
 
 } catch (PDOException $e) {
 
-    echo json_encode([
-        'error' => $e->getMessage()
-    ]);
+    error_log(basename(__FILE__) . ': ' . $e->getMessage());   // ไม่ส่งรายละเอียดฐานข้อมูลออกไปหน้าเว็บ
+    http_response_code(500);
+    echo json_encode(['error' => 'โหลดข้อมูลไม่สำเร็จ'], JSON_UNESCAPED_UNICODE);
 
 }

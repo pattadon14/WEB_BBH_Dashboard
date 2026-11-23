@@ -11,7 +11,8 @@ try {
     /*
     ==========================
     Query: จำนวนผู้ป่วยตามแผนก × ชั่วโมง
-    กรอง ovstist <> '4' (ไม่นับ cancel)
+    ไม่นับ visit ที่ผู้ป่วยไม่ได้มาที่ รพ. (ovst.ovstist): 13 เยี่ยมบ้าน/ออกหน่วย, 14 วัคซีนในโรงเรียน,
+    15 อนามัยโรงเรียน (ทันตกรรมโรงเรียน), 17 Telehealth/Telemedicine/ส่งยาไปรษณีย์ — ไม่ใช่ความแออัดหน้าห้อง
     ==========================
     */
 
@@ -25,6 +26,7 @@ try {
             ON k.depcode = o.main_dep
         WHERE
             o.vstdate = CURRENT_DATE
+            AND o.ovstist NOT IN ('13', '14', '15', '17')
         GROUP BY
             EXTRACT(HOUR FROM (o.vstdate + o.vsttime::TIME))::int,
             k.department
@@ -152,8 +154,8 @@ try {
 
 } catch (Exception $e) {
 
-    echo json_encode([
-        'error' => $e->getMessage()
-    ]);
+    error_log(basename(__FILE__) . ': ' . $e->getMessage());   // ไม่ส่งรายละเอียดฐานข้อมูลออกไปหน้าเว็บ
+    http_response_code(500);
+    echo json_encode(['error' => 'โหลดข้อมูลไม่สำเร็จ'], JSON_UNESCAPED_UNICODE);
 
 }

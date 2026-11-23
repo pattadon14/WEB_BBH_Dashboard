@@ -71,6 +71,8 @@ function home_info_btn(string $key, string $label): string
                                 ครั้ง)
 
                             </small>
+                            <!-- วันเดียวกันของสัปดาห์ก่อน ถึงเวลาเดียวกัน (prev_week ของ API การ์ด) -->
+                            <span class="kpi-trend" id="opd-trend"></span>
 
 
                         </div>
@@ -132,6 +134,8 @@ function home_info_btn(string $key, string $label): string
                                 ราย)
 
                             </small>
+                            <!-- วันเดียวกันของสัปดาห์ก่อน ถึงเวลาเดียวกัน (prev_week ของ API การ์ด) -->
+                            <span class="kpi-trend" id="ipd-trend"></span>
 
                         </div>
 
@@ -183,6 +187,8 @@ function home_info_btn(string $key, string $label): string
                                 ครั้ง)
 
                             </small>
+                            <!-- วันเดียวกันของสัปดาห์ก่อน ถึงเวลาเดียวกัน (prev_week ของ API การ์ด) -->
+                            <span class="kpi-trend" id="er-trend"></span>
 
                         </div>
 
@@ -205,57 +211,39 @@ function home_info_btn(string $key, string $label): string
             </div>
 
             <!-- ============================================
-                 SECTION 2: Heatmap ภาระงานแต่ละแผนก
+                 SECTION 1.5: คุณภาพบริการวันนี้ (assets/js/home_quality.js)
+                 ใช้ API ชุดเดียวกับหน้ารายละเอียด ตัวเลขจึงตรงกัน: OPD = api/opd_service_kpi.php (แท็บเวลารอ),
+                 ER = api/er_los.php (สถานะตอนนี้) + er_d2d.php + er_today_summary.php
                  ============================================ -->
             <div class="row mt-1">
 
                 <div class="col-12 mb-2">
                     <h5 class="text-success mb-0" style="font-weight:bold;">
-                        <i class="fa-solid fa-fire-flame-curved"></i>
-                        ภาระงานแต่ละแผนกตามช่วงเวลา วันนี้ <?= home_info_btn('heatmap', 'ภาระงานแต่ละแผนก') ?>
+                        <i class="fa-solid fa-stopwatch"></i>
+                        คุณภาพบริการวันนี้
                     </h5>
                 </div>
 
-                <div class="col-12 mb-2">
-                    <div class="card shadow-sm">
-                        <div class="card-body">
+                <div class="col-xl-7 col-12 mb-2">
+                    <section class="q-panel q-opd" aria-labelledby="q-opd-title">
+                        <header class="q-head">
+                            <h6 id="q-opd-title"><i class="fa-solid fa-stethoscope" aria-hidden="true"></i> เวลารอ OPD <small>เฉลี่ยต่อราย</small></h6>
+                            <?= home_info_btn('q_opd', 'เวลารอ OPD') ?>
+                            <a class="q-more" href="pages/opd_detail.php">หน้า OPD <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+                        </header>
+                        <div class="q-grid" id="q-opd" aria-live="polite"><p class="q-msg">กำลังโหลด…</p></div>
+                    </section>
+                </div>
 
-                            <!-- KPI mini cards -->
-                            <div class="row mb-3">
-
-                                <div class="col-lg-3 col-6 mb-2">
-                                    <div class="summary-card">
-                                        <div class="summary-title" style="font-size:1.3rem;color:#c2410c">
-                                            <i class="fa-solid fa-clock"></i> ชั่วโมงที่แออัดสุด
-                                        </div>
-                                        <div class="summary-number" style="font-size:2.2rem;color:#c2410c">
-                                            <span id="hm-peak-hour">—</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-3 col-6 mb-2">
-                                    <div class="summary-card">
-                                        <div class="summary-title" style="font-size:1.3rem;color:#b02a37">
-                                            <i class="fa-solid fa-hospital"></i> แผนกที่แออัดสุดวันนี้
-                                        </div>
-                                        <div class="summary-number" style="font-size:2rem;color:#b02a37">
-                                            <span id="hm-peak-dept">—</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-6 col-12 mb-2 d-flex align-items-end justify-content-end">
-                                    <button type="button" id="hm-toggle" class="btn btn-outline-success" aria-controls="heatmap-chart" hidden></button>
-                                </div>
-
-                            </div>
-
-                            <!-- Heatmap chart -->
-                            <div id="heatmap-chart" style="min-height:400px;"></div>
-
-                        </div>
-                    </div>
+                <div class="col-xl-5 col-12 mb-2">
+                    <section class="q-panel q-er" aria-labelledby="q-er-title">
+                        <header class="q-head">
+                            <h6 id="q-er-title"><i class="fa-solid fa-truck-medical" aria-hidden="true"></i> ER ตอนนี้ <small id="q-er-at"></small></h6>
+                            <?= home_info_btn('q_er', 'ER ตอนนี้') ?>
+                            <a class="q-more" href="pages/ER_detail.php">หน้า ER <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+                        </header>
+                        <div class="q-grid" id="q-er" aria-live="polite"><p class="q-msg">กำลังโหลด…</p></div>
+                    </section>
                 </div>
 
             </div>
@@ -709,6 +697,62 @@ function home_info_btn(string $key, string $label): string
 
             </div>
 
+            <!-- ============================================
+                 SECTION 2: Heatmap ภาระงานแต่ละแผนก
+                 ============================================ -->
+            <div class="row mt-1">
+
+                <div class="col-12 mb-2">
+                    <h5 class="text-success mb-0" style="font-weight:bold;">
+                        <i class="fa-solid fa-fire-flame-curved"></i>
+                        ภาระงานแต่ละแผนกตามช่วงเวลา วันนี้ <?= home_info_btn('heatmap', 'ภาระงานแต่ละแผนก') ?>
+                    </h5>
+                </div>
+
+                <div class="col-12 mb-2">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+
+                            <!-- KPI mini cards -->
+                            <div class="row mb-3">
+
+                                <div class="col-lg-3 col-6 mb-2">
+                                    <div class="summary-card">
+                                        <div class="summary-title" style="font-size:1.3rem;color:#c2410c">
+                                            <i class="fa-solid fa-clock"></i> ชั่วโมงที่แออัดสุด
+                                        </div>
+                                        <div class="summary-number" style="font-size:2.2rem;color:#c2410c">
+                                            <span id="hm-peak-hour">—</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-3 col-6 mb-2">
+                                    <div class="summary-card">
+                                        <div class="summary-title" style="font-size:1.3rem;color:#b02a37">
+                                            <i class="fa-solid fa-hospital"></i> แผนกที่แออัดสุดวันนี้
+                                        </div>
+                                        <div class="summary-number" style="font-size:2rem;color:#b02a37">
+                                            <span id="hm-peak-dept">—</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-12 mb-2 d-flex align-items-end justify-content-end">
+                                    <button type="button" id="hm-toggle" class="btn btn-outline-success" aria-controls="heatmap-chart" hidden></button>
+                                </div>
+
+                            </div>
+
+                            <!-- Heatmap chart -->
+                            <div id="heatmap-chart" style="min-height:400px;"></div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
         </div>
 
     </section>
@@ -769,6 +813,7 @@ function home_info_btn(string $key, string $label): string
 <script src="assets/lib/highcharts/13.1.1/modules/heatmap.js"></script>
 <script src="assets/js/dashboard.js?v=<?= filemtime(__DIR__ . '/assets/js/dashboard.js') ?>"></script>
 <script src="assets/js/service_detail.js?v=<?= filemtime(__DIR__ . '/assets/js/service_detail.js') ?>"></script>
+<script src="assets/js/home_quality.js?v=<?= filemtime(__DIR__ . '/assets/js/home_quality.js') ?>"></script>
 <script src="assets/js/home_info.js?v=<?= filemtime(__DIR__ . '/assets/js/home_info.js') ?>"></script>
 <script src="assets/js/er_info.js?v=<?= filemtime(__DIR__ . '/assets/js/er_info.js') ?>"></script>
 <script>
@@ -968,12 +1013,12 @@ async function loadBedSummary() {
     document.getElementById(
             'admittoday'
         ).innerHTML =
-        data.admittoday + ' เตียง';
+        data.admittoday + ' ราย';
 
     document.getElementById(
             'wtotal'
         ).innerHTML =
-        data.wtotal + ' เตียง';
+        data.wtotal + ' ราย';
 
     document.getElementById(
             'wblank'
@@ -981,16 +1026,16 @@ async function loadBedSummary() {
         data.wblank + ' เตียง';
 
     document.getElementById('dchtoday').innerHTML =
-        data.dchtoday + ' เตียง';
+        data.dchtoday + ' ราย';
 
     document.getElementById('uc').innerHTML =
-        data.uc + ' เตียง';
+        data.uc + ' ราย';
 
     document.getElementById('mo').innerHTML =
-        data.mo + ' เตียง';
+        data.mo + ' ราย';
 
     document.getElementById('ot').innerHTML =
-        data.ot + ' เตียง';
+        data.ot + ' ราย';
 
     document.getElementById('occupancy').innerHTML =
         data.occupancy + '%';

@@ -53,11 +53,8 @@ ORDER BY
 
 } catch(Exception $e) {
 
-    echo json_encode([
-
-        'error' =>
-            $e->getMessage()
-
-    ]);
+    error_log(basename(__FILE__) . ': ' . $e->getMessage());   // ไม่ส่งรายละเอียดฐานข้อมูลออกไปหน้าเว็บ
+    http_response_code(500);
+    echo json_encode(['error' => 'โหลดข้อมูลไม่สำเร็จ'], JSON_UNESCAPED_UNICODE);
 
 }

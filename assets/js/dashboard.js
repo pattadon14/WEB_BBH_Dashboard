@@ -29,6 +29,17 @@ async function loadCard(config) {
                 Number(data.month_visit).toLocaleString();
         }
 
+        // เทียบวันเดียวกันของสัปดาห์ก่อน ถึงเวลาเดียวกัน — ลูกศรบอกทิศ ไม่ใช้สีบอกดี/ไม่ดี (ผู้ป่วยมากขึ้นไม่ได้แปลว่าแย่)
+        const trend = document.getElementById(config.today.replace('-total', '-trend'));
+        if (trend && data.prev_week !== undefined) {
+            const now = Number(data.today), prev = Number(data.prev_week), diff = now - prev;
+            const pct = prev ? Math.round(diff * 100 / prev) : null;
+            trend.innerHTML = `สัปดาห์ก่อนถึงเวลานี้ ${prev.toLocaleString()} · `
+                + (diff === 0 ? 'เท่าเดิม'
+                    : `<i class="fa-solid fa-arrow-${diff > 0 ? 'up' : 'down'}" aria-hidden="true"></i> ${diff > 0 ? 'มากกว่า' : 'น้อยกว่า'} ${Math.abs(diff).toLocaleString()}`
+                      + (pct === null ? '' : ` (${Math.abs(pct)}%)`));
+        }
+
     } catch (error) {
         console.error(error);
     }

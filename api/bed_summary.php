@@ -91,7 +91,7 @@ try {
             COUNT(
                 CASE
                     WHEN pc.code IS DISTINCT FROM 'UC'
-                    AND pt.pcode NOT IN ('A1','A2')
+                    AND COALESCE(pt.pcode, '') NOT IN ('A1','A2')   -- ไม่มีกลุ่มสิทธิ์ = อื่น ๆ (ผลรวม 3 ช่อง = Admit อยู่)
                     THEN i.an
                 END
             ) AS ot
@@ -145,10 +145,8 @@ try {
 
 } catch(Exception $e) {
 
-    echo json_encode([
-
-        'error' => $e->getMessage()
-
-    ]);
+    error_log(basename(__FILE__) . ': ' . $e->getMessage());   // ไม่ส่งรายละเอียดฐานข้อมูลออกไปหน้าเว็บ
+    http_response_code(500);
+    echo json_encode(['error' => 'โหลดข้อมูลไม่สำเร็จ'], JSON_UNESCAPED_UNICODE);
 
 }

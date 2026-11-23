@@ -15,7 +15,9 @@ try {
         COUNT(DISTINCT CASE
             WHEN er.vstdate = CURRENT_DATE
             THEN o.vn
-        END) AS today
+        END) AS today,
+        -- วันเดียวกันของสัปดาห์ก่อน ถึงเวลาเดียวกับตอนนี้ (วิธีเดียวกับ prev_week ใน api/er_today_summary.php)
+        (SELECT COUNT(*) FROM er_regist WHERE vstdate = CURRENT_DATE - 7 AND enter_er_time::time <= LOCALTIME) AS prev_week
     FROM er_regist er
 
     LEFT JOIN ovst o
