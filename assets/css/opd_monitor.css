@@ -5,6 +5,7 @@
 :root {
     --g: #198754;
     --g-soft: #e8f5ee;
+    --on-g: #ffffff;   /* ตัวอักษร/ไอคอนบนพื้นเขียว */
     --ink: #1f2937;
     --muted: #5d6e67;
     --line: #e3ebe7;
@@ -200,7 +201,7 @@ button { cursor: pointer; }
 }
 .zoom button:hover { background: var(--g-soft); color: var(--g); }
 .zoom button:focus-visible { outline: 2px solid var(--g); outline-offset: 1px; }
-.zoom button[aria-pressed="true"] { background: var(--g); color: #fff; }
+.zoom button[aria-pressed="true"] { background: var(--g); color: var(--on-g); }
 
 /* ปุ่มซ่อนเมนู: ซ่อนแผงทั้งหมดให้เห็นผังเต็มจอ — เหลือนาฬิกาและแถบซูม (มีปุ่มกดแสดงกลับ) */
 body.ui-off .top, body.ui-off .kpis, body.ui-off .menu, body.ui-off .panel,
@@ -496,7 +497,10 @@ body.is-live .pmain { display: flex; flex-direction: column; gap: 2px; }
     .kpi b { font-size: 1.2rem; }
     .kpi span, .kpi-sm { display: none; }
     .kpi .chip { display: none; }
-    .zoom { display: none; }
+    /* จอแคบซูมด้วยนิ้ว: เหลือแค่ปุ่มซ่อนเมนู มุมซ้ายแถวเดียวกับปุ่ม "เมนู" */
+    .zoom { top: 186px; transform: none; padding: 4px; }
+    .zoom button { display: none; }
+    .zoom #zUi { display: block; width: 44px; height: 44px; }
     .menu { top: 186px; }
     .panel { display: none; }
     .track { left: 12px; right: 12px; bottom: 150px; width: auto; max-height: 40vh; }

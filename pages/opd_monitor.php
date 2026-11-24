@@ -148,6 +148,7 @@ window.FLOW = {
     loggedIn: <?= $loggedIn ? 'true' : 'false' ?>
 };
 </script>
+<script src="<?= BASE_URL ?>assets/js/opd_monitor_layout.js?v=<?= filemtime(__DIR__ . '/../assets/js/opd_monitor_layout.js') ?>"></script>
 <script src="<?= BASE_URL ?>assets/js/opd_monitor.js?v=<?= filemtime(__DIR__ . '/../assets/js/opd_monitor.js') ?>"></script>
 </body>
 </html>
