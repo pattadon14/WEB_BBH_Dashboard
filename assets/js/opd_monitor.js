@@ -159,6 +159,15 @@
   };
   var WALL_TOP = '#15803d';
 
+  // ------------------------------------------------------------------ แสงตามเวลา
+  // แสงกลางวัน 0–1 จากเวลาที่เลือก (นาทีนับจากเที่ยงคืน): สว่างเต็ม 06:50–17:10 · มืดก่อน 05:40 / หลัง 18:20 (ไทย ช่วง พ.ย.)
+  function smooth01(x) { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); }
+  function daylight(T) { var h = T / 60; return Math.min(smooth01((h - 5.7) / 1.1), 1 - smooth01((h - 17.2) / 1.1)); }
+  // เสาไฟถนน: ริมทางเท้าหน้าอาคาร และทางเท้าริมถนนลาดยาง
+  var LAMPS = [];
+  for (var lx = 22; lx <= 180; lx += 15) LAMPS.push([lx, 177.6]);
+  for (var ly = 76; ly <= 236; ly += 16) if (ly < 196 || ly > 216) LAMPS.push([185.2, ly]);
+
   var COL = { ok: '#1fa463', mid: '#f59e0b', high: '#e5484d' };
   var COL_TEXT = { mid: '#b45309', high: '#c9302c' };   // same hues, dark enough for text (>= 4.5:1 on white)
   // ความหนาแน่น = คนในโซน ÷ ที่นั่ง · < 45% ว่าง · 45–79% ปานกลาง · ≥ 80% แน่น
@@ -694,6 +703,38 @@
       wallY(r[1], r[1] + r[3], r[0] + r[2], FRONT, doors);
       var sg = BLD[id].sign;
       statics.push({ k: sg[0] + sg[1] + 0.5, draw: function () { drawSign(BLD[id].name, sg[0], sg[1]); } });
+      // หน้าต่างบนผนังหลัง/ซ้าย (ผนังสูง) ทุก 3 หน่วย เว้นช่วงประตู · กลางวันกระจกฟ้า กลางคืนไฟในอาคารส่องเหลือง
+      var nearD = function (x, y) { return doors.some(function (d) { return Math.abs(d[0] - x) < 2.2 && Math.abs(d[1] - y) < 2.2; }); };
+      for (var wx = r[0] + 0.5; wx + 2 <= r[0] + r[2]; wx += 3) (function (xa) {
+        if (nearD(xa + 1, r[1])) return;
+        statics.push({ k: xa + 1 + r[1] - 0.04, draw: function () { drawWindow(id, [[xa + 0.3, r[1] + 0.01], [xa + 1.9, r[1] + 0.01]]); } });
+      })(wx);
+      for (var wy = r[1] + 0.5; wy + 2 <= r[1] + r[3]; wy += 3) (function (ya) {
+        if (nearD(r[0], ya + 1)) return;
+        statics.push({ k: r[0] + ya + 1 - 0.04, draw: function () { drawWindow(id, [[r[0] + 0.01, ya + 0.3], [r[0] + 0.01, ya + 1.9]]); } });
+      })(wy);
+      // กันสาดหน้าประตูอาคาร (ประตูที่อยู่ผนังหน้า): เสา 2 ต้น + หลังคาบาง
+      var dr = BLD[id].door;
+      if (Math.abs(dr[1] - (r[1] + r[3])) < 0.01) {
+        statics.push({ k: dr[0] + dr[1] + 3, draw: function () {
+          [[-2.6, 2.3], [2.4, 2.3]].forEach(function (o) { box(dr[0] + o[0], dr[1] + o[1], 0, 0.2, 0.2, 2.5, '#cbd5e1', '#94a3b8', '#7c8ca3'); });
+          box(dr[0] - 3, dr[1] - 0.2, 2.5, 6, 2.9, 0.18, '#f1f5f9', '#b4c1d1', '#9eadc1');
+        } });
+      }
+    });
+    // กรอบประตูห้อง: เสา 2 ข้างช่องประตู (ผนังแนว x หรือแนว y ดูจากตำแหน่งประตูบนขอบห้อง)
+    areas.forEach(function (a) {
+      (a.L.gate || []).forEach(function (gt) {
+        var rr = gt[2] || 1.2, vert = Math.abs(gt[0] - a.x) < 0.01 || Math.abs(gt[0] - a.x - a.w) < 0.01;
+        [-1, 1].forEach(function (s) {
+          var px = vert ? gt[0] : gt[0] + s * rr, py = vert ? gt[1] + s * rr : gt[1];
+          statics.push({ k: px + py, draw: function () { box(px - 0.08, py - 0.08, 0, 0.16, 0.16, 1.2, '#94a3b8', '#64748b', '#475569'); } });
+        });
+      });
+    });
+    // เสาไฟถนน: เสา + แขน + โคม (กลางคืนโคมสว่าง)
+    LAMPS.forEach(function (l) {
+      statics.push({ k: l[0] + l[1], draw: function () { drawLamp(l[0], l[1]); } });
     });
     SITE.forEach(function (s) {
       statics.push({ k: s.sign[0] + s.sign[1] + 0.5, draw: function () { drawSign(s.name, s.sign[0], s.sign[1], 'rgba(100,116,139,.92)'); } });
@@ -777,6 +818,91 @@
     }
     box(x + 0.02, y - 0.04, 0.38, 0.48, 0.08, 0.4, '#4f97d8', '#3b82c4', '#2f6fae');
     box(x + 0.02, y - 0.04, 0.78, 0.48, 0.08, 0.02, '#8cc3ee', '#4f97d8', '#4f97d8');
+  }
+  // อาคารเปิดไฟ: มีคนอยู่ในอาคาร หรือเป็นอาคารอุบัติเหตุ (เปิด 24 ชม.)
+  function bldLit(id) { return id === 'ERB' || areas.some(function (a) { return a.L.b === id && a.n > 0; }); }
+  // หน้าต่าง: e = 2 จุดปลาย [x, y] บนผนัง · กรอบ + กระจก (กลางวันสะท้อนฟ้า / กลางคืนไฟเหลืองถ้าอาคารเปิดไฟ)
+  function drawWindow(id, e) {
+    var L = daylight(state.T), lit = bldLit(id);
+    var glass = L > 0.5 ? '#bcd7ea' : lit ? '#fcd77a' : '#3b4a63';
+    poly([[e[0][0], e[0][1], 1.0], [e[1][0], e[1][1], 1.0], [e[1][0], e[1][1], 2.0], [e[0][0], e[0][1], 2.0]], '#94a3b8');
+    var ix = (e[1][0] - e[0][0]) * 0.06, iy = (e[1][1] - e[0][1]) * 0.06;
+    poly([[e[0][0] + ix, e[0][1] + iy, 1.08], [e[1][0] - ix, e[1][1] - iy, 1.08], [e[1][0] - ix, e[1][1] - iy, 1.92], [e[0][0] + ix, e[0][1] + iy, 1.92]], glass);
+    if (L > 0.5) poly([[e[0][0] + ix, e[0][1] + iy, 1.7], [e[0][0] + ix * 5, e[0][1] + iy * 5, 1.92], [e[0][0] + ix * 7, e[0][1] + iy * 7, 1.92], [e[0][0] + ix, e[0][1] + iy, 1.45]], 'rgba(255,255,255,.55)');
+  }
+  // เสาไฟถนน: แขนยื่นไปทางถนน (ทางเท้าหน้าอาคาร → +y · ริมถนนลาดยาง → +x)
+  function drawLamp(x, y) {
+    var ax = x > 184 ? 1 : 0, ay = ax ? 0 : 1, on = daylight(state.T) < 0.6;
+    box(x - 0.09, y - 0.09, 0, 0.18, 0.18, 3.6, '#64748b', '#475569', '#334155');
+    box(x - 0.05, y - 0.05, 3.5, 0.1 + ax * 0.9, 0.1 + ay * 0.9, 0.08, '#64748b', '#475569', '#334155');
+    var hx = x + ax * 0.9 - 0.22, hy = y + ay * 0.9 - 0.22;
+    box(hx, hy, 3.3, 0.44, 0.44, 0.16, '#475569', '#334155', '#1e293b');
+    rect(hx + 0.05, hy + 0.05, 0.34, 0.34, 3.29, on ? '#fff4c2' : '#cbd5e1');
+  }
+  // เงาอาคาร/ที่ตั้งบนพื้น: ฉายรอยเท้าอาคารไปตามทิศแสงอาทิตย์ (เช้าเอียงไปทาง −x · บ่ายไปทาง +x) ยาวขึ้นตอนแดดต่ำ
+  function hull(pts) {
+    pts = pts.slice().sort(function (a, b) { return a[0] - b[0] || a[1] - b[1]; });
+    var cr = function (o, a, b) { return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]); }, lo = [], up = [];
+    pts.forEach(function (p) { while (lo.length > 1 && cr(lo[lo.length - 2], lo[lo.length - 1], p) <= 0) lo.pop(); lo.push(p); });
+    pts.slice().reverse().forEach(function (p) { while (up.length > 1 && cr(up[up.length - 2], up[up.length - 1], p) <= 0) up.pop(); up.push(p); });
+    return lo.slice(0, -1).concat(up.slice(0, -1));
+  }
+  function drawShadows(T) {
+    var L = daylight(T);
+    if (L < 0.05) return;
+    var h = T / 60, sx = Math.max(-1.3, Math.min(1.3, (h - 12) / 4.5)), sy = 0.45, m = 0.55 + Math.abs(h - 12) / 8;
+    var col = 'rgba(30,41,59,' + (0.16 * L).toFixed(3) + ')';
+    var cast = function (pts, ht) {
+      var off = pts.map(function (p) { return [p[0] + sx * m * ht, p[1] + sy * m * ht]; });
+      poly(hull(pts.concat(off)).map(function (p) { return [p[0], p[1], 0]; }), col);
+    };
+    var rp = function (r) { return [[r[0], r[1]], [r[0] + r[2], r[1]], [r[0] + r[2], r[1] + r[3]], [r[0], r[1] + r[3]]]; };
+    Object.keys(BLD).forEach(function (id) { cast(rp(BLD[id].r), 2.6); });
+    SITE.forEach(function (s) { cast(s.pts, s.h); });
+    LINKS.forEach(function (l) { l.rs.forEach(function (r) { cast(rp(r), 2.4); }); });
+  }
+  // เงาสัมผัสโคนผนังในอาคาร: แถบเข้มบาง ๆ บนพื้นด้าน +x/+y ของผนังทุกเส้น ให้ห้องดูมีมิติ
+  function drawWallAO() {
+    var col = 'rgba(15,23,42,.07)';
+    WALLS.forEach(function (w) {
+      if (w[1] === w[3]) rect(w[0], w[1], w[2] - w[0], 0.35, 0.0025, col);
+      else rect(w[0], w[1], 0.35, w[3] - w[1], 0.0025, col);
+    });
+  }
+  // ความมืดกลางคืน: ชั้นมืดบน canvas แยก เจาะรูตรงอาคารที่เปิดไฟ/ใต้เสาไฟ แล้ววางทับ · แสงโทนอุ่นซ้อนแบบ screen
+  // ช่วงเช้า/เย็นใส่โทนส้มอ่อน
+  var shade = document.createElement('canvas'), sctx = shade.getContext('2d');
+  function drawLighting(T) {
+    var L = daylight(T), dark = 1 - L, dusk = 1 - Math.abs(2 * L - 1);
+    if (dusk > 0.02) { ctx.fillStyle = 'rgba(255,150,80,' + (0.1 * dusk).toFixed(3) + ')'; ctx.fillRect(0, 0, W, H); }
+    if (dark < 0.02) return;
+    if (shade.width !== canvas.width || shade.height !== canvas.height) { shade.width = canvas.width; shade.height = canvas.height; }
+    sctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    sctx.globalCompositeOperation = 'source-over';
+    sctx.clearRect(0, 0, W, H);
+    sctx.fillStyle = 'rgba(8,16,40,' + (0.66 * dark).toFixed(3) + ')';
+    sctx.fillRect(0, 0, W, H);
+    sctx.globalCompositeOperation = 'destination-out';
+    Object.keys(BLD).forEach(function (id) {
+      if (!bldLit(id)) return;
+      var r = BLD[id].r, c = [P(r[0], r[1], 0), P(r[0] + r[2], r[1], 0), P(r[0] + r[2], r[1] + r[3], 0), P(r[0], r[1] + r[3], 0)];
+      sctx.fillStyle = 'rgba(0,0,0,.78)';
+      sctx.beginPath(); sctx.moveTo(c[0][0], c[0][1]); for (var i = 1; i < 4; i++) sctx.lineTo(c[i][0], c[i][1]); sctx.closePath(); sctx.fill();
+    });
+    var glows = LAMPS.map(function (l) { var ax = l[0] > 184 ? 0.9 : 0; return P(l[0] + ax, l[1] + (ax ? 0 : 0.9), 0); });
+    glows.forEach(function (g) {
+      var rr = 5.5 * cam.k, gr = sctx.createRadialGradient(g[0], g[1], 0, g[0], g[1], rr);
+      gr.addColorStop(0, 'rgba(0,0,0,.7)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+      sctx.fillStyle = gr; sctx.beginPath(); sctx.ellipse(g[0], g[1], rr, rr * 0.58, 0, 0, 7); sctx.fill();
+    });
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(shade, 0, 0); ctx.restore();
+    ctx.globalCompositeOperation = 'screen';
+    glows.forEach(function (g) {
+      var rr = 4.5 * cam.k, gr = ctx.createRadialGradient(g[0], g[1], 0, g[0], g[1], rr);
+      gr.addColorStop(0, 'rgba(255,170,70,' + (0.6 * dark).toFixed(3) + ')'); gr.addColorStop(1, 'rgba(255,170,70,0)');
+      ctx.fillStyle = gr; ctx.beginPath(); ctx.ellipse(g[0], g[1], rr, rr * 0.58, 0, 0, 7); ctx.fill();
+    });
+    ctx.globalCompositeOperation = 'source-over';
   }
   // เจ้าหน้าที่นั่งประจำจุด: แสดงเมื่อเวลาที่เลือกอยู่ในช่วงเปิดบริการของจุด on (มีผู้ป่วยคนแรกเข้า → คนสุดท้ายออก)
   function staffOn(id) {
@@ -973,6 +1099,7 @@
     var linkFloor = [];
     LINKS.forEach(function (l) { linkFloor = linkFloor.concat(l.rs); });
     WALKS.concat(linkFloor).forEach(function (w) { rect(w[0], w[1], w[2], w[3], 0, '#d3dae1'); });
+    drawShadows(state.T);
     SITE.forEach(function (s) { prism(s.pts, s.h, s.c); });
     Object.keys(BLD).forEach(function (id) {
       var b = BLD[id].r;
@@ -993,6 +1120,7 @@
       var t = tint(a);
       if (t) rect(a.x, a.y, a.w, a.d, 0.003, t);
     });
+    drawWallAO();
 
     var dyn = [];
     people.forEach(function (p) { if (p.vis) dyn.push({ k: p.x + p.y, p: p }); });
@@ -1004,6 +1132,7 @@
         if (it.p) drawPerson(it.p); else drawDoctor(it.doc);
       } else statics[si++].draw();
     }
+    drawLighting(state.T);
     // ป้ายข้อความเล็กและโปร่ง ให้เห็นผังชัด
     var fs = Math.round(Math.max(11, Math.min(14, cam.k * 0.85)));
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
