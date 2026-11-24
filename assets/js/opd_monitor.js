@@ -27,37 +27,42 @@
     // แพทย์แผนไทย/กายภาพ = อาคาร 2 หลังฝั่งตรงข้ามถนนลาดยาง ตรงข้ามอาคารอุบัติเหตุ (ตำแหน่งตามที่หน่วยงานชี้ 17 พ.ย. 2569)
     TTM: { name: 'อาคารแพทย์แผนไทย', r: [199, 160, 14, 20], door: [199, 170], node: 'TTM', sign: [214.5, 174] },
     PT:  { name: 'อาคารกายภาพบำบัด', r: [199, 132, 14, 20], door: [199, 142], node: 'PT', sign: [214.5, 146] },
-    // shortcut: ตำแหน่งอาคารคลินิกพิเศษยังไม่ได้รับแจ้ง วางไว้ปลายทางเท้าหน้าอาคารผู้ป่วยนอกก่อน — ย้ายเมื่อหน่วยงานชี้ตำแหน่งจริง
-    SPC: { name: 'อาคารคลินิกพิเศษ', r: [16, 146, 26, 20], door: [36, 166], node: 'SPC', sign: [26, 175.5] }
+    // คลินิกพิเศษ = ด้านหลังอาคารผู้ป่วยนอก ไปทางเดินเชื่อม (ออกประตูหลังฝั่งนัด เดินตรง แล้วเลี้ยวซ้าย) — inner = เข้าออกผ่านอาคารนี้เท่านั้น
+    // shortcut: ขนาด/ระยะอาคารคลินิกพิเศษกะเอง — แก้เมื่อหน่วยงานแจ้งขนาดจริง
+    SPC: { name: 'อาคารคลินิกพิเศษ', r: [40, 70, 26, 20], door: [66, 80], node: 'OPD', sign: [52, 91.5], inner: 'OPD' }
   };
   var LAYOUT = {
     // อาคารผู้ป่วยนอก (แปลน + ภาพที่หน่วยงานวงไว้ 24 พ.ย. 2569): ประตูหน้าตรงทางเดินตรงกลาง (x 82–90) วิ่งจากถนนเข้าด้านใน
     // ซ้ายทางเดิน (x 48–82) = ฝั่งผู้ป่วยนัด ตามแปลน · ขวาทางเดิน (x 90–120) = ฝั่งผู้ป่วยทั่วไป
-    // ฝั่งทั่วไป: เวชระเบียน/การเงิน/ห้องยา ตามที่วงไว้
+    // gate = ประตูห้อง [x, y] (ช่องในผนัง) · walls4 = ผนังครบ 4 ด้าน · face 'x-' = เก้าอี้หันไปทาง −x
+    // เวชระเบียน = ห้องบัตรหน้าฝั่งนัด (ประตูออกทางเดินตรงกลาง + ทางเชื่อมคลินิกเด็ก)
+    REG:  { b: 'OPD', r: [70.5, 158.5, 8.5, 14.5], kind: 'hall', counter: true, queue: true, walls4: true, gate: [[79, 166], [70.5, 167]] },
+    // ฝั่งทั่วไป: ห้องยา (ซ้าย) + การเงิน (ขวา) ติดผนังหลังสุด
     // shortcut: ไม่มีแปลนภายในฝั่งทั่วไป — ซักประวัติ Walk-in / หน้าห้อง / ห้อง 1–5 วางประมาณ แก้เมื่อได้แปลน
-    REG:  { b: 'OPD', r: [106, 161, 14, 12], kind: 'hall', counter: true, queue: true },
-    CASH: { b: 'OPD', r: [106, 147, 14, 12], kind: 'rx', counter: true, cap: 21 },    // ห้องยา + การเงิน OPD รวม 42
-    RX:   { b: 'OPD', r: [106, 129, 14, 16], kind: 'rx', counter: true, cap: 21 },
-    SCRW: { b: 'OPD', r: [90, 118, 16, 24], kind: 'walk', counter: true, cap: 64 },
-    DRWW: { b: 'OPD', r: [90, 108.5, 30, 9], kind: 'walk', cap: 15 },                  // ห้อง 1–5 ห้องละ 3
-    R1:   { b: 'OPD', r: [90, 102, 6, 6],  kind: 'room', room: true, wait: 'DRWW', short: 'ห้อง 1' },
-    R2:   { b: 'OPD', r: [96, 102, 6, 6],  kind: 'room', room: true, wait: 'DRWW', short: 'ห้อง 2' },
-    R3:   { b: 'OPD', r: [102, 102, 6, 6], kind: 'room', room: true, wait: 'DRWW', short: 'ห้อง 3' },
-    R4:   { b: 'OPD', r: [108, 102, 6, 6], kind: 'room', room: true, wait: 'DRWW', short: 'ห้อง 4' },
-    R5:   { b: 'OPD', r: [114, 102, 6, 6], kind: 'room', room: true, wait: 'DRWW', short: 'ห้อง 5' },
+    RX:   { b: 'OPD', r: [90, 102, 15, 14], kind: 'rx', counter: true, cap: 21 },
+    CASH: { b: 'OPD', r: [105, 102, 15, 14], kind: 'rx', counter: true, cap: 21 },    // ห้องยา + การเงิน OPD รวม 42
+    SCRW: { b: 'OPD', r: [90, 118, 14, 30], kind: 'walk', counter: true, cap: 64 },
+    DRWW: { b: 'OPD', r: [104, 118, 10, 30], kind: 'walk', cap: 15 },                  // ห้อง 1–5 ห้องละ 3
+    R1:   { b: 'OPD', r: [114, 118, 6, 6], kind: 'room', room: true, wait: 'DRWW', short: 'ห้อง 1', gate: [[114, 121]] },
+    R2:   { b: 'OPD', r: [114, 124, 6, 6], kind: 'room', room: true, wait: 'DRWW', short: 'ห้อง 2', gate: [[114, 127]] },
+    R3:   { b: 'OPD', r: [114, 130, 6, 6], kind: 'room', room: true, wait: 'DRWW', short: 'ห้อง 3', gate: [[114, 133]] },
+    R4:   { b: 'OPD', r: [114, 136, 6, 6], kind: 'room', room: true, wait: 'DRWW', short: 'ห้อง 4', gate: [[114, 139]] },
+    R5:   { b: 'OPD', r: [114, 142, 6, 6], kind: 'room', room: true, wait: 'DRWW', short: 'ห้อง 5', gate: [[114, 145]] },
     // ฝั่งผู้ป่วยนัด (แปลน: ซ้าย = ถนน, ล่าง = ทางเดินตรงกลาง) — แปลน x → ผัง y ลดลง, แปลน y → ผัง x เพิ่มขึ้น
     // ห้อง 6–9 ติดห้องบัตร ประตูหันเข้าด้านใน · โต๊ะ 1–3 ชิดผนังซ้าย · ที่นั่งรอกลาง · ห้อง 11 + วัดความดัน ติดทางเดิน · ห้อง 10 ด้านใน
     // shortcut: แปลนไม่มีจุดคลินิกเด็ก — วางที่ว่างหน้าห้อง 6 ฝั่งถนน แก้เมื่อหน่วยงานชี้ตำแหน่ง
-    PED:  { b: 'OPD', r: [48, 158.5, 22.5, 14.5], kind: 'ped', counter: true, cap: 20 },  // ซักประวัติ + รอพบแพทย์เด็ก (ตรวจห้อง 6)
-    R9:   { b: 'OPD', r: [51, 152, 4.8, 6.5],   kind: 'roomA', room: true, wait: 'DRWA', short: 'ห้อง 9' },
-    R8:   { b: 'OPD', r: [55.8, 152, 4.8, 6.5], kind: 'roomA', room: true, wait: 'DRWA', short: 'ห้อง 8' },
-    R7:   { b: 'OPD', r: [60.6, 152, 4.8, 6.5], kind: 'roomA', room: true, wait: 'DRWA', short: 'ห้อง 7' },
-    R6:   { b: 'OPD', r: [65.4, 152, 4.8, 6.5], kind: 'room', room: true, wait: 'PED', short: 'ห้อง 6 เด็ก' },
-    SCRA: { b: 'OPD', r: [53, 123, 8, 28.5], kind: 'appt', cap: 36, open: true },      // นั่งรอหน้าโต๊ะซักประวัติ 1–3
-    DRWA: { b: 'OPD', r: [61, 123, 8.5, 28.5], kind: 'appt', cap: 12, open: true },    // ห้อง 7–10 ห้องละ 3
-    R10:  { b: 'OPD', r: [59.3, 102.7, 9, 18.8], kind: 'roomA', room: true, wait: 'DRWA', short: 'ห้อง 10' },
+    // คลินิกเด็กเว้นห่างจากแถวห้องตรวจ · ห้อง 6 เปิดประตูเข้าคลินิกเด็ก
+    PED:  { b: 'OPD', r: [48, 162, 20, 11], kind: 'ped', counter: true, cap: 20 },     // ซักประวัติ + รอพบแพทย์เด็ก (ตรวจห้อง 6)
+    // ประตูห้องตรวจหันเข้าจุดนั่งรอ ยกเว้นห้อง 6 (คลินิกเด็ก) และห้อง 10 (เปิดทางซ้าย)
+    R9:   { b: 'OPD', r: [51, 152, 4.8, 6.5],   kind: 'roomA', room: true, wait: 'DRWA', short: 'ห้อง 9', gate: [[53.4, 152]] },
+    R8:   { b: 'OPD', r: [55.8, 152, 4.8, 6.5], kind: 'roomA', room: true, wait: 'DRWA', short: 'ห้อง 8', gate: [[58.2, 152]] },
+    R7:   { b: 'OPD', r: [60.6, 152, 4.8, 6.5], kind: 'roomA', room: true, wait: 'DRWA', short: 'ห้อง 7', gate: [[63, 152]] },
+    R6:   { b: 'OPD', r: [65.4, 152, 4.8, 6.5], kind: 'room', room: true, wait: 'PED', short: 'ห้อง 6 เด็ก', gate: [[69.2, 158.5, 0.8]] },
+    SCRA: { b: 'OPD', r: [53, 123, 8, 28.5], kind: 'appt', cap: 36, open: true, face: 'x-' },   // นั่งหันหน้าเข้าโต๊ะซักประวัติ 1–3
+    DRWA: { b: 'OPD', r: [61, 123, 8.5, 28.5], kind: 'appt', cap: 12, open: true, face: 'x-' }, // ห้อง 7–10 ห้องละ 3
+    R10:  { b: 'OPD', r: [59.3, 102.7, 9, 18.8], kind: 'roomA', room: true, wait: 'DRWA', short: 'ห้อง 10', gate: [[59.3, 112]] },
     // ห้อง 11 แพทย์มาช่วยตรวจตอนคนไข้เยอะ ไม่มีจุดรอของฝั่งไหน (ส่งคิวมาก็นับอยู่ในห้อง)
-    R11:  { b: 'OPD', r: [69.6, 126.4, 8.8, 14], kind: 'room', room: true, short: 'ห้อง 11' },
+    R11:  { b: 'OPD', r: [69.6, 126.4, 8.8, 14], kind: 'room', room: true, short: 'ห้อง 11', gate: [[69.6, 133.4]] },
     // อาคารอุบัติเหตุฉุกเฉิน
     DENT: { b: 'ERB', r: [130, 155, 28, 18], kind: 'room2', counter: true, cap: 40 },
     // shortcut: ที่นั่งห้องทำแผลยังไม่ได้รับแจ้ง ใช้ 10 ไปก่อน — แก้เมื่อหน่วยงานแจ้งจำนวนจริง
@@ -72,26 +77,34 @@
     TTM:  { b: 'TTM', r: [199, 160, 14, 20], kind: 'ttm', counter: true, cap: 4 },
     PT:   { b: 'PT',  r: [199, 132, 14, 20], kind: 'room2', counter: true, cap: 6 },
     // shortcut: ที่นั่งคลินิกพิเศษยังไม่ได้รับแจ้ง ใช้ 40 ไปก่อน — แก้เมื่อหน่วยงานแจ้งจำนวนจริง
-    SPC:  { b: 'SPC', r: [16, 146, 26, 20], kind: 'spc', counter: true, cap: 40 }
+    SPC:  { b: 'SPC', r: [40, 70, 26, 20], kind: 'spc', counter: true, cap: 40 }
   };
   // โซนในอาคารผู้ป่วยนอก (เส้นประ + ป้ายบนพื้น)
   var ZONES = [
     { name: 'ฝั่งผู้ป่วยทั่วไป', r: [90, 102.5, 30, 70], c: '#1f9d6a' },
-    { name: 'ฝั่งผู้ป่วยนัด', r: [48, 102.5, 34, 70], c: '#2563eb' },
-    { name: 'ทางเดินตรงกลาง', r: [82, 102.5, 8, 70], c: '#64748b' }
+    { name: 'ฝั่งผู้ป่วยนัด', r: [48, 102.5, 34, 70], c: '#2563eb' }
   ];
+  // พื้นที่ไม่มีจุดบริการ · open = ไม่มีผนัง · gate = ประตู
   var DECOR = [
-    { name: 'ห้องเจ้าหน้าที่', r: [106, 118, 14, 10], kind: 'decor' },
-    { name: 'เวรเปล', r: [90, 161, 7, 12], kind: 'decor' },
-    { name: 'ห้องบัตร ลงทะเบียน', r: [70.5, 158.5, 8.5, 14.5], kind: 'decor' },
-    { name: 'โต๊ะ 1', r: [50.3, 139.6, 2.4, 3.7], kind: 'decor' }, { name: 'โต๊ะ 2', r: [50.3, 133.1, 2.4, 3.7], kind: 'decor' },
-    { name: 'โต๊ะ 3', r: [50.3, 126.8, 2.4, 3.7], kind: 'decor' },
-    { name: 'ประชาสัมพันธ์', r: [72.2, 142, 7, 6], kind: 'decor' },
-    { name: 'วัดความดัน / ชั่งน้ำหนัก', r: [79.4, 125.5, 2.2, 14.7], kind: 'decor' },
+    { name: 'เวรเปล', r: [90, 160, 8, 13], kind: 'decor', gate: [[90, 166.5]] },        // ประตูออกทางเดินตรงกลาง
+    { name: '', r: [68, 165, 2.5, 4], kind: 'hall', open: true },                       // ทางเชื่อมคลินิกเด็ก ↔ ห้องบัตร
     { name: 'ห้องเจ้าหน้าที่', r: [172, 129, 12, 14], kind: 'decor' }
   ];
-  // ทางเดินเชื่อม (มีหลังคา) อาคารผู้ป่วยนอก ↔ อาคารอุบัติเหตุ — ย้ายระหว่าง 2 อาคารเดินผ่านทางนี้ ไม่ออกถนน
-  var BRIDGE = { r: [120, 150, 10, 4], a: 'OPD', b: 'ERB', pts: [[118.5, 152], [120, 152], [130, 152], [131.5, 152]] };
+  // โมเดลประกอบฉาก: desk = โต๊ะคอมพิวเตอร์ซักประวัติ (เจ้าหน้าที่นั่งเมื่อจุด on เปิดบริการ) · pr = เคาน์เตอร์โค้งประชาสัมพันธ์
+  // bp = เก้าอี้ + เครื่องวัดความดัน · wheel = รถเข็น · bed = เปลนอน
+  var PROPS = [
+    { t: 'desk', x: 50.3, y: 140.5, name: 'โต๊ะ 1', on: 'SCRA' },
+    { t: 'desk', x: 50.3, y: 134, name: 'โต๊ะ 2', on: 'SCRA' },
+    { t: 'desk', x: 50.3, y: 127.7, name: 'โต๊ะ 3', on: 'SCRA' },
+    { t: 'pr', x: 74.5, y: 144, name: 'ประชาสัมพันธ์', on: 'REG' }
+  ];
+  for (var bi = 0; bi < 6; bi++) PROPS.push({ t: 'bp', x: 80.4, y: 126.6 + bi * 2.5, name: bi === 0 ? 'วัดความดัน / ชั่งน้ำหนัก' : '' });
+  PROPS.push({ t: 'bed', x: 91.2, y: 161.5 }, { t: 'bed', x: 93.2, y: 161.5 }, { t: 'wheel', x: 95.8, y: 168 }, { t: 'wheel', x: 95.8, y: 170.6 });
+  // ทางเดินเชื่อม (มีหลังคา) — ย้ายระหว่าง 2 อาคารเดินผ่านทางนี้ ไม่ออกถนน · rs = พื้น/หลังคา · pts = เส้นทางเดินจาก a ไป b
+  var LINKS = [
+    { a: 'OPD', b: 'ERB', rs: [[120, 150, 10, 4]], pts: [[118.5, 152], [120, 152], [130, 152], [131.5, 152]] },
+    { a: 'OPD', b: 'SPC', rs: [[72.5, 79, 3, 23], [66, 78.5, 6.5, 3]], pts: [[74, 103.5], [74, 102], [74, 80], [66, 80], [64.5, 80]] }
+  ];
   function stadium(x0, x1, y0, y1) {   // สี่เหลี่ยมหัวมน (ปลายครึ่งวงกลมทางแกน x)
     var r = (y1 - y0) / 2, cy = y0 + r, pts = [];
     for (var i = 0; i <= 8; i++) { var t = Math.PI / 2 + i * Math.PI / 8; pts.push([x0 + r + r * Math.cos(t), cy + r * Math.sin(t)]); }
@@ -107,14 +120,13 @@
   var RING_LANE = stadium(57, 109, 181, 207);
   var LANES = [[[191, 60], [191, 240]], [[10, 181], [70, 181]], [[96, 181], [188, 181]], RING_LANE.concat([RING_LANE[0]])];
   // ทางเท้า: หน้าอาคารผู้ป่วยนอก/อุบัติเหตุ · ริมถนนลาดยาง · วงเวียน → อาคาร ARI · ทางเข้าแผนไทย/กายภาพ
-  var WALKS = [[16, 173, 172, 5], [34, 166, 4, 7],[184, 70, 4, 108], [184, 184, 4, 56], [87, 209, 4, 9], [194, 139.5, 5, 5], [194, 167.5, 5, 5]];
+  var WALKS = [[16, 173, 172, 5], [184, 70, 4, 108], [184, 184, 4, 56], [87, 209, 4, 9], [194, 139.5, 5, 5], [194, 167.5, 5, 5]];
   // ทางเดินของหุ่น: กราฟจุดบนทางเท้า/ถนน — เดินตามเส้นที่สั้นที่สุด (route) · S = ทางเข้า รพ. · K–R3 = ตามวงเวียน
   var NODES = {
     S: [186, 240], A: [186, 181], W: [186, 175.5], ERD: [171, 175.5], ERB: [144, 175.5], OPD: [85, 175.5],
-    K: [100, 181], R1: [109, 194], R2: [105, 203], R3: [89, 207], ARI: [89, 214], TTM: [186, 170], PT: [186, 142],
-    SPC: [36, 175.5]
+    K: [100, 181], R1: [109, 194], R2: [105, 203], R3: [89, 207], ARI: [89, 214], TTM: [186, 170], PT: [186, 142]
   };
-  var EDGES = [['S', 'A'], ['A', 'W'], ['W', 'ERD'], ['ERD', 'ERB'], ['ERB', 'OPD'], ['OPD', 'SPC'],['A', 'K'], ['K', 'R1'], ['R1', 'R2'],
+  var EDGES = [['S', 'A'], ['A', 'W'], ['W', 'ERD'], ['ERD', 'ERB'], ['ERB', 'OPD'], ['A', 'K'], ['K', 'R1'], ['R1', 'R2'],
     ['R2', 'R3'], ['R3', 'ARI'], ['W', 'TTM'], ['TTM', 'PT']];
   // อาคารอื่นในแผนผัง (ไม่มีจุดบริการ): รูปหลายเหลี่ยม [x, y], สูง h, สี c = [หลังคา, ผนังซ้าย, ผนังขวา]
   var GREY = ['#dfe5ea', '#c3ced8', '#aebbc7'], GOLD = ['#f3d98b', '#dcb75a', '#c79f3f'];
@@ -185,7 +197,7 @@
   // ------------------------------------------------------------------ เรขาคณิต
   var spare = 0;
   function spareSpot(id) {   // จุดที่ไม่มีในผัง — เรียงหลังอาคารผู้ป่วยนอก
-    var L = { r: [54 + spare++ * 7, 94, 6, 6], kind: 'hall', spare: true };
+    var L = { r: [90 + spare++ * 7, 92, 6, 6], kind: 'hall', spare: true };
     LAYOUT[id] = L;
     return L;
   }
@@ -200,6 +212,13 @@
       if (L.room) {
         seats = [[x + w / 2, y + d - 3.2], [x + w - 1.0, y + 1.3], [x + w - 1.0, y + 2.6],
                  [x + 1.0, y + 1.3], [x + 1.0, y + 2.6]];
+      } else if (L.face === 'x-') {   // แถวเก้าอี้หันไปทาง −x: แถวห่างกันตามแกน x ทางเดินกลางตามแกน y
+        for (var fx = x + 1.2; fx <= x + w - 0.9; fx += 2.0) {
+          for (var fy = y + 1.0; fy <= y + d - 0.9; fy += 1.45) {
+            if (fy > y + d / 2 - 0.7 && fy < y + d / 2 + 0.5) continue;
+            seats.push([fx, fy]);
+          }
+        }
       } else {
         var top = L.counter ? 2.7 : 1.4, sx = 1.45, sy = 2.0;
         for (var yy = y + top; yy <= y + d - 1.0; yy += sy) {
@@ -224,6 +243,14 @@
         chairs: L.queue ? [] : seats, spots: seats.concat(stand), used: [],
         door: door, node: L.node || bld.node, n: 0, avg: 0, max: 0
       };
+    });
+    // ช่วงเปิดบริการของแต่ละจุด = ผู้ป่วยคนแรกเข้า → คนสุดท้ายออก (ใช้แสดงเจ้าหน้าที่ประจำโต๊ะ)
+    data.visits.forEach(function (v) {
+      v.s.forEach(function (sg, i) {
+        var a = areas[sg[1]], end = i + 1 < v.s.length ? v.s[i + 1][0] : v.e;
+        if (!a) return;
+        a.open = a.open ? [Math.min(a.open[0], sg[0]), Math.max(a.open[1], end)] : [sg[0], end];
+      });
     });
   }
 
@@ -276,12 +303,32 @@
     }
     return ROUTES[key].slice();   // p.path ถูก shift ระหว่างเดิน — ห้ามแชร์ array
   }
-  // ย้ายอาคาร: ออกประตูจุด a → ทางเดิน → เข้าประตูจุด b
-  // ระหว่างอาคารผู้ป่วยนอก ↔ อุบัติเหตุ: เดินผ่านทางเดินเชื่อม (BRIDGE)
-  function link(a, b) {
-    if (a.L.b === BRIDGE.a && b.L.b === BRIDGE.b) return BRIDGE.pts.slice();
-    if (a.L.b === BRIDGE.b && b.L.b === BRIDGE.a) return BRIDGE.pts.slice().reverse();
-    return [a.door].concat(route(a.node, b.node), [b.door]);
+  // ย้ายอาคาร: ออกประตูจุด a → ทางเดิน → เข้าประตูจุด b · อาคารที่มีทางเดินเชื่อม (LINKS) เดินผ่านทางเชื่อม ไม่ออกถนน
+  // อาคาร inner (คลินิกพิเศษ) เข้าออกผ่านอาคารแม่เท่านั้น
+  function linkPts(A, B) {
+    for (var i = 0; i < LINKS.length; i++) {
+      var l = LINKS[i];
+      if (l.a === A && l.b === B) return l.pts.slice();
+      if (l.a === B && l.b === A) return l.pts.slice().reverse();
+    }
+    return null;
+  }
+  function hop(A, B, a, b) {   // a, b = จุดบริการต้นทาง/ปลายทาง (null = ใช้ประตูอาคาร)
+    var d = linkPts(A, B);
+    if (d) return d;
+    if (BLD[A].inner) return linkPts(A, BLD[A].inner).concat(hop(BLD[A].inner, B, null, b));
+    if (BLD[B].inner) return hop(A, BLD[B].inner, a, null).concat(linkPts(BLD[B].inner, B));
+    var da = a ? a.door : BLD[A].door, db = b ? b.door : BLD[B].door;
+    return [da].concat(route(a ? a.node : BLD[A].node, b ? b.node : BLD[B].node), [db]);
+  }
+  function link(a, b) { return hop(a.L.b, b.L.b, a, b); }
+  function fromGate(ta) {      // เข้า รพ. → จุดแรก
+    var inn = BLD[ta.L.b].inner;
+    return inn ? route('S', BLD[inn].node).concat([BLD[inn].door], linkPts(inn, ta.L.b)) : route('S', ta.node).concat([ta.door]);
+  }
+  function toGate(src) {       // ออกจาก รพ.
+    var inn = BLD[src.L.b].inner;
+    return inn ? linkPts(src.L.b, inn).concat([BLD[inn].door], route(BLD[inn].node, 'S')) : [src.door].concat(route(src.node, 'S'));
   }
 
   function step(dt) {
@@ -325,7 +372,7 @@
           var ta = areas[to];
           if (from < 0 && !p.vis) {
             p.x = NODES.S[0]; p.y = NODES.S[1];
-            p.vis = true; p.a = jump ? 1 : 0; p.path = jump ? null : route('S', ta.node).concat([ta.door]);
+            p.vis = true; p.a = jump ? 1 : 0; p.path = jump ? null : fromGate(ta);
           } else if (from >= 0 && !jump && p.vis && areas[from].L.b !== ta.L.b) {
             p.path = link(areas[from], ta);    // ย้ายอาคาร: ออกประตู → ทางเดิน → เข้าประตูอาคารใหม่
           }
@@ -333,7 +380,7 @@
           var src = from >= 0 ? areas[from] : areas[0];
           if (jump) { p.vis = false; }
           else {
-            p.path = [src.door].concat(route(src.node, 'S')); p.leaving = true;
+            p.path = toGate(src); p.leaving = true;
           }
         }
       }
@@ -459,7 +506,7 @@
     var WH = 1.1;
     var IN = { h: WH, t: 0.12, face: 'rgba(246,249,252,.92)', side: 'rgba(210,221,232,.95)', cap: '#94a6ba' };
     function nearDoor(doors, mx, my) {
-      return doors && doors.some(function (d) { return Math.abs(d[0] - mx) < 1.7 && Math.abs(d[1] - my) < 1.7; });
+      return doors && doors.some(function (d) { return Math.abs(d[0] - mx) < (d[2] || 1.7) && Math.abs(d[1] - my) < (d[2] || 1.7); });
     }
     function wallX(x0, x1, y, st, doors) {
       st = st || IN;
@@ -489,7 +536,8 @@
     var BACK = { h: 2.6, t: 0.35, face: '#edf1f4', side: '#d0d9e1', cap: WALL_TOP };
     var FRONT = { h: 0.45, t: 0.3, face: '#cbd5de', side: '#b6c3cf', cap: WALL_TOP };
     Object.keys(BLD).forEach(function (id) {
-      var r = BLD[id].r, doors = [BLD[id].door, BRIDGE.pts[1], BRIDGE.pts[2]];
+      var r = BLD[id].r, doors = [BLD[id].door];
+      LINKS.forEach(function (l) { if (l.a === id || l.b === id) doors.push(l.a === id ? l.pts[1] : l.pts[l.pts.length - 2]); });
       areas.forEach(function (a) { if (a.L.b === id && a.L.door) doors.push(a.L.door); });
       wallX(r[0], r[0] + r[2], r[1], BACK, doors);
       wallY(r[1], r[1] + r[3], r[0], BACK, doors);
@@ -503,17 +551,14 @@
     });
     statics.push({ k: GATE.x + 1.2 + (GATE.y0 + GATE.y1) / 2, draw: drawGate });
     // หลังคาทางเดินเชื่อม: เสา 4 ต้น + หลังคาโปร่งแสง (ยังเห็นคนที่เดินอยู่ข้างใต้)
-    var br = BRIDGE.r;
-    statics.push({ k: br[0] + br[2] + br[1] + br[3], draw: function () {
-      [[0.1, 0.1], [br[2] - 0.3, 0.1], [0.1, br[3] - 0.3], [br[2] - 0.3, br[3] - 0.3]].forEach(function (o) {
-        box(br[0] + o[0], br[1] + o[1], 0, 0.2, 0.2, 2.4, '#cbd5e1', '#94a3b8', '#7c8ca3');
-      });
-      box(br[0], br[1] - 0.3, 2.4, br[2], br[3] + 0.6, 0.2, 'rgba(110,190,160,.55)', 'rgba(21,128,61,.6)', 'rgba(21,128,61,.5)');
-    } });
-    function onEdge(a) {   // ผนังห้องที่ทับผนังนอกอาคาร ไม่ต้องวาดซ้ำ
-      var r = (BLD[a.L.b] || {}).r || [-1, -1];
-      return { x: Math.abs(a.y - r[1]) < 0.01, y: Math.abs(a.x - r[0]) < 0.01 };
-    }
+    LINKS.forEach(function (l) { l.rs.forEach(function (br) {
+      statics.push({ k: br[0] + br[2] + br[1] + br[3], draw: function () {
+        [[0.1, 0.1], [br[2] - 0.3, 0.1], [0.1, br[3] - 0.3], [br[2] - 0.3, br[3] - 0.3]].forEach(function (o) {
+          box(br[0] + o[0], br[1] + o[1], 0, 0.2, 0.2, 2.4, '#cbd5e1', '#94a3b8', '#7c8ca3');
+        });
+        box(br[0] - 0.3, br[1] - 0.3, 2.4, br[2] + 0.6, br[3] + 0.6, 0.2, 'rgba(110,190,160,.55)', 'rgba(21,128,61,.6)', 'rgba(21,128,61,.5)');
+      } });
+    }); });
     function counter(x, y, w) {
       var cw = Math.min(w - 2, 7), cx2 = x + (w - cw) / 2;
       statics.push({ k: cx2 + cw / 2 + y + 1.3, draw: function () {
@@ -523,16 +568,20 @@
         }
       } });
     }
-    DECOR.forEach(function (o) {
-      wallX(o.r[0], o.r[0] + o.r[2], o.r[1]);
-      wallY(o.r[1], o.r[1] + o.r[3], o.r[0]);
-    });
+    // ผนังห้อง: ด้านต่ำ (y, x) เสมอ · ด้านสูงเมื่อ walls4/ห้องตรวจ · ไม่ซ้ำผนังนอกอาคาร · gate = ช่องประตู
+    function roomWalls(x, y, w, d, b, all, gates) {
+      var r = (BLD[b] || {}).r || [-1, -1, 0, 0], g = (gates || []).map(function (q) { return [q[0], q[1], q[2] || 1.0]; });
+      var eq = function (p, q) { return Math.abs(p - q) < 0.01; };
+      if (!eq(y, r[1])) wallX(x, x + w, y, null, g);
+      if (!eq(x, r[0])) wallY(y, y + d, x, null, g);
+      if (!all) return;
+      if (!eq(y + d, r[1] + r[3])) wallX(x, x + w, y + d, null, g);
+      if (!eq(x + w, r[0] + r[2])) wallY(y, y + d, x + w, null, g);
+    }
+    DECOR.forEach(function (o) { if (!o.open) roomWalls(o.r[0], o.r[1], o.r[2], o.r[3], 'OPD', !!o.gate, o.gate); });
+    PROPS.forEach(function (o) { statics.push({ k: o.x + o.y + (o.t === 'pr' ? 2.5 : 0.6), draw: function () { drawProp(o); } }); });
     areas.forEach(function (a) {
-      if (!a.L.open) {
-        var e = onEdge(a);
-        if (!e.x) wallX(a.x, a.x + a.w, a.y);
-        if (!e.y) wallY(a.y, a.y + a.d, a.x);
-      }
+      if (!a.L.open) roomWalls(a.x, a.y, a.w, a.d, a.L.b, a.L.room || a.L.walls4, a.L.gate);
       if (a.L.counter) counter(a.x, a.y, a.w);
       if (a.L.room) {
         var dw = Math.min(2.8, a.w - 1.6), dx = a.x + (a.w - dw) / 2, dy = a.y + a.d - 2.4;
@@ -545,7 +594,7 @@
         } });
       }
       a.chairs.forEach(function (c) {
-        statics.push({ k: c[0] + c[1] - 0.2, draw: function () { drawChair(c[0], c[1]); } });
+        statics.push({ k: c[0] + c[1] - 0.2, draw: function () { drawChair(c[0], c[1], a.L.face); } });
       });
     });
     TREES.forEach(function (t) {
@@ -565,7 +614,8 @@
   }
 
   // เก้าอี้รอตรวจ: ขาโลหะ + เบาะ + พนักพิง (โทนฟ้าอ่อน ไม่แย่งสายตาจากหุ่น)
-  function drawChair(cx, cy) {
+  // face 'x-' = หันหน้าไปทาง −x (พนักพิงอยู่ด้าน +x) · ปกติหันไปทาง +y
+  function drawChair(cx, cy, face) {
     var x = cx - 0.26, y = cy - 0.22;
     var b = P(cx, cy + 0.1, 0);
     ctx.fillStyle = 'rgba(15,42,92,.10)';
@@ -573,8 +623,65 @@
     box(x + 0.05, y + 0.36, 0, 0.05, 0.05, 0.3, '#8291a5', '#6b7a8f', '#566579');
     box(x + 0.42, y + 0.36, 0, 0.05, 0.05, 0.3, '#8291a5', '#6b7a8f', '#566579');
     box(x, y, 0.3, 0.52, 0.44, 0.08, '#6fb0e6', '#3b82c4', '#2f6fae');
+    if (face === 'x-') {
+      box(x + 0.48, y + 0.0, 0.38, 0.08, 0.44, 0.4, '#4f97d8', '#3b82c4', '#2f6fae');
+      box(x + 0.48, y + 0.0, 0.78, 0.08, 0.44, 0.02, '#8cc3ee', '#4f97d8', '#4f97d8');
+      return;
+    }
     box(x + 0.02, y - 0.04, 0.38, 0.48, 0.08, 0.4, '#4f97d8', '#3b82c4', '#2f6fae');
     box(x + 0.02, y - 0.04, 0.78, 0.48, 0.08, 0.02, '#8cc3ee', '#4f97d8', '#4f97d8');
+  }
+  // เจ้าหน้าที่นั่งประจำจุด: แสดงเมื่อเวลาที่เลือกอยู่ในช่วงเปิดบริการของจุด on (มีผู้ป่วยคนแรกเข้า → คนสุดท้ายออก)
+  function staffOn(id) {
+    var a = areas.find(function (q) { return q.id === id; });
+    return !!(a && a.open && state.T >= a.open[0] && state.T <= a.open[1]);
+  }
+  function drawStaff(x, y) {
+    if (cam.k * 1.1 < 5) return;
+    var b = P(x, y, 0);
+    drawChibi(b[0], b[1], cam.k * 1.1, { shirt: '#38bdf8', pants: '#1e3a8a', sit: true, walk: null });
+  }
+  var DESK = ['#e7d3b1', '#c9ad83', '#b89a6f'], DARK = ['#334155', '#1e293b', '#0f172a'], WHITE = ['#f8fafc', '#cbd5e1', '#b4c1d1'];
+  function drawProp(o) {
+    var x = o.x, y = o.y;
+    if (o.t === 'desk') {           // โต๊ะคอม (ลึก 1 ตามแกน x กว้าง 2.2 ตามแกน y) · เจ้าหน้าที่ฝั่งผนัง · เก้าอี้ผู้ป่วยฝั่งที่นั่งรอ
+      if (staffOn(o.on)) drawStaff(x - 0.7, y);
+      box(x, y - 1.1, 0, 1.0, 2.2, 0.75, DESK[0], DESK[1], DESK[2]);
+      box(x + 0.55, y - 0.55, 0.75, 0.08, 1.1, 0.6, DARK[0], DARK[1], DARK[2]);      // จอหันหาเจ้าหน้าที่
+      box(x + 0.6, y + 0.15, 0.75, 0.25, 0.25, 0.35, DARK[0], DARK[1], DARK[2]);     // CPU
+      box(x + 0.1, y - 0.4, 0.75, 0.3, 0.8, 0.03, '#64748b', '#475569', '#334155');  // คีย์บอร์ด
+      drawChair(x + 1.6, y, 'x-');
+    } else if (o.t === 'pr') {      // เคาน์เตอร์โค้งครึ่งวง หันไปทางทางเข้า (+x, +y) · เจ้าหน้าที่ + คอมอยู่ด้านใน
+      var cx = x, cy = y, R = 2.3, on = staffOn(o.on);
+      if (on) drawStaff(cx - 0.2, cy - 0.2);
+      box(cx + 0.35, cy - 0.35, 0.95, 0.5, 0.08, 0.45, DARK[0], DARK[1], DARK[2]);
+      for (var i = 0; i <= 8; i++) {
+        var t = -Math.PI / 4 + i * Math.PI / 8;
+        box(cx + R * Math.cos(t) - 0.4, cy + R * Math.sin(t) - 0.4, 0, 0.8, 0.8, 1.0, '#f1f5f9', '#c3cedb', '#aebccc');
+      }
+    } else if (o.t === 'bp') {      // เก้าอี้นั่ง (หันไปทาง −x) + โต๊ะเล็กวางเครื่องวัดความดัน
+      drawChair(x, y, 'x-');
+      box(x - 0.25, y - 1.1, 0, 0.5, 0.5, 0.7, WHITE[0], WHITE[1], WHITE[2]);
+      box(x - 0.18, y - 1.02, 0.7, 0.36, 0.3, 0.22, '#e2e8f0', '#94a3b8', '#64748b');
+      box(x - 0.12, y - 0.98, 0.92, 0.24, 0.02, 0.12, '#0ea5e9', '#0284c7', '#0369a1');     // จอเครื่องวัด
+    } else if (o.t === 'bed') {     // เปลนอน: ขา 4 + ฟูกขาว + หมอน (ยาวตามแกน y)
+      [[0.05, 0.05], [0.95, 0.05], [0.05, 2.75], [0.95, 2.75]].forEach(function (q) {
+        box(x + q[0], y + q[1], 0, 0.08, 0.08, 0.55, '#94a3b8', '#64748b', '#475569');
+      });
+      box(x, y, 0.55, 1.1, 2.9, 0.1, '#cbd5e1', '#94a3b8', '#7c8ca3');
+      box(x + 0.05, y + 0.05, 0.65, 1.0, 2.8, 0.14, WHITE[0], WHITE[1], WHITE[2]);
+      box(x + 0.15, y + 0.15, 0.79, 0.8, 0.55, 0.1, '#e0f2fe', '#bae6fd', '#7dd3fc');
+    } else if (o.t === 'wheel') {   // รถเข็น: ล้อใหญ่ 2 ข้าง (ระนาบ y–z) + เบาะ + พนักพิง
+      var wheel = function (wx) {
+        var pts = [];
+        for (var j = 0; j < 14; j++) { var u = j / 14 * Math.PI * 2; pts.push([wx, y + 0.35 + 0.38 * Math.cos(u), 0.4 + 0.38 * Math.sin(u)]); }
+        poly(pts, null, '#334155', Math.max(1, cam.k * 0.06));
+      };
+      wheel(x);
+      box(x + 0.05, y + 0.05, 0.42, 0.6, 0.6, 0.08, '#2563eb', '#1d4ed8', '#1e40af');
+      box(x + 0.05, y + 0.6, 0.5, 0.6, 0.08, 0.5, '#2563eb', '#1d4ed8', '#1e40af');
+      wheel(x + 0.7);
+    }
   }
   // ป้ายชื่ออาคารบนเสา หน้าทางเข้า
   function drawSign(text, x, y, bg) {
@@ -736,7 +843,9 @@
       ctx.stroke();
     });
     ctx.setLineDash([]);
-    WALKS.concat([BRIDGE.r]).forEach(function (w) { rect(w[0], w[1], w[2], w[3], 0, '#d3dae1'); });
+    var linkFloor = [];
+    LINKS.forEach(function (l) { linkFloor = linkFloor.concat(l.rs); });
+    WALKS.concat(linkFloor).forEach(function (w) { rect(w[0], w[1], w[2], w[3], 0, '#d3dae1'); });
     SITE.forEach(function (s) { prism(s.pts, s.h, s.c); });
     Object.keys(BLD).forEach(function (id) {
       var b = BLD[id].r;
@@ -778,7 +887,8 @@
       ctx.globalAlpha = 1;
     });
     ctx.textAlign = 'left';
-    if (cam.k >= 9) DECOR.forEach(function (o) {
+    if (cam.k >= 9) DECOR.concat(PROPS.map(function (o) { return { name: o.name, r: [o.x, o.y + 1.2, 0, 0] }; })).forEach(function (o) {
+      if (!o.name) return;
       var p = P(o.r[0] + o.r[2] * 0.5, o.r[1] + o.r[3] * 0.5, 0.2);
       ctx.font = '500 ' + (fs - 1) + 'px Kanit, sans-serif';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
