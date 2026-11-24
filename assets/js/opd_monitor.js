@@ -326,8 +326,9 @@
   function hop(A, B, a, b) {   // a, b = จุดบริการต้นทาง/ปลายทาง (null = ใช้ประตูอาคาร)
     var d = linkPts(A, B);
     if (d) return d;
-    if (BLD[A].inner) return linkPts(A, BLD[A].inner).concat(hop(BLD[A].inner, B, null, b));
-    if (BLD[B].inner) return hop(A, BLD[B].inner, a, null).concat(linkPts(BLD[B].inner, B));
+    var inn, p1, p2;
+    if ((inn = BLD[A].inner)) { p1 = linkPts(A, inn); p2 = hop(inn, B, null, b); return p1.concat(navBetween(inn, p1, p2), p2); }
+    if ((inn = BLD[B].inner)) { p1 = hop(A, inn, a, null); p2 = linkPts(inn, B); return p1.concat(navBetween(inn, p1, p2), p2); }
     var da = a ? a.door : BLD[A].door, db = b ? b.door : BLD[B].door;
     return [da].concat(route(a ? a.node : BLD[A].node, b ? b.node : BLD[B].node), [db]);
   }
@@ -339,6 +340,126 @@
   function toGate(src) {       // ออกจาก รพ.
     var inn = BLD[src.L.b].inner;
     return inn ? linkPts(src.L.b, inn).concat([BLD[inn].door], route(BLD[inn].node, 'S')) : [src.door].concat(route(src.node, 'S'));
+  }
+
+  // ------------------------------------------------------------------ เดินในอาคาร
+  // ตาราง 0.5 หน่วยต่ออาคาร: ผนังที่วาด (WALLS) กั้นการเดินข้ามช่อง · ช่องประตูเดินผ่านได้ · ในจุดบริการ/ห้องคิดค่าเดินแพงกว่าทางเดิน
+  // → คนเดินตามทางเดิน เข้าออกทางประตูห้อง ไม่ทะลุผนัง · ระยะจากทุกช่องไปเป้าหมายคำนวณครั้งเดียว (Dijkstra) แล้วจำไว้
+  var WALLS = [], NAV = {}, NAV_CS = 0.5, NAV_AREA_COST = 2.2;
+  function navGrid(b) {
+    if (NAV[b]) return NAV[b];
+    var r = BLD[b].r, cs = NAV_CS, nx = Math.round(r[2] / cs), ny = Math.round(r[3] / cs), N = nx * ny;
+    var g = { x0: r[0], y0: r[1], nx: nx, ny: ny, cost: new Float32Array(N), bR: new Uint8Array(N), bD: new Uint8Array(N), fields: {} };
+    var inArea = function (x, y) {
+      return areas.some(function (a) { return a.L.b === b && x > a.x && x < a.x + a.w && y > a.y && y < a.y + a.d; });
+    };
+    for (var j = 0; j < ny; j++) for (var i = 0; i < nx; i++) {
+      g.cost[i + j * nx] = inArea(r[0] + (i + 0.5) * cs, r[1] + (j + 0.5) * cs) ? NAV_AREA_COST : 1;
+    }
+    // ผนังแนว x (y คงที่) กั้นการเดินลง (j → j+1) · ผนังแนว y (x คงที่) กั้นการเดินขวา (i → i+1)
+    WALLS.forEach(function (w) {
+      if (w[1] === w[3]) {
+        var jw = Math.floor((w[1] - r[1]) / cs - 0.5);
+        if (jw < 0 || jw >= ny - 1) return;
+        for (var i2 = 0; i2 < nx; i2++) {
+          var cx = r[0] + (i2 + 0.5) * cs;
+          if (cx >= w[0] - 0.01 && cx <= w[2] + 0.01) g.bD[i2 + jw * nx] = 1;
+        }
+      } else {
+        var iw = Math.floor((w[0] - r[0]) / cs - 0.5);
+        if (iw < 0 || iw >= nx - 1) return;
+        for (var j2 = 0; j2 < ny; j2++) {
+          var cy = r[1] + (j2 + 0.5) * cs;
+          if (cy >= w[1] - 0.01 && cy <= w[3] + 0.01) g.bR[iw + j2 * nx] = 1;
+        }
+      }
+    });
+    NAV[b] = g;
+    return g;
+  }
+  function navCell(g, x, y) {
+    var i = Math.max(0, Math.min(g.nx - 1, Math.floor((x - g.x0) / NAV_CS)));
+    var j = Math.max(0, Math.min(g.ny - 1, Math.floor((y - g.y0) / NAV_CS)));
+    return [i, j];
+  }
+  // เดินจาก (i,j) ไป (i+di, j+dj) ได้ไหม — แนวทแยงต้องผ่านได้ทั้งสองทางอ้อม (ไม่ตัดมุมผนัง)
+  function navOk(g, i, j, di, dj) {
+    var nx = g.nx, i2 = i + di, j2 = j + dj;
+    if (i2 < 0 || j2 < 0 || i2 >= nx || j2 >= g.ny) return false;
+    var h = function (a, b, d) { return d > 0 ? !g.bR[a + b * nx] : !g.bR[a - 1 + b * nx]; };
+    var v = function (a, b, d) { return d > 0 ? !g.bD[a + b * nx] : !g.bD[a + (b - 1) * nx]; };
+    if (!dj) return h(i, j, di);
+    if (!di) return v(i, j, dj);
+    return h(i, j, di) && v(i2, j, dj) && v(i, j, dj) && h(i, j2, di);
+  }
+  var NAV_DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]];
+  function navField(g, tx, ty) {
+    var c = navCell(g, tx, ty), key = c[0] + ',' + c[1];
+    if (g.fields[key]) return g.fields[key];
+    var nx = g.nx, N = nx * g.ny, dist = new Float32Array(N).fill(Infinity), heap = [];
+    var push = function (d, k) {
+      heap.push([d, k]);
+      for (var n = heap.length - 1; n > 0;) { var p2 = (n - 1) >> 1; if (heap[p2][0] <= heap[n][0]) break; var t = heap[p2]; heap[p2] = heap[n]; heap[n] = t; n = p2; }
+    };
+    var pop = function () {
+      var top = heap[0], last = heap.pop();
+      if (heap.length) {
+        heap[0] = last;
+        for (var n = 0; ;) {
+          var l = 2 * n + 1, rr = l + 1, m = n;
+          if (l < heap.length && heap[l][0] < heap[m][0]) m = l;
+          if (rr < heap.length && heap[rr][0] < heap[m][0]) m = rr;
+          if (m === n) break;
+          var t = heap[m]; heap[m] = heap[n]; heap[n] = t; n = m;
+        }
+      }
+      return top;
+    };
+    var start = c[0] + c[1] * nx;
+    dist[start] = 0; push(0, start);
+    while (heap.length) {
+      var it = pop(), d = it[0], k = it[1];
+      if (d > dist[k]) continue;
+      var i = k % nx, j = (k - i) / nx;
+      for (var q = 0; q < 8; q++) {
+        var di = NAV_DIRS[q][0], dj = NAV_DIRS[q][1];
+        if (!navOk(g, i, j, di, dj)) continue;
+        var k2 = k + di + dj * nx, nd = d + (di && dj ? 1.414 : 1) * (g.cost[k] + g.cost[k2]) / 2;
+        if (nd < dist[k2]) { dist[k2] = nd; push(nd, k2); }
+      }
+    }
+    g.fields[key] = dist;
+    return dist;
+  }
+  // เส้นทางในอาคาร b จาก (sx, sy) ถึง (tx, ty): ไล่ลงตามระยะทีละช่อง แล้วตัดจุดที่อยู่แนวเดียวกันทิ้ง
+  function navPath(b, sx, sy, tx, ty) {
+    if (!BLD[b]) return [[tx, ty]];
+    var g = navGrid(b), dist = navField(g, tx, ty), nx = g.nx;
+    var c = navCell(g, sx, sy), i = c[0], j = c[1];
+    if (!isFinite(dist[i + j * nx])) return [[tx, ty]];   // ไปไม่ถึง (ผนังปิด) → เดินตรงแบบเดิม
+    var pts = [], pd = null;
+    for (var guard = 0; guard < 4000 && dist[i + j * nx] > 0; guard++) {
+      var best = null, bd = dist[i + j * nx];
+      for (var q = 0; q < 8; q++) {
+        var di = NAV_DIRS[q][0], dj = NAV_DIRS[q][1];
+        if (!navOk(g, i, j, di, dj)) continue;
+        var dd = dist[i + di + (j + dj) * nx];
+        if (dd < bd) { bd = dd; best = q; }
+      }
+      if (best === null) break;
+      if (pd !== null && pd !== best) pts.push([g.x0 + (i + 0.5) * NAV_CS, g.y0 + (j + 0.5) * NAV_CS]);   // จุดเลี้ยว
+      pd = best; i += NAV_DIRS[best][0]; j += NAV_DIRS[best][1];
+    }
+    pts.push([tx, ty]);
+    return pts;
+  }
+  function withNav(pts, ta) {   // เส้นทางนอกอาคาร + เดินในอาคารปลายทางจากจุดสุดท้ายถึงกึ่งกลางจุดบริการ
+    var l = pts[pts.length - 1];
+    return pts.concat(navPath(ta.L.b, l[0], l[1], ta.cx, ta.cy));
+  }
+  function navBetween(b, p1, p2) {   // ผ่านอาคารกลางทาง (เช่น คลินิกพิเศษ → OPD → อุบัติเหตุ)
+    var s = p1[p1.length - 1], t = p2[0];
+    return navPath(b, s[0], s[1], t[0], t[1]);
   }
 
   function step(dt) {
@@ -382,15 +503,19 @@
           var ta = areas[to];
           if (from < 0 && !p.vis) {
             p.x = NODES.S[0]; p.y = NODES.S[1];
-            p.vis = true; p.a = jump ? 1 : 0; p.path = jump ? null : fromGate(ta);
+            p.vis = true; p.a = jump ? 1 : 0; p.path = jump ? null : withNav(fromGate(ta), ta);
           } else if (from >= 0 && !jump && p.vis && areas[from].L.b !== ta.L.b) {
-            p.path = link(areas[from], ta);    // ย้ายอาคาร: ออกประตู → ทางเดิน → เข้าประตูอาคารใหม่
+            var lk = link(areas[from], ta);    // ย้ายอาคาร: เดินในอาคารถึงประตู → ทางเดิน → เข้าประตูอาคารใหม่ → เดินในอาคารถึงจุด
+            p.path = navPath(areas[from].L.b, p.x, p.y, lk[0][0], lk[0][1]).concat(withNav(lk, ta));
+          } else if (from >= 0 && !jump && p.vis) {
+            p.path = navPath(ta.L.b, p.x, p.y, ta.cx, ta.cy);   // อาคารเดียวกัน: เดินตามทางเดิน เข้าทางประตูห้อง
           }
         } else if (p.vis) {
           var src = from >= 0 ? areas[from] : areas[0];
           if (jump) { p.vis = false; }
           else {
-            p.path = toGate(src); p.leaving = true;
+            var out = toGate(src);
+            p.path = navPath(src.L.b, p.x, p.y, out[0][0], out[0][1]).concat(out); p.leaving = true;
           }
         }
       }
@@ -511,7 +636,7 @@
   // วัตถุที่ต้องเรียงความลึก: ผนัง เก้าอี้ เคาน์เตอร์ ต้นไม้ หุ่น
   var statics = [];
   function buildStatics() {
-    statics = [];
+    statics = []; WALLS = []; NAV = {};
     // ผนังกั้นห้องในอาคาร (โปร่งแสง เตี้ย) — ผนังนอกอาคารใช้ฟังก์ชันเดียวกันแต่สูง/หนากว่า และเว้นช่องประตู
     var WH = 1.1;
     var IN = { h: WH, t: 0.12, face: 'rgba(246,249,252,.92)', side: 'rgba(210,221,232,.95)', cap: '#94a6ba' };
@@ -523,6 +648,7 @@
       for (var x = x0; x < x1 - 0.001; x += 1) {
         (function (xa, xb) {
           if (nearDoor(doors, (xa + xb) / 2, y)) return;
+          WALLS.push([xa, y, xb, y]);
           statics.push({ k: (xa + xb) / 2 + y - 0.05, draw: function () {
             poly([[xa, y, 0], [xb, y, 0], [xb, y, st.h], [xa, y, st.h]], st.face, null);
             poly([[xa, y - st.t, st.h], [xb, y - st.t, st.h], [xb, y, st.h], [xa, y, st.h]], st.cap);
@@ -535,6 +661,7 @@
       for (var y = y0; y < y1 - 0.001; y += 1) {
         (function (ya, yb) {
           if (nearDoor(doors, x, (ya + yb) / 2)) return;
+          WALLS.push([x, ya, x, yb]);
           statics.push({ k: x + (ya + yb) / 2 - 0.05, draw: function () {
             poly([[x, ya, 0], [x, yb, 0], [x, yb, st.h], [x, ya, st.h]], st.side, null);
             poly([[x - st.t, ya, st.h], [x, ya, st.h], [x, yb, st.h], [x - st.t, yb, st.h]], st.cap);
