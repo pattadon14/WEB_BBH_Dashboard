@@ -23,10 +23,10 @@
   var BLD = {
     OPD: { name: 'อาคารผู้ป่วยนอก', r: [57, 128, 55, 45], door: [84, 173], node: 'OPD', sign: [70, 175.5] },
     ERB: { name: 'อาคารอุบัติเหตุฉุกเฉิน', r: [122, 131, 36, 42], door: [139, 173], node: 'ERB', sign: [130, 175.5] },
-    ARI: { name: 'อาคาร ARI', r: [86, 218, 22, 14], door: [89, 218], node: 'ARI', sign: [110, 230] },
+    ARI: { name: 'อาคาร ARI', r: [86, 218, 22, 8], door: [89, 218], node: 'ARI', sign: [97, 227.5] },
     // แพทย์แผนไทย/กายภาพ = อาคาร 2 หลังฝั่งตรงข้ามถนนลาดยาง ตรงข้ามอาคารอุบัติเหตุ (ตำแหน่งตามที่หน่วยงานชี้ 17 พ.ย. 2569)
-    TTM: { name: 'อาคารแพทย์แผนไทย', r: [199, 160, 14, 20], door: [199, 170], node: 'TTM', sign: [214.5, 174] },
-    PT:  { name: 'อาคารกายภาพบำบัด', r: [199, 132, 14, 20], door: [199, 142], node: 'PT', sign: [214.5, 146] },
+    TTM: { name: 'อาคารแพทย์แผนไทย', r: [199, 165, 7, 7], door: [199, 170], node: 'TTM', sign: [207.5, 173] },
+    PT:  { name: 'อาคารกายภาพบำบัด', r: [199, 138, 7.5, 7], door: [199, 142], node: 'PT', sign: [208, 146] },
     // คลินิกพิเศษ = ด้านหลังอาคารผู้ป่วยนอก ไปทางเดินเชื่อม (ออกประตูหลังฝั่งนัด เดินตรง แล้วเลี้ยวซ้าย) — inner = เข้าออกผ่านอาคารนี้เท่านั้น
     // shortcut: ขนาด/ระยะอาคารคลินิกพิเศษกะเอง — แก้เมื่อหน่วยงานแจ้งขนาดจริง
     SPC: { name: 'อาคารคลินิกพิเศษ', r: [58, 103, 22, 16], door: [80, 111], node: 'OPD', sign: [69, 120.5], inner: 'OPD' }
@@ -65,18 +65,18 @@
     R11:  { b: 'OPD', r: [75, 141, 6, 7], kind: 'room', room: true, short: 'ห้อง 11', gate: [[75, 144.5]] },
     // อาคารอุบัติเหตุฉุกเฉิน (แปลนหน่วยงาน 24 พ.ย. 2569): ประตูหน้า → ทางเดินตรงกลาง x 136–142 ทุกห้องเปิดประตูเข้าทางเดินนี้
     // ซ้าย (หน้า → หลัง): ห้องเจาะเลือด · X-Ray · Ultrasound · โถงหลังรับทางเชื่อม OPD · ขวา (หน้า → หลัง): ห้องฉุกเฉิน · ห้องทำแผล-ฉีดยา · ห้องทันตกรรม
-    DENT: { b: 'ERB', r: [142, 131, 16, 14], kind: 'room2', counter: true, cap: 40, gate: [[142, 138]] },
+    DENT: { b: 'ERB', r: [142, 131, 16, 14], kind: 'room2', cap: 40, top: 3.4, face: 'y-', gate: [[142, 138]] },
     // shortcut: ที่นั่งห้องทำแผลยังไม่ได้รับแจ้ง ใช้ 10 ไปก่อน — แก้เมื่อหน่วยงานแจ้งจำนวนจริง
-    WOUND: { b: 'ERB', r: [142, 145, 16, 14], kind: 'lab', counter: true, cap: 10, gate: [[142, 152]] },     // 078 คัดกรอง → 047 ห้องทำแผล
+    WOUND: { b: 'ERB', r: [142, 145, 16, 14], kind: 'lab', cap: 10, top: 3.4, face: 'y-', gate: [[142, 152]] },     // 078 คัดกรอง → 047 ห้องทำแผล
     LAB:  { b: 'ERB', r: [122, 158, 14, 15], kind: 'lab', counter: true, cap: 20, walls4: true, gate: [[136, 165.5]] },
-    XRAY: { b: 'ERB', r: [122, 150.5, 14, 7.5], kind: 'xray', counter: true, cap: 4, walls4: true, gate: [[136, 154.25]] },
-    US:   { b: 'ERB', r: [122, 143, 14, 7.5], kind: 'xray', counter: true, cap: 4, walls4: true, gate: [[136, 146.75]] },
+    XRAY: { b: 'ERB', r: [122, 150.5, 14, 7.5], kind: 'xray', cap: 4, top: 3.4, face: 'y-', walls4: true, gate: [[136, 154.25]] },
+    US:   { b: 'ERB', r: [122, 143, 14, 7.5], kind: 'xray', cap: 4, top: 3.4, face: 'y-', walls4: true, gate: [[136, 146.75]] },
     // คัดกรอง 8 + รอแพทย์ 4 + เตียงรอแพทย์ ~7 + Observe 4
-    ER:   { b: 'ERB', r: [142, 159, 16, 14], kind: 'er', cap: 23, gate: [[142, 166]] },
+    ER:   { b: 'ERB', r: [142, 159, 16, 14], kind: 'er', cap: 23, top: 3.4, face: 'y-', gate: [[142, 166]] },
     // อาคารแยก
-    ARI:  { b: 'ARI', r: [86, 218, 22, 14], kind: 'er', counter: true, cap: 38 },     // รอซักประวัติ 12 + รอแพทย์/การเงิน/ยา 26
-    TTM:  { b: 'TTM', r: [199, 160, 14, 20], kind: 'ttm', counter: true, cap: 4 },
-    PT:   { b: 'PT',  r: [199, 132, 14, 20], kind: 'room2', counter: true, cap: 6 },
+    ARI:  { b: 'ARI', r: [86, 218, 22, 8], kind: 'er', counter: true, cap: 38 },     // รอซักประวัติ 12 + รอแพทย์/การเงิน/ยา 26
+    TTM:  { b: 'TTM', r: [199, 165, 7, 7], kind: 'ttm', counter: true, cap: 4 },
+    PT:   { b: 'PT',  r: [199, 138, 7.5, 7], kind: 'room2', counter: true, cap: 6 },
     // shortcut: ที่นั่งคลินิกพิเศษยังไม่ได้รับแจ้ง ใช้ 40 ไปก่อน — แก้เมื่อหน่วยงานแจ้งจำนวนจริง
     SPC:  { b: 'SPC', r: [58, 103, 22, 16], kind: 'spc', counter: true, cap: 40 }
   };
@@ -101,6 +101,9 @@
     { t: 'desk', x: 58.3, y: 146.5, name: 'โต๊ะ 2', on: 'SCRA' },
     { t: 'desk', x: 58.3, y: 141, name: 'โต๊ะ 3', on: 'SCRA' }
   ];
+  // อาคารอุบัติเหตุ: โต๊ะคอมชิดผนังหลังของแต่ละห้อง เจ้าหน้าที่หันเข้าที่นั่งรอ (แบบจุดซักประวัติ OPD)
+  [[145.5, 'DENT', 131], [150, 'DENT', 131], [154.5, 'DENT', 131], [147, 'WOUND', 145], [153, 'WOUND', 145], [147, 'ER', 159], [153, 'ER', 159],
+    [129, 'US', 143], [129, 'XRAY', 150.5]].forEach(function (d) { PROPS.push({ t: 'desk', dir: 'y-', x: d[0], y: d[2] + 0.75, name: '', on: d[1] }); });
   // เก้าอี้รอหน้าห้อง 10 จำนวน 5 ตัว หันเข้าประตูห้อง (ประตูด้าน −x ของห้อง)
   for (var ci = 0; ci < 5; ci++) PROPS.push({ t: 'chair', face: 'x+', x: 61.2, y: 128.9 + ci * 1.3, name: '' });
   // ฝั่ง Walk-in: 3 คู่ คู่ละ 2 โต๊ะ ชิดผนังหน้า (เจ้าหน้าที่หลังพิงผนัง) เว้นระหว่างคู่เล็กน้อย · dir 'y' = เจ้าหน้าที่หันไปทาง −y
@@ -238,7 +241,7 @@
           }
         }
       } else {
-        var top = L.counter ? 2.7 : 1.4, sx = 1.45, sy = 2.0;
+        var top = L.top || (L.counter ? 2.7 : 1.4), sx = 1.45, sy = 2.0;   // top = เว้นแถวหน้าไว้ให้โต๊ะ/เคาน์เตอร์
         for (var yy = y + top; yy <= y + d - 1.0; yy += sy) {
           for (var xx = x + 1.2; xx <= x + w - 0.9; xx += sx) {
             if (xx > x + w / 2 - 0.7 && xx < x + w / 2 + 0.5) continue;   // ทางเดินกลาง
@@ -703,22 +706,13 @@
       wallY(r[1], r[1] + r[3], r[0] + r[2], FRONT, doors);
       var sg = BLD[id].sign;
       statics.push({ k: sg[0] + sg[1] + 0.5, draw: function () { drawSign(BLD[id].name, sg[0], sg[1]); } });
-      // หน้าต่างบนผนังหลัง/ซ้าย (ผนังสูง) ทุก 3 หน่วย เว้นช่วงประตู · กลางวันกระจกฟ้า กลางคืนไฟในอาคารส่องเหลือง
-      var nearD = function (x, y) { return doors.some(function (d) { return Math.abs(d[0] - x) < 2.2 && Math.abs(d[1] - y) < 2.2; }); };
-      for (var wx = r[0] + 0.5; wx + 2 <= r[0] + r[2]; wx += 3) (function (xa) {
-        if (nearD(xa + 1, r[1])) return;
-        statics.push({ k: xa + 1 + r[1] - 0.04, draw: function () { drawWindow(id, [[xa + 0.3, r[1] + 0.01], [xa + 1.9, r[1] + 0.01]]); } });
-      })(wx);
-      for (var wy = r[1] + 0.5; wy + 2 <= r[1] + r[3]; wy += 3) (function (ya) {
-        if (nearD(r[0], ya + 1)) return;
-        statics.push({ k: r[0] + ya + 1 - 0.04, draw: function () { drawWindow(id, [[r[0] + 0.01, ya + 0.3], [r[0] + 0.01, ya + 1.9]]); } });
-      })(wy);
       // กันสาดหน้าประตูอาคาร (ประตูที่อยู่ผนังหน้า): เสา 2 ต้น + หลังคาบาง
       var dr = BLD[id].door;
       if (Math.abs(dr[1] - (r[1] + r[3])) < 0.01) {
         statics.push({ k: dr[0] + dr[1] + 3, draw: function () {
           [[-2.6, 2.3], [2.4, 2.3]].forEach(function (o) { box(dr[0] + o[0], dr[1] + o[1], 0, 0.2, 0.2, 2.5, '#cbd5e1', '#94a3b8', '#7c8ca3'); });
           box(dr[0] - 3, dr[1] - 0.2, 2.5, 6, 2.9, 0.18, '#f1f5f9', '#b4c1d1', '#9eadc1');
+          if (id === 'ERB') drawErSign();
         } });
       }
     });
@@ -740,6 +734,7 @@
       statics.push({ k: s.sign[0] + s.sign[1] + 0.5, draw: function () { drawSign(s.name, s.sign[0], s.sign[1], 'rgba(100,116,139,.92)'); } });
     });
     statics.push({ k: GATE.x + 1.2 + (GATE.y0 + GATE.y1) / 2, draw: drawGate });
+    statics.push({ k: GATE.x + 2.4 + (GATE.y0 + GATE.y1) / 2, draw: drawGateSpots });
     // หลังคาทางเดินเชื่อม: เสา 4 ต้น + หลังคาโปร่งแสง (ยังเห็นคนที่เดินอยู่ข้างใต้)
     LINKS.forEach(function (l) { l.rs.forEach(function (br) {
       statics.push({ k: br[0] + br[2] + br[1] + br[3], draw: function () {
@@ -769,7 +764,8 @@
       if (!eq(x + w, r[0] + r[2])) wallY(y, y + d, x + w, null, g);
     }
     DECOR.forEach(function (o) { if (!o.open) roomWalls(o.r[0], o.r[1], o.r[2], o.r[3], 'OPD', !!o.gate, o.gate); });
-    PROPS.forEach(function (o) { statics.push({ k: o.x + o.y + 0.6, draw: function () { drawProp(o); } }); });
+    // ชิ้นส่วนแต่ละชิ้นเรียงความลึกของตัวเอง (เจ้าหน้าที่ / โต๊ะ / เก้าอี้) — วาดรวมก้อนเดียวทำให้ซ้อนผิดชั้นกับของรอบข้าง
+    PROPS.forEach(function (o) { propParts(o).forEach(function (pt) { statics.push(pt); }); });
     areas.forEach(function (a) {
       if (!a.L.open) roomWalls(a.x, a.y, a.w, a.d, a.L.b, a.L.room || a.L.walls4, a.L.gate);
       if (a.L.counter) counter(a.x, a.y, a.w);
@@ -816,20 +812,16 @@
       box(bx, y + 0.0, 0.78, 0.08, 0.44, 0.02, '#8cc3ee', '#4f97d8', '#4f97d8');
       return;
     }
+    if (face === 'y-') {   // หันไปทาง −y: พนักพิงด้าน +y
+      box(x + 0.02, y + 0.4, 0.38, 0.48, 0.08, 0.4, '#4f97d8', '#3b82c4', '#2f6fae');
+      box(x + 0.02, y + 0.4, 0.78, 0.48, 0.08, 0.02, '#8cc3ee', '#4f97d8', '#4f97d8');
+      return;
+    }
     box(x + 0.02, y - 0.04, 0.38, 0.48, 0.08, 0.4, '#4f97d8', '#3b82c4', '#2f6fae');
     box(x + 0.02, y - 0.04, 0.78, 0.48, 0.08, 0.02, '#8cc3ee', '#4f97d8', '#4f97d8');
   }
   // อาคารเปิดไฟ: มีคนอยู่ในอาคาร หรือเป็นอาคารอุบัติเหตุ (เปิด 24 ชม.)
   function bldLit(id) { return id === 'ERB' || areas.some(function (a) { return a.L.b === id && a.n > 0; }); }
-  // หน้าต่าง: e = 2 จุดปลาย [x, y] บนผนัง · กรอบ + กระจก (กลางวันสะท้อนฟ้า / กลางคืนไฟเหลืองถ้าอาคารเปิดไฟ)
-  function drawWindow(id, e) {
-    var L = daylight(state.T), lit = bldLit(id);
-    var glass = L > 0.5 ? '#bcd7ea' : lit ? '#fcd77a' : '#3b4a63';
-    poly([[e[0][0], e[0][1], 1.0], [e[1][0], e[1][1], 1.0], [e[1][0], e[1][1], 2.0], [e[0][0], e[0][1], 2.0]], '#94a3b8');
-    var ix = (e[1][0] - e[0][0]) * 0.06, iy = (e[1][1] - e[0][1]) * 0.06;
-    poly([[e[0][0] + ix, e[0][1] + iy, 1.08], [e[1][0] - ix, e[1][1] - iy, 1.08], [e[1][0] - ix, e[1][1] - iy, 1.92], [e[0][0] + ix, e[0][1] + iy, 1.92]], glass);
-    if (L > 0.5) poly([[e[0][0] + ix, e[0][1] + iy, 1.7], [e[0][0] + ix * 5, e[0][1] + iy * 5, 1.92], [e[0][0] + ix * 7, e[0][1] + iy * 7, 1.92], [e[0][0] + ix, e[0][1] + iy, 1.45]], 'rgba(255,255,255,.55)');
-  }
   // เสาไฟถนน: แขนยื่นไปทางถนน (ทางเท้าหน้าอาคาร → +y · ริมถนนลาดยาง → +x)
   function drawLamp(x, y) {
     var ax = x > 184 ? 1 : 0, ay = ax ? 0 : 1, on = daylight(state.T) < 0.6;
@@ -837,7 +829,28 @@
     box(x - 0.05, y - 0.05, 3.5, 0.1 + ax * 0.9, 0.1 + ay * 0.9, 0.08, '#64748b', '#475569', '#334155');
     var hx = x + ax * 0.9 - 0.22, hy = y + ay * 0.9 - 0.22;
     box(hx, hy, 3.3, 0.44, 0.44, 0.16, '#475569', '#334155', '#1e293b');
-    rect(hx + 0.05, hy + 0.05, 0.34, 0.34, 3.29, on ? '#fff4c2' : '#cbd5e1');
+    rect(hx + 0.05, hy + 0.05, 0.34, 0.34, 3.29, on ? '#ffc77a' : '#cbd5e1');
+  }
+  // ป้าย EMERGENCY บนกันสาดหน้าประตูอาคารอุบัติเหตุ: กล่องแดง ตัวอักษรขาวบนหน้า +y (หันหาถนน)
+  function erSign() { var d = BLD.ERB.door; return { x: d[0] - 2.2, y: d[1] + 2.4, z: 2.68, w: 4.4, d: 0.25, h: 0.9 }; }
+  function drawErSign() {
+    var s = erSign(), night = daylight(state.T) < 0.6;
+    box(s.x, s.y, s.z, s.w, s.d, s.h, '#b91c1c', night ? '#ef4444' : '#dc2626', '#991b1b');
+    if (cam.k < 4) return;
+    var o = P(s.x, s.y + s.d, s.z + s.h), k = cam.k / 20;   // หน่วยย่อย 1/20 บนหน้า +y: u ไปทาง +x, v ลงล่าง
+    ctx.save();
+    ctx.setTransform(DPR * C30 * k, DPR * S30 * k, 0, DPR * ZK * k, DPR * o[0], DPR * o[1]);
+    ctx.font = '700 12px Kanit, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#ffffff'; ctx.fillText('EMERGENCY', s.w * 10, s.h * 10 + 1);
+    ctx.restore();
+  }
+  // ไฟส่องป้ายชื่อ รพ.: โคมเตี้ย 2 ดวงหน้ากำแพงป้าย (กลางคืนเลนส์สว่าง)
+  function drawGateSpots() {
+    var on = daylight(state.T) < 0.6;
+    [GATE.y0 + 3, GATE.y1 - 3].forEach(function (y) {
+      box(GATE.x + 2.2, y - 0.2, 0, 0.4, 0.4, 0.25, '#475569', '#334155', '#1e293b');
+      box(GATE.x + 2.15, y - 0.15, 0.25, 0.1, 0.3, 0.2, on ? '#ffd28a' : '#94a3b8', on ? '#ffbf5e' : '#64748b', on ? '#ffbf5e' : '#64748b');
+    });
   }
   // เงาอาคาร/ที่ตั้งบนพื้น: ฉายรอยเท้าอาคารไปตามทิศแสงอาทิตย์ (เช้าเอียงไปทาง −x · บ่ายไปทาง +x) ยาวขึ้นตอนแดดต่ำ
   function hull(pts) {
@@ -890,18 +903,30 @@
       sctx.beginPath(); sctx.moveTo(c[0][0], c[0][1]); for (var i = 1; i < 4; i++) sctx.lineTo(c[i][0], c[i][1]); sctx.closePath(); sctx.fill();
     });
     var glows = LAMPS.map(function (l) { var ax = l[0] > 184 ? 0.9 : 0; return P(l[0] + ax, l[1] + (ax ? 0 : 0.9), 0); });
+    // แสงเสาไฟ: วงกว้าง 9 หน่วย ไล่ความสว่างหลายช่วงให้ขอบนุ่ม
+    var pool = function (c, g, rr, stops) {
+      var gr = c.createRadialGradient(g[0], g[1], 0, g[0], g[1], rr);
+      stops.forEach(function (s) { gr.addColorStop(s[0], s[1]); });
+      c.fillStyle = gr; c.beginPath(); c.ellipse(g[0], g[1], rr, rr * 0.58, 0, 0, 7); c.fill();
+    };
     glows.forEach(function (g) {
-      var rr = 5.5 * cam.k, gr = sctx.createRadialGradient(g[0], g[1], 0, g[0], g[1], rr);
-      gr.addColorStop(0, 'rgba(0,0,0,.7)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
-      sctx.fillStyle = gr; sctx.beginPath(); sctx.ellipse(g[0], g[1], rr, rr * 0.58, 0, 0, 7); sctx.fill();
+      pool(sctx, g, 9 * cam.k, [[0, 'rgba(0,0,0,.55)'], [0.35, 'rgba(0,0,0,.38)'], [0.7, 'rgba(0,0,0,.12)'], [1, 'rgba(0,0,0,0)']]);
     });
+    // ป้ายชื่อ รพ. (หน้ากำแพงป้าย) และป้าย EMERGENCY: เจาะความมืดให้เห็นป้ายสว่าง
+    var face = function (pts) { sctx.fillStyle = 'rgba(0,0,0,.85)'; sctx.beginPath(); pts.forEach(function (q, i) { var s = P(q[0], q[1], q[2]); if (i) sctx.lineTo(s[0], s[1]); else sctx.moveTo(s[0], s[1]); }); sctx.closePath(); sctx.fill(); };
+    var fx = GATE.x + 1.2;
+    face([[fx, GATE.y0, 0], [fx, GATE.y1, 0], [fx, GATE.y1, 2.4], [fx, GATE.y0, 2.4]]);
+    var es = erSign();
+    face([[es.x, es.y + es.d, es.z], [es.x + es.w, es.y + es.d, es.z], [es.x + es.w, es.y + es.d, es.z + es.h], [es.x, es.y + es.d, es.z + es.h]]);
     ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(shade, 0, 0); ctx.restore();
+    // แสงโทนอุ่น (warm white ~2700K) ซ้อนแบบ screen
+    var a = function (v) { return (v * dark).toFixed(3); };
     ctx.globalCompositeOperation = 'screen';
     glows.forEach(function (g) {
-      var rr = 4.5 * cam.k, gr = ctx.createRadialGradient(g[0], g[1], 0, g[0], g[1], rr);
-      gr.addColorStop(0, 'rgba(255,170,70,' + (0.6 * dark).toFixed(3) + ')'); gr.addColorStop(1, 'rgba(255,170,70,0)');
-      ctx.fillStyle = gr; ctx.beginPath(); ctx.ellipse(g[0], g[1], rr, rr * 0.58, 0, 0, 7); ctx.fill();
+      pool(ctx, g, 8.5 * cam.k, [[0, 'rgba(255,140,40,' + a(0.85) + ')'], [0.4, 'rgba(255,125,30,' + a(0.45) + ')'], [0.75, 'rgba(255,115,25,' + a(0.15) + ')'], [1, 'rgba(255,110,20,0)']]);
     });
+    pool(ctx, P(fx, (GATE.y0 + GATE.y1) / 2, 1.2), 9 * cam.k, [[0, 'rgba(255,170,80,' + a(0.5) + ')'], [1, 'rgba(255,170,80,0)']]);
+    pool(ctx, P(es.x + es.w / 2, es.y + es.d, es.z + es.h / 2), 4 * cam.k, [[0, 'rgba(255,60,60,' + a(0.7) + ')'], [1, 'rgba(255,60,60,0)']]);
     ctx.globalCompositeOperation = 'source-over';
   }
   // เจ้าหน้าที่นั่งประจำจุด: แสดงเมื่อเวลาที่เลือกอยู่ในช่วงเปิดบริการของจุด on (มีผู้ป่วยคนแรกเข้า → คนสุดท้ายออก)
@@ -915,26 +940,38 @@
     drawChibi(b[0], b[1], cam.k * 1.1, { shirt: '#38bdf8', pants: '#1e3a8a', sit: true, walk: null });
   }
   var DESK = ['#e7d3b1', '#c9ad83', '#b89a6f'], DARK = ['#334155', '#1e293b', '#0f172a'];
-  // โต๊ะคอม (ลึก 1 ตามแกน x กว้าง 2.2 ตามแกน y) · เจ้าหน้าที่ฝั่ง −x · เก้าอี้ผู้ป่วยฝั่งที่นั่งรอ
-  // dir 'y' = หมุน 90°: โต๊ะยาวตามแกน x · ผู้ป่วยฝั่ง −y (หันไปทาง +y) · เจ้าหน้าที่ฝั่ง +y (วาดทีหลังเพราะใกล้ผู้ชมกว่า)
-  function drawProp(o) {
-    var x = o.x, y = o.y;
-    if (o.t === 'chair') { drawChair(x, y, o.face); return; }
-    if (o.dir === 'y') {
-      drawChair(x, y - 0.6);
-      box(x - 1.1, y, 0, 2.2, 1.0, 0.75, DESK[0], DESK[1], DESK[2]);
-      box(x - 0.55, y + 0.35, 0.75, 1.1, 0.08, 0.6, DARK[0], DARK[1], DARK[2]);
-      box(x + 0.6, y + 0.1, 0.75, 0.25, 0.25, 0.35, DARK[0], DARK[1], DARK[2]);
-      box(x - 0.4, y + 0.6, 0.75, 0.8, 0.3, 0.03, '#64748b', '#475569', '#334155');
-      if (staffOn(o.on)) drawStaff(x, y + 1.7);
-      return;
+  // โต๊ะคอม → ชิ้นส่วน { k ความลึก, draw } แยกกัน: เจ้าหน้าที่ · โต๊ะ (+จอ CPU คีย์บอร์ด) · เก้าอี้ผู้ป่วย
+  // ปกติ: โต๊ะลึก 1 ตามแกน x กว้าง 2.2 ตามแกน y · เจ้าหน้าที่ฝั่ง −x · ผู้ป่วยฝั่ง +x
+  // dir 'y'  = โต๊ะยาวตามแกน x · ผู้ป่วยฝั่ง −y · เจ้าหน้าที่ฝั่ง +y
+  // dir 'y-' = โต๊ะยาวตามแกน x ชิดผนังหลัง · เจ้าหน้าที่ฝั่ง −y · ผู้ป่วยฝั่ง +y หันหน้าเข้าโต๊ะ
+  function propParts(o) {
+    var x = o.x, y = o.y, kb = ['#64748b', '#475569', '#334155'];
+    var staff = function (sx, sy) { return { k: sx + sy, draw: function () { if (staffOn(o.on)) drawStaff(sx, sy); } }; };
+    var chair = function (cx, cy, f) { return { k: cx + cy - 0.2, draw: function () { drawChair(cx, cy, f); } }; };
+    if (o.t === 'chair') return [chair(x, y, o.face)];
+    if (o.dir === 'y' || o.dir === 'y-') {
+      var back = o.dir === 'y-', my = back ? y + 0.15 : y + 0.35, ky = back ? y + 0.1 : y + 0.6;
+      return [
+        chair(x, back ? y + 1.6 : y - 0.6, back ? 'y-' : null),
+        { k: x + y + 0.5, draw: function () {
+          box(x - 1.1, y, 0, 2.2, 1.0, 0.75, DESK[0], DESK[1], DESK[2]);
+          box(x - 0.55, my, 0.75, 1.1, 0.08, 0.6, DARK[0], DARK[1], DARK[2]);
+          box(x + 0.6, y + 0.4, 0.75, 0.25, 0.25, 0.35, DARK[0], DARK[1], DARK[2]);
+          box(x - 0.4, back ? y + 0.6 : ky, 0.75, 0.8, 0.3, 0.03, kb[0], kb[1], kb[2]);
+        } },
+        staff(x, back ? y - 0.7 : y + 1.7)
+      ];
     }
-    if (staffOn(o.on)) drawStaff(x - 0.7, y);
-    box(x, y - 1.1, 0, 1.0, 2.2, 0.75, DESK[0], DESK[1], DESK[2]);
-    box(x + 0.55, y - 0.55, 0.75, 0.08, 1.1, 0.6, DARK[0], DARK[1], DARK[2]);      // จอหันหาเจ้าหน้าที่
-    box(x + 0.6, y + 0.15, 0.75, 0.25, 0.25, 0.35, DARK[0], DARK[1], DARK[2]);     // CPU
-    box(x + 0.1, y - 0.4, 0.75, 0.3, 0.8, 0.03, '#64748b', '#475569', '#334155');  // คีย์บอร์ด
-    drawChair(x + 1.6, y, 'x-');
+    return [
+      staff(x - 0.7, y),
+      { k: x + 0.5 + y, draw: function () {
+        box(x, y - 1.1, 0, 1.0, 2.2, 0.75, DESK[0], DESK[1], DESK[2]);
+        box(x + 0.55, y - 0.55, 0.75, 0.08, 1.1, 0.6, DARK[0], DARK[1], DARK[2]);      // จอหันหาเจ้าหน้าที่
+        box(x + 0.6, y + 0.15, 0.75, 0.25, 0.25, 0.35, DARK[0], DARK[1], DARK[2]);     // CPU
+        box(x + 0.1, y - 0.4, 0.75, 0.3, 0.8, 0.03, kb[0], kb[1], kb[2]);              // คีย์บอร์ด
+      } },
+      chair(x + 1.6, y, 'x-')
+    ];
   }
   // ป้ายชื่ออาคารบนเสา หน้าทางเข้า
   function drawSign(text, x, y, bg) {
@@ -1859,7 +1896,7 @@
   var ROOM = ['อยู่หน้าห้องตรวจเมื่อถูกส่งคิวไป "หน้าห้องตรวจ", "ห้องตรวจ" หรือจุด Exit / หลังพบแพทย์',
     'ห้องตรวจรับคิว (เวลารับคิวใน ' + Q + ') = เข้าห้องพบแพทย์ · ห้องตรวจกดเสร็จ = กลับมารอหน้าห้อง',
     'ชื่อห้องไม่มีเลข (เช่น ห้องตรวจตา) = จัดห้องตามรหัสแพทย์ ให้แพทย์คนเดียวกันอยู่ห้องเดิมทั้งวัน (ประมาณ)',
-    'ห้องตรวจ 11 (127) = แพทย์มาช่วยตรวจ ไม่นับเป็นของฝั่งไหน · ห้องตรวจพิเศษ 1–4 นับที่คลินิกพิเศษ · ห้องตรวจ 6 นับที่คลินิกเด็ก'];
+    'ห้องตรวจ 11 (127) = แพทย์มาช่วยตรวจ ผู้ป่วยรอที่หน้าห้องตรวจฝั่งที่ซักประวัติมา ถึงคิวค่อยเข้าห้อง 11 · ห้องตรวจพิเศษ 1–4 นับที่คลินิกพิเศษ · ห้องตรวจ 6 นับที่คลินิกเด็ก'];
   var AREA_INFO = {
     REG:  ['ลงทะเบียนเปิด visit (ovst.vsttime) แล้วอยู่ที่เวชระเบียนจนกว่าจะมีคิวแรก', 'ไม่มีคิวภายใน 3 นาทีหลังลงทะเบียน = ถือว่าเดินไปแผนกหลักของ visit (ovst.main_dep)', 'ยืนต่อแถว ไม่มีที่นั่ง · ค้างได้นานสุด 15 นาทีถ้าไม่มีขั้นถัดไป'],
     SCRW: ['ส่งคิวไปจุดซักประวัติทั่วไป (เช่น 207 จุดซักประวัติ GP), OPD นอกเวลา หรือแผนกที่ไม่เข้ากลุ่มใดบนผัง', 'ผู้ป่วยที่ไม่เข้าเงื่อนไขฝั่งนัดแต่ถูกส่งไป 115 / 209 ก็นับที่นี่'],

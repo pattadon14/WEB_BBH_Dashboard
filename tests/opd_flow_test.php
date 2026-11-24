@@ -125,9 +125,9 @@ check('appointment via 209', [$s[1][1], $s[2][1]], ['SCRA', 'DRWA']);
 [$s] = flow_segments(visit(['md' => '115']), [[480.0, null, null, '115'], [520.0, 525.0, 530.0, '109']], $deps, null);
 check('walk-in at 115 and room 7', [$s[1][1], $s[2][1], $s[3][1]], ['SCRW', 'DRWW', 'R7']);
 
-// ---- ห้อง 11 แพทย์ช่วยตรวจ ไม่ใช่ของฝั่งไหน · แผนกที่ตัดออก (ห้องผ่าตัด) ไม่ย้ายผู้ป่วย
+// ---- ห้อง 11 แพทย์ช่วยตรวจ: รอหน้าห้องตรวจฝั่งของตัวเอง ถึงคิวค่อยเข้าห้อง 11 · แผนกที่ตัดออก (ห้องผ่าตัด) ไม่ย้ายผู้ป่วย
 [$s] = flow_segments(visit(['md' => '115', 'ap' => true]), [[480.0, null, null, '115'], [520.0, 525.0, 530.0, '127'], [540.0, null, null, '005']], $deps, null);
-check('room 11 no side, skip dep', $s, [[480.0, 'REG'], [483.0, 'SCRA'], [520.0, 'R11']]);
+check('room 11 waits on own side, skip dep', $s, [[480.0, 'REG'], [483.0, 'SCRA'], [520.0, 'DRWA'], [525.0, 'R11'], [530.0, 'DRWA']]);
 
 check('urgency er level', flow_urgency('2', '0'), 2);
 check('urgency opd emergency', flow_urgency(null, '4'), 2);

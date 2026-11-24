@@ -246,7 +246,7 @@ function flow_place(array $deps, ?string $dep, bool $appt, ?string $dr): array
         return ["DRW$side", $g];     // รอหน้าห้องตามฝั่งของ visit ไม่ใช่ตามเลขห้อง
     }
     if ($g === 'R11') {
-        return ['R11', 'R11'];       // ไม่มีจุดรอของฝั่งไหน — ส่งมาก็นับอยู่ในห้อง 11
+        return ["DRW$side", 'R11'];   // รอหน้าห้องตรวจฝั่งที่ซักประวัติมา ถึงคิวค่อยเข้าห้อง 11 (ห้อง 11 ไม่ใช่ของฝั่งไหน)
     }
     switch ($g) {
         case 'REMOTE':
