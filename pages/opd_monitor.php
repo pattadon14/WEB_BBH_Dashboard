@@ -71,6 +71,7 @@ $loggedIn = provider_is_logged_in();
     <button id="zOut" title="ซูมออก"><i class="fa-solid fa-minus"></i></button>
     <button id="zFit" title="พอดีจอ"><i class="fa-solid fa-house"></i></button>
     <button id="zFull" title="เต็มจอ"><i class="fa-solid fa-expand"></i></button>
+    <button id="zUi" title="ซ่อนเมนู (H)" aria-label="ซ่อนเมนู" aria-pressed="false"><i class="fa-solid fa-eye-slash"></i></button>
 </nav>
 
 <nav class="menu" id="menu" aria-label="เมนู">

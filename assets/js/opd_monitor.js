@@ -1522,6 +1522,22 @@
     cam.k = from.k; cam.ox = from.ox; cam.oy = from.oy;
     tweenCam(to, 600);
   };
+  // ซ่อน/แสดงเมนู (ปุ่มรูปตา หรือกด H) · จำค่าไว้ในเครื่องนี้
+  function setUi(off) {
+    document.body.classList.toggle('ui-off', off);
+    var b = $('zUi');
+    b.setAttribute('aria-pressed', off ? 'true' : 'false');
+    b.title = off ? 'แสดงเมนู (H)' : 'ซ่อนเมนู (H)';
+    b.setAttribute('aria-label', off ? 'แสดงเมนู' : 'ซ่อนเมนู');
+    b.innerHTML = '<i class="fa-solid ' + (off ? 'fa-eye' : 'fa-eye-slash') + '"></i>';
+    try { localStorage.setItem('opd-monitor-ui-off', off ? '1' : '0'); } catch (e) { /* โหมดส่วนตัว: ไม่จำก็ได้ */ }
+  }
+  $('zUi').onclick = function () { setUi(!document.body.classList.contains('ui-off')); };
+  document.addEventListener('keydown', function (e) {
+    var t = e.target.tagName;
+    if ((e.key === 'h' || e.key === 'H') && t !== 'INPUT' && t !== 'TEXTAREA' && !e.ctrlKey && !e.metaKey && !e.altKey) setUi(!document.body.classList.contains('ui-off'));
+  });
+  try { if (localStorage.getItem('opd-monitor-ui-off') === '1') setUi(true); } catch (e) { /* ไม่มีที่เก็บ: เริ่มแบบแสดงเมนู */ }
   $('zFull').onclick = function () {
     if (document.fullscreenElement) document.exitFullscreen();
     else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();

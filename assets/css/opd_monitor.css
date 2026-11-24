@@ -199,6 +199,12 @@ button { cursor: pointer; }
     color: #475467;
 }
 .zoom button:hover { background: var(--g-soft); color: var(--g); }
+.zoom button:focus-visible { outline: 2px solid var(--g); outline-offset: 1px; }
+.zoom button[aria-pressed="true"] { background: var(--g); color: #fff; }
+
+/* ปุ่มซ่อนเมนู: ซ่อนแผงทั้งหมดให้เห็นผังเต็มจอ — เหลือนาฬิกาและแถบซูม (มีปุ่มกดแสดงกลับ) */
+body.ui-off .top, body.ui-off .kpis, body.ui-off .menu, body.ui-off .panel,
+body.ui-off .legend, body.ui-off .player, body.ui-off .track { display: none; }
 
 /* ---------- เมนูขวา ---------- */
 .menu {
