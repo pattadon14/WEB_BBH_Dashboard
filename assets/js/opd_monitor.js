@@ -829,7 +829,7 @@
     box(x - 0.05, y - 0.05, 3.5, 0.1 + ax * 0.9, 0.1 + ay * 0.9, 0.08, '#64748b', '#475569', '#334155');
     var hx = x + ax * 0.9 - 0.22, hy = y + ay * 0.9 - 0.22;
     box(hx, hy, 3.3, 0.44, 0.44, 0.16, '#475569', '#334155', '#1e293b');
-    rect(hx + 0.05, hy + 0.05, 0.34, 0.34, 3.29, on ? '#ffc77a' : '#cbd5e1');
+    rect(hx + 0.05, hy + 0.05, 0.34, 0.34, 3.29, on ? '#fff1d6' : '#cbd5e1');
   }
   // ป้าย EMERGENCY บนกันสาดหน้าประตูอาคารอุบัติเหตุ: กล่องแดง ตัวอักษรขาวบนหน้า +y (หันหาถนน)
   function erSign() { var d = BLD.ERB.door; return { x: d[0] - 2.2, y: d[1] + 2.4, z: 2.68, w: 4.4, d: 0.25, h: 0.9 }; }
@@ -893,7 +893,7 @@
     sctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     sctx.globalCompositeOperation = 'source-over';
     sctx.clearRect(0, 0, W, H);
-    sctx.fillStyle = 'rgba(8,16,40,' + (0.66 * dark).toFixed(3) + ')';
+    sctx.fillStyle = 'rgba(22,30,54,' + (0.6 * dark).toFixed(3) + ')';   // กลางคืนโทนน้ำเงินเทา ไม่ดำสนิท
     sctx.fillRect(0, 0, W, H);
     sctx.globalCompositeOperation = 'destination-out';
     Object.keys(BLD).forEach(function (id) {
@@ -902,15 +902,22 @@
       sctx.fillStyle = 'rgba(0,0,0,.78)';
       sctx.beginPath(); sctx.moveTo(c[0][0], c[0][1]); for (var i = 1; i < 4; i++) sctx.lineTo(c[i][0], c[i][1]); sctx.closePath(); sctx.fill();
     });
-    var glows = LAMPS.map(function (l) { var ax = l[0] > 184 ? 0.9 : 0; return P(l[0] + ax, l[1] + (ax ? 0 : 0.9), 0); });
-    // แสงเสาไฟ: วงกว้าง 9 หน่วย ไล่ความสว่างหลายช่วงให้ขอบนุ่ม
+    // เสาไฟ: แขนยื่นไปทางถนน → แสงตกพื้นเป็นวงรีใต้โคม (เอียงไปทางถนน) ไล่ความสว่างนุ่ม ๆ
+    var lamps = LAMPS.map(function (l) {
+      var ax = l[0] > 184 ? 1 : 0, ay = ax ? 0 : 1, hx = l[0] + ax * 0.9, hy = l[1] + ay * 0.9;
+      return { l: l, ax: ax, ay: ay, head: P(hx, hy, 3.28), g: P(hx + ax * 0.6, hy + ay * 0.6, 0) };
+    });
+    // วงแสงบนพื้นแบบมุมเอียง: บีบทั้งวงและ gradient ตามแกนตั้ง 0.58 ให้จางถึงศูนย์ตรงขอบพอดี (ไม่เกิดขอบวงแข็ง)
     var pool = function (c, g, rr, stops) {
-      var gr = c.createRadialGradient(g[0], g[1], 0, g[0], g[1], rr);
+      c.save(); c.translate(g[0], g[1]); c.scale(1, 0.58);
+      var gr = c.createRadialGradient(0, 0, 0, 0, 0, rr);
       stops.forEach(function (s) { gr.addColorStop(s[0], s[1]); });
-      c.fillStyle = gr; c.beginPath(); c.ellipse(g[0], g[1], rr, rr * 0.58, 0, 0, 7); c.fill();
+      c.fillStyle = gr; c.beginPath(); c.arc(0, 0, rr, 0, 7); c.fill();
+      c.restore();
     };
-    glows.forEach(function (g) {
-      pool(sctx, g, 9 * cam.k, [[0, 'rgba(0,0,0,.55)'], [0.35, 'rgba(0,0,0,.38)'], [0.7, 'rgba(0,0,0,.12)'], [1, 'rgba(0,0,0,0)']]);
+    lamps.forEach(function (m) {
+      // เจาะความมืดแค่บางส่วน (ไม่งั้นเห็นพื้นเทาสว่างเป็นวงขาว) แล้วให้สีอุ่นด้านล่างเป็นตัวให้แสง
+      pool(sctx, m.g, 7 * cam.k, [[0, 'rgba(0,0,0,.5)'], [0.3, 'rgba(0,0,0,.36)'], [0.6, 'rgba(0,0,0,.16)'], [0.85, 'rgba(0,0,0,.04)'], [1, 'rgba(0,0,0,0)']]);
     });
     // ป้ายชื่อ รพ. (หน้ากำแพงป้าย) และป้าย EMERGENCY: เจาะความมืดให้เห็นป้ายสว่าง
     var face = function (pts) { sctx.fillStyle = 'rgba(0,0,0,.85)'; sctx.beginPath(); pts.forEach(function (q, i) { var s = P(q[0], q[1], q[2]); if (i) sctx.lineTo(s[0], s[1]); else sctx.moveTo(s[0], s[1]); }); sctx.closePath(); sctx.fill(); };
@@ -919,11 +926,25 @@
     var es = erSign();
     face([[es.x, es.y + es.d, es.z], [es.x + es.w, es.y + es.d, es.z], [es.x + es.w, es.y + es.d, es.z + es.h], [es.x, es.y + es.d, es.z + es.h]]);
     ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(shade, 0, 0); ctx.restore();
-    // แสงโทนอุ่น (warm white ~2700K) ซ้อนแบบ screen
     var a = function (v) { return (v * dark).toFixed(3); };
-    ctx.globalCompositeOperation = 'screen';
-    glows.forEach(function (g) {
-      pool(ctx, g, 8.5 * cam.k, [[0, 'rgba(255,140,40,' + a(0.85) + ')'], [0.4, 'rgba(255,125,30,' + a(0.45) + ')'], [0.75, 'rgba(255,115,25,' + a(0.15) + ')'], [1, 'rgba(255,110,20,0)']]);
+    // เงาเสาไฟทอดออกจากโคม (ด้านตรงข้ามแขน) เข้มที่โคนแล้วจางไป
+    lamps.forEach(function (m) {
+      var b = P(m.l[0], m.l[1], 0), e = P(m.l[0] - m.ax * 3.2, m.l[1] - m.ay * 3.2, 0);
+      var gr = ctx.createLinearGradient(b[0], b[1], e[0], e[1]);
+      gr.addColorStop(0, 'rgba(15,20,35,' + a(0.45) + ')'); gr.addColorStop(1, 'rgba(15,20,35,0)');
+      ctx.strokeStyle = gr; ctx.lineWidth = Math.max(1, cam.k * 0.18); ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(b[0], b[1]); ctx.lineTo(e[0], e[1]); ctx.stroke();
+    });
+    // แสงขาวอุ่น (warm white ~3000K): วงแสงบนพื้น + ลำแสงจางจากโคมลงพื้น + โคมเรืองแสง · ซ้อนแบบ screen
+    ctx.globalCompositeOperation = 'lighter';   // บวกแสงสีทอง (warm white) ทับพื้น
+    lamps.forEach(function (m) {
+      pool(ctx, m.g, 7 * cam.k, [[0, 'rgba(255,165,70,' + a(0.42) + ')'], [0.3, 'rgba(255,150,60,' + a(0.26) + ')'], [0.6, 'rgba(255,140,50,' + a(0.1) + ')'], [0.85, 'rgba(255,130,45,' + a(0.03) + ')'], [1, 'rgba(255,130,45,0)']]);
+      var h = m.head, g = m.g, rw = 3.2 * cam.k, gr = ctx.createLinearGradient(h[0], h[1], g[0], g[1]);
+      gr.addColorStop(0, 'rgba(255,220,165,' + a(0.28) + ')'); gr.addColorStop(1, 'rgba(255,220,165,0)');
+      ctx.fillStyle = gr;
+      ctx.beginPath(); ctx.moveTo(h[0] - 0.25 * cam.k, h[1]); ctx.lineTo(h[0] + 0.25 * cam.k, h[1]);
+      ctx.lineTo(g[0] + rw, g[1]); ctx.lineTo(g[0] - rw, g[1]); ctx.closePath(); ctx.fill();
+      pool(ctx, h, 1.3 * cam.k, [[0, 'rgba(255,230,190,' + a(0.7) + ')'], [0.4, 'rgba(255,210,150,' + a(0.25) + ')'], [1, 'rgba(255,200,140,0)']]);
     });
     pool(ctx, P(fx, (GATE.y0 + GATE.y1) / 2, 1.2), 9 * cam.k, [[0, 'rgba(255,170,80,' + a(0.5) + ')'], [1, 'rgba(255,170,80,0)']]);
     pool(ctx, P(es.x + es.w / 2, es.y + es.d, es.z + es.h / 2), 4 * cam.k, [[0, 'rgba(255,60,60,' + a(0.7) + ')'], [1, 'rgba(255,60,60,0)']]);
