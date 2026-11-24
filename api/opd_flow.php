@@ -20,7 +20,7 @@ $d = flow_date();
 $today = date('Y-m-d');
 $isToday = $d === $today;
 
-$cacheFile = __DIR__ . '/../storage/cache/opd_flow_v5_' . $d . '.json';
+$cacheFile = __DIR__ . '/../storage/cache/opd_flow_v6_' . $d . '.json';
 $ttl = $isToday ? 45 : 3600;
 if (is_file($cacheFile) && time() - filemtime($cacheFile) < $ttl) {
     header('Content-Type: application/json; charset=utf-8');
