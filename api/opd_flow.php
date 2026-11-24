@@ -20,7 +20,7 @@ $d = flow_date();
 $today = date('Y-m-d');
 $isToday = $d === $today;
 
-$cacheFile = __DIR__ . '/../storage/cache/opd_flow_v4_' . $d . '.json';
+$cacheFile = __DIR__ . '/../storage/cache/opd_flow_v5_' . $d . '.json';
 $ttl = $isToday ? 45 : 3600;
 if (is_file($cacheFile) && time() - filemtime($cacheFile) < $ttl) {
     header('Content-Type: application/json; charset=utf-8');
@@ -133,6 +133,28 @@ try {
     usort($visits, fn($a, $b) => strcmp($a['i'], $b['i']));     // เรียงตามรหัสสุ่ม โยงกลับลำดับ vn ไม่ได้
     sort($remote);
 
+    // แผนกในคิววันนี้ที่ถูกวางไว้แต่ละจุด (ทั้งฝั่ง walk-in และฝั่งนัด) — ให้ปุ่ม ⓘ ของแผงจุดบริการบอกที่มา
+    $areaDeps = [];
+    $qDeps = [];
+    foreach ($queue as $qq) {
+        foreach ($qq as $x) {
+            $qDeps[$x[3]] = true;
+        }
+    }
+    foreach (array_keys($qDeps) as $code) {
+        $code = (string) $code;
+        if ($code === '999' || flow_group($deps, $code) === 'ROOMX') {
+            continue;
+        }
+        foreach ([false, true] as $ap) {
+            foreach (array_unique(flow_place($deps, $code, $ap, null)) as $place) {
+                if ($place !== null) {
+                    $areaDeps[$place][$code] = $deps[$code]['name'] ?? $code;
+                }
+            }
+        }
+    }
+
     $depList = [];
     foreach (array_keys($depUsed) as $code) {
         $depList[] = ['code' => (string) $code, 'name' => $deps[$code]['name'] ?? (string) $code];
@@ -143,7 +165,8 @@ try {
         'date' => $d,
         'date_label' => flow_thai_date($d),
         'is_today' => $isToday,
-        'areas' => array_map(fn($a) => ['id' => $a[0], 'name' => $a[1], 'target' => $a[2], 'nowait' => $a[0] === 'ER'], FLOW_AREAS),
+        'areas' => array_map(fn($a) => ['id' => $a[0], 'name' => $a[1], 'target' => $a[2], 'nowait' => $a[0] === 'ER',
+            'deps' => array_values($areaDeps[$a[0]] ?? [])], FLOW_AREAS),
         'deps' => $depList,
         'doctors' => count($doctors),
         'admitted' => $admitted,

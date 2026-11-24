@@ -594,18 +594,25 @@ html[data-theme="dark"] .home-dash .small-box-footer:focus-visible {
 html[data-theme="dark"] .home-dash .q-panel {
     --q-ok-text: #83d7a5;
     --q-bad-text: #ffa698;
-    --q-warn-text: #f2ad67;
+    --q-warn-text: #f3b373;
+    --q-ok-bg: #161c19;
+    --q-bad-bg: #1f1918;
+    --q-warn-bg: #1d1910;
     --q-ok-line: #1f9d55;
     --q-bad-line: #d0342c;
     --q-warn-line: #e07b12;
+    --q-neutral-line: #64748b;
+    --q-track-bg: #1b1e1c;
 }
 html[data-theme="dark"] .home-dash .q-opd {
     --q-accent-text: #89d9a3;
     --q-tint-bg: #171a18;
+    --q-tile-line: #2b3d32;
 }
 html[data-theme="dark"] .home-dash .q-er {
     --q-accent-text: #ffa698;
-    --q-tint-bg: #1c1818;
+    --q-tint-bg: #1d1818;
+    --q-tile-line: #463230;
 }
 html[data-theme="dark"] .home-dash .er-info-dlg::backdrop {
     background: rgba(8, 20, 14, .45);

@@ -42,7 +42,9 @@ foreach ([
     ['035 ห้องตรวจ พิเศษ 1', 'ROOMX'], ['023 OPDนอกเวลา', 'SCRW'], ['040 ER(นอกเวลาราชการ)', 'ER'],
     ['193 ห้องบัตร OPD', 'ADMIN'], ['203 ห้องจ่ายยาผู้ป่วยนอก', 'RX'], ['014 ห้องเก็บเงิน', 'CASH'],
     ['134 จุดซักประวัติคลินิกเด็ก', 'PED'], ['143 ส่งเวชภัณฑ์ทางไปรษณีย์', 'REMOTE'], ['234 PCU การเงิน', 'REMOTE'],
-    ['178 Telemedicine', 'TELE'], ['039 คลินิคเบาหวาน GP', null],
+    ['178 Telemedicine', 'TELE'], ['039 คลินิคเบาหวาน GP', 'SPC'], ['197 คลินิกความดันโลหิตสูง', 'SPC'],
+    ['191 ศัลยกรรมกระดูก คลินิกพิเศษ', 'SPC'], ['225 การเงินคลินิกพิเศษ', 'CASH'], ['204 ห้องจ่ายยาคลินิกพิเศษ', 'RX'],
+    ['207 จุดซักประวัติ GP', null], ['115 จุดซักประวัติ OPD เฉพาะทาง', null],
 ] as [$n, $g]) {
     check("classify $n", flow_classify($n), $g);
 }
@@ -108,6 +110,16 @@ check('exit at go-home', $e, 502.0);
 // ---- OPD นอกเวลา อยู่ฝั่ง walk-in แม้เป็นผู้ป่วยนัด
 [$s] = flow_segments(visit(['md' => '023', 'ap' => true]), [[480.0, null, null, '023']], $deps, null);
 check('after-hours opd walk-in side', $s[1][1], 'SCRW');
+
+// ---- ฝั่งผู้ป่วยนัด = มีนัด + ผ่าน 115/209/191 เท่านั้น
+$deps['039'] = ['name' => '039 คลินิคเบาหวาน GP', 'group' => 'SPC'];
+$deps['209'] = ['name' => '209 จุดซักประวัติ ศัลยกรรม', 'group' => null];
+[$s] = flow_segments(visit(['md' => '039', 'ap' => true]), [[480.0, null, null, '039'], [520.0, null, null, '129']], $deps, null);
+check('appointment at chronic clinic', [$s[1][1], $s[2][1]], ['SPC', 'DRWW']);
+[$s] = flow_segments(visit(['md' => '209', 'ap' => true]), [[480.0, null, null, '209'], [520.0, null, null, '129']], $deps, null);
+check('appointment via 209', [$s[1][1], $s[2][1]], ['SCRA', 'DRWA']);
+[$s] = flow_segments(visit(['md' => '115']), [[480.0, null, null, '115'], [520.0, 525.0, 530.0, '109']], $deps, null);
+check('walk-in at 115 and room 7', [$s[1][1], $s[2][1], $s[3][1]], ['SCRW', 'DRWW', 'R7']);
 
 check('urgency er level', flow_urgency('2', '0'), 2);
 check('urgency opd emergency', flow_urgency(null, '4'), 2);

@@ -57,6 +57,7 @@ const FLOW_AREAS = [
     ['ARI', 'คลินิก ARI', 60],
     ['TTM', 'แพทย์แผนไทย', 60],
     ['PT', 'กายภาพบำบัด', 60],
+    ['SPC', 'คลินิกพิเศษ', 40],
 ];
 // บ้านบึง: ห้อง 1–5 walk-in · 6 ห้องตรวจเด็ก · 7–10 ผู้ป่วยนัด
 const FLOW_ROOMS = ['R1', 'R2', 'R3', 'R4', 'R5', 'R6', 'R7', 'R8', 'R9', 'R10'];
@@ -86,13 +87,17 @@ const FLOW_DEP_RULES = [
     ['PED', '/เด็ก|กุมาร/u'],             // 134 จุดซักประวัติคลินิกเด็ก → ห้องตรวจ 6
     ['ER', '/\ber\b|ฉุกเฉิน|อุบัติเหตุ/iu'],
     ['US', '/ultra|อัลตร/iu'],
-    ['XRAY', '/x-?ray|เอกซเรย์|รังสี/iu'],
+    ['XRAY', '/x[-_ ]?ray|เอกซเรย์|รังสี/iu'],
     ['LAB', '/\blab\b|ชันสูตร|เทคนิคการแพทย์/iu'],
-    ['DRW', '/หน้าห้องตรวจ/u'],           // จุดรอหน้าห้องตรวจ (002 หน้าห้องตรวจ 1, 129 หน้าห้องตรวจ3(นัด))
+    ['SPC', '/คล[ิี]นิ[กค]|\bclinic\b/iu'],             // คลินิกเฉพาะโรค (เบาหวาน, ความดัน, CKD ...) = อาคารคลินิกพิเศษ
+    ['DRW','/หน้าห้องตรวจ/u'],           // จุดรอหน้าห้องตรวจ (002 หน้าห้องตรวจ 1, 129 หน้าห้องตรวจ3(นัด))
     ['ROOM', '/ห้องตรวจ(?:โรค)?\s*(\d+)/u'],
     ['ROOMX', '/ห้องตรวจ/u'],             // ห้องตรวจไม่มีเลข (ห้องตรวจ พิเศษ 1–3) → เดาห้องจากแพทย์
 ];
-// กลุ่มอื่น (คลินิกเฉพาะโรค, ซักประวัติ, ไม่รู้จัก) → จุดซักประวัติตามฝั่ง walk-in / ผู้ป่วยนัด
+// กลุ่มอื่น (จุดซักประวัติ, ไม่รู้จัก) → ซักประวัติ Walk-in
+// ฝั่งผู้ป่วยนัด (ซักประวัติ/หน้าห้องตรวจ ผู้ป่วยนัด) = มีนัด (oapp) และผ่านจุดซักประวัติฝั่งนัดเหล่านี้ (หน่วยงานกำหนด 24 พ.ย. 2569)
+// 115 จุดซักประวัติ OPD เฉพาะทาง · 209 จุดซักประวัติ ศัลยกรรม · 191 ศัลยกรรมกระดูก คลินิกพิเศษ
+const FLOW_APPT_SCREEN = ['115', '209', '191'];
 
 function flow_env(string $key, string $default = ''): string
 {
@@ -221,6 +226,9 @@ function flow_place(array $deps, ?string $dep, bool $appt, ?string $dr): array
     if ((string) $dep === '999') {
         return ['OUT', 'OUT'];
     }
+    if ($appt && in_array((string) $dep, FLOW_APPT_SCREEN, true)) {
+        return ['SCRA', 'SCRA'];
+    }
     $g = flow_group($deps, $dep);
     $side = $appt ? 'A' : 'W';
     if ($g === 'ROOMX') {
@@ -230,7 +238,7 @@ function flow_place(array $deps, ?string $dep, bool $appt, ?string $dr): array
         return ['PED', 'R6'];
     }
     if (in_array($g, FLOW_ROOMS, true)) {
-        return [(int) substr($g, 1) >= 7 ? 'DRWA' : 'DRWW', $g];
+        return ["DRW$side", $g];     // รอหน้าห้องตามฝั่งของ visit ไม่ใช่ตามเลขห้อง
     }
     switch ($g) {
         case 'REMOTE':
@@ -252,11 +260,12 @@ function flow_place(array $deps, ?string $dep, bool $appt, ?string $dr): array
         case 'ARI':
         case 'TTM':
         case 'PT':
+        case 'SPC':
         case 'CASH':
         case 'RX':
             return [$g, $g];
     }
-    return ["SCR$side", "SCR$side"];
+    return ['SCRW', 'SCRW'];
 }
 
 /**
@@ -267,7 +276,8 @@ function flow_place(array $deps, ?string $dep, bool $appt, ?string $dr): array
 function flow_segments(array $v, array $q, array $deps, ?float $now): array
 {
     $reg = $v['reg'];
-    $appt = !empty($v['ap']);
+    $viaAppt = fn($d) => in_array((string) $d, FLOW_APPT_SCREEN, true);
+    $appt = !empty($v['ap']) && ($viaAppt($v['md'] ?? null) || array_filter($q, fn($r) => $viaAppt($r[3])));
     $dr = $v['dr'] ?? null;
     $ok = fn($t) => $t !== null && $t >= $reg - 1 && $t <= $reg + FLOW_MAX_TOTAL;
 

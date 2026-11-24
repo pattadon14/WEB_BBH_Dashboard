@@ -29,14 +29,14 @@ async function loadCard(config) {
                 Number(data.month_visit).toLocaleString();
         }
 
-        // เทียบวันเดียวกันของสัปดาห์ก่อน ถึงเวลาเดียวกัน — ลูกศรบอกทิศ ไม่ใช้สีบอกดี/ไม่ดี (ผู้ป่วยมากขึ้นไม่ได้แปลว่าแย่)
+        // เทียบวันเดียวกันของสัปดาห์ก่อน ถึงเวลาเดียวกัน — ลูกศรมากขึ้นสีแดง / น้อยลงสีเขียว (ตามที่ผู้ใช้กำหนด) มีข้อความกำกับเสมอ
         const trend = document.getElementById(config.today.replace('-total', '-trend'));
         if (trend && data.prev_week !== undefined) {
             const now = Number(data.today), prev = Number(data.prev_week), diff = now - prev;
             const pct = prev ? Math.round(diff * 100 / prev) : null;
             trend.innerHTML = `สัปดาห์ก่อนถึงเวลานี้ ${prev.toLocaleString()} · `
                 + (diff === 0 ? 'เท่าเดิม'
-                    : `<i class="fa-solid fa-arrow-${diff > 0 ? 'up' : 'down'}" aria-hidden="true"></i> ${diff > 0 ? 'มากกว่า' : 'น้อยกว่า'} ${Math.abs(diff).toLocaleString()}`
+                    : `<span class="kpi-trend-ico ${diff > 0 ? 'is-up' : 'is-down'}" aria-hidden="true"><i class="fa-solid fa-arrow-${diff > 0 ? 'up' : 'down'}"></i></span> ${diff > 0 ? 'มากกว่า' : 'น้อยกว่า'} ${Math.abs(diff).toLocaleString()}`
                       + (pct === null ? '' : ` (${Math.abs(pct)}%)`));
         }
 

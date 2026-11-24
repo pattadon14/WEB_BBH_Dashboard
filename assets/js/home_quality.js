@@ -18,12 +18,16 @@
         warn: ['fa-triangle-exclamation', 'เฝ้าระวัง']
     };
 
-    // ช่องตัวเลข: label, value (ตัวเลขหรือ null), unit, sub (บรรทัดล่าง), state (ok|bad|warn|null), stateText ทับข้อความสถานะ
+    // ช่องตัวเลข: label, value (ตัวเลขหรือ null), unit, sub (บรรทัดล่าง), state (ok|bad|warn|null), stateText ทับข้อความสถานะ,
+    // meter = % ทันเป้า (แถบใต้ตัวเลข, null = ไม่แสดง)
     const tile = t => `
         <div class="q-tile${t.state ? ' is-' + t.state : ''}">
-            <span class="q-label">${t.label}</span>
+            <div class="q-top">
+                <span class="q-label">${t.label}</span>
+                ${t.state ? `<span class="q-state"><i class="fa-solid ${STATE[t.state][0]}" aria-hidden="true"></i> ${t.stateText || STATE[t.state][1]}</span>` : ''}
+            </div>
             <span class="q-value">${t.value === null || t.value === undefined ? '—' : `<b>${t.value}</b>`}${t.unit && t.value !== null ? ` <small>${t.unit}</small>` : ''}</span>
-            ${t.state ? `<span class="q-state"><i class="fa-solid ${STATE[t.state][0]}" aria-hidden="true"></i> ${t.stateText || STATE[t.state][1]}</span>` : ''}
+            ${t.meter == null ? '' : `<span class="q-meter" aria-hidden="true"><i style="width:${Math.max(0, Math.min(100, t.meter))}%"></i></span>`}
             ${t.sub ? `<span class="q-sub">${t.sub}</span>` : ''}
         </div>`;
 
@@ -43,6 +47,7 @@
                 label: label || s.label,
                 value: s.avg === null ? null : fmt(s.avg), unit: 'นาที',
                 state: s.avg === null ? null : (s.avg <= s.target ? 'ok' : 'bad'),
+                meter: s.n ? s.ok_pct : null,
                 sub: `เป้า ≤ ${s.target} นาที` + (s.n ? ` · ทันเป้า ${s.ok_pct}% จาก ${fmt(s.n)} ราย` : '')
             });
             const [scr, toDr, d2d, rx] = d.steps;
@@ -55,6 +60,7 @@
                 {
                     label: 'เวลารวมต่อราย', value: d.kpi.total === null ? null : fmt(d.kpi.total), unit: 'นาที',
                     state: d.kpi.total === null ? null : (d.kpi.total <= t.total ? 'ok' : 'bad'),
+                    meter: d.kpi.done,
                     sub: `เป้า ≤ ${t.total} นาที` + (d.kpi.done === null ? '' : ` · จบใน 2 ชม. ${d.kpi.done}% (เป้า ≥ ${t.done}%)`)
                 }
             ].map(tile).join('');
@@ -70,7 +76,7 @@
                 getJson('api/er_los.php'), getJson('api/er_d2d.php'), getJson('api/er_today_summary.php')
             ]);
             const now = los.now || {};
-            $('q-er-at').textContent = now.at ? `ณ ${now.at} น.` : '';
+            $('q-er-at').textContent = now.at ? `สถานะผู้ป่วยในห้องฉุกเฉิน ณ ${now.at} น.` : 'สถานะผู้ป่วยในห้องฉุกเฉิน';
             // Door-to-Doctor ทันเป้า: รวมระดับ 1–5 (ไม่รวม Black) ตัวหาร = รายที่มีเวลาพบแพทย์ เหมือนหน้า ER
             const within = d2d.items.reduce((s, i) => s + i.within, 0);
             const timed = d2d.items.reduce((s, i) => s + i.timed, 0);
@@ -86,7 +92,7 @@
                 },
                 {
                     // ไม่มีเป้ารวม (หน้า ER ตั้งเป้าแยกตามระดับ) จึงไม่ใส่สถานะ
-                    label: 'Door-to-Doctor ทันเป้าตามระดับ', value: p, unit: '%',
+                    label: 'Door-to-Doctor ทันเป้าตามระดับ', value: p, unit: '%', meter: p,
                     sub: timed ? `${fmt(within)} จาก ${fmt(timed)} ราย` + (ut ? ` · ระดับ 1–2: ${fmt(uw)}/${fmt(ut)}` : '') : 'ยังไม่มีเวลาพบแพทย์'
                 },
                 { label: 'Admit / Refer จาก ER วันนี้', value: `${fmt(sum.admit)} / ${fmt(sum.refer)}`, unit: 'ราย', sub: `จากผู้มารับบริการ ${fmt(sum.total)} ราย` }

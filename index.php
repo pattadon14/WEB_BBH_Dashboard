@@ -227,9 +227,14 @@ function home_info_btn(string $key, string $label): string
                 <div class="col-xl-7 col-12 mb-2">
                     <section class="q-panel q-opd" aria-labelledby="q-opd-title">
                         <header class="q-head">
-                            <h6 id="q-opd-title"><i class="fa-solid fa-stethoscope" aria-hidden="true"></i> เวลารอ OPD <small>เฉลี่ยต่อราย</small></h6>
-                            <?= home_info_btn('q_opd', 'เวลารอ OPD') ?>
-                            <a class="q-more" href="pages/opd_detail.php">หน้า OPD <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+                            <div class="q-title">
+                                <i class="fa-solid fa-stethoscope" aria-hidden="true"></i>
+                                <div>
+                                    <h6 id="q-opd-title">เวลารอ OPD <?= home_info_btn('q_opd', 'เวลารอ OPD') ?></h6>
+                                    <p>นาทีเฉลี่ยต่อราย เทียบเป้าหมาย</p>
+                                </div>
+                            </div>
+                            <a class="q-go" href="pages/opd_detail.php">ดูหน้า OPD <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
                         </header>
                         <div class="q-grid" id="q-opd" aria-live="polite"><p class="q-msg">กำลังโหลด…</p></div>
                     </section>
@@ -238,9 +243,14 @@ function home_info_btn(string $key, string $label): string
                 <div class="col-xl-5 col-12 mb-2">
                     <section class="q-panel q-er" aria-labelledby="q-er-title">
                         <header class="q-head">
-                            <h6 id="q-er-title"><i class="fa-solid fa-truck-medical" aria-hidden="true"></i> ER ตอนนี้ <small id="q-er-at"></small></h6>
-                            <?= home_info_btn('q_er', 'ER ตอนนี้') ?>
-                            <a class="q-more" href="pages/ER_detail.php">หน้า ER <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+                            <div class="q-title">
+                                <i class="fa-solid fa-truck-medical" aria-hidden="true"></i>
+                                <div>
+                                    <h6 id="q-er-title">ER ตอนนี้ <?= home_info_btn('q_er', 'ER ตอนนี้') ?></h6>
+                                    <p id="q-er-at">สถานะผู้ป่วยในห้องฉุกเฉิน</p>
+                                </div>
+                            </div>
+                            <a class="q-go" href="pages/ER_detail.php">ดูหน้า ER <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
                         </header>
                         <div class="q-grid" id="q-er" aria-live="polite"><p class="q-msg">กำลังโหลด…</p></div>
                     </section>

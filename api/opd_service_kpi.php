@@ -25,8 +25,8 @@ const SK_MAX_TOTAL = 600;
 // [ชื่อขั้น, เวลาเริ่ม, เวลาจบ, เป้าหมายนาที] — ชื่อเวลาตาม CTE t ใน sk_rows()
 // shortcut: เป้าหมายเป็นค่าตั้งต้นจากต้นแบบวังน้ำเขียว ให้ทีมคุณภาพ รพ. กำหนดค่าจริงแล้วแก้ที่นี่
 const SK_STEPS = [
-    ['รอคัดกรอง', 'reg', 'scr', 15],
-    ['คัดกรอง → พบแพทย์', 'scr', 'dr', 30],
+    ['รอซักประวัติ', 'reg', 'scr', 15],
+    ['ซักประวัติ → พบแพทย์', 'scr', 'dr', 30],
     ['Door-to-Doctor', 'reg', 'dr', 45],
     ['รอรับยา', 'rxin', 'rxout', 20],
 ];
@@ -140,7 +140,7 @@ $p1 = date('Y-m-d', strtotime("$p2 -" . ($days - 1) . " days"));
 
 // scope=general|special = เฉพาะ visit ของแท็บนั้น (config/opd.php) · ไม่ส่ง = ทุกแผนก (แท็บเวลารอ)
 $scopeDeps = in_array($_GET['scope'] ?? '', ['general', 'special'], true) ? opd_dep_list($_GET['scope']) : null;
-$cacheFile = __DIR__ . "/../storage/cache/opd_service_kpi_v2_{$d1}_{$d2}" . ($scopeDeps ? '_' . $_GET['scope'] : '') . ".json";
+$cacheFile = __DIR__ . "/../storage/cache/opd_service_kpi_v3_{$d1}_{$d2}" . ($scopeDeps ? '_' . $_GET['scope'] : '') . ".json";
 $ttl = $d2 === $today ? 300 : 3600;
 if (is_file($cacheFile) && time() - filemtime($cacheFile) < $ttl) {
     header('Content-Type: application/json; charset=utf-8');
@@ -207,7 +207,7 @@ try {
         $alerts[] = ['issue' => $issue, 'value' => $value, 'target' => $target, 'action' => $action,
             'level' => $bad ? ($ratio >= 1.5 ? 'high' : 'mid') : 'ok', 'ratio' => $bad ? $ratio : 0];
     };
-    $actions = ['เพิ่มจุด/เจ้าหน้าที่คัดกรองช่วงพีค', 'เกลี่ยแพทย์ออกตรวจให้ตรงช่วงผู้ป่วยมาก', 'เร่งเริ่มตรวจตรงเวลา ลดคิวค้างช่วงเช้า',
+    $actions = ['เพิ่มจุด/เจ้าหน้าที่ซักประวัติช่วงพีค', 'เกลี่ยแพทย์ออกตรวจให้ตรงช่วงผู้ป่วยมาก', 'เร่งเริ่มตรวจตรงเวลา ลดคิวค้างช่วงเช้า',
         'เพิ่มเภสัชกร/ช่องจ่ายยาช่วงพีค'];
     foreach ($cur['steps'] as $i => $s) {
         if ($s['avg'] !== null) {
@@ -228,8 +228,8 @@ try {
     }
     $scrPct = $cur['count'] ? round($cur['scr'] * 100 / $cur['count'], 1) : null;
     if ($scrPct !== null) {
-        $add('บันทึกเวลาคัดกรอง', "$scrPct%", '≥ 90%', $scrPct < 90, $scrPct ? 90 / $scrPct : 2,
-            'ย้ำจุดคัดกรองกดเวลาใน HOSxP ทุกราย (ตัวเลขเวลารอเชื่อได้มากขึ้น)');
+        $add('บันทึกเวลาซักประวัติ', "$scrPct%", '≥ 90%', $scrPct < 90, $scrPct ? 90 / $scrPct : 2,
+            'ย้ำจุดซักประวัติกดเวลาใน HOSxP ทุกราย (ตัวเลขเวลารอเชื่อได้มากขึ้น)');
     }
     usort($alerts, fn($x, $y) => $y['ratio'] <=> $x['ratio']);
 
@@ -247,7 +247,7 @@ try {
             'noshow' => $noshowRate,
         ],
         'steps' => $cur['steps'],
-        'funnel' => [$f('ลงทะเบียน', $cur['count']), $f('คัดกรอง', $cur['scr']), $f('พบแพทย์', $cur['seen']),
+        'funnel' => [$f('ลงทะเบียน', $cur['count']), $f('ซักประวัติ', $cur['scr']), $f('พบแพทย์', $cur['seen']),
             $f('ห้องยา', $cur['rx']), $f('ส่งชำระเงิน', $cur['paid']), $f('จบบริการ', $cur['fin'])],
         'hours' => array_values($hours),
         'off_hours' => $off,

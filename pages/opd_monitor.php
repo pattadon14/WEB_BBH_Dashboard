@@ -58,12 +58,12 @@ $loggedIn = provider_is_logged_in();
 </div>
 
 <section class="kpis">
-    <div class="kpi card"><small>ผู้ป่วยใน รพ.</small><b id="kIn">0</b><span>คน</span></div>
-    <div class="kpi card"><small>รอเฉลี่ย</small><b id="kWait">0</b><span>นาที</span></div>
-    <div class="kpi card"><small>ความหนาแน่น</small><b id="kDens">0%</b><em class="chip" id="kDensT">ว่าง</em></div>
-    <div class="kpi card"><small>กลับบ้านแล้ววันนี้</small><b id="kLeft">0</b><span>คน</span></div>
-    <div class="kpi kpi-sm card"><small>Telemed / PCU วันนี้</small><b id="kPcu">0</b><span>ราย</span></div>
-    <div class="kpi kpi-sm card"><small>บันทึกเวลาครบคู่</small><b id="kQual">0%</b><span id="kQualSub"></span></div>
+    <div class="kpi card"><small>ผู้ป่วยใน รพ.</small><button type="button" class="kinfo" data-kinfo="kIn" aria-label="ที่มาของข้อมูล"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></button><b id="kIn">0</b><span>คน</span></div>
+    <div class="kpi card"><small>รอเฉลี่ย</small><button type="button" class="kinfo" data-kinfo="kWait" aria-label="ที่มาของข้อมูล"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></button><b id="kWait">0</b><span>นาที</span></div>
+    <div class="kpi card"><small>ความหนาแน่น</small><button type="button" class="kinfo" data-kinfo="kDens" aria-label="ที่มาของข้อมูล"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></button><b id="kDens">0%</b><em class="chip" id="kDensT">ว่าง</em></div>
+    <div class="kpi card"><small>กลับบ้านแล้ววันนี้</small><button type="button" class="kinfo" data-kinfo="kLeft" aria-label="ที่มาของข้อมูล"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></button><b id="kLeft">0</b><span>คน</span></div>
+    <div class="kpi kpi-sm card"><small>Telemed / PCU วันนี้</small><button type="button" class="kinfo" data-kinfo="kPcu" aria-label="ที่มาของข้อมูล"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></button><b id="kPcu">0</b><span>ราย</span></div>
+    <div class="kpi kpi-sm card"><small>บันทึกเวลาครบคู่</small><button type="button" class="kinfo" data-kinfo="kQual" aria-label="ที่มาของข้อมูล"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></button><b id="kQual">0%</b><span id="kQualSub"></span></div>
 </section>
 
 <nav class="zoom card" aria-label="ซูม">

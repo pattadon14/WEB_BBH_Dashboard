@@ -273,6 +273,31 @@ button { cursor: pointer; }
 .arow .trk i { display: block; height: 100%; width: 0; border-radius: 4px; }
 .remote { color: var(--muted); font-size: .78rem; margin-top: 4px; }
 
+/* ปุ่ม ⓘ ที่มาของข้อมูล: ข้างแถวจุดบริการ และมุมการ์ด KPI */
+.arow-wrap { display: flex; align-items: flex-start; gap: 2px; }
+.arow-wrap .arow { flex: 1; min-width: 0; }
+.ainfo, .kinfo {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    background: transparent;
+    color: var(--g);
+    border-radius: 8px;
+    transition: background-color .15s ease;
+}
+.ainfo { width: 32px; height: 32px; margin-top: 2px; font-size: .95rem; }
+.kpi { position: relative; }
+.kpi > small { padding-right: 22px; }
+.kinfo { position: absolute; top: 4px; right: 4px; width: 26px; height: 26px; font-size: .85rem; }
+.ainfo:hover, .kinfo:hover { background: var(--g-soft); }
+.ainfo:focus-visible, .kinfo:focus-visible, .arow:focus-visible { outline: 2px solid var(--g); outline-offset: 1px; }
+.ihead { margin: 10px 0 2px; color: var(--g); font-weight: 600; font-size: .9rem; }
+.ihead:first-child { margin-top: 0; }
+.idep { margin: 0; color: var(--muted); font-size: .84rem; line-height: 1.6; }
+@media (prefers-reduced-motion: reduce) { .ainfo, .kinfo { transition: none; } }
+
 .panel .bhead { margin: 8px 4px 2px; padding-bottom: 2px; border-bottom: 1px solid var(--line); color: var(--g); font-size: .8rem; font-weight: 600; }
 .panel .bhead:first-child { margin-top: 0; }
 

@@ -188,6 +188,68 @@
         }
     };
 
+    // คำอธิบายชื่อตาราง/คอลัมน์/รหัสของ HOSxP — ใส่ต่อท้าย <code> ครั้งแรกที่พบในแต่ละหน้าต่าง ทุกหน้าที่ใช้หน้าต่างนี้
+    // ไม่พบชื่อเต็ม (ตาราง.คอลัมน์) → ใช้คำอธิบายของคอลัมน์ · ชื่อที่ไม่มีในรายการแสดงตามเดิม
+    const GLOSS = {
+        ovst: 'ข้อมูลการมารับบริการผู้ป่วยนอก 1 แถว = 1 visit', vstdate: 'วันที่มารับบริการ', 'ovst.vsttime': 'เวลาลงทะเบียน',
+        an: 'เลขผู้ป่วยใน มีค่า = Admit', main_dep: 'แผนกหลักของ visit', cur_dep: 'แผนกที่ผู้ป่วยอยู่ล่าสุด',
+        ovstist: 'วิธีมารับบริการ เช่น มาเอง มาตามนัด รับส่งต่อ', pttype: 'สิทธิการรักษา',
+        'pttype.hipdata_code': 'รหัสกลุ่มสิทธิมาตรฐาน', pcode: 'รหัสกลุ่มสิทธิ เช่น UC เบิกได้',
+        ovst_service_time: 'เวลาแต่ละขั้นบริการของ visit เช่น ซักประวัติ พบแพทย์ ห้องยา', depcode: 'รหัสแผนก',
+        'OPD-SCREEN': 'ขั้นซักประวัติ', 'OPD-DOCTOR': 'ขั้นแพทย์ตรวจ', 'OPD-RX-ENTRY': 'ห้องยารับใบสั่งยา',
+        'OPD-RX-DISPENSE': 'จ่ายยาให้ผู้ป่วย', begin_time: 'เวลาเริ่มขั้นบริการ',
+        opd_dep_queue: 'บันทึกการส่งผู้ป่วยไปแผนก เวลาส่ง / รับคิว / เสร็จ', kskdepartment: 'รายชื่อแผนก / จุดบริการ',
+        service_time: 'เวลาบริการแต่ละจุดของ visit (จุดละครั้ง)', 'service_time.service2': 'เวลาแพทย์กดเริ่มตรวจ',
+        oapp: 'ใบนัดหมาย', visit_vn: 'visit ที่มาตามนัดใบนี้', 'oapp.clinic': 'คลินิกที่นัด', 'oapp.depcode': 'แผนกที่นัด',
+        nexttime: 'เวลานัด', nextdate: 'วันนัด', clinic: 'รายชื่อคลินิก',
+        patient: 'ทะเบียนผู้ป่วยของ รพ.', sex: 'เพศ', birthday: 'วันเกิด', 'patient.death': 'สถานะเสียชีวิต',
+        firstday: 'วันที่มา รพ. ครั้งแรก', nationality: 'สัญชาติ',
+        er_regist: 'ทะเบียนผู้ป่วยห้องฉุกเฉิน', enter_er_time: 'เวลาเข้า ER', leave_datetime: 'เวลาออกจาก ER',
+        er_emergency_level_id: 'ระดับความเร่งด่วน (Triage)', er_emergency_type: 'ประเภทความเร่งด่วนที่ ER เลือก',
+        export_code: 'รหัสระดับมาตรฐานของประเภท', er_pt_type: 'ประเภทผู้ป่วย ER', er_dch_type: 'ผลการจำหน่ายจาก ER',
+        door_to_doctor_second: 'วินาทีจากเข้า ER ถึงพบแพทย์ที่ HOSxP คำนวณ',
+        lab_head: 'ใบสั่งตรวจแล็บ (เวลาสั่ง / รับสิ่งส่งตรวจ)', lab_order: 'รายการแล็บที่สั่ง',
+        xray_report: 'ใบสั่ง X-Ray / Ultrasound', xray_head: 'ใบสั่ง X-Ray', xray_items: 'รายการ X-Ray',
+        request_date: 'วันที่ส่งตรวจ', order_date: 'วันที่สั่ง',
+        opitemrece: 'รายการยา เวชภัณฑ์ ค่าบริการที่สั่งใน visit', drugitems: 'รายชื่อยา', did: 'รหัสยามาตรฐาน 24 หลัก',
+        opdscreen: 'ข้อมูลซักประวัติ (สัญญาณชีพ อาการ)', hpi: 'ประวัติการเจ็บป่วยปัจจุบันที่พยาบาลจด', pmh: 'ประวัติการเจ็บป่วยในอดีต',
+        ovstdiag: 'การวินิจฉัยของ visit', vn_stat: 'สรุปข้อมูลแต่ละ visit', pdx: 'การวินิจฉัยหลัก', icd101: 'รายชื่อโรค ICD-10',
+        ipt: 'ข้อมูลการ Admit 1 แถว = 1 AN', regdate: 'วันที่ Admit', regtime: 'เวลา Admit', dchdate: 'วันที่จำหน่าย',
+        dchtype: 'วิธีจำหน่าย', ward: 'หอผู้ป่วย', plan_admit: 'Admit ตามแผน (นัดนอน)', bedcount: 'จำนวนเตียง',
+        ward_active: 'หอผู้ป่วยที่เปิดใช้งาน', an_stat: 'สรุปข้อมูลผู้ป่วยในแต่ละ AN', 'an_stat.admdate': 'จำนวนวันนอน',
+        iptdiag: 'การวินิจฉัยผู้ป่วยใน', iptoprt: 'หัตถการผู้ป่วยใน', ipt_newborn: 'ข้อมูลทารกแรกเกิด',
+        ipt_labour_infant: 'ทารกจากการคลอด',
+        referout: 'ใบส่งต่อผู้ป่วยออก', referin: 'ใบรับส่งต่อผู้ป่วยเข้า', refer_hospcode: 'รหัสสถานพยาบาลปลายทาง / ต้นทาง',
+        refer_date: 'วันที่ส่งต่อ', refer_time: 'เวลาส่งต่อ', rfrcs: 'เหตุผลการส่งต่อ', hospcode: 'ทะเบียนสถานพยาบาล',
+        opdconfig: 'ค่าตั้งค่าของ รพ. (รหัส รพ.)',
+        operation_list: 'รายการผ่าตัด', doctor_operation: 'หัตถการที่แพทย์ทำ', operation_date: 'วันที่ผ่าตัด',
+        dtmain: 'งานทันตกรรม', pregnancy: 'ตรวจฟันหญิงตั้งครรภ์', dttm: 'รายการหัตถการทันตกรรม',
+        health_med_service: 'บริการแพทย์แผนไทย', health_med_operation_item: 'หัตถการแพทย์แผนไทย',
+        physic_list: 'บริการกายภาพบำบัด', physic_items: 'รายการกายภาพบำบัด', physic_plan: 'แผนการกายภาพบำบัด',
+        person: 'ทะเบียนประชากรในเขตรับผิดชอบ', birthdate: 'วันเกิด', death_date: 'วันที่เสียชีวิต',
+        person_anc: 'ทะเบียนหญิงตั้งครรภ์', anc_register_date: 'วันที่ลงทะเบียนฝากครรภ์', labor_date: 'วันคลอด',
+        labour_hospcode: 'สถานที่คลอด', person_anc_service: 'การมาฝากครรภ์แต่ละครั้ง', anc_service_date: 'วันที่มาฝากครรภ์',
+        person_anc_lab: 'ผลแล็บฝากครรภ์', person_anc_classifying: 'การจำแนกความเสี่ยงหญิงตั้งครรภ์',
+        person_anc_other_precare: 'บริการระหว่างตั้งครรภ์อื่น ๆ', person_anc_preg_care: 'บันทึกการดูแลการตั้งครรภ์',
+        'post_labor_service1–3_date': 'วันตรวจหลังคลอดครั้งที่ 1–3', pa_week: 'อายุครรภ์ (สัปดาห์)',
+        person_vaccine: 'วัคซีนที่ประชากรในเขตได้รับ', ovst_vaccine: 'วัคซีนที่ฉีดใน visit', thalassaemia_result: 'ผลตรวจธาลัสซีเมีย'
+    };
+    function gloss(term) {
+        if (GLOSS[term]) return GLOSS[term];
+        if (term.startsWith('config/')) return 'ไฟล์ตั้งค่าของเว็บนี้ ไม่ใช่ HOSxP';
+        const col = term.slice(term.lastIndexOf('.') + 1);
+        return term.includes('.') ? GLOSS[col] : undefined;
+    }
+    function addGloss(body) {
+        const seen = new Set();
+        body.querySelectorAll('code').forEach(c => {
+            const t = c.textContent.trim(), g = gloss(t);
+            if (!g || seen.has(t)) return;
+            seen.add(t);
+            c.insertAdjacentHTML('afterend', ` <span class="er-gloss">(${g})</span>`);
+        });
+    }
+
     let dlg;
     function build() {
         dlg = document.createElement('dialog');
@@ -217,6 +279,7 @@
                     <h4><i class="fa-solid fa-${icon}" aria-hidden="true"></i> ${label}</h4>
                     <ul>${info[k].map(t => `<li>${t}</li>`).join('')}</ul>
                 </section>`).join('');
+        addGloss(dlg.querySelector('.er-info-body'));
         dlg.querySelector('.er-info-body').scrollTop = 0;
         if (!dlg.open) dlg.showModal();
     }

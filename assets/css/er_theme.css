@@ -250,6 +250,7 @@
 .er-theme .er-info-sec ul { margin: 0; padding-left: 1.3em; }
 .er-theme .er-info-sec li { margin: 3px 0; overflow-wrap: anywhere; }
 .er-theme .er-info-body code { padding: 0 4px; border-radius: 4px; background: var(--er-tint); color: var(--er-text); font-size: .82em; }
+.er-theme .er-info-body .er-gloss { color: var(--er-muted-text); font-size: .92em; }
 
 /* แถว/แถวตารางที่กดดูรายชื่อได้ */
 .er-theme .er-row[data-drill], .er-theme .er-table tr[data-pdx] { cursor: pointer; }
