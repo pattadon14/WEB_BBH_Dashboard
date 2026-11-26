@@ -622,46 +622,98 @@
     // ผนังกั้นห้องในอาคาร (โปร่งแสง เตี้ย) — ผนังนอกอาคารใช้ฟังก์ชันเดียวกันแต่สูง/หนากว่า และเว้นช่องประตู
     var WH = 1.1;
     var IN = { h: WH, t: 0.12, face: 'rgba(246,249,252,.92)', side: 'rgba(210,221,232,.95)', cap: '#94a6ba' };
-    function nearDoor(doors, mx, my) {
-      return doors && doors.some(function (d) { return Math.abs(d[0] - mx) < (d[2] || 1.7) && Math.abs(d[1] - my) < (d[2] || 1.7); });
+    // ผนังเก็บเป็นช่วงต่อเส้นก่อน (ห้องติดกันใช้เส้นเดียวกัน → รวม ไม่วาดซ้ำ) แล้ว emitWalls() เจาะช่องประตูตามระยะจริง
+    // และใส่เสาปิดปลายทุกปลาย (มุม/ข้างประตู) ให้รอยต่อชนกันพอดี ไม่เห็นผนังบางเป็นแผ่นกระดาษ
+    var RUNS = {}, DOORS = [];
+    function addRun(o, c, a, b, st) {
+      var key = o + c.toFixed(2) + '|' + st.h;
+      (RUNS[key] = RUNS[key] || { o: o, c: c, st: st, iv: [] }).iv.push([a, b]);
     }
-    function wallX(x0, x1, y, st, doors) {
-      st = st || IN;
-      for (var x = x0; x < x1 - 0.001; x += 1) {
-        (function (xa, xb) {
-          if (nearDoor(doors, (xa + xb) / 2, y)) return;
-          WALLS.push([xa, y, xb, y]);
-          statics.push({ k: (xa + xb) / 2 + y - 0.05, draw: function () {
-            poly([[xa, y, 0], [xb, y, 0], [xb, y, st.h], [xa, y, st.h]], st.face, null);
-            poly([[xa, y - st.t, st.h], [xb, y - st.t, st.h], [xb, y, st.h], [xa, y, st.h]], st.cap);
-          } });
-        })(x, Math.min(x + 1, x1));
+    function wallX(x0, x1, y, st) { addRun('x', y, x0, x1, st || IN); }
+    function wallY(y0, y1, x, st) { addRun('y', x, y0, y1, st || IN); }
+    function onBldEdge(px, py) {
+      return Object.keys(BLD).some(function (id) {
+        var r = BLD[id].r, inX = px > r[0] - 0.01 && px < r[0] + r[2] + 0.01, inY = py > r[1] - 0.01 && py < r[1] + r[3] + 0.01;
+        return (inX && (Math.abs(py - r[1]) < 0.01 || Math.abs(py - r[1] - r[3]) < 0.01)) ||
+               (inY && (Math.abs(px - r[0]) < 0.01 || Math.abs(px - r[0] - r[2]) < 0.01));
+      });
+    }
+    function emitWalls() {
+      var posts = {};
+      function seg(X, c, a, b, st) {
+        WALLS.push(X ? [a, c, b, c] : [c, a, c, b]);
+        statics.push({ k: (a + b) / 2 + c - 0.05, draw: X ? function () {
+          poly([[a, c, 0], [b, c, 0], [b, c, st.h], [a, c, st.h]], st.face, null);
+          poly([[a, c - st.t, st.h], [b, c - st.t, st.h], [b, c, st.h], [a, c, st.h]], st.cap);
+        } : function () {
+          poly([[c, a, 0], [c, b, 0], [c, b, st.h], [c, a, st.h]], st.side, null);
+          poly([[c - st.t, a, st.h], [c, a, st.h], [c, b, st.h], [c - st.t, b, st.h]], st.cap);
+        } });
       }
+      // เสาปลายผนัง: สี่เหลี่ยม t×t ด้านใน (−) ของปลาย — ตรงมุมจะเติมช่องว่างระหว่างสันผนัง x กับ y พอดี
+      function post(X, c, e, st) {
+        var px = X ? e : c, py = X ? c : e, key = px.toFixed(2) + ',' + py.toFixed(2);
+        if (posts[key] && posts[key] >= st.h) return;
+        if (st === IN && onBldEdge(px, py)) return;   // ชนผนังนอกอาคาร (สูงกว่า) ไม่ต้องมีเสา
+        posts[key] = st.h;
+        statics.push({ k: px + py - st.t, draw: function () { box(px - st.t, py - st.t, 0, st.t, st.t, st.h, st.cap, st.face, st.side); } });
+      }
+      Object.keys(RUNS).forEach(function (key) {
+        var R = RUNS[key], X = R.o === 'x', c = R.c, m = [];
+        R.iv.sort(function (p, q) { return p[0] - q[0]; }).forEach(function (p) {
+          var l = m[m.length - 1];
+          if (l && p[0] <= l[1] + 0.001) l[1] = Math.max(l[1], p[1]); else m.push(p.slice());
+        });
+        DOORS.forEach(function (d) {
+          if (Math.abs((X ? d[1] : d[0]) - c) > 0.3) return;   // ประตูต้องอยู่บนเส้นผนังนี้
+          var g0 = (X ? d[0] : d[1]) - d[2], g1 = (X ? d[0] : d[1]) + d[2], out = [];
+          m.forEach(function (p) {
+            if (g1 <= p[0] || g0 >= p[1]) { out.push(p); return; }
+            if (g0 > p[0] + 0.05) out.push([p[0], g0]);
+            if (g1 < p[1] - 0.05) out.push([g1, p[1]]);
+          });
+          m = out;
+        });
+        m.forEach(function (p) {
+          for (var s = p[0]; s < p[1] - 0.001; s += 1) seg(X, c, s, Math.min(s + 1, p[1]), R.st);
+          post(X, c, p[0], R.st); post(X, c, p[1], R.st);
+        });
+      });
     }
-    function wallY(y0, y1, x, st, doors) {
-      st = st || IN;
-      for (var y = y0; y < y1 - 0.001; y += 1) {
-        (function (ya, yb) {
-          if (nearDoor(doors, x, (ya + yb) / 2)) return;
-          WALLS.push([x, ya, x, yb]);
-          statics.push({ k: x + (ya + yb) / 2 - 0.05, draw: function () {
-            poly([[x, ya, 0], [x, yb, 0], [x, yb, st.h], [x, ya, st.h]], st.side, null);
-            poly([[x - st.t, ya, st.h], [x, ya, st.h], [x, yb, st.h], [x - st.t, yb, st.h]], st.cap);
+    // กล่องยาว (เคาน์เตอร์/โต๊ะ) แบ่งเป็นท่อนสั้นตามแกนยาว แต่ละท่อนเรียงความลึกเอง — ชิ้นเดียวยาว ๆ จะทับคนที่ยืนหน้าปลายกล่อง
+    // extra = ของบนกล่อง [{a, b, draw}] (a–b = ช่วงตามแกนยาว) — ไม่ตัดท่อนกลางของชิ้นนั้น แล้ววาดต่อท้ายท่อนที่อยู่ใต้มัน
+    function longBox(x, y, z, w, d, h, c, extra) {
+      var X = w >= d, o = X ? x : y, L = X ? w : d, n = Math.max(1, Math.ceil(L / Math.max(0.5, Math.min(1, X ? d : w))));
+      var cuts = [0];
+      for (var i = 1; i < n; i++) {
+        var cu = o + L * i / n;
+        if (!(extra || []).some(function (e) { return cu > e.a - 0.05 && cu < e.b + 0.05; })) cuts.push(L * i / n);
+      }
+      cuts.push(L);
+      for (var j = 0; j < cuts.length - 1; j++) {
+        (function (a, b) {
+          var bx = X ? x + a : x, by = X ? y : y + a, bw = X ? b - a : w, bd = X ? d : b - a;
+          var on = (extra || []).filter(function (e) { var m = (e.a + e.b) / 2; return m >= o + a && m < o + b; });
+          var ov = b < L - 0.001 ? 0.03 : 0;   // ท่อนถัดไปวาดทับส่วนเกินนี้ → ไม่เห็นรอยต่อเป็นเส้น
+          statics.push({ k: bx + bw / 2 + by + bd / 2, draw: function () {
+            box(bx, by, z, bw + (X ? ov : 0), bd + (X ? 0 : ov), h, c[0], c[1], c[2]);
+            on.forEach(function (e) { e.draw(); });
           } });
-        })(y, Math.min(y + 1, y1));
+        })(cuts[j], cuts[j + 1]);
       }
     }
     // ผนังนอกอาคาร: ด้านหลัง/ซ้ายสูง (เห็นเป็นตัวตึก) · ด้านหน้า/ขวาเป็นขอบเตี้ย (ตัดให้มองเห็นข้างใน)
     var BACK = { h: 2.6, t: 0.35, face: '#edf1f4', side: '#d0d9e1', cap: WALL_TOP };
     var FRONT = { h: 0.45, t: 0.3, face: '#cbd5de', side: '#b6c3cf', cap: WALL_TOP };
     Object.keys(BLD).forEach(function (id) {
-      var r = BLD[id].r, doors = [BLD[id].door];
-      LINKS.forEach(function (l) { if (l.a === id || l.b === id) doors.push(l.a === id ? l.pts[1] : l.pts[l.pts.length - 2]); });
-      areas.forEach(function (a) { if (a.L.b === id && a.L.door) doors.push(a.L.door); });
-      wallX(r[0], r[0] + r[2], r[1], BACK, doors);
-      wallY(r[1], r[1] + r[3], r[0], BACK, doors);
-      wallX(r[0], r[0] + r[2], r[1] + r[3], FRONT, doors);
-      wallY(r[1], r[1] + r[3], r[0] + r[2], FRONT, doors);
+      var r = BLD[id].r, dd = function (p) { DOORS.push([p[0], p[1], 1.7]); };
+      dd(BLD[id].door);
+      LINKS.forEach(function (l) { if (l.a === id || l.b === id) dd(l.a === id ? l.pts[1] : l.pts[l.pts.length - 2]); });
+      areas.forEach(function (a) { if (a.L.b === id && a.L.door) dd(a.L.door); });
+      wallX(r[0], r[0] + r[2], r[1], BACK);
+      wallY(r[1], r[1] + r[3], r[0], BACK);
+      wallX(r[0], r[0] + r[2], r[1] + r[3], FRONT);
+      wallY(r[1], r[1] + r[3], r[0] + r[2], FRONT);
       var sg = BLD[id].sign;
       statics.push({ k: sg[0] + sg[1] + 0.5, draw: function () { drawSign(BLD[id].name, sg[0], sg[1]); } });
       // กันสาดหน้าประตูอาคาร (ประตูที่อยู่ผนังหน้า): เสา 2 ต้น + หลังคาบาง
@@ -674,16 +726,9 @@
         } });
       }
     });
-    // กรอบประตูห้อง: เสา 2 ข้างช่องประตู (ผนังแนว x หรือแนว y ดูจากตำแหน่งประตูบนขอบห้อง)
-    areas.forEach(function (a) {
-      (a.L.gate || []).forEach(function (gt) {
-        var rr = gt[2] || 1.2, vert = Math.abs(gt[0] - a.x) < 0.01 || Math.abs(gt[0] - a.x - a.w) < 0.01;
-        [-1, 1].forEach(function (s) {
-          var px = vert ? gt[0] : gt[0] + s * rr, py = vert ? gt[1] + s * rr : gt[1];
-          statics.push({ k: px + py, draw: function () { box(px - 0.08, py - 0.08, 0, 0.16, 0.16, 1.2, '#94a3b8', '#64748b', '#475569'); } });
-        });
-      });
-    });
+    // ช่องประตูห้อง (เสาข้างประตูสร้างใน emitWalls จากปลายผนังจริง)
+    areas.forEach(function (a) { (a.L.gate || []).forEach(function (gt) { DOORS.push([gt[0], gt[1], gt[2] || 1.2]); }); });
+    DECOR.forEach(function (o) { (o.gate || []).forEach(function (gt) { DOORS.push([gt[0], gt[1], gt[2] || 1.2]); }); });
     // เสาไฟถนน: เสา + แขน + โคม (กลางคืนโคมสว่าง)
     LAMPS.forEach(function (l) {
       statics.push({ k: l[0] + l[1], draw: function () { drawLamp(l[0], l[1]); } });
@@ -694,45 +739,57 @@
     statics.push({ k: GATE.x + 1.2 + (GATE.y0 + GATE.y1) / 2, draw: drawGate });
     statics.push({ k: GATE.x + 2.4 + (GATE.y0 + GATE.y1) / 2, draw: drawGateSpots });
     // หลังคาทางเดินเชื่อม: เสา 4 ต้น + หลังคาโปร่งแสง (ยังเห็นคนที่เดินอยู่ข้างใต้)
-    LINKS.forEach(function (l) { l.rs.forEach(function (br) {
+    var pillars = [];
+    LINKS.forEach(function (l) { var roofs = []; l.rs.forEach(function (br) {
+      // เสาถอยเข้ามาจากปลายตามแนวยาว 0.7 — ปลายทางเชื่อมชนผนังอาคาร เสาที่มุมจะยืนอยู่ในช่องประตู/ทับผนัง
+      // ช่วงต่อหักมุม: ไม่ปักเสาซ้ำติดกัน และตัดหลังคาท่อนหลังไม่ให้ซ้อนท่อนก่อน (หลังคาโปร่งแสงซ้อนแล้วเป็นแถบเข้ม)
+      var lx = br[2] >= br[3], ax = lx ? 0.7 : 0.1, ay = lx ? 0.1 : 0.7, ps = [];
+      [[ax, ay], [br[2] - 0.2 - ax, ay], [ax, br[3] - 0.2 - ay], [br[2] - 0.2 - ax, br[3] - 0.2 - ay]].forEach(function (o) {
+        var px = br[0] + o[0], py = br[1] + o[1];
+        if (pillars.some(function (q) { return Math.abs(q[0] - px) < 1 && Math.abs(q[1] - py) < 1; })) return;
+        pillars.push([px, py]); ps.push([px, py]);
+      });
+      var rf = [br[0] - 0.3, br[1] - 0.3, br[0] + br[2] + 0.3, br[1] + br[3] + 0.3];
+      roofs.forEach(function (q) {
+        if (rf[0] >= q[2] || rf[2] <= q[0] || rf[1] >= q[3] || rf[3] <= q[1]) return;
+        var ox = Math.min(rf[2], q[2]) - Math.max(rf[0], q[0]), oy = Math.min(rf[3], q[3]) - Math.max(rf[1], q[1]);
+        if (ox <= oy) { if (rf[0] < q[0]) rf[2] = q[0]; else rf[0] = q[2]; }
+        else { if (rf[1] < q[1]) rf[3] = q[1]; else rf[1] = q[3]; }
+      });
+      roofs.push(rf);
       statics.push({ k: br[0] + br[2] + br[1] + br[3], draw: function () {
-        [[0.1, 0.1], [br[2] - 0.3, 0.1], [0.1, br[3] - 0.3], [br[2] - 0.3, br[3] - 0.3]].forEach(function (o) {
-          box(br[0] + o[0], br[1] + o[1], 0, 0.2, 0.2, 2.4, '#cbd5e1', '#94a3b8', '#7c8ca3');
-        });
-        box(br[0] - 0.3, br[1] - 0.3, 2.4, br[2] + 0.6, br[3] + 0.6, 0.2, 'rgba(110,190,160,.55)', 'rgba(21,128,61,.6)', 'rgba(21,128,61,.5)');
+        ps.forEach(function (p) { box(p[0], p[1], 0, 0.2, 0.2, 2.4, '#cbd5e1', '#94a3b8', '#7c8ca3'); });
+        box(rf[0], rf[1], 2.4, rf[2] - rf[0], rf[3] - rf[1], 0.2, 'rgba(110,190,160,.55)', 'rgba(21,128,61,.6)', 'rgba(21,128,61,.5)');
       } });
     }); });
     function counter(x, y, w) {
-      var cw = Math.min(w - 2, 7), cx2 = x + (w - cw) / 2;
-      statics.push({ k: cx2 + cw / 2 + y + 1.3, draw: function () {
-        box(cx2, y + 0.9, 0, cw, 0.7, 0.95, '#f1f5f9', '#b4c1d1', '#9eadc1');
-        for (var m = 0; m < 3; m++) {
-          box(cx2 + 0.8 + m * (cw - 1.6) / 2 - 0.25, y + 1.0, 0.95, 0.5, 0.08, 0.4, '#334155', '#1e293b', '#0f172a');
-        }
-      } });
+      var cw = Math.min(w - 2, 7), cx2 = x + (w - cw) / 2, mons = [];
+      for (var m = 0; m < 3; m++) {
+        (function (mx) { mons.push({ a: mx, b: mx + 0.5, draw: function () { box(mx, y + 1.0, 0.95, 0.5, 0.08, 0.4, '#334155', '#1e293b', '#0f172a'); } }); })(cx2 + 0.8 + m * (cw - 1.6) / 2 - 0.25);
+      }
+      longBox(cx2, y + 0.9, 0, cw, 0.7, 0.95, ['#f1f5f9', '#b4c1d1', '#9eadc1'], mons);
     }
-    // ผนังห้อง: ด้านต่ำ (y, x) เสมอ · ด้านสูงเมื่อ walls4/ห้องตรวจ · ไม่ซ้ำผนังนอกอาคาร · gate = ช่องประตู
-    function roomWalls(x, y, w, d, b, all, gates) {
-      var r = (BLD[b] || {}).r || [-1, -1, 0, 0], g = (gates || []).map(function (q) { return [q[0], q[1], q[2] || 1.2]; });   // ประตูกว้าง ~2–3 หน่วย
+    // ผนังห้อง: ด้านต่ำ (y, x) เสมอ · ด้านสูงเมื่อ walls4/ห้องตรวจ · ไม่ซ้ำผนังนอกอาคาร · ช่องประตูอยู่ใน DOORS
+    function roomWalls(x, y, w, d, b, all) {
+      var r = (BLD[b] || {}).r || [-1, -1, 0, 0];
       var eq = function (p, q) { return Math.abs(p - q) < 0.01; };
-      if (!eq(y, r[1])) wallX(x, x + w, y, null, g);
-      if (!eq(x, r[0])) wallY(y, y + d, x, null, g);
+      if (!eq(y, r[1])) wallX(x, x + w, y);
+      if (!eq(x, r[0])) wallY(y, y + d, x);
       if (!all) return;
-      if (!eq(y + d, r[1] + r[3])) wallX(x, x + w, y + d, null, g);
-      if (!eq(x + w, r[0] + r[2])) wallY(y, y + d, x + w, null, g);
+      if (!eq(y + d, r[1] + r[3])) wallX(x, x + w, y + d);
+      if (!eq(x + w, r[0] + r[2])) wallY(y, y + d, x + w);
     }
-    DECOR.forEach(function (o) { if (!o.open) roomWalls(o.r[0], o.r[1], o.r[2], o.r[3], 'OPD', !!o.gate, o.gate); });
+    DECOR.forEach(function (o) { if (!o.open) roomWalls(o.r[0], o.r[1], o.r[2], o.r[3], 'OPD', !!o.gate); });
     // ชิ้นส่วนแต่ละชิ้นเรียงความลึกของตัวเอง (เจ้าหน้าที่ / โต๊ะ / เก้าอี้) — วาดรวมก้อนเดียวทำให้ซ้อนผิดชั้นกับของรอบข้าง
     PROPS.forEach(function (o) { propParts(o).forEach(function (pt) { statics.push(pt); }); });
     areas.forEach(function (a) {
-      if (!a.L.open) roomWalls(a.x, a.y, a.w, a.d, a.L.b, a.L.room || a.L.walls4, a.L.gate);
+      if (!a.L.open) roomWalls(a.x, a.y, a.w, a.d, a.L.b, a.L.room || a.L.walls4);
       if (a.L.counter) counter(a.x, a.y, a.w);
       if (a.L.room) {
         var dw = Math.min(2.8, a.w - 1.6), dx = a.x + (a.w - dw) / 2, dy = a.y + a.d - 2.4;
-        statics.push({ k: dx + dw / 2 + dy + 0.6, draw: function () {
-          box(dx, dy, 0, dw, 1.1, 0.85, '#f1f5f9', '#c3cedb', '#aebccc');
+        longBox(dx, dy, 0, dw, 1.1, 0.85, ['#f1f5f9', '#c3cedb', '#aebccc'], [{ a: dx + dw / 2 - 0.35, b: dx + dw / 2 + 0.35, draw: function () {
           box(dx + dw / 2 - 0.35, dy + 0.9, 0.85, 0.7, 0.1, 0.45, '#334155', '#1e293b', '#0f172a');
-        } });
+        } }]);
       }
       a.chairs.forEach(function (c) {
         statics.push({ k: c[0] + c[1] - 0.2, draw: function () { drawChair(c[0], c[1], a.L.face); } });
@@ -751,6 +808,7 @@
         ctx.beginPath(); ctx.arc(c[0], c[1], 1.05 * cam.k, 0, 7); ctx.fill();
       } });
     });
+    emitWalls();
     statics.sort(function (a, b) { return a.k - b.k; });   // เรียงครั้งเดียว — ทุกเฟรมเรียงแค่หุ่นแล้ว merge
     if (NAVCHECK && !navChecked) { navChecked = true; setTimeout(navCheck, 0); }
   }
