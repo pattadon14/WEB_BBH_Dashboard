@@ -58,10 +58,15 @@
                 step(toDr),
                 step(rx),
                 {
+                    // ผ่านเมื่อทั้งค่าเฉลี่ย และ % จบใน 2 ชม. ถึงเป้า — ค่าเฉลี่ยผ่านแต่ % ไม่ถึง ต้องไม่ขึ้นเขียว
+                    // ตัวหาร = visit ที่จบบริการแล้ว (คนละชุดกับแต่ละขั้น) จึงบอกจำนวนรายกำกับ
                     label: 'เวลารวมต่อราย', value: d.kpi.total === null ? null : fmt(d.kpi.total), unit: 'นาที',
-                    state: d.kpi.total === null ? null : (d.kpi.total <= t.total ? 'ok' : 'bad'),
+                    state: d.kpi.total === null ? null
+                        : (d.kpi.total > t.total ? 'bad' : (d.kpi.done !== null && d.kpi.done < t.done ? 'warn' : 'ok')),
+                    stateText: d.kpi.total !== null && d.kpi.total <= t.total && d.kpi.done !== null && d.kpi.done < t.done ? 'จบ 2 ชม. ต่ำกว่าเป้า' : '',
                     meter: d.kpi.done,
-                    sub: `เป้า ≤ ${t.total} นาที` + (d.kpi.done === null ? '' : ` · จบใน 2 ชม. ${d.kpi.done}% (เป้า ≥ ${t.done}%)`)
+                    sub: `เป้า ≤ ${t.total} นาที` + (d.kpi.fin ? ` · จาก ${fmt(d.kpi.fin)} รายที่จบบริการ` : '')
+                        + (d.kpi.done === null ? '' : ` · จบใน 2 ชม. ${d.kpi.done}% (เป้า ≥ ${t.done}%)`)
                 }
             ].map(tile).join('');
         } catch (e) {

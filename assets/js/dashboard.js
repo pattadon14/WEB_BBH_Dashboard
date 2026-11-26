@@ -183,7 +183,7 @@ function renderHeatmap() {
     grid.forEach((row, y) => row.forEach((value, x) => {
         const point = { x, y, value };
         if (foldedCount && y === shownCount + top && value !== null) {
-            point.color = '#dfe3e8';
+            point.color = document.documentElement.dataset.theme === 'dark' ? '#3a4640' : '#dfe3e8';
         }
         points.push(point);
     }));
@@ -201,14 +201,18 @@ function renderHeatmap() {
         : `แสดงทั้งหมด ${depts.length} แผนก`;
     toggle.setAttribute('aria-expanded', String(heatmapShowAll));
 
-    const axisText = { fontSize: isNarrow ? '15px' : '17px', color: '#1f2937', fontFamily: 'THSarabun' };
+    // โหมดมืด: พื้นหลัง/ช่องว่าง/เส้นขอบต้องตามพื้นการ์ด (scrollablePlotArea ใช้ backgroundColor ทึบเป็นแผ่นบังด้านซ้าย)
+    const dark = document.documentElement.dataset.theme === 'dark';
+    const ink = dark ? '#e4ece7' : '#1f2937';
+    const surface = dark ? '#1a201d' : '#ffffff';
+    const axisText = { fontSize: isNarrow ? '15px' : '17px', color: ink, fontFamily: 'THSarabun' };
 
     Highcharts.chart('heatmap-chart', {
 
         chart: {
             type: 'heatmap',
             height: chartHeight,
-            backgroundColor: '#ffffff',
+            backgroundColor: surface,
             marginRight: isNarrow ? undefined : 64,   // พื้นที่คอลัมน์ "รวม"
             style: { fontFamily: 'THSarabun' },
             // จอแคบหรือวันที่มีหลายชั่วโมง: เลื่อนแนวนอน ชื่อแผนกอยู่กับที่ และเริ่มที่ชั่วโมงล่าสุด
@@ -261,7 +265,7 @@ function renderHeatmap() {
                 [0.55, '#cb181d'],
                 [1.00, '#67000d']
             ],
-            labels: { style: { fontSize: '15px', color: '#1f2937' } }
+            labels: { style: { fontSize: '15px', color: ink } }
         },
 
         legend: {
@@ -271,7 +275,7 @@ function renderHeatmap() {
             symbolWidth: isNarrow ? 150 : 240,
             symbolHeight: 12,
             margin: 6,
-            title: { text: 'จำนวนผู้ป่วย (ราย)', style: { fontSize: '15px', color: '#1f2937', fontWeight: '700' } }
+            title: { text: 'จำนวนผู้ป่วย (ราย)', style: { fontSize: '15px', color: ink, fontWeight: '700' } }
         },
 
         tooltip: {
@@ -287,8 +291,8 @@ function renderHeatmap() {
         series: [{
             name: 'จำนวนผู้ป่วย',
             borderWidth: 2,
-            borderColor: '#ffffff',
-            nullColor: '#f4f5f7',
+            borderColor: surface,
+            nullColor: dark ? '#222a26' : '#f4f5f7',
             data: points,
             dataLabels: {
                 enabled: true,
@@ -308,6 +312,10 @@ document.getElementById('hm-toggle')?.addEventListener('click', () => {
     heatmapShowAll = !heatmapShowAll;
     renderHeatmap();
 });
+
+// สลับโหมดมืด/สว่าง: สีของ heatmap ตั้งใน JS จึงต้องวาดใหม่
+new MutationObserver(() => { if (heatmapData) renderHeatmap(); })
+    .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
 loadHeatmap();
 bbhPoll(loadHeatmap, 3 * 60 * 1000); // refresh ทุก 3 นาที

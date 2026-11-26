@@ -279,7 +279,7 @@
 .home-dash .q-value { margin-top: 2px; }
 .home-dash .q-value b { font-size: 2.5rem; line-height: 1; font-variant-numeric: tabular-nums; color: var(--q-accent-text); }
 .home-dash .q-value small { font-size: 1.1rem; color: var(--bbh-muted); }
-.home-dash .q-state { display: inline-flex; align-items: center; gap: 4px; flex: none; padding: 1px 9px; border-radius: 999px; font-size: 1rem; font-weight: 700; white-space: nowrap; }
+.home-dash .q-state { display: inline-flex; align-items: center; gap: 4px; flex: none; padding: 1px 9px; border-radius: 999px; font-size: 1.1rem; font-weight: 700; white-space: nowrap; }
 .home-dash .is-ok .q-state { color: var(--q-ok-text); background: var(--q-ok-bg); }
 .home-dash .is-bad .q-state { color: var(--q-bad-text); background: var(--q-bad-bg); }
 .home-dash .is-warn .q-state { color: var(--q-warn-text); background: var(--q-warn-bg); }
@@ -287,7 +287,7 @@
 .home-dash .q-meter > i { display: block; height: 100%; border-radius: 6px; background: var(--q-ok-line); }
 .home-dash .is-bad .q-meter > i { background: var(--q-bad-line); }
 .home-dash .q-tile:not(.is-ok):not(.is-bad) .q-meter > i { background: var(--q-neutral-line); }   /* ไม่มีเป้ารวม = สีกลาง ไม่สื่อดี/ไม่ดี */
-.home-dash .q-sub { font-size: 1.05rem; line-height: 1.25; color: var(--bbh-muted); font-variant-numeric: tabular-nums; }
+.home-dash .q-sub { font-size: 1.2rem; line-height: 1.25; color: var(--bbh-muted); font-variant-numeric: tabular-nums; }
 .home-dash .q-msg { grid-column: 1 / -1; margin: 0; color: var(--bbh-muted); }
 @media (max-width: 575.98px) {
     .home-dash .q-go { flex: 1 1 100%; }
@@ -534,14 +534,24 @@
 
 .home-dash .service-total {
     background: var(--bbh-green-soft);
-    color: var(--bbh-green);
+    color: #146c43; /* --bbh-green บนพื้นเขียวอ่อนได้แค่ 4.0:1 */
     font-size: 1.3rem;
     font-variant-numeric: tabular-nums;
 }
 
 @media (max-width: 576px) {
+    /* AdminLTE จัดกลางบนจอเล็ก: ชิดซ้ายเหมือนจอกว้าง · ชื่อการ์ดใช้เต็มความกว้าง (ไอคอนอยู่ข้างตัวเลขเท่านั้น) */
+    .home-dash .small-box {
+        text-align: left;
+    }
+
+    .home-dash .small-box .inner {
+        padding: 16px 18px 10px;
+    }
+
     .home-dash .small-box h3 {
         font-size: 3.4rem !important;
+        padding-right: 120px;
     }
 
     .home-dash .small-box .kpi-title {

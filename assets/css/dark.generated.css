@@ -674,6 +674,9 @@ html[data-theme="dark"] .home-dash .ward-status-danger {
 html[data-theme="dark"] .home-dash .service-item:hover {
     background: #161917;
 }
+html[data-theme="dark"] .home-dash .service-total {
+    color: #89d8a9;
+}
 html[data-theme="dark"] .home-dash .service-item.is-zero .service-total {
     background: #191a19;
 }

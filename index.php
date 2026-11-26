@@ -353,7 +353,7 @@ function home_info_btn(string $key, string $label): string
 
                                             <div class="summary-item">
 
-                                                <span>เตียงว่าง</span>
+                                                <span id="wblank-label">เตียงว่าง</span>
 
                                                 <span class="badge bg-success" id="wblank">
                                                     Loading…
@@ -1030,10 +1030,13 @@ async function loadBedSummary() {
         ).innerHTML =
         data.wtotal + ' ราย';
 
-    document.getElementById(
-            'wblank'
-        ).innerHTML =
-        data.wblank + ' เตียง';
+    // ติดลบ = ผู้ป่วยเกินจำนวนเตียง: แสดงเป็น "เกินเตียง" แทนเลขติดลบ
+    const over = data.wblank < 0;
+    document.getElementById('wblank-label').textContent = over ? 'เกินเตียง' : 'เตียงว่าง';
+    const wb = document.getElementById('wblank');
+    wb.textContent = Math.abs(data.wblank) + ' เตียง';
+    wb.classList.toggle('bg-success', !over);
+    wb.classList.toggle('bg-danger', over);
 
     document.getElementById('dchtoday').innerHTML =
         data.dchtoday + ' ราย';

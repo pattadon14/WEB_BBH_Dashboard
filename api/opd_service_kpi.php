@@ -243,7 +243,7 @@ try {
             'appt' => $apptN, 'walkin' => $cur['count'] - $apptN, 'remote' => $remoteN,
             'total' => $cur['total'], 'total_delta' => $delta($cur['total'], $prev['total']),
             'd2d' => $d2d, 'd2d_delta' => $delta($d2d, $prev['steps'][2]['avg']),
-            'done' => $cur['done'], 'done_prev' => $prev['done'],
+            'done' => $cur['done'], 'done_prev' => $prev['done'], 'fin' => $cur['fin'],
             'noshow' => $noshowRate,
         ],
         'steps' => $cur['steps'],

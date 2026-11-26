@@ -183,6 +183,16 @@ html[data-theme="dark"] .highcharts-plot-background { fill: transparent !importa
 html[data-theme="dark"] .highcharts-point { stroke: var(--bbh-surface); }
 html[data-theme="dark"] .highcharts-credits { fill: #6f7c76 !important; }
 html[data-theme="dark"] .highcharts-heatmap-series .highcharts-point { stroke: var(--bbh-surface) !important; }
+/* Heatmap หน้าแรก: ชื่อแผนก/ชั่วโมงต้องชัด (index.css ล็อกสีเข้มไว้) · ตัวเลขในช่องสีอ่อนคงสีเข้มที่ JS เลือกตาม contrast (#1f2937 — เบราว์เซอร์เก็บใน style เป็น rgb) */
+html[data-theme="dark"] #heatmap-chart .highcharts-axis-labels text,
+html[data-theme="dark"] #heatmap-chart .highcharts-axis-title,
+html[data-theme="dark"] #heatmap-chart .highcharts-legend-title text,
+html[data-theme="dark"] #heatmap-chart .highcharts-coloraxis-labels text { fill: var(--bbh-text) !important; }
+html[data-theme="dark"] #heatmap-chart .highcharts-data-label tspan[style*="31, 41, 55"] { fill: #1f2937 !important; }
+/* เขียวหลัก #198754 บนพื้นมืดได้แค่ 3.6–4.0:1 */
+html[data-theme="dark"] .home-dash #hm-toggle,
+html[data-theme="dark"] .home-dash .service-more b { color: #4fc98a; }
+html[data-theme="dark"] .home-dash #hm-toggle:hover { color: #fff; }
 
 /* หน้า ER: พื้นหน้า + แถบหัวแดงในโหมดมืด (ชื่อ token ไม่มีบทบาท สคริปต์จึงไม่แปลงให้) — แดงเข้มลง ตัวอักษรขาวยังผ่าน 4.5:1 */
 html[data-theme="dark"] body .er-theme { --er-canvas: #120e0e; --er-mast: #6e1a15; --er-on-mast-veil: #84302a; }
