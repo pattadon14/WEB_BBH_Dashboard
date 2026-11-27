@@ -262,6 +262,9 @@ html[data-theme="dark"] .content-wrapper.home-dash { background: #070c0a; }
 #hx .fin-prev { position: absolute; top: -3px; bottom: -3px; left: calc(var(--x, 0) * 100%); width: 2px; margin-left: -1px; border-radius: 1px; background: var(--ink); opacity: .55; }
 #hx .fin-note { grid-column: 1 / -1; margin: 0; font-size: 13px; color: var(--muted); }
 
+#hx .hx-credit { margin: 0; text-align: right; font-size: 12px; color: var(--muted); }
+#hx .hx-credit a { color: var(--muted); text-decoration: underline; }
+
 /* ---------- ผิวกระจกร่วม (การ์ดทุกใบ ยกเว้น heatmap ที่ต้องพื้นทึบให้ตรงกับ Highcharts) ---------- */
 #hx .glass, #hx .q-panel, #hx .ward-card, #hx .service-item {
     background-color: var(--glass);

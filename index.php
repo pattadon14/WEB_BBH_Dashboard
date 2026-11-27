@@ -17,21 +17,21 @@ function home_info_btn(string $key, string $label): string
 
 // การ์ดบริการอื่น ๆ: key = key ของ api/service_summary_today.php (<key>_total) = id ตัวเลขที่ service_detail.js ใช้เปิดรายละเอียด
 $services = [
-    ['scope', 'ห้องส่องกล้อง', 'fa-video'],
-    ['or', 'ห้องผ่าตัด', 'fa-mask-face'],
-    ['pt', 'กายภาพบำบัด', 'fa-person-walking'],
-    ['thai', 'แพทย์แผนไทย', 'fa-mortar-pestle'],
-    ['dent', 'ทันตกรรม', 'fa-tooth'],
-    ['hemo', 'ไตเทียม', 'fa-droplet'],
-    ['wound', 'ห้องทำแผล-ฉีดยา', 'fa-syringe'],
-    ['us', 'อัลตราซาวน์', 'fa-wave-square'],
-    ['observe', 'Observe ER', 'fa-user-clock'],
-    ['xray', 'X-Ray', 'fa-x-ray'],
-    ['lr', 'LR', 'fa-person-pregnant'],
-    ['lab', 'Lab', 'fa-flask-vial'],
-    ['ct', 'CT Scan', 'fa-circle-radiation'],
-    ['cashier', 'ห้องเก็บเงิน', 'fa-cash-register'],
-    ['rights', 'ศูนย์พิทักษ์สิทธิ์', 'fa-scale-balanced'],
+    ['scope', 'ห้องส่องกล้อง', 'bi-endoscopy'],
+    ['or', 'ห้องผ่าตัด', 'bi-surgical-scalpel'],
+    ['pt', 'กายภาพบำบัด', 'bi-physical-therapist'],
+    ['thai', 'แพทย์แผนไทย', 'bi-thai-herbal-compress-ball'],
+    ['dent', 'ทันตกรรม', 'bi-tooth'],
+    ['hemo', 'ไตเทียม', 'bi-kidneys'],
+    ['wound', 'ห้องทำแผล-ฉีดยา', 'bi-bandage'],
+    ['us', 'อัลตราซาวน์', 'bi-ultrasound-scan'],
+    ['observe', 'Observe ER', 'bi-examination-couch'],
+    ['xray', 'X-Ray', 'bi-x-ray-film'],
+    ['lr', 'LR', 'bi-pregnant-person'],
+    ['lab', 'Lab', 'bi-test-tube'],
+    ['ct', 'CT Scan', 'bi-ct-scanner'],
+    ['cashier', 'ห้องเก็บเงิน', 'bi-checkout-counter'],
+    ['rights', 'ศูนย์พิทักษ์สิทธิ์', 'bi-balance-scale'],
 ];
 
 ?>
@@ -40,6 +40,7 @@ $services = [
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/index.css?v=<?= filemtime(__DIR__ . '/assets/css/index.css') ?>">
+<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/bbh-icons.css?v=<?= filemtime(__DIR__ . '/assets/css/bbh-icons.css') ?>">
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/home.css?v=<?= filemtime(__DIR__ . '/assets/css/home.css') ?>">
 
 <div class="content-wrapper home-dash">
@@ -64,20 +65,20 @@ $services = [
 
                     <!-- นิยามเดียวกับหน้า OPD หัวข้อ 7 (api/opd.php: ทุกแผนก OPD นับครั้ง) -->
                     <div class="hx-kpi">
-                        <div class="hx-lbl"><i class="fa-solid fa-stethoscope" aria-hidden="true"></i>ผู้ป่วยนอก (OPD) วันนี้ <?= home_info_btn('opd', 'ผู้ป่วยนอกวันนี้') ?></div>
+                        <div class="hx-lbl"><i class="bi bi-stethoscope" aria-hidden="true"></i>ผู้ป่วยนอก (OPD) วันนี้ <?= home_info_btn('opd', 'ผู้ป่วยนอกวันนี้') ?></div>
                         <div class="hx-big"><span id="opd-total">–</span><small>ครั้ง</small></div>
                         <!-- วันเดียวกันของสัปดาห์ก่อน ถึงเวลาเดียวกัน (prev_week ของ API การ์ด) -->
                         <span class="kpi-trend" id="opd-trend"></span>
                         <span class="hx-sub">ตรวจโรคทั่วไป + คลินิคพิเศษ, เดือนนี้ <span id="opd-month-patient">–</span> คน / <span id="opd-month-visit">–</span> ครั้ง</span>
                         <div class="hx-links">
                             <a href="pages/opd_detail.php" class="hx-go">รายละเอียด <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
-                            <a href="pages/opd_monitor.php" class="hx-go is-solid" aria-label="เปิด OPD Real-time Monitor"><i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i> Real-time Monitor</a>
+                            <a href="pages/opd_monitor.php" class="hx-go is-solid" aria-label="เปิด OPD Real-time Monitor"><i class="bi bi-live-broadcast" aria-hidden="true"></i> Real-time Monitor</a>
                         </div>
                     </div>
 
                     <!-- นิยามเดียวกับ "ผู้มารับบริการ ER" หน้า ER (api/er.php: er_regist ทุกประเภท นับครั้ง) -->
                     <div class="hx-kpi">
-                        <div class="hx-lbl"><i class="fa-solid fa-truck-medical" aria-hidden="true"></i>ผู้มารับบริการ ER วันนี้ <?= home_info_btn('er', 'ผู้มารับบริการ ER วันนี้') ?></div>
+                        <div class="hx-lbl"><i class="bi bi-ambulance" aria-hidden="true"></i>ผู้มารับบริการ ER วันนี้ <?= home_info_btn('er', 'ผู้มารับบริการ ER วันนี้') ?></div>
                         <div class="hx-big"><span id="er-total">–</span><small>ครั้ง</small></div>
                         <span class="kpi-trend" id="er-trend"></span>
                         <span class="hx-sub">ทุกประเภทผู้ป่วย ER, เดือนนี้ <span id="er-month-patient">–</span> คน / <span id="er-month-visit">–</span> ครั้ง</span>
@@ -88,7 +89,7 @@ $services = [
 
                     <!-- นิยามเดียวกับช่อง "รับใหม่" หน้า IPD (api/ipd.php: ipt.regdate ทุกหอ นับ AN) -->
                     <div class="hx-kpi">
-                        <div class="hx-lbl"><i class="fa-solid fa-hospital-user" aria-hidden="true"></i>ผู้ป่วยในรับใหม่ (Admit) วันนี้ <?= home_info_btn('ipd', 'ผู้ป่วยในรับใหม่วันนี้') ?></div>
+                        <div class="hx-lbl"><i class="bi bi-hospital-bed" aria-hidden="true"></i>ผู้ป่วยในรับใหม่ (Admit) วันนี้ <?= home_info_btn('ipd', 'ผู้ป่วยในรับใหม่วันนี้') ?></div>
                         <div class="hx-big"><span id="ipd-total">–</span><small>ราย</small></div>
                         <span class="kpi-trend" id="ipd-trend"></span>
                         <span class="hx-sub">ทุกหอผู้ป่วย, เดือนนี้ <span id="ipd-month-patient">–</span> คน / <span id="ipd-month-visit">–</span> ราย</span>
@@ -149,7 +150,7 @@ $services = [
                     <section class="q-panel q-opd" aria-labelledby="q-opd-title">
                         <header class="q-head">
                             <div class="q-title">
-                                <i class="fa-solid fa-stopwatch" aria-hidden="true"></i>
+                                <i class="bi bi-stopwatch" aria-hidden="true"></i>
                                 <div>
                                     <h6 id="q-opd-title">เวลารอ OPD วันนี้ <?= home_info_btn('q_opd', 'เวลารอ OPD') ?></h6>
                                     <p>นาทีเฉลี่ยต่อราย เทียบเป้าหมาย</p>
@@ -163,7 +164,7 @@ $services = [
                     <section class="q-panel q-er" aria-labelledby="q-er-title">
                         <header class="q-head">
                             <div class="q-title">
-                                <i class="fa-solid fa-truck-medical" aria-hidden="true"></i>
+                                <i class="bi bi-ambulance" aria-hidden="true"></i>
                                 <div>
                                     <h6 id="q-er-title">ER ตอนนี้ <?= home_info_btn('q_er', 'ER ตอนนี้') ?></h6>
                                     <p id="q-er-at">สถานะผู้ป่วยในห้องฉุกเฉิน</p>
@@ -179,7 +180,7 @@ $services = [
                 <section class="glass hx-sec hx-fin" aria-labelledby="hx-fin-title">
                     <div class="hx-sec-h">
                         <div>
-                            <h2 id="hx-fin-title"><i class="fa-solid fa-coins" aria-hidden="true"></i>รายรับตามสิทธิการรักษา เดือนนี้ <?= home_info_btn('finance', 'รายรับตามสิทธิ') ?></h2>
+                            <h2 id="hx-fin-title"><i class="bi bi-banknote" aria-hidden="true"></i>รายรับตามสิทธิการรักษา เดือนนี้ <?= home_info_btn('finance', 'รายรับตามสิทธิ') ?></h2>
                             <p id="hx-fin-sub">มูลค่าค่ารักษาที่เรียกเก็บ (OPD + IPD จำหน่าย) เทียบเดือนก่อนช่วงวันเดียวกัน</p>
                         </div>
                     </div>
@@ -188,18 +189,18 @@ $services = [
 
                 <!-- ============ สถานะเตียงรายหอผู้ป่วย (api/index_ward_bed.php · คลิกการ์ด = login.js เปิดหน้า Ward) ============ -->
                 <div class="hx-t">
-                    <h2><i class="fa-solid fa-bed-pulse" aria-hidden="true"></i>สถานะเตียงรายหอผู้ป่วย <?= home_info_btn('wards', 'สถานะเตียงรายหอผู้ป่วย') ?></h2>
+                    <h2><i class="bi bi-hospital" aria-hidden="true"></i>สถานะเตียงรายหอผู้ป่วย <?= home_info_btn('wards', 'สถานะเตียงรายหอผู้ป่วย') ?></h2>
                 </div>
                 <div class="hx-wards" id="ward-container" aria-live="polite"></div>
 
                 <!-- ============ บริการอื่น ๆ วันนี้ (api/service_summary_today.php · คลิก = service_detail.js) ============ -->
                 <div class="hx-t">
-                    <h2><i class="fa-solid fa-hand-holding-medical" aria-hidden="true"></i>บริการอื่น ๆ วันนี้ <?= home_info_btn('services', 'สถิติการใช้บริการอื่นๆ') ?></h2>
+                    <h2><i class="bi bi-first-aid-kit" aria-hidden="true"></i>บริการอื่น ๆ วันนี้ <?= home_info_btn('services', 'สถิติการใช้บริการอื่นๆ') ?></h2>
                 </div>
                 <div class="hx-svc" id="service-container">
                     <?php foreach ($services as [$key, $name, $icon]): ?>
                         <div class="service-item">
-                            <div class="service-name"><i class="fa-solid <?= $icon ?>" aria-hidden="true"></i><span><?= $name ?></span></div>
+                            <div class="service-name"><i class="bi <?= $icon ?>" aria-hidden="true"></i><span><?= $name ?></span></div>
                             <div class="service-total" id="<?= $key ?>_total">–</div>
                         </div>
                     <?php endforeach; ?>
@@ -207,7 +208,7 @@ $services = [
 
                 <!-- ============ ความหนาแน่นแต่ละแผนกตามช่วงเวลา (Highcharts ใน dashboard.js) ============ -->
                 <div class="hx-t">
-                    <h2><i class="fa-solid fa-fire-flame-curved" aria-hidden="true"></i>ภาระงานแต่ละแผนกตามช่วงเวลา วันนี้ <?= home_info_btn('heatmap', 'ภาระงานแต่ละแผนก') ?></h2>
+                    <h2><i class="bi bi-flame" aria-hidden="true"></i>ภาระงานแต่ละแผนกตามช่วงเวลา วันนี้ <?= home_info_btn('heatmap', 'ภาระงานแต่ละแผนก') ?></h2>
                 </div>
                 <section class="hx-hm" aria-label="Heatmap ภาระงานแต่ละแผนก">
                     <div class="hx-hm-k">
@@ -217,6 +218,9 @@ $services = [
                     </div>
                     <div id="heatmap-chart" style="min-height:400px;"></div>
                 </section>
+
+                <!-- เครดิตตามเงื่อนไข IconSaga Free License (ไอคอนใน assets/img/iconsaga/) -->
+                <p class="hx-credit">Icons by <a href="https://iconsaga.com" target="_blank" rel="noopener">IconSaga</a></p>
 
             </div>
         </div>
@@ -424,22 +428,22 @@ bbhPoll(loadBedSummary, 60000);
 /* ---------------- การ์ดหอผู้ป่วย (api/index_ward_bed.php) ---------------- */
 // ไอคอนตามชื่อ Ward ชุดเดียวกับเมนู IPD ใน templates/sidebar.php (ลำดับสำคัญ: "หลังคลอด" ต้องมาก่อน "คลอด")
 const WARD_ICONS = [
-    [/พิเศษ/, 'fa-door-open'],
-    [/หลังคลอด|^pp/i, 'fa-person-breastfeeding'],
-    [/ทารก|snb/i, 'fa-baby'],
-    [/เด็ก/, 'fa-child'],
-    [/stroke/i, 'fa-brain'],
-    [/icu/i, 'fa-heart-pulse'],
-    [/ศัลย/, 'fa-user-doctor'],
-    [/หญิง/, 'fa-person-dress'],
-    [/ชาย/, 'fa-person'],
-    [/คลอด|^lr/i, 'fa-person-pregnant'],
-    [/home/i, 'fa-house-user']
+    [/พิเศษ/, 'bi-bedroom'],
+    [/หลังคลอด|^pp/i, 'bi-public-lactation-room'],
+    [/ทารก|snb/i, 'bi-baby'],
+    [/เด็ก/, 'bi-child'],
+    [/stroke/i, 'bi-brain'],
+    [/icu/i, 'bi-ecg-monitor'],
+    [/ศัลย/, 'bi-surgical-scalpel'],
+    [/หญิง/, 'bi-doctor'],
+    [/ชาย/, 'bi-doctor'],
+    [/คลอด|^lr/i, 'bi-pregnant-person'],
+    [/home/i, 'bi-home']
 ];
 
 function wardIcon(name) {
     const hit = WARD_ICONS.find(([re]) => re.test(String(name || '').trim()));
-    return hit ? hit[1] : 'fa-bed';
+    return hit ? hit[1] : 'bi-hospital-bed';
 }
 
 async function loadWardBed() {
@@ -460,7 +464,7 @@ async function loadWardBed() {
             const free = admit >= beds ? (admit > beds ? `เกิน ${fmt(admit - beds)} เตียง` : 'เต็มทุกเตียง') : `ว่าง ${fmt(w.available_bed)} เตียง`;
             // .ward-card + .ward-name (ชื่อตรงกับ API) — login.js ใช้หา Ward แล้วเปิดหน้ารายละเอียด
             return `<div class="ward-card is-${level}" tabindex="0" role="link" aria-label="${esc(w.name)} ครองเตียง ${rate}% ${label} ดูรายละเอียดหอผู้ป่วย">
-                <div class="wc-hd"><i class="fa-solid ${wardIcon(w.name)}" aria-hidden="true"></i><div class="ward-name" title="${esc(w.name)}">${esc(w.name)}</div></div>
+                <div class="wc-hd"><i class="bi ${wardIcon(w.name)}" aria-hidden="true"></i><div class="ward-name" title="${esc(w.name)}">${esc(w.name)}</div></div>
                 <div class="wc-ln"><span class="wc-pc">${rate}%</span><span class="wc-st">${label}</span></div>
                 <div class="hx-tr" aria-hidden="true"><i style="--w:${Math.min(rate, 100) / 100}"></i></div>
                 <small>Admit ${fmt(admit)} จาก ${fmt(beds)} เตียง, ${free}${w.ward === HOME_WARD ? ' (ไม่นับรวมยอดเตียง)' : ''}</small>

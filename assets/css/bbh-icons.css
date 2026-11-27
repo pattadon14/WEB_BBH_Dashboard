@@ -1,0 +1,37 @@
+/* ไอคอนจาก IconSaga (line, weight 1.75) — Icons by IconSaga · iconsaga.com (IconSaga Free License, ต้องแสดงเครดิต)
+   ใช้: <i class="bi bi-<ชื่อ>" aria-hidden="true"></i> · สีตาม color (currentColor ผ่าน mask) · ขนาดตาม font-size
+   ต้นฉบับ: assets/img/iconsaga/*.svg */
+.bi { display: inline-flex; align-items: center; justify-content: center; font-style: normal; line-height: 1; }
+.bi::before { content: ""; display: block; width: 1.35em; height: 1.35em; background-color: currentColor; -webkit-mask: var(--bi) center / contain no-repeat; mask: var(--bi) center / contain no-repeat; }
+.bi-stethoscope { --bi: url("../img/iconsaga/stethoscope.svg"); }
+.bi-ambulance { --bi: url("../img/iconsaga/ambulance.svg"); }
+.bi-hospital-bed { --bi: url("../img/iconsaga/hospital-bed.svg"); }
+.bi-live-broadcast { --bi: url("../img/iconsaga/live-broadcast.svg"); }
+.bi-stopwatch { --bi: url("../img/iconsaga/stopwatch.svg"); }
+.bi-banknote { --bi: url("../img/iconsaga/banknote.svg"); }
+.bi-hospital { --bi: url("../img/iconsaga/hospital.svg"); }
+.bi-first-aid-kit { --bi: url("../img/iconsaga/first-aid-kit.svg"); }
+.bi-flame { --bi: url("../img/iconsaga/flame.svg"); }
+.bi-endoscopy { --bi: url("../img/iconsaga/endoscopy.svg"); }
+.bi-surgical-scalpel { --bi: url("../img/iconsaga/surgical-scalpel.svg"); }
+.bi-physical-therapist { --bi: url("../img/iconsaga/physical-therapist.svg"); }
+.bi-thai-herbal-compress-ball { --bi: url("../img/iconsaga/thai-herbal-compress-ball.svg"); }
+.bi-tooth { --bi: url("../img/iconsaga/tooth.svg"); }
+.bi-kidneys { --bi: url("../img/iconsaga/kidneys.svg"); }
+.bi-bandage { --bi: url("../img/iconsaga/bandage.svg"); }
+.bi-ultrasound-scan { --bi: url("../img/iconsaga/ultrasound-scan.svg"); }
+.bi-examination-couch { --bi: url("../img/iconsaga/examination-couch.svg"); }
+.bi-x-ray-film { --bi: url("../img/iconsaga/x-ray-film.svg"); }
+.bi-pregnant-person { --bi: url("../img/iconsaga/pregnant-person.svg"); }
+.bi-test-tube { --bi: url("../img/iconsaga/test-tube.svg"); }
+.bi-ct-scanner { --bi: url("../img/iconsaga/ct-scanner.svg"); }
+.bi-checkout-counter { --bi: url("../img/iconsaga/checkout-counter.svg"); }
+.bi-balance-scale { --bi: url("../img/iconsaga/balance-scale.svg"); }
+.bi-bedroom { --bi: url("../img/iconsaga/bedroom.svg"); }
+.bi-public-lactation-room { --bi: url("../img/iconsaga/public-lactation-room.svg"); }
+.bi-baby { --bi: url("../img/iconsaga/baby.svg"); }
+.bi-child { --bi: url("../img/iconsaga/child.svg"); }
+.bi-brain { --bi: url("../img/iconsaga/brain.svg"); }
+.bi-ecg-monitor { --bi: url("../img/iconsaga/ecg-monitor.svg"); }
+.bi-doctor { --bi: url("../img/iconsaga/doctor.svg"); }
+.bi-home { --bi: url("../img/iconsaga/home.svg"); }
