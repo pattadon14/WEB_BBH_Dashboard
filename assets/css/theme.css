@@ -88,32 +88,7 @@ body {
     border-radius: 2px;
 }
 
-/* ---------- Sidebar: เมนูที่ยังไม่มีหน้า แสดงจาง + ป้าย "เร็วๆ นี้" กดไม่ได้ ---------- */
-.bbh-sidebar-menu a.bbh-sidebar-static-item {
-    color: #8a9a93;
-    pointer-events: none;
-    cursor: default;
-}
-
-.bbh-sidebar-parent-main .bbh-soon {
-    margin-left: 8px;
-}
-
-.bbh-sidebar-parent-main .bbh-soon,
-.bbh-sidebar-static-item .bbh-soon {
-    margin-left: auto;
-    padding: 0 8px;
-    border-radius: 999px;
-    background: #eef2f0;
-    color: var(--bbh-muted);
-    font-size: .8em;
-    white-space: nowrap;
-}
-
-.bbh-sidebar-section-title {
-    color: var(--bbh-muted);
-    letter-spacing: .2px;
-}
+/* Sidebar ทั้งหมดอยู่ที่ sidebar.css (ดีไซน์กระจก 2026-11-27) */
 
 /* ---------- Navbar ---------- */
 .custom-navbar::after {
@@ -447,16 +422,7 @@ a.btn {
     object-fit: contain;
 }
 
-.bbh-sidebar-logo {
-    width: 30px;
-    height: 30px;
-    margin-right: 8px;
-    padding: 2px;
-    border-radius: 8px;
-    background: #fff;
-    object-fit: contain;
-    vertical-align: middle;
-}
+
 
 @media (max-width: 767px) {
     .custom-navbar .brand-logo {

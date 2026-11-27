@@ -9,11 +9,13 @@ $isProviderLoggedIn = provider_is_logged_in();
 <aside class="bbh-sidebar" id="bbh-sidebar" data-provider-logged-in="<?= $isProviderLoggedIn ? '1' : '0' ?>" aria-label="เมนูหลัก">
     <div class="bbh-sidebar-header">
         <div class="bbh-sidebar-brand">
-            <img class="bbh-sidebar-logo" src="<?= BASE_URL ?>assets/img/logo-bbh-mark.png" alt="" width="30" height="30">
-            BBH DASHBOARD
+            <img class="bbh-sidebar-logo" src="<?= BASE_URL ?>assets/img/logo-bbh-mark.png" alt="" width="36" height="36">
+            <span><b>BBH Dashboard</b><small>โรงพยาบาลบ้านบึง</small></span>
         </div>
-        <button type="button" class="bbh-sidebar-close" id="bbh-sidebar-close" aria-label="ปิดเมนู">
-            <i class="fa-solid fa-xmark"></i>
+        <?php /* จอกว้าง = ซ่อนแถบ (ไอคอนลูกศร) · จอแคบ = ปิดลิ้นชัก (ไอคอน X) — sidebar.js */ ?>
+        <button type="button" class="bbh-sidebar-close" id="bbh-sidebar-close" aria-label="ซ่อนแถบเมนู" title="ซ่อนแถบเมนู">
+            <i class="fa-solid fa-angles-left is-wide" aria-hidden="true"></i>
+            <i class="fa-solid fa-xmark is-narrow" aria-hidden="true"></i>
         </button>
     </div>
 

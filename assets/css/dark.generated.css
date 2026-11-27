@@ -1,5 +1,5 @@
 /* ไฟล์สร้างอัตโนมัติจาก tools/build_dark_css.mjs — ห้ามแก้ตรง ๆ (แก้ใน dark.css แทน)
- * แหล่ง: 22 ชุด CSS + style="…" 6 แบบ */
+ * แหล่ง: 21 ชุด CSS + style="…" 6 แบบ */
 
 /* ---- assets/css/anc_theme.css ---- */
 html[data-theme="dark"] .er-theme.opd-theme.anc-theme {
@@ -1462,153 +1462,6 @@ html[data-theme="dark"] .er-theme.opd-theme {
     --er-row-bg: #161817;
 }
 
-/* ---- assets/css/sidebar.css ---- */
-html[data-theme="dark"] .bbh-sidebar-overlay {
-    background: rgba(25, 135, 84, 0.10);
-}
-html[data-theme="dark"] .bbh-sidebar {
-    background: #161616;
-    color: #c0cfe8;
-    border-right: 1px solid #2f3b35;
-}
-html[data-theme="dark"] .bbh-sidebar-header {
-    background: linear-gradient(135deg, #198754 0%, #23a26b 100%);
-    color: #fff;
-}
-html[data-theme="dark"] .bbh-sidebar-close {
-    color: #fff;
-}
-html[data-theme="dark"] .bbh-sidebar-close:hover {
-    background: rgba(22, 22, 22, 0.16);
-}
-html[data-theme="dark"] .bbh-sidebar-guest-lock {
-    background: rgba(22, 22, 22, 0.9);
-}
-html[data-theme="dark"] .bbh-sidebar-guest-lock-card {
-    border: 1px solid rgba(25, 135, 84, .18);
-    background: rgba(22, 22, 22, 0.84);
-    color: #b9c8de;
-}
-html[data-theme="dark"] .bbh-sidebar-guest-lock-card i {
-    color: #72d39c;
-}
-html[data-theme="dark"] .bbh-sidebar-guest-lock-card strong {
-    color: #72d39c;
-}
-html[data-theme="dark"] .bbh-sidebar-guest-lock-card span {
-    color: #b1c4bc;
-}
-html[data-theme="dark"] .bbh-sidebar-guest-lock-card .bbh-sidebar-guest-login {
-    background: #198754;
-    color: #fff;
-}
-html[data-theme="dark"] .bbh-sidebar-guest-lock-card .bbh-sidebar-guest-login:hover,
-html[data-theme="dark"] .bbh-sidebar-guest-lock-card .bbh-sidebar-guest-login:focus-visible {
-    background: #146c43;
-    color: #fff;
-}
-html[data-theme="dark"] .bbh-sidebar-section-title {
-    color: #72d39c;
-}
-html[data-theme="dark"] .bbh-sidebar-menu a {
-    color: #b9c8de;
-}
-html[data-theme="dark"] .bbh-sidebar-menu a i {
-    color: #72d39c;
-}
-html[data-theme="dark"] .bbh-sidebar-menu a:hover {
-    background: #161a18;
-    color: #83d7a5;
-    border-color: #2b3d33;
-}
-html[data-theme="dark"] .bbh-sidebar-menu a:hover i {
-    color: #83d7a5;
-}
-html[data-theme="dark"] .bbh-sidebar-menu a.active {
-    background: linear-gradient(135deg, #198754, #23a26b);
-    color: #fff;
-    border-color: #198754;
-}
-html[data-theme="dark"] .bbh-sidebar-menu a.active i {
-    color: #fff;
-}
-html[data-theme="dark"] .bbh-sidebar-parent-toggle {
-    color: #b9c8de;
-}
-html[data-theme="dark"] .bbh-sidebar-parent-main i {
-    color: #72d39c;
-}
-html[data-theme="dark"] .bbh-sidebar-parent-toggle:hover {
-    background: #161a18;
-    color: #83d7a5;
-    border-color: #2b3d33;
-}
-html[data-theme="dark"] .bbh-sidebar-parent-toggle:hover .bbh-sidebar-parent-main i {
-    color: #83d7a5;
-}
-html[data-theme="dark"] .bbh-sidebar-parent-toggle.active,
-html[data-theme="dark"] .bbh-sidebar-parent-toggle.parent-active {
-    background: #198754;
-    color: #fff;
-    border-color: #198754;
-}
-html[data-theme="dark"] .bbh-sidebar-parent-toggle.active .bbh-sidebar-parent-main i,
-html[data-theme="dark"] .bbh-sidebar-parent-toggle.parent-active .bbh-sidebar-parent-main i {
-    color: #fff;
-}
-html[data-theme="dark"] .bbh-sidebar-submenu {
-    border-left: 2px solid #2d3c34;
-}
-html[data-theme="dark"] .bbh-sidebar-submenu a i {
-    color: #72d39c;
-}
-html[data-theme="dark"] .bbh-sidebar-submenu a:hover i,
-html[data-theme="dark"] .bbh-sidebar-submenu a.active i {
-    color: #83d7a5;
-}
-html[data-theme="dark"] .bbh-sidebar-submenu a.active {
-    background: #161b18;
-    color: #83d7a5;
-    border-color: #2a3d33;
-}
-html[data-theme="dark"] .bbh-sidebar-menu a.bbh-sidebar-anc {
-    background: #1c181a;
-    color: #fdaabe;
-    border-color: #44323b;
-}
-html[data-theme="dark"] .bbh-sidebar-menu a.bbh-sidebar-anc i {
-    color: #fe9eb6;
-}
-html[data-theme="dark"] .bbh-sidebar-menu a.bbh-sidebar-anc:hover {
-    background: #21191d;
-    color: #fab4c5;
-    border-color: #44323a;
-}
-html[data-theme="dark"] .bbh-sidebar-menu a.bbh-sidebar-anc:hover i {
-    color: #fdaabe;
-}
-html[data-theme="dark"] .bbh-sidebar-menu a.bbh-sidebar-anc.active {
-    background: linear-gradient(135deg, #be185d, #db2777);
-    color: #fff;
-    border-color: #be185d;
-}
-html[data-theme="dark"] .bbh-sidebar-menu a.bbh-sidebar-anc.active i {
-    color: #fff;
-}
-html[data-theme="dark"] .bbh-sidebar-menu a.bbh-sidebar-anc:focus-visible {
-    outline: 2px solid #be185d;
-}
-html[data-theme="dark"] .bbh-sidebar-divider {
-    background: #1a1d1b;
-}
-html[data-theme="dark"] .custom-navbar .bbh-menu-toggle {
-    color: #72d39c;
-}
-html[data-theme="dark"] .custom-navbar .bbh-menu-toggle:hover {
-    background: #171b19;
-    color: #83d7a5;
-}
-
 /* ---- assets/css/theme.css ---- */
 html[data-theme="dark"] {
     --bbh-green-50: #171a18;
@@ -1621,13 +1474,6 @@ html[data-theme="dark"] {
 }
 html[data-theme="dark"] .content-wrapper {
     background: linear-gradient(180deg, #171c19 0, var(--bbh-bg) 280px) !important;
-}
-html[data-theme="dark"] .bbh-sidebar-menu a.bbh-sidebar-static-item {
-    color: #a4b4ad;
-}
-html[data-theme="dark"] .bbh-sidebar-parent-main .bbh-soon,
-html[data-theme="dark"] .bbh-sidebar-static-item .bbh-soon {
-    background: #191b1a;
 }
 html[data-theme="dark"] .form-control,
 html[data-theme="dark"] .form-select,
@@ -1687,9 +1533,6 @@ html[data-theme="dark"] .bbh-range {
     border: 1px solid #303b35;
 }
 html[data-theme="dark"] .custom-navbar .brand-logo {
-    background: #161616;
-}
-html[data-theme="dark"] .bbh-sidebar-logo {
     background: #161616;
 }
 

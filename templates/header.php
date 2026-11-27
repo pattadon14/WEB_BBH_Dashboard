@@ -27,6 +27,10 @@ require_once __DIR__ . '/../config/app.php';
             if (t !== 'dark') t = 'light';
             document.documentElement.setAttribute('data-theme', t);
             document.documentElement.setAttribute('data-bs-theme', t);   // ตาราง/ฟอร์ม/dropdown ของ Bootstrap 5.3 (AdminLTE 4)
+            // แถบเมนูซ้าย (จอ ≥ 1200px): ตั้งก่อนวาดหน้า ไม่ให้เนื้อหากระโดด · ค่าเริ่มต้น = เปิดเมื่อ login (guest ปิด) · sidebar.js จำค่าที่ผู้ใช้กด
+            var sb = null;
+            try { sb = localStorage.getItem('bbh-sidebar'); } catch (e) {}
+            if (sb ? sb === 'open' : <?= provider_is_logged_in() ? 'true' : 'false' ?>) document.documentElement.classList.add('bbh-sb-docked');
         })();
         window.bbhToggleTheme = function () {
             var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
@@ -41,6 +45,11 @@ require_once __DIR__ . '/../config/app.php';
     <link rel="icon" href="https://banbunghospital.moph.go.th/favicon.ico">
     <!-- ไอคอนเมื่อบันทึกลงหน้าจอโทรศัพท์ -->
     <link rel="apple-touch-icon" href="<?= BASE_URL ?>assets/img/apple-touch-icon.png">
+
+    <!-- ฟอนต์ Prompt: แถบเมนูซ้าย (sidebar.css) ทุกหน้า + หน้าแรก (home.css) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap">
 
     <!-- AdminLTE -->
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/AdminLTE/dist/css/adminlte.min.css">

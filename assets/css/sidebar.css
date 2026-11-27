@@ -1,132 +1,246 @@
 /* =========================================================
-   BBH DASHBOARD - SLIDE OUT SIDEBAR
-   Theme: White / Green
+   BBH DASHBOARD - SIDEBAR (templates/sidebar.php + assets/js/sidebar.js)
+   ดีไซน์กระจกตามร่าง home-v3 (2026-11-27)
+   - จอ ≥ 1200px: แผงลอยติดซ้าย ดันเนื้อหา (html.bbh-sb-docked) — ปุ่ม ☰ บน navbar / ปุ่มซ่อนในแผง เปิด-ปิดได้ จำค่าใน localStorage 'bbh-sidebar'
+   - จอ < 1200px: ลิ้นชักเลื่อนออกมาทับเนื้อหา + ฉากหลังมืด
+   สีตามโทนของหน้า (--nav-* ใน navbar.css: เขียว / ER แดง / IPD น้ำเงิน / ANC ชมพู)
+   โหมดมืดกำหนด token เองด้านล่าง — tools/build_dark_css.mjs ข้ามไฟล์นี้
 ========================================================= */
+/* ตั้งที่ .bbh-sidebar (ไม่ใช่ :root) เพื่อรับ --nav-* ของ body ตามโทนหน้า */
+:root { --sb-w: 256px; --sb-gap: 12px; --sb-top: 64px; }
+.bbh-sidebar, .bbh-sidebar-overlay {
+    --sb-w: 256px;
+    --sb-gap: 12px;
+    --sb-top: 64px;                                  /* ความสูง navbar (navbar.css .custom-navbar min-height) */
+    --sb-bg: rgba(255, 255, 255, .66);
+    --sb-rim: rgba(255, 255, 255, .85);
+    --sb-line: rgba(19, 32, 26, .08);
+    --sb-ink: var(--nav-ink, #17241d);
+    --sb-muted: var(--nav-muted, #5b6b63);
+    --sb-icon: var(--nav-text, #146c43);
+    --sb-hover: var(--nav-tint, #eaf6ef);
+    --sb-solid: var(--nav-solid, #198754);
+    --sb-on: #ffffff;
+    --sb-glow: var(--nav-glow, rgba(25, 135, 84, .16));
+    --sb-shadow: 0 1px 1px rgba(19, 32, 26, .03), 0 18px 40px -24px rgba(19, 32, 26, .35);
+    --sb-scrim: rgba(10, 20, 15, .28);
+    --sb-anc: #9d174d; --sb-anc-bg: #fdf2f7; --sb-anc-solid: #be185d;
+    --sb-soon-bg: rgba(19, 32, 26, .06);
+}
+html[data-theme="dark"] :is(.bbh-sidebar, .bbh-sidebar-overlay) {
+    --sb-bg: rgba(20, 26, 23, .7);
+    --sb-rim: rgba(255, 255, 255, .1);
+    --sb-line: rgba(255, 255, 255, .08);
+    --sb-ink: #e2ece7;
+    --sb-muted: #9bada4;
+    --sb-icon: color-mix(in srgb, var(--nav-solid, #198754) 50%, #ffffff);
+    --sb-hover: rgba(255, 255, 255, .06);
+    --sb-shadow: 0 18px 40px -24px rgba(0, 0, 0, .8);
+    --sb-scrim: rgba(0, 0, 0, .5);
+    --sb-anc: #fdaabe; --sb-anc-bg: rgba(244, 114, 182, .12);
+    --sb-soon-bg: rgba(255, 255, 255, .08);
+}
+
+/* ---------- แผง ---------- */
+.bbh-sidebar {
+    position: fixed;
+    z-index: 1050;
+    top: 0;
+    left: 0;
+    width: min(var(--sb-w), 86vw);
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    color: var(--sb-ink);
+    font-family: "Prompt", system-ui, sans-serif;   /* โหลดใน header.php */
+    background: var(--sb-bg);
+    -webkit-backdrop-filter: blur(28px) saturate(1.6);
+    backdrop-filter: blur(28px) saturate(1.6);
+    border-right: 1px solid var(--sb-rim);
+    border-radius: 0 22px 22px 0;
+    box-shadow: inset 0 1px 0 var(--sb-rim), var(--sb-shadow);
+    transform: translateX(-105%);
+    transition: transform .28s cubic-bezier(.2, .8, .2, 1);
+}
+.bbh-sidebar.open { transform: none; }
 
 .bbh-sidebar-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(25, 135, 84, 0.10);
-    backdrop-filter: blur(1.5px);
+    z-index: 1040;
+    background: var(--sb-scrim);
     opacity: 0;
     visibility: hidden;
-    z-index: 1040;
     transition: opacity .25s ease, visibility .25s ease;
 }
 .bbh-sidebar-overlay.show { opacity: 1; visibility: visible; }
+body.bbh-sidebar-open { overflow: hidden; }
 
-.bbh-sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 285px;
-    height: 100vh;
-    background: #ffffff;
-    color: #344054;
-    z-index: 1050;
-    transform: translateX(-100%);
-    transition: transform .28s ease;
-    box-shadow: 6px 0 22px rgba(25, 135, 84, .14);
-    border-right: 1px solid #dfeee6;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
+/* จอกว้าง: แผงลอยใต้ navbar ดันเนื้อหาไปทางขวา ไม่มีฉากหลัง */
+@media (min-width: 1200px) {
+    .bbh-sidebar {
+        z-index: 1030;
+        top: calc(var(--sb-top) + var(--sb-gap));
+        left: var(--sb-gap);
+        width: var(--sb-w);
+        height: auto;
+        bottom: var(--sb-gap);
+        border: 1px solid var(--sb-rim);
+        border-radius: 22px;
+        transform: translateX(calc(-100% - var(--sb-gap) * 2));
+    }
+    html.bbh-sb-docked .bbh-sidebar { transform: none; }
+    html.bbh-sb-docked .content-wrapper { margin-left: calc(var(--sb-w) + var(--sb-gap)) !important; }
+    .bbh-sidebar-overlay { display: none; }
+    body.bbh-sidebar-open { overflow: auto; }
 }
-.bbh-sidebar.open { transform: translateX(0); }
 
-/* Header สีเขียวตาม Theme เว็บ */
+/* ---------- หัวแผง ---------- */
 .bbh-sidebar-header {
-    min-height: 68px;
-    padding: 0 18px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: linear-gradient(135deg, #198754 0%, #23a26b 100%);
-    color: #fff;
-    box-shadow: 0 2px 8px rgba(25, 135, 84, .15);
     position: relative;
     z-index: 3;
     flex-shrink: 0;
+    min-height: 72px;
+    padding: 14px 12px 10px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
 }
-.bbh-sidebar-brand {
-    font-size: 1.35rem;
-    font-weight: bold;
-    white-space: nowrap;
-}
-.bbh-sidebar-brand i { font-size: 1.25rem; }
+.bbh-sidebar-brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.bbh-sidebar-brand b { display: block; font-size: 16px; font-weight: 700; line-height: 1.2; color: var(--sb-ink); white-space: nowrap; }
+.bbh-sidebar-brand small { display: block; font-size: 12px; color: var(--sb-muted); white-space: nowrap; }
+.bbh-sidebar-logo { width: 36px; height: 36px; flex: none; padding: 3px; border-radius: 12px; background: #ffffff; box-shadow: 0 6px 16px -8px var(--sb-glow); }
 
 .bbh-sidebar-close {
+    flex: none;
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
     border: 0;
+    border-radius: 12px;
     background: transparent;
-    color: #fff;
-    font-size: 1.35rem;
-    width: 38px;
-    height: 38px;
-    border-radius: 8px;
+    color: var(--sb-muted);
+    font-size: 15px;
     cursor: pointer;
-    transition: background .18s ease, transform .18s ease;
+    transition: background-color .18s ease, color .18s ease;
 }
-.bbh-sidebar-close:hover {
-    background: rgba(255,255,255,.16);
-    transform: rotate(4deg);
+.bbh-sidebar-close:hover { background: var(--sb-hover); color: var(--sb-ink); }
+.bbh-sidebar-close .is-wide { display: none; }
+@media (min-width: 1200px) {
+    .bbh-sidebar-close .is-wide { display: inline; }
+    .bbh-sidebar-close .is-narrow { display: none; }
 }
 
-.bbh-sidebar-body { padding: 12px 10px 20px; }
+.bbh-sidebar-body { padding: 4px 12px 20px; }
 
-/* =========================================================
-   Guest Lock
-   Sidebar ยังคงเลื่อนออกมา แต่เบลอ/บังเมนูสำหรับ Guest
-========================================================= */
+/* ---------- กลุ่ม / รายการ ---------- */
+.bbh-sidebar-section-title { padding: 14px 12px 6px; font-size: 12px; font-weight: 500; color: var(--sb-muted); }
+.bbh-sidebar-menu { list-style: none; margin: 0; padding: 0; }
+.bbh-sidebar-menu li { margin: 2px 0; }
+
+.bbh-sidebar-menu a,
+.bbh-sidebar-parent-toggle {
+    width: 100%;
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--sb-ink);
+    font: inherit;
+    font-size: 14px;
+    line-height: 1.3;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color .18s ease, color .18s ease, box-shadow .18s ease;
+}
+.bbh-sidebar-parent-toggle { justify-content: space-between; }
+.bbh-sidebar-parent-main { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.bbh-sidebar-menu a i,
+.bbh-sidebar-parent-main i { width: 20px; flex: none; text-align: center; font-size: 15px; color: var(--sb-icon); }
+
+.bbh-sidebar-menu a:hover,
+.bbh-sidebar-parent-toggle:hover { background: var(--sb-hover); color: var(--sb-ink); text-decoration: none; }
+
+.bbh-sidebar-menu a.active,
+.bbh-sidebar-parent-toggle.active {
+    background: var(--sb-solid);
+    color: var(--sb-on);
+    box-shadow: 0 8px 18px -8px var(--sb-solid);
+}
+.bbh-sidebar-menu a.active i,
+.bbh-sidebar-parent-toggle.active .bbh-sidebar-parent-main i { color: var(--sb-on); }
+
+.bbh-sidebar-menu a:focus-visible,
+.bbh-sidebar-parent-toggle:focus-visible,
+.bbh-sidebar-close:focus-visible { outline: 2px solid var(--sb-solid); outline-offset: 2px; }
+
+.bbh-sidebar-arrow { font-size: 11px !important; width: auto !important; color: inherit !important; opacity: .7; transition: transform .2s ease; }
+.bbh-sidebar-parent-toggle[aria-expanded="true"] .bbh-sidebar-arrow { transform: rotate(180deg); }
+
+.bbh-sidebar-submenu {
+    list-style: none;
+    display: none;
+    margin: 2px 0 6px 21px;
+    padding: 2px 0 2px 10px;
+    border-left: 1px solid var(--sb-line);
+}
+.bbh-sidebar-submenu.open { display: block; }
+.bbh-sidebar-submenu a { min-height: 36px; padding: 6px 10px; font-size: 13px; }
+.bbh-sidebar-submenu a i { font-size: 13px; }
+.bbh-sidebar-submenu a.active { background: var(--sb-hover); color: var(--sb-ink); box-shadow: inset 3px 0 0 var(--sb-solid); }
+.bbh-sidebar-submenu a.active i { color: var(--sb-icon); }
+
+.bbh-sidebar-static-item { opacity: .75; }
+.bbh-sidebar-static-item:hover { background: transparent !important; cursor: default; }
+.bbh-soon { margin-left: auto; padding: 1px 8px; border-radius: 999px; background: var(--sb-soon-bg); color: var(--sb-muted); font-size: 11px; white-space: nowrap; }
+
+.bbh-sidebar-divider { height: 1px; margin: 12px 8px; background: var(--sb-line); }
+
+/* ANC Dashboard: ชมพูกุหลาบตามโทนหน้างานฝากครรภ์ (anc_theme.css) */
+.bbh-sidebar-menu a.bbh-sidebar-anc { background: var(--sb-anc-bg); color: var(--sb-anc); }
+.bbh-sidebar-menu a.bbh-sidebar-anc i { color: var(--sb-anc); }
+.bbh-sidebar-menu a.bbh-sidebar-anc.active { background: var(--sb-anc-solid); color: #ffffff; box-shadow: 0 8px 18px -8px var(--sb-anc-solid); }
+.bbh-sidebar-menu a.bbh-sidebar-anc.active i { color: #ffffff; }
+.bbh-sidebar-menu a.bbh-sidebar-anc:focus-visible { outline-color: var(--sb-anc-solid); }
+
+/* ---------- Guest: เมนูล็อก ---------- */
 .bbh-sidebar-guest-lock {
     position: absolute;
-    top: 68px;
+    z-index: 2;
+    top: 72px;
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 2;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    padding: 24px;
-    background: rgba(255, 255, 255, .9);   /* พื้นทึบแทนพื้นเบลอ */
+    padding: 24px 16px;
 }
-
 .bbh-sidebar-guest-lock-card {
     width: 100%;
-    max-width: 245px;
-    padding: 24px 18px;
-    border: 1px solid rgba(25, 135, 84, .18);
-    border-radius: 16px;
-    background: rgba(255, 255, 255, .84);
-    box-shadow: 0 10px 28px rgba(25, 55, 45, .12);
+    padding: 22px 18px;
+    border: 1px solid var(--sb-rim);
+    border-radius: 18px;
+    background: var(--sb-bg);
+    box-shadow: var(--sb-shadow);
     text-align: center;
-    color: #475467;
+    color: var(--sb-muted);
 }
-
-.bbh-sidebar-guest-lock-card i {
-    display: block;
-    margin-bottom: 12px;
-    font-size: 1.65rem;
-    color: #198754;
-}
-
+.bbh-sidebar-guest-lock-card i { display: block; margin-bottom: 10px; font-size: 22px; color: var(--sb-icon); }
 .bbh-sidebar-guest-lock-card strong,
-.bbh-sidebar-guest-lock-card span {
-    display: block;
-}
-
-.bbh-sidebar-guest-lock-card strong {
-    margin-bottom: 5px;
-    color: #198754;
-    font-size: 1.08rem;
-}
-
-.bbh-sidebar-guest-lock-card span {
-    color: #5d6e67;
-    font-size: .92rem;
-}
-
-/* ปุ่มเข้าสู่ระบบในการ์ดล็อก — ไม่ให้ผู้ใช้เจอทางตัน */
+.bbh-sidebar-guest-lock-card span { display: block; }
+.bbh-sidebar-guest-lock-card strong { margin-bottom: 4px; font-size: 16px; color: var(--sb-ink); }
+.bbh-sidebar-guest-lock-card span { font-size: 14px; }
 .bbh-sidebar-guest-lock-card .bbh-sidebar-guest-login {
     display: inline-flex;
     align-items: center;
@@ -136,202 +250,19 @@
     min-height: 44px;
     margin-top: 16px;
     padding: 8px 14px;
-    border-radius: 999px;
-    background: #198754;
-    color: #fff;
-    font-size: 1rem;
+    border-radius: 12px;
+    background: var(--sb-solid);
+    color: var(--sb-on);
+    font-size: 14px;
     font-weight: 600;
     text-decoration: none;
-    transition: background-color .2s ease, transform .2s ease;
 }
+.bbh-sidebar-guest-lock-card .bbh-sidebar-guest-login i { display: inline; margin: 0; font-size: 14px; color: inherit; }
+.bbh-sidebar-guest-lock-card .bbh-sidebar-guest-login:hover { filter: brightness(1.08); color: var(--sb-on); text-decoration: none; }
+.bbh-sidebar-guest-lock-card .bbh-sidebar-guest-login:focus-visible { outline: 2px solid var(--sb-solid); outline-offset: 2px; }
+/* guest: เมนูใต้การ์ดล็อกจางลง (ยัง inert อยู่) */
+.bbh-sidebar:has(.bbh-sidebar-guest-lock) .bbh-sidebar-body { opacity: .25; filter: blur(2px); }
 
-.bbh-sidebar-guest-lock-card .bbh-sidebar-guest-login i {
-    display: inline;
-    margin: 0;
-    font-size: 1rem;
-    color: inherit;
-}
-
-.bbh-sidebar-guest-lock-card .bbh-sidebar-guest-login:hover,
-.bbh-sidebar-guest-lock-card .bbh-sidebar-guest-login:focus-visible {
-    background: #146c43;
-    color: #fff;
-    text-decoration: none;
-    transform: translateY(-1px);
-}
-
-.bbh-sidebar-section-title {
-    padding: 10px 12px 6px;
-    color: #198754;
-    font-size: .92rem;
-    font-weight: bold;
-}
-
-.bbh-sidebar-menu { list-style: none; margin: 0; padding: 0; }
-.bbh-sidebar-menu li { margin: 3px 0; }
-
-.bbh-sidebar-menu a {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    min-height: 43px;
-    padding: 8px 13px;
-    color: #475467;
-    text-decoration: none;
-    border-radius: 9px;
-    font-size: 1.05rem;
-    border: 1px solid transparent;
-    transition: background .18s ease, color .18s ease, border-color .18s ease, transform .18s ease;
-}
-.bbh-sidebar-menu a i {
-    width: 22px;
-    text-align: center;
-    font-size: 1rem;
-    color: #198754;
-}
-
-.bbh-sidebar-menu a:hover {
-    background: #eef8f2;
-    color: #157347;
-    border-color: #d6ecdf;
-    transform: translateX(2px);
-}
-.bbh-sidebar-menu a:hover i { color: #157347; }
-
-.bbh-sidebar-menu a.active {
-    background: linear-gradient(135deg, #198754, #23a26b);
-    color: #fff;
-    border-color: #198754;
-    box-shadow: 0 3px 9px rgba(25, 135, 84, .18);
-}
-.bbh-sidebar-menu a.active i { color: #fff; }
-
-.bbh-sidebar-parent-toggle {
-    width: 100%;
-    min-height: 43px;
-    padding: 8px 13px;
-    border: 1px solid transparent;
-    border-radius: 9px;
-    background: transparent;
-    color: #475467;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    cursor: pointer;
-    font: inherit;
-    font-size: 1.05rem;
-    text-align: left;
-    transition: background .18s ease, color .18s ease, border-color .18s ease;
-}
-.bbh-sidebar-parent-main { display: flex; align-items: center; gap: 11px; }
-.bbh-sidebar-parent-main i {
-    width: 22px;
-    text-align: center;
-    font-size: 1rem;
-    color: #198754;
-}
-.bbh-sidebar-parent-toggle:hover {
-    background: #eef8f2;
-    color: #157347;
-    border-color: #d6ecdf;
-}
-.bbh-sidebar-parent-toggle:hover .bbh-sidebar-parent-main i { color: #157347; }
-.bbh-sidebar-parent-toggle.active,
-.bbh-sidebar-parent-toggle.parent-active {
-    background: #198754;
-    color: #fff;
-    border-color: #198754;
-    box-shadow: 0 3px 9px rgba(25, 135, 84, .18);
-}
-.bbh-sidebar-parent-toggle.active .bbh-sidebar-parent-main i,
-.bbh-sidebar-parent-toggle.parent-active .bbh-sidebar-parent-main i { color: #fff; }
-.bbh-sidebar-arrow {
-    font-size: .72rem !important;
-    width: auto !important;
-    color: inherit !important;
-    transition: transform .2s ease;
-}
-.bbh-sidebar-parent-toggle[aria-expanded="true"] .bbh-sidebar-arrow { transform: rotate(180deg); }
-
-.bbh-sidebar-submenu {
-    list-style: none;
-    margin: 3px 0 5px;
-    padding: 4px 0 4px 15px;
-    border-left: 2px solid #dcefe4;
-    display: none;
-}
-.bbh-sidebar-submenu.open { display: block; }
-.bbh-sidebar-submenu li { margin: 2px 0; }
-.bbh-sidebar-submenu a {
-    min-height: 36px;
-    padding: 6px 9px;
-    gap: 8px;
-    font-size: .94rem;
-}
-.bbh-sidebar-submenu a i {
-    width: 20px;
-    font-size: .82rem;
-    color: #198754;
-}
-.bbh-sidebar-submenu a:hover i,
-.bbh-sidebar-submenu a.active i { color: #157347; }
-.bbh-sidebar-submenu a.active {
-    background: #eaf7ef;
-    color: #157347;
-    border-color: #cfe9da;
-    box-shadow: none;
-}
-
-.bbh-sidebar-static-item { opacity: .98; }
-
-/* ANC Dashboard: ไฮไลต์ชมพูกุหลาบตามโทนหน้างานฝากครรภ์ (anc_theme.css) — ชมพูเข้มบนพื้นชมพูอ่อน 6.4:1 */
-.bbh-sidebar-menu a.bbh-sidebar-anc {
-    background: #fdf2f7;
-    color: #9d174d;
-    border-color: #f7d3e4;
-}
-.bbh-sidebar-menu a.bbh-sidebar-anc i { color: #be185d; }
-.bbh-sidebar-menu a.bbh-sidebar-anc:hover {
-    background: #fce7f1;
-    color: #831843;
-    border-color: #f2b8d3;
-}
-.bbh-sidebar-menu a.bbh-sidebar-anc:hover i { color: #9d174d; }
-.bbh-sidebar-menu a.bbh-sidebar-anc.active {
-    background: linear-gradient(135deg, #be185d, #db2777);
-    color: #fff;
-    border-color: #be185d;
-    box-shadow: 0 3px 9px rgba(190, 24, 93, .2);
-}
-.bbh-sidebar-menu a.bbh-sidebar-anc.active i { color: #fff; }
-.bbh-sidebar-menu a.bbh-sidebar-anc:focus-visible { outline: 2px solid #be185d; outline-offset: 2px; }
-
-.bbh-sidebar-divider {
-    height: 1px;
-    margin: 12px 8px;
-    background: #e5eee9;
-}
-
-body.bbh-sidebar-open { overflow: hidden; }
-
-.custom-navbar .bbh-menu-toggle {
-    border: 0;
-    background: transparent;
-    color: #198754;
-    cursor: pointer;
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    font-size: 1.65rem;
-    transition: background .18s ease, color .18s ease;
-}
-.custom-navbar .bbh-menu-toggle:hover { background: #eaf6ef; color: #157347; }
-
-@media (max-width:576px) {
-    .bbh-sidebar { width: min(285px, 86vw); }
-    .bbh-sidebar-brand { font-size: 1.25rem; }
-    .bbh-sidebar-guest-lock-card { max-width: 220px; }
+@media (prefers-reduced-motion: reduce) {
+    .bbh-sidebar, .bbh-sidebar-overlay, .bbh-sidebar-menu a, .bbh-sidebar-parent-toggle, .bbh-sidebar-arrow { transition: none; }
 }

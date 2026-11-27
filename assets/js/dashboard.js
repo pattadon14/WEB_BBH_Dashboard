@@ -204,19 +204,26 @@ function renderHeatmap() {
     // โหมดมืด: พื้นหลัง/ช่องว่าง/เส้นขอบต้องตามพื้นการ์ด (scrollablePlotArea ใช้ backgroundColor ทึบเป็นแผ่นบังด้านซ้าย)
     const dark = document.documentElement.dataset.theme === 'dark';
     const ink = dark ? '#e4ece7' : '#1f2937';
-    const surface = dark ? '#1a201d' : '#ffffff';
-    const axisText = { fontSize: isNarrow ? '13px' : '14px', color: ink, fontFamily: 'inherit' };   // ฟอนต์ตามหน้าแรก (home.css: Prompt)
+    const muted = dark ? '#9bada4' : '#56665e';   // = --muted ของ home.css (ป้ายแกนจางกว่าตัวเลขในช่อง)
+    const surface = dark ? '#141b18' : '#f3f7f5';   // ใช้เฉพาะตอนเลื่อน: ใกล้สีกระจกของการ์ด
+    const axisText = { fontSize: isNarrow ? '12px' : '13px', color: muted, fontFamily: 'inherit', fontWeight: '500' };   // ฟอนต์ตามหน้าแรก (home.css: Prompt)
+    // ป้ายเวลา: ช่องกว้าง ≥ 48px แสดง "07:00" · แคบกว่านั้นแสดง "07" (ไม่ถูกตัด) · แคบกว่า 24px จึงเลื่อนแนวนอน
+    // พื้นโปร่ง (กระจกของการ์ด) — ยกเว้นตอนเลื่อน: scrollablePlotArea ต้องใช้พื้นทึบเป็นแผ่นบังใต้ชื่อแผนกที่ตรึงไว้
+    const labelW = isNarrow ? 130 : 270;
+    const cellW = (chartEl.clientWidth - labelW) / hours.length;
+    const shortHour = cellW < 48;
+    const scrolls = cellW < 24;
 
     Highcharts.chart('heatmap-chart', {
 
         chart: {
             type: 'heatmap',
             height: chartHeight,
-            backgroundColor: surface,
+            backgroundColor: scrolls ? surface : 'transparent',
             marginRight: isNarrow ? undefined : 64,   // พื้นที่คอลัมน์ "รวม"
             style: { fontFamily: 'inherit' },
             // จอแคบหรือวันที่มีหลายชั่วโมง: เลื่อนแนวนอน ชื่อแผนกอยู่กับที่ และเริ่มที่ชั่วโมงล่าสุด
-            scrollablePlotArea: { minWidth: hours.length * 40 + (isNarrow ? 130 : 270), scrollPositionX: 1, opacity: 1 }
+            scrollablePlotArea: scrolls ? { minWidth: hours.length * 24 + labelW, scrollPositionX: 1, opacity: 1 } : undefined
         },
 
         title: { text: null },
@@ -227,7 +234,7 @@ function renderHeatmap() {
             title: { text: null },
             lineWidth: 0,
             tickWidth: 0,
-            labels: { rotation: 0, autoRotation: false, style: { ...axisText, fontWeight: '700' } }
+            labels: { rotation: 0, autoRotation: false, style: axisText, formatter: function () { return shortHour ? String(this.value).slice(0, 2) : this.value; } }
         },
 
         yAxis: [{
@@ -236,7 +243,7 @@ function renderHeatmap() {
             reversed: true,
             gridLineWidth: 0,
             labels: {
-                style: { ...axisText, fontWeight: '700', width: (isNarrow ? 115 : 200) + 'px', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }
+                style: { ...axisText, color: ink, width: (isNarrow ? 115 : 200) + 'px', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }
             }
         // จอแคบไม่มีที่พอสำหรับคอลัมน์รวมที่ตรึงด้านขวา
         }].concat(isNarrow ? [] : [{
@@ -244,13 +251,13 @@ function renderHeatmap() {
             opposite: true,
             reversed: true,
             gridLineWidth: 0,
-            title: { text: 'รวม', rotation: 0, align: 'high', textAlign: 'center', offset: 30, y: -22, style: { ...axisText, fontWeight: '700' } },
+            title: { text: 'รวม', rotation: 0, align: 'high', textAlign: 'center', offset: 30, y: -22, style: axisText },
             labels: {
                 align: 'center',
                 x: 30,
                 reserveSpace: false,
                 formatter: function () { return rowTotals[this.pos] ?? ''; },
-                style: { ...axisText, fontWeight: '700' }
+                style: { ...axisText, color: ink, fontWeight: '600' }
             }
         }]),
 
@@ -265,7 +272,7 @@ function renderHeatmap() {
                 [0.55, '#cb181d'],
                 [1.00, '#67000d']
             ],
-            labels: { style: { fontSize: '13px', color: ink } }
+            labels: { style: { fontSize: '12px', color: muted } }
         },
 
         legend: {
@@ -275,7 +282,7 @@ function renderHeatmap() {
             symbolWidth: isNarrow ? 150 : 240,
             symbolHeight: 12,
             margin: 6,
-            title: { text: 'จำนวนผู้ป่วย (ราย)', style: { fontSize: '13px', color: ink, fontWeight: '600' } }
+            title: { text: 'จำนวนผู้ป่วย (ราย)', style: { fontSize: '12px', color: muted, fontWeight: '500' } }
         },
 
         tooltip: {
@@ -290,9 +297,11 @@ function renderHeatmap() {
 
         series: [{
             name: 'จำนวนผู้ป่วย',
-            borderWidth: 2,
-            borderColor: surface,
-            nullColor: dark ? '#222a26' : '#f4f5f7',
+            // ช่องห่างด้วย pointPadding (ไม่ใช้เส้นขอบสีพื้น) จึงใช้กับพื้นโปร่งได้
+            borderWidth: 0,
+            pointPadding: 1.5,
+            borderRadius: 4,
+            nullColor: dark ? 'rgba(255,255,255,.05)' : 'rgba(19,32,26,.05)',
             data: points,
             dataLabels: {
                 enabled: true,
@@ -300,7 +309,7 @@ function renderHeatmap() {
                     if (!this.point.value) return '';
                     return `<span style="color:${heatmapTextColor(this.point.color)}">${this.point.value}</span>`;
                 },
-                style: { fontSize: isNarrow ? '13px' : '14px', fontWeight: '600', textOutline: 'none' }
+                style: { fontSize: isNarrow ? '12px' : '13px', fontWeight: '500', textOutline: 'none' }
             }
         }]
 

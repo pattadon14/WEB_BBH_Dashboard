@@ -35,9 +35,6 @@ $services = [
 
 ?>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/index.css?v=<?= filemtime(__DIR__ . '/assets/css/index.css') ?>">
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/bbh-icons.css?v=<?= filemtime(__DIR__ . '/assets/css/bbh-icons.css') ?>">
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/home.css?v=<?= filemtime(__DIR__ . '/assets/css/home.css') ?>">
@@ -113,9 +110,17 @@ $services = [
                                 <h2 id="hx-trend-title">แนวโน้มผู้ป่วยนอกรายเดือน</h2>
                                 <p id="hx-trend-sum">กำลังโหลด…</p>
                             </div>
-                            <a href="pages/opd_detail.php" class="hx-go">ดูหน้า OPD <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+                            <div class="hx-tools">
+                                <!-- ตัวเลือกปีงบ (ตัวเลือกสร้างใน loadTrend) — เทียบกับปีงบก่อนหน้าของปีที่เลือกเสมอ -->
+                                <label class="hx-select">
+                                    <span class="visually-hidden">ปีงบประมาณ</span>
+                                    <i class="fa-solid fa-calendar" aria-hidden="true"></i>
+                                    <select id="hx-trend-fy" aria-label="เลือกปีงบประมาณ"></select>
+                                </label>
+                                <a href="pages/opd_detail.php" class="hx-go">ดูหน้า OPD <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+                            </div>
                         </div>
-                        <svg id="hx-trend" role="img" aria-label="กราฟจำนวนผู้ป่วยนอกรายเดือน ปีงบประมาณนี้เทียบปีก่อน"></svg>
+                        <svg id="hx-trend" role="img" aria-label="กราฟจำนวนผู้ป่วยนอกรายเดือน ปีงบประมาณที่เลือกเทียบปีก่อน"></svg>
                         <div class="hx-legend" id="hx-trend-legend"></div>
                     </section>
 
@@ -139,7 +144,7 @@ $services = [
                         </div>
                         <div class="hx-rights" aria-label="ผู้ป่วยในตอนนี้แยกตามสิทธิ์">
                             <div class="hx-mini"><span>สิทธิ์ UC</span><b id="uc">–</b></div>
-                            <div class="hx-mini"><span>ชำระเงิน/เบิกได้</span><b id="mo">–</b></div>
+                            <div class="hx-mini"><span>ชำระ/เบิกได้</span><b id="mo">–</b></div>
                             <div class="hx-mini"><span>สิทธิ์อื่น ๆ</span><b id="ot">–</b></div>
                         </div>
                     </section>
@@ -211,8 +216,9 @@ $services = [
                         </div>
                     </div>
                     <div class="hx-svc" id="service-container">
-                        <?php foreach ($services as [$key, $name, $icon]): ?>
-                            <div class="service-item">
+                        <?php foreach ($services as $i => [$key, $name, $icon]): ?>
+                            <?php /* สีประจำบริการ (ตามรายการ ไม่ใช่ตามอันดับ) — เฉดหมุนรอบวงสี 24° ต่อรายการ, home.css .service-item */ ?>
+                            <div class="service-item" style="--h: <?= ($i * 24 + 150) % 360 ?>">
                                 <div class="service-name"><i class="bi <?= $icon ?>" aria-hidden="true"></i><span><?= $name ?></span></div>
                                 <div class="svc-num"><span class="service-total" id="<?= $key ?>_total">–</span><small>ราย</small></div>
                                 <div class="hx-tr" aria-hidden="true"><i></i></div>
@@ -222,7 +228,7 @@ $services = [
                 </section>
 
                 <!-- ============ ความหนาแน่นแต่ละแผนกตามช่วงเวลา (Highcharts ใน dashboard.js) ============ -->
-                <section class="hx-hm" aria-labelledby="hx-hm-title">
+                <section class="glass hx-hm" aria-labelledby="hx-hm-title">
                     <div class="hx-sec-h">
                         <div>
                             <h2 id="hx-hm-title"><i class="bi bi-flame" aria-hidden="true"></i>ภาระงานแต่ละแผนกตามช่วงเวลา วันนี้ <?= home_info_btn('heatmap', 'ภาระงานแต่ละแผนก') ?></h2>
@@ -333,28 +339,35 @@ function markUpdated() {
 // ปีงบประมาณ พ.ศ. (ต.ค.–ก.ย.) แบบเดียวกับ config/period.php
 const FY = new Date().getFullYear() + 543 + (new Date().getMonth() >= 9 ? 1 : 0);
 let trendData = null;
+let trendFy = FY;   // ปีงบที่เลือก
+const fySel = document.getElementById('hx-trend-fy');
+fySel.innerHTML = [0, 1, 2, 3, 4].map(k => `<option value="${FY - k}">ปีงบ ${FY - k}</option>`).join('');
+fySel.addEventListener('change', () => { trendFy = Number(fySel.value); loadTrend(); });
 
 async function loadTrend() {
     const sum = document.getElementById('hx-trend-sum');
+    const fy = trendFy;
     try {
-        const [cur, prev] = await Promise.all([FY, FY - 1].map(y =>
+        const [cur, prev] = await Promise.all([fy, fy - 1].map(y =>
             fetch('api/service_trend.php?year=' + y).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })));
-        trendData = { cur: cur.trend.map(t => t.opd), prev: prev.trend.map(t => t.opd), labels: prev.trend.map(t => t.label.split(' ')[0]) };
+        if (fy !== trendFy) return;   // ผู้ใช้เปลี่ยนปีระหว่างโหลด
+        const live = fy === FY;       // ปีงบปัจจุบัน: เดือนสุดท้ายยังไม่จบ
+        trendData = { fy, live, cur: cur.trend.map(t => t.opd), prev: prev.trend.map(t => t.opd), labels: prev.trend.map(t => t.label.split(' ')[0]) };
 
-        // เทียบเฉพาะเดือนที่จบแล้ว — เดือนปัจจุบันยังนับไม่ครบเดือน เทียบกับเดือนเต็มของปีก่อนไม่ได้
-        const done = trendData.cur.length - 1;
+        // ปีปัจจุบันเทียบเฉพาะเดือนที่จบแล้ว — เดือนนี้ยังนับไม่ครบ เทียบกับเดือนเต็มของปีก่อนไม่ได้ · ปีที่ผ่านมาเทียบทั้งปี
+        const done = live ? trendData.cur.length - 1 : trendData.cur.length;
         const a = trendData.cur.slice(0, done).reduce((s, v) => s + v, 0);
         const b = trendData.prev.slice(0, done).reduce((s, v) => s + v, 0);
         if (done > 0 && b > 0) {
             const pct = Math.round((a - b) * 100 / b);
-            const span = done === 1 ? trendData.labels[0] : trendData.labels[0] + '–' + trendData.labels[done - 1];
+            const span = !live && done === 12 ? `ทั้งปีงบ ${fy}` : done === 1 ? trendData.labels[0] : trendData.labels[0] + '–' + trendData.labels[done - 1];
             sum.innerHTML = `${span} รวม <b>${fmt(a)}</b> visit, `
-                + (pct === 0 ? 'เท่ากับ' : `${pct > 0 ? 'มากกว่า' : 'น้อยกว่า'} <b>${Math.abs(pct)}%</b> จาก`) + `ช่วงเดียวกันปีงบก่อน`;
+                + (pct === 0 ? 'เท่ากับ' : `${pct > 0 ? 'มากกว่า' : 'น้อยกว่า'} <b>${Math.abs(pct)}%</b> จาก`) + `ปีงบ ${fy - 1}`;
         } else {
-            sum.textContent = `ปีงบ ${FY} เริ่มเดือนนี้ ยังไม่มีเดือนที่จบแล้วให้เทียบ`;
+            sum.textContent = live ? `ปีงบ ${fy} เริ่มเดือนนี้ ยังไม่มีเดือนที่จบแล้วให้เทียบ` : `ไม่มีข้อมูลปีงบ ${fy - 1} ให้เทียบ`;
         }
         document.getElementById('hx-trend-legend').innerHTML =
-            `<span><i></i>ปีงบ ${FY}</span><span><i class="is-prev"></i>ปีงบ ${FY - 1}</span><span>จุดเส้นประ = ยังไม่จบเดือน</span>`;
+            `<span><i></i>ปีงบ ${fy}</span><span><i class="is-prev"></i>ปีงบ ${fy - 1}</span>` + (live ? '<span>จุดเส้นประ = ยังไม่จบเดือน</span>' : '');
         drawTrend();
     } catch (e) {
         console.error('loadTrend error:', e);
@@ -366,7 +379,7 @@ function drawTrend() {
     if (!trendData) return;
     const svg = document.getElementById('hx-trend');
     const W = Math.max(svg.clientWidth, 300), H = svg.clientHeight || 260;
-    const { cur, prev, labels } = trendData;
+    const { fy, live, cur, prev, labels } = trendData;
     const L = 52, R = 12, T = 10, B = 30;
     const max = Math.max(...cur, ...prev, 1);
     const step = Math.pow(10, Math.floor(Math.log10(max / 4)));
@@ -383,11 +396,11 @@ function drawTrend() {
     labels.forEach((m, i) => { if (W >= 520 || i % 2 === 0) s += `<text x="${X(i)}" y="${H - 8}" text-anchor="middle">${m}</text>`; });
     s += `<path class="ln-prev" d="${line(prev)}"/>`;
     if (cur.length) s += `<path class="ln-cur" pathLength="1" style="stroke-dasharray:1" d="${line(cur)}"/>`;
-    cur.forEach((v, i) => { s += `<circle class="pt${i === cur.length - 1 ? ' is-partial' : ''}" cx="${X(i)}" cy="${Y(v)}" r="4"/>`; });
+    cur.forEach((v, i) => { s += `<circle class="pt${live && i === cur.length - 1 ? ' is-partial' : ''}" cx="${X(i)}" cy="${Y(v)}" r="4"/>`; });
     // แถบโปร่งรายเดือน: ชี้แล้วเห็นตัวเลขทั้งสองปี
     const bw = (W - L - R) / 11;
     labels.forEach((m, i) => {
-        const tip = `${m} ปีงบ ${FY}: ${cur[i] === undefined ? 'ยังไม่ถึง' : fmt(cur[i]) + ' visit' + (i === cur.length - 1 ? ' (นับถึงวันนี้)' : '')}\n${m} ปีงบ ${FY - 1}: ${fmt(prev[i] ?? 0)} visit`;
+        const tip = `${m} ปีงบ ${fy}: ${cur[i] === undefined ? 'ยังไม่ถึง' : fmt(cur[i]) + ' visit' + (live && i === cur.length - 1 ? ' (นับถึงวันนี้)' : '')}\n${m} ปีงบ ${fy - 1}: ${fmt(prev[i] ?? 0)} visit`;
         s += `<rect class="hit" x="${X(i) - bw / 2}" y="${T}" width="${bw}" height="${H - T - B}" rx="8"><title>${tip}</title></rect>`;
     });
     svg.setAttribute('viewBox', `0 0 ${W} ${H}`);

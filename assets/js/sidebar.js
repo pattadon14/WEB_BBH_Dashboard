@@ -12,27 +12,55 @@
 
         const isProviderLoggedIn = sidebar.getAttribute('data-provider-logged-in') === '1';
 
+        // จอ ≥ 1200px = แถบติดซ้ายดันเนื้อหา (html.bbh-sb-docked, ค่าเริ่มต้นตั้งใน header.php) · จอแคบ = ลิ้นชักทับเนื้อหา (.open)
+        const wide = window.matchMedia('(min-width: 1200px)');
+        const root = document.documentElement;
+
+        function syncState() {
+            const shown = wide.matches ? root.classList.contains('bbh-sb-docked') : sidebar.classList.contains('open');
+            toggle.setAttribute('aria-expanded', String(shown));
+            toggle.setAttribute('aria-label', shown ? 'ซ่อนแถบเมนู' : 'แสดงแถบเมนู');
+        }
+
+        // กราฟ (Highcharts / SVG) วาดตามความกว้าง — แจ้ง resize หลังแถบเลื่อนเสร็จ
+        function reflow() { setTimeout(function () { window.dispatchEvent(new Event('resize')); }, 300); }
+
+        function setDocked(on) {
+            root.classList.toggle('bbh-sb-docked', on);
+            try { localStorage.setItem('bbh-sidebar', on ? 'open' : 'closed'); } catch (e) {}
+            syncState();
+            reflow();
+        }
+
         function openSidebar() {
             sidebar.classList.add('open');
             overlay.classList.add('show');
             document.body.classList.add('bbh-sidebar-open');
-            toggle.setAttribute('aria-expanded', 'true');
             sidebar.classList.toggle('guest-locked', !isProviderLoggedIn);
+            syncState();
         }
 
         function closeSidebar() {
             sidebar.classList.remove('open');
             overlay.classList.remove('show');
             document.body.classList.remove('bbh-sidebar-open');
-            toggle.setAttribute('aria-expanded', 'false');
+            syncState();
         }
 
         toggle.addEventListener('click', function (event) {
             event.preventDefault();
-            sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+            if (wide.matches) setDocked(!root.classList.contains('bbh-sb-docked'));
+            else sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
         });
 
-        if (close) close.addEventListener('click', closeSidebar);
+        if (close) close.addEventListener('click', function () {
+            if (wide.matches) setDocked(false);
+            else closeSidebar();
+        });
+
+        // ข้ามขนาดจอ: ปิดลิ้นชักที่ค้างไว้ แล้วอัปเดตสถานะปุ่ม
+        wide.addEventListener('change', function () { closeSidebar(); });
+        syncState();
         overlay.addEventListener('click', closeSidebar);
 
         document.addEventListener('keydown', function (event) {
@@ -88,7 +116,7 @@
                 if (isOpdPage && activateOpdTab(tabName)) {
                     event.preventDefault();
                     history.replaceState(null, '', targetUrl.split('#')[0] + '#opd-tab-' + tabName);
-                    closeSidebar();
+                    if (!wide.matches) closeSidebar();
                 }
             });
         });
@@ -195,7 +223,7 @@
         /* ปิด Sidebar เมื่อเลือกเมนูปลายทาง */
         sidebar.querySelectorAll('a[href]').forEach(function (link) {
             link.addEventListener('click', function () {
-                if (isProviderLoggedIn && this.getAttribute('href') !== '#') closeSidebar();
+                if (isProviderLoggedIn && this.getAttribute('href') !== '#' && !wide.matches) closeSidebar();
             });
         });
     }
