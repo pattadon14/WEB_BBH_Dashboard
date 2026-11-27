@@ -1,7 +1,6 @@
 <?php
 
-// navbar.php แสดงป้าย LIVE เฉพาะหน้าที่ตั้งค่านี้ (เวลาอัปเดตโดย markUpdated() ด้านล่าง)
-$showLiveStatus = true;
+// หน้าแรกแสดงสถานะอัปเดตใต้คำทักทาย (.hx-head) แทนป้าย LIVE ใน navbar — จึงไม่ตั้ง $showLiveStatus
 
 include 'templates/header.php';
 include 'templates/navbar.php';
@@ -55,8 +54,12 @@ $services = [
 
                 <header class="hx-head">
                     <div>
-                        <h1>ภาพรวมโรงพยาบาลบ้านบึง</h1>
-                        <p id="hx-today"></p>
+                        <h1 id="hx-hello">สวัสดี</h1>
+                        <!-- เวลาอัปเดตโดย markUpdated() หลังโหลดข้อมูลสำเร็จ (รีเฟรชอัตโนมัติด้วย bbhPoll) -->
+                        <p class="hx-status" role="status" aria-live="polite">
+                            <span class="hx-pulse" aria-hidden="true"></span>
+                            <span><span id="hx-today"></span>, <span id="last-updated">กำลังโหลดข้อมูล…</span></span>
+                        </p>
                     </div>
                 </header>
 
@@ -188,29 +191,44 @@ $services = [
                 </section>
 
                 <!-- ============ สถานะเตียงรายหอผู้ป่วย (api/index_ward_bed.php · คลิกการ์ด = login.js เปิดหน้า Ward) ============ -->
-                <div class="hx-t">
-                    <h2><i class="bi bi-hospital" aria-hidden="true"></i>สถานะเตียงรายหอผู้ป่วย <?= home_info_btn('wards', 'สถานะเตียงรายหอผู้ป่วย') ?></h2>
-                </div>
-                <div class="hx-wards" id="ward-container" aria-live="polite"></div>
+                <section class="glass hx-sec" aria-labelledby="hx-ward-title">
+                    <div class="hx-sec-h">
+                        <div>
+                            <h2 id="hx-ward-title"><i class="bi bi-hospital" aria-hidden="true"></i>สถานะเตียงรายหอผู้ป่วย <?= home_info_btn('wards', 'สถานะเตียงรายหอผู้ป่วย') ?></h2>
+                            <p>ตอนนี้ เรียงหอที่แน่นที่สุดก่อน คลิกการ์ดเพื่อดูรายละเอียดหอ</p>
+                        </div>
+                        <div class="hx-count" id="ward-sum"></div>
+                    </div>
+                    <div class="hx-wards" id="ward-container" aria-live="polite"></div>
+                </section>
 
                 <!-- ============ บริการอื่น ๆ วันนี้ (api/service_summary_today.php · คลิก = service_detail.js) ============ -->
-                <div class="hx-t">
-                    <h2><i class="bi bi-first-aid-kit" aria-hidden="true"></i>บริการอื่น ๆ วันนี้ <?= home_info_btn('services', 'สถิติการใช้บริการอื่นๆ') ?></h2>
-                </div>
-                <div class="hx-svc" id="service-container">
-                    <?php foreach ($services as [$key, $name, $icon]): ?>
-                        <div class="service-item">
-                            <div class="service-name"><i class="bi <?= $icon ?>" aria-hidden="true"></i><span><?= $name ?></span></div>
-                            <div class="service-total" id="<?= $key ?>_total">–</div>
+                <section class="glass hx-sec" aria-labelledby="hx-svc-title">
+                    <div class="hx-sec-h">
+                        <div>
+                            <h2 id="hx-svc-title"><i class="bi bi-first-aid-kit" aria-hidden="true"></i>บริการอื่น ๆ วันนี้ <?= home_info_btn('services', 'สถิติการใช้บริการอื่นๆ') ?></h2>
+                            <p>จำนวนผู้รับบริการวันนี้ เรียงมากไปน้อย แถบเทียบกับบริการที่มากที่สุด คลิกเพื่อดูรายละเอียด</p>
                         </div>
-                    <?php endforeach; ?>
-                </div>
+                    </div>
+                    <div class="hx-svc" id="service-container">
+                        <?php foreach ($services as [$key, $name, $icon]): ?>
+                            <div class="service-item">
+                                <div class="service-name"><i class="bi <?= $icon ?>" aria-hidden="true"></i><span><?= $name ?></span></div>
+                                <div class="svc-num"><span class="service-total" id="<?= $key ?>_total">–</span><small>ราย</small></div>
+                                <div class="hx-tr" aria-hidden="true"><i></i></div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </section>
 
                 <!-- ============ ความหนาแน่นแต่ละแผนกตามช่วงเวลา (Highcharts ใน dashboard.js) ============ -->
-                <div class="hx-t">
-                    <h2><i class="bi bi-flame" aria-hidden="true"></i>ภาระงานแต่ละแผนกตามช่วงเวลา วันนี้ <?= home_info_btn('heatmap', 'ภาระงานแต่ละแผนก') ?></h2>
-                </div>
-                <section class="hx-hm" aria-label="Heatmap ภาระงานแต่ละแผนก">
+                <section class="hx-hm" aria-labelledby="hx-hm-title">
+                    <div class="hx-sec-h">
+                        <div>
+                            <h2 id="hx-hm-title"><i class="bi bi-flame" aria-hidden="true"></i>ภาระงานแต่ละแผนกตามช่วงเวลา วันนี้ <?= home_info_btn('heatmap', 'ภาระงานแต่ละแผนก') ?></h2>
+                            <p>จำนวนผู้ป่วยแต่ละแผนกในแต่ละชั่วโมง สีเข้ม = ผู้ป่วยมาก</p>
+                        </div>
+                    </div>
                     <div class="hx-hm-k">
                         <div class="hx-mini"><span>ชั่วโมงที่แออัดสุด</span><b id="hm-peak-hour">–</b></div>
                         <div class="hx-mini"><span>แผนกที่แออัดสุดวันนี้</span><b id="hm-peak-dept">–</b></div>
@@ -292,25 +310,23 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': 
 // แอนิเมชันเข้ามาเฉพาะครั้งแรกที่วาด ไม่เล่นซ้ำทุกครั้งที่ bbhPoll รีเฟรช
 const enterOnce = el => { if (!el.dataset.entered) { el.dataset.entered = '1'; el.classList.add('is-enter'); } };
 
-document.getElementById('hx-today').textContent =
-    new Date().toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+// คำทักทาย + วันที่ ตามเวลาเครื่องผู้ดู (เปลี่ยนเองเมื่อข้ามช่วงเวลา/ข้ามวัน เพราะเรียกซ้ำทุกครั้งที่อัปเดต)
+function setGreeting(now) {
+    const h = now.getHours();
+    document.getElementById('hx-hello').textContent =
+        'สวัสดี' + (h < 12 ? 'ตอนเช้า' : h < 16 ? 'ตอนบ่าย' : h < 19 ? 'ตอนเย็น' : 'ตอนค่ำ');
+    document.getElementById('hx-today').textContent =
+        now.toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+}
+setGreeting(new Date());
 
 // เรียกหลังโหลดข้อมูลสำเร็จเท่านั้น ถ้า API ล่ม เวลาจะค้างไว้ที่ครั้งล่าสุดที่ได้ข้อมูลจริง
 function markUpdated() {
-
     const now = new Date();
-
+    setGreeting(now);
     document.getElementById('last-updated').textContent =
-        'ข้อมูล ณ วันที่ ' +
-        now.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' }) +
-        ' เวลา ' +
-        now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) +
-        ' น.';
-
-    // จอเล็กซ่อนข้อความยาว ให้ดูเวลาได้จาก tooltip
-    document.getElementById('live-status').title =
-        document.getElementById('last-updated').textContent;
-
+        'อัปเดตข้อมูลล่าสุด ' + now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' น.';
+    document.querySelector('.hx-status').classList.add('is-live');
 }
 
 /* ---------------- แนวโน้มผู้ป่วยนอกรายเดือน: ปีงบนี้ เทียบปีงบก่อน ---------------- */
@@ -455,6 +471,7 @@ async function loadWardBed() {
         data.sort((a, b) => (a.ward === HOME_WARD) - (b.ward === HOME_WARD) || b.occupancy_rate - a.occupancy_rate);
 
         const box = document.getElementById('ward-container');
+        const lv = { hot: 0, warm: 0, ok: 0 };
         box.innerHTML = data.map(w => {
             const rate = parseFloat(w.occupancy_rate) || 0;
             // เกณฑ์เดียวกับการ์ดเดิม: ≥100 เต็ม/เกิน, ≥75 ใกล้เต็ม, ≥50 ปานกลาง — สีคู่กับข้อความเสมอ
@@ -462,14 +479,20 @@ async function loadWardBed() {
             const label = rate >= 100 ? 'เต็ม/เกิน' : rate >= 75 ? 'ใกล้เต็ม' : rate >= 50 ? 'ปานกลาง' : 'ว่าง';
             const admit = parseInt(w.admitnow, 10), beds = parseInt(w.bedcount, 10);
             const free = admit >= beds ? (admit > beds ? `เกิน ${fmt(admit - beds)} เตียง` : 'เต็มทุกเตียง') : `ว่าง ${fmt(w.available_bed)} เตียง`;
+            if (w.ward !== HOME_WARD) lv[level]++;
             // .ward-card + .ward-name (ชื่อตรงกับ API) — login.js ใช้หา Ward แล้วเปิดหน้ารายละเอียด
             return `<div class="ward-card is-${level}" tabindex="0" role="link" aria-label="${esc(w.name)} ครองเตียง ${rate}% ${label} ดูรายละเอียดหอผู้ป่วย">
                 <div class="wc-hd"><i class="bi ${wardIcon(w.name)}" aria-hidden="true"></i><div class="ward-name" title="${esc(w.name)}">${esc(w.name)}</div></div>
                 <div class="wc-ln"><span class="wc-pc">${rate}%</span><span class="wc-st">${label}</span></div>
                 <div class="hx-tr" aria-hidden="true"><i style="--w:${Math.min(rate, 100) / 100}"></i></div>
-                <small>Admit ${fmt(admit)} จาก ${fmt(beds)} เตียง, ${free}${w.ward === HOME_WARD ? ' (ไม่นับรวมยอดเตียง)' : ''}</small>
+                <div class="wc-ft"><span>ผู้ป่วย <b>${fmt(admit)}</b> / ${fmt(beds)} เตียง</span><b class="wc-free">${free}</b></div>
+                ${w.ward === HOME_WARD ? '<small>ผู้ป่วยอยู่ที่บ้าน ไม่นับรวมยอดเตียง</small>' : ''}
             </div>`;
         }).join('');
+        // สรุปจำนวนหอตามสถานะ (ไม่นับ Home Ward) — สีคู่ข้อความ
+        document.getElementById('ward-sum').innerHTML =
+            [['hot', 'เต็ม/เกิน'], ['warm', 'ใกล้เต็ม'], ['ok', 'ยังว่าง']]
+                .map(([k, t]) => `<span class="chip is-${k}">${t} ${lv[k]} หอ</span>`).join('');
         enterOnce(box);
 
         markUpdated();
@@ -488,16 +511,15 @@ async function loadServiceSummary() {
         const box = document.getElementById('service-container');
 
         // key ของ API (<บริการ>_total) = id ตัวเลขในการ์ด · เรียงมากไปน้อย (stable: เท่ากันคงลำดับเดิม) · 0 = สีเทา
-        [...box.children]
-            .map(el => {
-                const total = el.querySelector('.service-total');
-                const n = Number(data[total.id]) || 0;
-                total.textContent = fmt(n);
-                el.classList.toggle('is-zero', n === 0);
-                return [el, n];
-            })
-            .sort((a, b) => b[1] - a[1])
-            .forEach(([el]) => box.appendChild(el));
+        const rows = [...box.children].map(el => [el, Number(data[el.querySelector('.service-total').id]) || 0]);
+        const max = Math.max(1, ...rows.map(r => r[1]));
+        rows.sort((a, b) => b[1] - a[1]).forEach(([el, n]) => {
+            el.querySelector('.service-total').textContent = fmt(n);
+            el.querySelector('.hx-tr > i').style.setProperty('--w', (n / max).toFixed(4));   // แถบ = สัดส่วนเทียบบริการที่มากที่สุด
+            el.classList.toggle('is-zero', n === 0);
+            box.appendChild(el);
+        });
+        enterOnce(box);
 
         markUpdated();
     } catch (e) {

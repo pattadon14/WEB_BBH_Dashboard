@@ -82,13 +82,19 @@ html[data-theme="dark"] .content-wrapper.home-dash { background: #070c0a; }
     box-shadow: var(--shadow);
     min-width: 0;
 }
+/* custom.css ตั้ง h1–h6 เป็น THSarabunNew — หัวข้อการ์ดทุกใบต้องเป็น Prompt เหมือนเนื้อหา */
+#hx :is(h1, h2, h3, h4, h5, h6, button, input, select) { font-family: var(--font); }
 #hx a { color: var(--accent-ink); }
 #hx a:focus-visible, #hx button:focus-visible, #hx [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* ---------- หัวหน้า ---------- */
 #hx .hx-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 8px 16px; padding: 0 4px; }
-#hx .hx-head h1 { margin: 0; font-size: 24px; font-weight: 600; line-height: 1.25; color: var(--ink); }
-#hx .hx-head p { margin: 2px 0 0; color: var(--muted); font-size: 14px; }
+#hx .hx-head h1 { margin: 0; font-size: 28px; font-weight: 600; line-height: 1.25; color: var(--ink); }
+#hx .hx-status { display: flex; align-items: center; gap: 8px; margin: 4px 0 0; color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+/* จุดสถานะ: เทา = ยังไม่ได้ข้อมูล, เขียวกะพริบ = อัปเดตอัตโนมัติอยู่ (มีข้อความ "อัปเดตข้อมูลล่าสุด" กำกับเสมอ) */
+#hx .hx-pulse { width: 8px; height: 8px; flex: none; border-radius: 50%; background: var(--muted); }
+#hx .hx-status.is-live .hx-pulse { background: var(--accent); animation: hx-pulse 2s infinite; }
+@keyframes hx-pulse { 0% { box-shadow: 0 0 0 0 var(--accent); } 70%, 100% { box-shadow: 0 0 0 8px transparent; } }
 
 /* ---------- ตัวเลขหลักวันนี้ ---------- */
 #hx .hx-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -96,7 +102,7 @@ html[data-theme="dark"] .content-wrapper.home-dash { background: #070c0a; }
 #hx .hx-kpi:last-child { border-right: 0; }
 #hx .hx-lbl { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: var(--ink); }
 #hx .hx-lbl > i { width: 32px; height: 32px; flex: none; border-radius: 10px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-ink); font-size: 14px; }
-#hx .hx-big { font-size: 38px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; color: var(--ink); margin: 4px 0 0; }
+#hx .hx-big { font-size: 40px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; color: var(--ink); margin: 4px 0 0; }
 #hx .hx-big small { font-size: 14px; font-weight: 500; color: var(--muted); margin-left: 6px; }
 #hx .hx-sub { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
 #hx .kpi-trend { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; line-height: 1.4; }
@@ -117,11 +123,11 @@ html[data-theme="dark"] .content-wrapper.home-dash { background: #070c0a; }
 /* ---------- ส่วนหัวของแต่ละการ์ด ---------- */
 #hx .hx-sec { padding: 20px; }
 #hx .hx-sec-h { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 8px 12px; margin-bottom: 14px; }
-#hx .hx-sec-h h2 { margin: 0; display: flex; align-items: center; gap: 6px; font-size: 17px; font-weight: 600; line-height: 1.3; color: var(--ink); }
+#hx .hx-sec-h h2 { margin: 0; display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 600; line-height: 1.3; color: var(--ink); }
+#hx .hx-sec-h h2 > i { width: 36px; height: 36px; flex: none; border-radius: 12px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-ink); font-size: 15px; }
+#hx .hx-count { display: flex; flex-wrap: wrap; gap: 6px; }
 #hx .hx-sec-h p { margin: 2px 0 0; font-size: 14px; color: var(--muted); }
-#hx .hx-t { display: flex; align-items: center; gap: 10px; margin: 8px 4px -6px; }
-#hx .hx-t h2 { margin: 0; display: flex; align-items: center; gap: 8px; font-size: 19px; font-weight: 600; color: var(--ink); }
-#hx .hx-t h2 > i { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-ink); font-size: 15px; }
+#hx .hx-sec-h h2:has(> i) + p { padding-left: 44px; }   /* คำอธิบายตรงแนวข้อความหัวข้อ ไม่ใช่ใต้ไอคอน */
 #hx .er-info-btn { color: var(--muted); font-size: 14px; }
 
 /* ---------- แนวโน้ม + เตียง ---------- */
@@ -168,7 +174,7 @@ html[data-theme="dark"] .content-wrapper.home-dash { background: #070c0a; }
 #hx .q-head { margin-bottom: 14px; }
 #hx .q-title > i { width: 36px; height: 36px; border-radius: 12px; background: var(--accent-soft); color: var(--accent-ink); font-size: 15px; }
 #hx .q-er .q-title > i { background: var(--bad-bg); color: var(--bad); }
-#hx .q-title h6 { font-size: 17px; font-weight: 600; color: var(--ink); line-height: 1.3; }
+#hx .q-title h6 { font-size: 18px; font-weight: 600; color: var(--ink); line-height: 1.3; }
 #hx .q-title p { font-size: 14px; color: var(--muted); }
 #hx .q-go { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 14px; border-radius: 12px; border: 0; font-size: 14px; font-weight: 500; text-decoration: none; background: var(--accent-soft); color: var(--accent-ink); }
 #hx .q-go:hover { background: var(--accent-strong); color: var(--on-accent); }
@@ -187,13 +193,14 @@ html[data-theme="dark"] .content-wrapper.home-dash { background: #070c0a; }
 #hx .is-bad .q-meter > i { background: var(--bad-line); }
 #hx .is-warn .q-meter > i { background: var(--warn-line); }
 #hx .q-tile:not(.is-ok):not(.is-bad):not(.is-warn) .q-meter > i { background: var(--muted); }
-#hx .q-sub { font-size: 13.5px; color: var(--muted); }
+#hx .q-sub { font-size: 13px; color: var(--muted); }
 #hx .q-msg { font-size: 14px; color: var(--muted); }
 
 /* ---------- หอผู้ป่วย ---------- */
-#hx .hx-wards { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; }
+/* 10 หอ: 5 คอลัมน์ = 2 แถวเต็ม (ไม่มีแถวเศษ) · จอกลาง 2 คอลัมน์ · มือถือ 1 คอลัมน์ (ดู responsive) */
+#hx .hx-wards { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
 #hx .ward-card {
-    position: relative; display: grid; gap: 8px; margin: 0; padding: 14px 16px;
+    position: relative; display: grid; grid-template-rows: auto auto auto 1fr; gap: 10px; margin: 0; padding: 16px;
     background: var(--glass); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow);
     -webkit-backdrop-filter: blur(22px) saturate(1.3); backdrop-filter: blur(22px) saturate(1.3);
     color: var(--ink); cursor: pointer; transition: transform .2s ease, box-shadow .2s ease;
@@ -204,32 +211,46 @@ html[data-theme="dark"] .content-wrapper.home-dash { background: #070c0a; }
 #hx .wc-hd > i { width: 36px; height: 36px; flex: none; border-radius: 12px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-ink); font-size: 15px; }
 #hx .ward-card.is-warm .wc-hd > i { background: var(--warn-bg); color: var(--warn); }
 #hx .ward-card.is-hot .wc-hd > i { background: var(--bad-bg); color: var(--bad); }
-#hx .ward-name { min-width: 0; padding: 0; margin: 0; font-size: 14.5px; font-weight: 600; line-height: 1.3; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#hx .wc-ln { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-#hx .wc-pc { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
+/* ชื่อยาวขึ้นได้ 2 บรรทัด (ไม่ตัด …) ความสูงคงที่ ให้การ์ดทุกใบแนวเดียวกัน */
+#hx .ward-name {
+    min-width: 0; min-height: 2.6em; padding: 0; margin: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; align-content: center;
+    font-size: 15px; font-weight: 600; line-height: 1.3; color: var(--ink); overflow-wrap: break-word;
+}
+#hx .wc-ln { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+#hx .wc-pc { font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
 #hx .ward-card.is-warm .wc-pc { color: var(--warn); }
 #hx .ward-card.is-hot .wc-pc { color: var(--bad); }
 #hx .wc-st { font-size: 13px; font-weight: 600; padding: 1px 9px; border-radius: 8px; background: var(--good-bg); color: var(--good); white-space: nowrap; }
 #hx .ward-card.is-warm .wc-st { background: var(--warn-bg); color: var(--warn); }
 #hx .ward-card.is-hot .wc-st { background: var(--bad-bg); color: var(--bad); }
-#hx .ward-card small { font-size: 13.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+#hx .wc-ft { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 10px; align-self: end; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+#hx .wc-ft span b { font-weight: 600; color: var(--ink); }
+#hx .wc-free { font-weight: 600; color: var(--good); }
+#hx .ward-card.is-warm .wc-free { color: var(--warn); }
+#hx .ward-card.is-hot .wc-free { color: var(--bad); }
+#hx .ward-card small { margin-top: -6px; font-size: 12px; color: var(--muted); }
 #hx .hx-tr { height: 7px; border-radius: 4px; background: var(--track); overflow: hidden; }
 #hx .hx-tr > i { display: block; height: 100%; border-radius: 4px; background: var(--accent); transform-origin: left; transform: scaleX(var(--w, 0)); }
 #hx .ward-card.is-warm .hx-tr > i { background: var(--warn-line); }
 #hx .ward-card.is-hot .hx-tr > i { background: var(--bad-line); }
 
 /* ---------- บริการอื่น ๆ (service_detail.js เปิดหน้าต่างเมื่อคลิก) ---------- */
-#hx .hx-svc { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
+/* รายการเรียงมากไปน้อยในกล่องเดียว: ไอคอน + ชื่อ | ตัวเลข แล้วแถบสัดส่วนเทียบบริการที่มากสุดใต้ชื่อ
+   15 บริการ: 3 คอลัมน์ = 5 แถวเต็ม · จอกลาง 2 คอลัมน์ · มือถือ 1 คอลัมน์ */
+#hx .hx-svc { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px 24px; }
 #hx .service-item {
-    display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 2px; margin: 0; padding: 12px 14px;
-    background: var(--glass); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow);
-    -webkit-backdrop-filter: blur(22px) saturate(1.3); backdrop-filter: blur(22px) saturate(1.3);
-    color: var(--ink); cursor: pointer; transition: transform .2s ease;
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 6px 12px; margin: 0; padding: 10px 12px;
+    background: none; border: 0; border-radius: 14px; box-shadow: none;
+    color: var(--ink); cursor: pointer; transition: background-color .2s ease;
 }
-#hx .service-item:hover { transform: translateY(-2px); background: var(--glass-2); }
-#hx .service-name { display: flex; align-items: center; gap: 10px; min-width: 0; font-size: 13.5px; font-weight: 500; line-height: 1.3; color: var(--ink); }
+#hx .service-item:hover { transform: none; background: var(--glass-2); }
+#hx .service-name { display: flex; align-items: center; gap: 12px; min-width: 0; font-size: 15px; font-weight: 500; line-height: 1.3; color: var(--ink); }
+#hx .service-name span { min-width: 0; overflow-wrap: break-word; }
 #hx .service-name i { width: 38px; height: 38px; flex: none; border-radius: 12px; display: grid; place-items: center; margin: 0; background: var(--accent-soft); color: var(--accent-ink); font-size: 15px; }
-#hx .service-total { flex: none; padding: 0 0 0 48px; margin: 0; background: none; border-radius: 0; font-size: 22px; line-height: 1.2; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink); }
+#hx .svc-num { display: flex; align-items: baseline; gap: 4px; }
+#hx .svc-num small { font-size: 13px; color: var(--muted); }
+#hx .service-total { padding: 0; margin: 0; background: none; border-radius: 0; font-size: 22px; line-height: 1.2; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink); }
+#hx .service-item .hx-tr { grid-column: 1 / -1; height: 5px; margin-left: 50px; }
 #hx .service-item.is-zero .service-name, #hx .service-item.is-zero .service-total { color: var(--muted); }
 #hx .service-item.is-zero .service-name i { background: var(--track); color: var(--muted); }
 
@@ -244,7 +265,7 @@ html[data-theme="dark"] .content-wrapper.home-dash { background: #070c0a; }
 #hx .fin-body { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 20px 28px; align-items: start; }
 #hx .fin-msg { margin: 0; padding: 18px 0; font-size: 14px; color: var(--muted); grid-column: 1 / -1; }
 #hx .fin-lbl { display: block; font-size: 14px; color: var(--muted); }
-#hx .fin-big { font-size: 34px; font-weight: 600; line-height: 1.15; font-variant-numeric: tabular-nums; color: var(--ink); margin: 2px 0 6px; }
+#hx .fin-big { font-size: 32px; font-weight: 600; line-height: 1.15; font-variant-numeric: tabular-nums; color: var(--ink); margin: 2px 0 6px; }
 #hx .fin-big small { font-size: 14px; font-weight: 500; color: var(--muted); margin-left: 6px; }
 #hx .fin-cmp { margin: 8px 0 12px; font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
 #hx .fin-split { display: grid; gap: 8px; }
@@ -266,7 +287,7 @@ html[data-theme="dark"] .content-wrapper.home-dash { background: #070c0a; }
 #hx .hx-credit a { color: var(--muted); text-decoration: underline; }
 
 /* ---------- ผิวกระจกร่วม (การ์ดทุกใบ ยกเว้น heatmap ที่ต้องพื้นทึบให้ตรงกับ Highcharts) ---------- */
-#hx .glass, #hx .q-panel, #hx .ward-card, #hx .service-item {
+#hx .glass, #hx .q-panel {
     background-color: var(--glass);
     background-image: var(--sheen);
     border: 1px solid var(--rim);
@@ -275,6 +296,9 @@ html[data-theme="dark"] .content-wrapper.home-dash { background: #070c0a; }
     backdrop-filter: blur(28px) saturate(1.7);
 }
 #hx .hx-mini, #hx .q-tile { background-color: var(--glass-2); border-color: var(--rim); }
+/* การ์ดหออยู่ในกล่องกระจกแล้ว: เป็นแผ่นใสชั้นที่สอง ไม่เบลอซ้อน ไม่มีเงาหนัก */
+#hx .ward-card { background: var(--glass-2); border: 1px solid var(--rim); box-shadow: inset 0 1px 0 var(--rim); -webkit-backdrop-filter: none; backdrop-filter: none; }
+#hx .ward-card:hover { box-shadow: inset 0 1px 0 var(--rim), var(--shadow); }
 
 /* ---------- motion: เข้ามาครั้งแรกเท่านั้น ---------- */
 @keyframes hx-rise { from { opacity: 0; transform: translateY(10px); } }
@@ -288,8 +312,12 @@ html[data-theme="dark"] .content-wrapper.home-dash { background: #070c0a; }
 #hx .is-enter .rf, #hx .is-enter .ln-cur { stroke-dashoffset: 0; animation: hx-draw 1.4s ease-out both; }
 
 /* ---------- responsive ---------- */
+@media (max-width: 1279.98px) {
+    #hx .hx-wards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 @media (max-width: 1199.98px) {
     #hx .hx-lay, #hx .hx-q, #hx .fin-body { grid-template-columns: minmax(0, 1fr); }
+    #hx .hx-svc { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     #hx .fin-split { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (max-width: 767.98px) {
@@ -302,14 +330,22 @@ html[data-theme="dark"] .content-wrapper.home-dash { background: #070c0a; }
     #hx .hx-chart svg { height: 210px; }
     #hx .hx-ring { grid-template-columns: 108px minmax(0, 1fr); gap: 14px; }
     #hx .hx-ring svg { width: 108px; height: 108px; }
-    #hx .hx-wards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-    #hx .hx-svc { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    #hx .hx-head h1 { font-size: 24px; }
+    #hx .hx-wards { gap: 10px; }
     #hx .hx-rights, #hx .fin-split { grid-template-columns: minmax(0, 1fr); }
     #hx .fin-big { font-size: 28px; }
     #hx #hm-toggle { margin-left: 0; }
 }
-@media (max-width: 420px) {
-    #hx .hx-wards { grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 575.98px) {
+    #hx .hx-svc { grid-template-columns: minmax(0, 1fr); }
+    /* มือถือคง 2 คอลัมน์ (10 หอ = 5 แถว) ย่อการ์ดให้พอดี */
+    #hx .ward-card { padding: 12px; gap: 8px; }
+    #hx .wc-hd { gap: 8px; }
+    #hx .wc-hd > i { width: 30px; height: 30px; font-size: 13px; }
+    #hx .ward-name { font-size: 14px; }
+    #hx .wc-ln { flex-wrap: wrap; gap: 4px; }
+    #hx .wc-pc { font-size: 24px; }
+    #hx .service-item { padding: 8px 4px; }
 }
 @media (prefers-reduced-motion: reduce) {
     #hx *, #hx *::before { animation: none !important; transition: none !important; }

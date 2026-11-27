@@ -34,7 +34,7 @@ async function loadCard(config) {
         if (trend && data.prev_week !== undefined) {
             const now = Number(data.today), prev = Number(data.prev_week), diff = now - prev;
             const pct = prev ? Math.round(diff * 100 / prev) : null;
-            trend.innerHTML = `สัปดาห์ก่อนถึงเวลานี้ ${prev.toLocaleString()} · `
+            trend.innerHTML = `เปรียบเทียบสัปดาห์ก่อน ${prev.toLocaleString()} · `
                 + (diff === 0 ? 'เท่าเดิม'
                     : `<span class="kpi-trend-ico ${diff > 0 ? 'is-up' : 'is-down'}" aria-hidden="true"><i class="fa-solid fa-arrow-${diff > 0 ? 'up' : 'down'}"></i></span> ${diff > 0 ? 'มากกว่า' : 'น้อยกว่า'} ${Math.abs(diff).toLocaleString()}`
                       + (pct === null ? '' : ` (${Math.abs(pct)}%)`));
