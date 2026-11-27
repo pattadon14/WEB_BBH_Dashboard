@@ -90,11 +90,6 @@ body {
 
 /* Sidebar ทั้งหมดอยู่ที่ sidebar.css (ดีไซน์กระจก 2026-11-27) */
 
-/* ---------- Navbar ---------- */
-.custom-navbar::after {
-    height: 2px;
-}
-
 /* ---------- ฟอร์ม ---------- */
 .form-control,
 .form-select,
@@ -406,29 +401,6 @@ a.btn {
 
     .bbh-range {
         justify-content: space-between;
-    }
-}
-
-/* ---------- โลโก้ รพ.บ้านบึง (navbar / sidebar) ---------- */
-.custom-navbar .brand-logo {
-    width: 40px;
-    height: 40px;
-    flex: 0 0 40px;
-    padding: 3px;
-    border-radius: 11px;
-    background: #fff;
-    border: 1px solid var(--bbh-border);
-    box-shadow: 0 2px 8px rgba(16, 40, 30, .08);
-    object-fit: contain;
-}
-
-
-
-@media (max-width: 767px) {
-    .custom-navbar .brand-logo {
-        width: 34px;
-        height: 34px;
-        flex-basis: 34px;
     }
 }
 

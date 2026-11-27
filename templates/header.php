@@ -64,12 +64,10 @@ require_once __DIR__ . '/../config/app.php';
     <!-- OPD page styles -->
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/opd_tabs.css?v=<?= filemtime(__DIR__ . '/../assets/css/opd_tabs.css') ?>">
 
-    <!-- Login styles -->
-    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/login.css?v=<?= filemtime(__DIR__ . '/../assets/css/login.css') ?>">
 
     <!-- ธีมกลางทุกหน้า (โหลดท้ายสุด) -->
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/theme.css?v=<?= filemtime(__DIR__ . '/../assets/css/theme.css') ?>">
-    <!-- แถบเมนูบน: หน้าตาและโทนสีตามหน้า (เขียว / ER แดง / IPD ฟ้า–น้ำเงิน) — โหลดหลัง theme.css -->
+    <!-- โทนสีตามหน้า (--nav-*: เขียว / ER แดง / IPD น้ำเงิน / ANC ชมพู) ใช้กับแถบบนและ sidebar (sidebar.css) -->
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/navbar.css?v=<?= filemtime(__DIR__ . '/../assets/css/navbar.css') ?>">
 
     <!-- โหมดมืด: dark.generated.css สร้างจาก tools/build_dark_css.mjs · dark.css = ปรับด้วยมือ (ทำงานเฉพาะ html[data-theme="dark"]) -->

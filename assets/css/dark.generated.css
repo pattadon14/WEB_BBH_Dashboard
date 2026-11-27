@@ -1,5 +1,5 @@
 /* ไฟล์สร้างอัตโนมัติจาก tools/build_dark_css.mjs — ห้ามแก้ตรง ๆ (แก้ใน dark.css แทน)
- * แหล่ง: 21 ชุด CSS + style="…" 6 แบบ */
+ * แหล่ง: 20 ชุด CSS + style="…" 6 แบบ */
 
 /* ---- assets/css/anc_theme.css ---- */
 html[data-theme="dark"] .er-theme.opd-theme.anc-theme {
@@ -52,49 +52,6 @@ html[data-theme="dark"] .small-box-footer:hover {
 }
 html[data-theme="dark"] .brand-text {
     color: #72d39c !important;
-}
-html[data-theme="dark"] .navbar-info {
-    background-color: #2a2a2a !important;
-}
-html[data-theme="dark"] .custom-navbar {
-    background-color: #161616 !important;
-}
-html[data-theme="dark"] .custom-navbar::after {
-    background: linear-gradient(90deg, #198754, #3cc48a 60%, rgba(60, 196, 138, 0));
-}
-html[data-theme="dark"] .custom-navbar .navbar-brand {
-    color: #72d39c !important;
-}
-html[data-theme="dark"] .custom-navbar .brand-mark {
-    background: linear-gradient(135deg, #198754, #3cc48a);
-    color: #fff;
-}
-html[data-theme="dark"] .custom-navbar .live-status {
-    background: #161917;
-    border: 1px solid rgba(25, 135, 84, .18);
-}
-html[data-theme="dark"] .custom-navbar .live-dot {
-    background: #22c55e;
-}
-html[data-theme="dark"] .custom-navbar .live-dot::after {
-    background: #22c55e;
-}
-html[data-theme="dark"] .custom-navbar .live-label {
-    color: #89d8a9;
-}
-html[data-theme="dark"] .custom-navbar .nav-link {
-    color: #72d39c !important;
-}
-html[data-theme="dark"] .custom-navbar .nav-link:hover {
-    color: #89d8a9 !important;
-}
-html[data-theme="dark"] .feedback-btn {
-    background: #198754;
-    color: #fff !important;
-}
-html[data-theme="dark"] .feedback-btn:hover {
-    background: #157347;
-    color: #fff !important;
 }
 html[data-theme="dark"] .main-sidebar {
     background-color: #161616 !important;
@@ -792,37 +749,6 @@ html[data-theme="dark"] .ipd-ward-page .ipd-history-card-head {
 }
 html[data-theme="dark"] .ipd-ward-page .ipd-history-card-head i {
     color: #a7c2f9;
-}
-
-/* ---- assets/css/login.css ---- */
-html[data-theme="dark"] .login-btn {
-    background: #198754;
-    color: #ffffff;
-}
-html[data-theme="dark"] .login-btn:hover,
-html[data-theme="dark"] .login-btn:focus-visible {
-    background: #157347;
-    color: #ffffff;
-}
-html[data-theme="dark"] .logout-btn {
-    background: #198754;
-    color: #ffffff !important;
-}
-html[data-theme="dark"] .logout-btn:hover,
-html[data-theme="dark"] .logout-btn:focus-visible {
-    background: #157347;
-    color: #ffffff !important;
-}
-html[data-theme="dark"] .provider-user {
-    border: 1px solid rgba(25, 135, 84, 0.18);
-    background: #161917;
-    color: #83d7a5;
-}
-html[data-theme="dark"] .provider-user-name {
-    color: #83d7a5;
-}
-html[data-theme="dark"] .provider-user-position {
-    color: #b1c4bc;
 }
 
 /* ---- assets/css/navbar.css ---- */
@@ -1528,9 +1454,6 @@ html[data-theme="dark"] .bbh-seg button[aria-pressed="true"] {
 html[data-theme="dark"] .bbh-range {
     background: #161616;
     border: 1px solid #303b35;
-}
-html[data-theme="dark"] .custom-navbar .brand-logo {
-    background: #161616;
 }
 
 /* ---- pages/ipd_ward_detail.php <style> ---- */

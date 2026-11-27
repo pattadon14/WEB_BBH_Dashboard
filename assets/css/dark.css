@@ -1,38 +1,8 @@
 /* =========================================================
-   BBH theme: ปุ่มสลับธีม + โหมดมืดส่วนที่ปรับด้วยมือ
+   BBH theme: โหมดมืดส่วนที่ปรับด้วยมือ (สวิตช์โหมดอยู่ใน sidebar.css .tb-switch)
    โหลดถัดจาก dark.generated.css (สร้างจาก tools/build_dark_css.mjs)
    ทุกกฎโหมดมืดอยู่ใต้ html[data-theme="dark"] → โหมดสว่างไม่เปลี่ยน
 ========================================================= */
-
-/* ---------- ปุ่มสลับธีม (ทั้งสองโหมด) ---------- */
-.theme-toggle {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    margin-right: 10px;
-    border: 1px solid rgba(25, 135, 84, .25);
-    border-radius: 50%;
-    background: #ffffff;
-    color: #146c43;
-    font-size: 1.05rem;
-    cursor: pointer;
-    transition: background-color .2s ease, color .2s ease, border-color .2s ease;
-}
-
-.theme-toggle:hover,
-.theme-toggle:focus-visible {
-    background: #eef7f2;
-}
-
-.theme-toggle .theme-icon-light { display: none; }
-html[data-theme="dark"] .theme-toggle .theme-icon-dark { display: none; }
-html[data-theme="dark"] .theme-toggle .theme-icon-light { display: inline; }
-
-@media (max-width: 768px) {
-    .theme-toggle { width: 38px; height: 38px; margin-right: 0; }
-}
 
 /* ---------- โหมดมืด: พื้นฐาน ---------- */
 html[data-theme="dark"] {
@@ -80,17 +50,6 @@ html[data-theme="dark"] .content-wrapper {
 /* หน้ารายละเอียดหอผู้ป่วย: ไล่สีน้ำเงินเข้มตามโทนผู้ป่วยใน */
 html[data-theme="dark"] .content-wrapper.ipd-ward-page {
     background: linear-gradient(180deg, #141b2b 0, #11151d 280px) !important;
-}
-
-html[data-theme="dark"] .theme-toggle {
-    border-color: #2c3631;
-    background: #1a201d;
-    color: #ffd76a;
-}
-
-html[data-theme="dark"] .theme-toggle:hover,
-html[data-theme="dark"] .theme-toggle:focus-visible {
-    background: #26302b;
 }
 
 /* ---------- AdminLTE / Bootstrap ทั่วไป ---------- */
@@ -149,7 +108,6 @@ html[data-theme="dark"] .progress { background: #26302b; }
 html[data-theme="dark"] dialog { color: var(--bbh-text); }
 
 /* โลโก้มีพื้นขาว — วางบนแผ่นสว่างเล็ก ๆ ให้อ่านออกเหมือนเดิม */
-html[data-theme="dark"] .brand-logo,
 html[data-theme="dark"] .bbh-sidebar-logo,
 html[data-theme="dark"] .bbh-guest-access-logo { background: #ffffff; border-radius: 10px; }
 
