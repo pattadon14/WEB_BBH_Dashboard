@@ -72,7 +72,7 @@ $services = [
                         <div class="hx-big"><span id="opd-total">–</span><small>ครั้ง</small></div>
                         <!-- วันเดียวกันของสัปดาห์ก่อน ถึงเวลาเดียวกัน (prev_week ของ API การ์ด) -->
                         <span class="kpi-trend" id="opd-trend"></span>
-                        <span class="hx-sub">ตรวจโรคทั่วไป + คลินิคพิเศษ, เดือนนี้ <span id="opd-month-patient">–</span> คน / <span id="opd-month-visit">–</span> ครั้ง</span>
+                        <span class="hx-sub">เดือนนี้ <b id="opd-month-patient">–</b> คน, <b id="opd-month-visit">–</b> ครั้ง</span>
                         <div class="hx-links">
                             <a href="pages/opd_detail.php" class="hx-go">รายละเอียด <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
                             <a href="pages/opd_monitor.php" class="hx-go is-solid" aria-label="เปิด OPD Real-time Monitor"><i class="bi bi-live-broadcast" aria-hidden="true"></i> Real-time Monitor</a>
@@ -84,7 +84,7 @@ $services = [
                         <div class="hx-lbl"><i class="bi bi-ambulance" aria-hidden="true"></i>ผู้มารับบริการ ER วันนี้ <?= home_info_btn('er', 'ผู้มารับบริการ ER วันนี้') ?></div>
                         <div class="hx-big"><span id="er-total">–</span><small>ครั้ง</small></div>
                         <span class="kpi-trend" id="er-trend"></span>
-                        <span class="hx-sub">ทุกประเภทผู้ป่วย ER, เดือนนี้ <span id="er-month-patient">–</span> คน / <span id="er-month-visit">–</span> ครั้ง</span>
+                        <span class="hx-sub">เดือนนี้ <b id="er-month-patient">–</b> คน, <b id="er-month-visit">–</b> ครั้ง</span>
                         <div class="hx-links">
                             <a href="pages/ER_detail.php" class="hx-go">รายละเอียด <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
                         </div>
@@ -95,7 +95,7 @@ $services = [
                         <div class="hx-lbl"><i class="bi bi-hospital-bed" aria-hidden="true"></i>ผู้ป่วยในรับใหม่ (Admit) วันนี้ <?= home_info_btn('ipd', 'ผู้ป่วยในรับใหม่วันนี้') ?></div>
                         <div class="hx-big"><span id="ipd-total">–</span><small>ราย</small></div>
                         <span class="kpi-trend" id="ipd-trend"></span>
-                        <span class="hx-sub">ทุกหอผู้ป่วย, เดือนนี้ <span id="ipd-month-patient">–</span> คน / <span id="ipd-month-visit">–</span> ราย</span>
+                        <span class="hx-sub">เดือนนี้ <b id="ipd-month-patient">–</b> คน, <b id="ipd-month-visit">–</b> ราย</span>
                         <div class="hx-links">
                             <a href="pages/ipd_detail.php" class="hx-go">รายละเอียด <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
                         </div>
@@ -139,7 +139,7 @@ $services = [
                         </div>
                         <div class="hx-rights" aria-label="ผู้ป่วยในตอนนี้แยกตามสิทธิ์">
                             <div class="hx-mini"><span>สิทธิ์ UC</span><b id="uc">–</b></div>
-                            <div class="hx-mini"><span>ชำระเงินและเบิกได้</span><b id="mo">–</b></div>
+                            <div class="hx-mini"><span>ชำระเงิน/เบิกได้</span><b id="mo">–</b></div>
                             <div class="hx-mini"><span>สิทธิ์อื่น ๆ</span><b id="ot">–</b></div>
                         </div>
                     </section>
@@ -184,7 +184,7 @@ $services = [
                     <div class="hx-sec-h">
                         <div>
                             <h2 id="hx-fin-title"><i class="bi bi-banknote" aria-hidden="true"></i>รายรับตามสิทธิการรักษา เดือนนี้ <?= home_info_btn('finance', 'รายรับตามสิทธิ') ?></h2>
-                            <p id="hx-fin-sub">มูลค่าค่ารักษาที่เรียกเก็บ (OPD + IPD จำหน่าย) เทียบเดือนก่อนช่วงวันเดียวกัน</p>
+                            <p id="hx-fin-sub">ยอดเรียกเก็บ เทียบเดือนก่อนช่วงวันเดียวกัน</p>
                         </div>
                     </div>
                     <div class="fin-body" id="hx-fin" aria-live="polite"><p class="fin-msg">กำลังโหลด…</p></div>
@@ -195,7 +195,7 @@ $services = [
                     <div class="hx-sec-h">
                         <div>
                             <h2 id="hx-ward-title"><i class="bi bi-hospital" aria-hidden="true"></i>สถานะเตียงรายหอผู้ป่วย <?= home_info_btn('wards', 'สถานะเตียงรายหอผู้ป่วย') ?></h2>
-                            <p>ตอนนี้ เรียงหอที่แน่นที่สุดก่อน คลิกการ์ดเพื่อดูรายละเอียดหอ</p>
+                            <p>เรียงจากหอที่แน่นที่สุด คลิกเพื่อดูรายละเอียด</p>
                         </div>
                         <div class="hx-count" id="ward-sum"></div>
                     </div>
@@ -207,7 +207,7 @@ $services = [
                     <div class="hx-sec-h">
                         <div>
                             <h2 id="hx-svc-title"><i class="bi bi-first-aid-kit" aria-hidden="true"></i>บริการอื่น ๆ วันนี้ <?= home_info_btn('services', 'สถิติการใช้บริการอื่นๆ') ?></h2>
-                            <p>จำนวนผู้รับบริการวันนี้ เรียงมากไปน้อย แถบเทียบกับบริการที่มากที่สุด คลิกเพื่อดูรายละเอียด</p>
+                            <p>เรียงจากมากไปน้อย คลิกเพื่อดูรายละเอียด</p>
                         </div>
                     </div>
                     <div class="hx-svc" id="service-container">
@@ -226,7 +226,7 @@ $services = [
                     <div class="hx-sec-h">
                         <div>
                             <h2 id="hx-hm-title"><i class="bi bi-flame" aria-hidden="true"></i>ภาระงานแต่ละแผนกตามช่วงเวลา วันนี้ <?= home_info_btn('heatmap', 'ภาระงานแต่ละแผนก') ?></h2>
-                            <p>จำนวนผู้ป่วยแต่ละแผนกในแต่ละชั่วโมง สีเข้ม = ผู้ป่วยมาก</p>
+                            <p>ผู้ป่วยรายชั่วโมงของแต่ละแผนก สีเข้ม = มาก</p>
                         </div>
                     </div>
                     <div class="hx-hm-k">
@@ -348,13 +348,13 @@ async function loadTrend() {
         if (done > 0 && b > 0) {
             const pct = Math.round((a - b) * 100 / b);
             const span = done === 1 ? trendData.labels[0] : trendData.labels[0] + '–' + trendData.labels[done - 1];
-            sum.innerHTML = `ปีงบ ${FY} เดือนที่จบแล้ว (${span}) รวม <b>${fmt(a)}</b> visit, `
-                + (pct === 0 ? 'เท่ากับ' : `${pct > 0 ? 'มากกว่า' : 'น้อยกว่า'} <b>${Math.abs(pct)}%</b> จาก`) + `ช่วงเดียวกันปีงบ ${FY - 1}`;
+            sum.innerHTML = `${span} รวม <b>${fmt(a)}</b> visit, `
+                + (pct === 0 ? 'เท่ากับ' : `${pct > 0 ? 'มากกว่า' : 'น้อยกว่า'} <b>${Math.abs(pct)}%</b> จาก`) + `ช่วงเดียวกันปีงบก่อน`;
         } else {
             sum.textContent = `ปีงบ ${FY} เริ่มเดือนนี้ ยังไม่มีเดือนที่จบแล้วให้เทียบ`;
         }
         document.getElementById('hx-trend-legend').innerHTML =
-            `<span><i></i>ปีงบ ${FY}</span><span><i class="is-prev"></i>ปีงบ ${FY - 1}</span><span>จุดเส้นประ = เดือนปัจจุบัน นับถึงวันนี้</span>`;
+            `<span><i></i>ปีงบ ${FY}</span><span><i class="is-prev"></i>ปีงบ ${FY - 1}</span><span>จุดเส้นประ = ยังไม่จบเดือน</span>`;
         drawTrend();
     } catch (e) {
         console.error('loadTrend error:', e);
@@ -558,7 +558,7 @@ async function loadFinance() {
 
         const t = d.total;
         document.getElementById('hx-fin-sub').textContent =
-            `${thDay(d.cur.start)}–${thDay(d.cur.end, true)} เทียบ ${thDay(d.prev.start)}–${thDay(d.prev.same_end, true)} · มูลค่าค่ารักษาที่เรียกเก็บ`;
+            `${thDay(d.cur.start)}–${thDay(d.cur.end, true)} เทียบ ${thDay(d.prev.start)}–${thDay(d.prev.same_end, true)}`;
 
         const rows = d.groups.filter(g => g.cur.income || g.prev_same.income);
         const max = Math.max(1, ...rows.map(g => Math.max(g.cur.income, g.prev_same.income)));
@@ -568,11 +568,11 @@ async function loadFinance() {
                 <span class="fin-lbl">รวมทุกสิทธิ</span>
                 <div class="fin-big">${baht(t.cur.income)}<small>บาท</small></div>
                 ${finDelta(t.cur.income, t.prev_same.income)}
-                <p class="fin-cmp">เดือนก่อนช่วงเดียวกัน ${baht(t.prev_same.income)} · ทั้งเดือน ${baht(t.prev_full.income)} บาท</p>
+                <p class="fin-cmp">เดือนก่อน ${baht(t.prev_same.income)} (ทั้งเดือน ${baht(t.prev_full.income)})</p>
                 <div class="fin-split">
-                    <div class="hx-mini"><span>ผู้ป่วยนอก ทุกแผนก ${fmt(t.cur.visits)} visit</span><b>${baht(t.cur.opd)}</b></div>
-                    <div class="hx-mini"><span>ผู้ป่วยในจำหน่าย ${fmt(t.cur.discharges)} ราย</span><b>${baht(t.cur.ipd)}</b></div>
-                    <div class="hx-mini"><span>ส่วนที่ผู้ป่วยจ่ายเอง (ทุกสิทธิ)</span><b>${baht(t.cur.paid)}</b></div>
+                    <div class="hx-mini" title="ผู้ป่วยนอกทุกแผนก ${fmt(t.cur.visits)} visit"><span>ผู้ป่วยนอก</span><b>${baht(t.cur.opd)}</b></div>
+                    <div class="hx-mini" title="ผู้ป่วยในจำหน่าย ${fmt(t.cur.discharges)} ราย"><span>ผู้ป่วยใน</span><b>${baht(t.cur.ipd)}</b></div>
+                    <div class="hx-mini" title="ส่วนที่ผู้ป่วยจ่ายเอง ทุกสิทธิ"><span>ผู้ป่วยจ่ายเอง</span><b>${baht(t.cur.paid)}</b></div>
                 </div>
             </div>
             <ul class="fin-list" aria-label="รายรับแยกตามสิทธิ เรียงมากไปน้อย">
@@ -587,7 +587,7 @@ async function loadFinance() {
                     </div>
                 </li>`).join('')}
             </ul>
-            <p class="fin-note">ขีดตั้ง = เดือนก่อนช่วงวันเดียวกัน · เป็นยอดเรียกเก็บใน HOSxP ไม่ใช่เงินที่กองทุนจ่ายจริง · ผู้ป่วยในนับเมื่อจำหน่าย · ผู้ป่วยนอกนับทุกแผนก (การ์ด OPD ด้านบนนับเฉพาะตรวจโรคทั่วไป + คลินิกพิเศษ)</p>`;
+            <p class="fin-note">ขีดตั้ง = เดือนก่อนช่วงวันเดียวกัน · ยอดเรียกเก็บ ไม่ใช่เงินที่ได้รับจริง (รายละเอียดที่ปุ่ม i)</p>`;
         enterOnce(box);
         markUpdated();
     } catch (e) {

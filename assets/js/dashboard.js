@@ -34,10 +34,10 @@ async function loadCard(config) {
         if (trend && data.prev_week !== undefined) {
             const now = Number(data.today), prev = Number(data.prev_week), diff = now - prev;
             const pct = prev ? Math.round(diff * 100 / prev) : null;
-            trend.innerHTML = `เปรียบเทียบสัปดาห์ก่อน ${prev.toLocaleString()} · `
-                + (diff === 0 ? 'เท่าเดิม'
-                    : `<span class="kpi-trend-ico ${diff > 0 ? 'is-up' : 'is-down'}" aria-hidden="true"><i class="fa-solid fa-arrow-${diff > 0 ? 'up' : 'down'}"></i></span> ${diff > 0 ? 'มากกว่า' : 'น้อยกว่า'} ${Math.abs(diff).toLocaleString()}`
-                      + (pct === null ? '' : ` (${Math.abs(pct)}%)`));
+            // ป้ายผลต่างอยู่บนบรรทัดตัวเลข (ลูกศร + คำ "มากกว่า/น้อยกว่า" ไม่ใช้สีอย่างเดียว) · บรรทัดล่าง = ยอดสัปดาห์ก่อน
+            trend.innerHTML = (diff === 0 ? '<span class="kpi-chip">เท่าเดิม</span>'
+                    : `<span class="kpi-chip ${diff > 0 ? 'is-up' : 'is-down'}"><i class="fa-solid fa-arrow-${diff > 0 ? 'up' : 'down'}" aria-hidden="true"></i>${diff > 0 ? 'มากกว่า' : 'น้อยกว่า'} ${Math.abs(diff).toLocaleString()}${pct === null ? '' : ` (${Math.abs(pct)}%)`}</span>`)
+                + `<span class="kpi-prev">เปรียบเทียบสัปดาห์ก่อน ${prev.toLocaleString()}</span>`;
         }
 
     } catch (error) {

@@ -21,7 +21,7 @@
     // ช่องตัวเลข: label, value (ตัวเลขหรือ null), unit, sub (บรรทัดล่าง), state (ok|bad|warn|null), stateText ทับข้อความสถานะ,
     // meter = % ทันเป้า (แถบใต้ตัวเลข, null = ไม่แสดง)
     const tile = t => `
-        <div class="q-tile${t.state ? ' is-' + t.state : ''}">
+        <div class="q-tile${t.state ? ' is-' + t.state : ''}${t.wide ? ' is-wide' : ''}"${t.tip ? ` title="${t.tip}"` : ''}>
             <div class="q-top">
                 <span class="q-label">${t.label}</span>
                 ${t.state ? `<span class="q-state"><i class="fa-solid ${STATE[t.state][0]}" aria-hidden="true"></i> ${t.stateText || STATE[t.state][1]}</span>` : ''}
@@ -48,7 +48,9 @@
                 value: s.avg === null ? null : fmt(s.avg), unit: 'นาที',
                 state: s.avg === null ? null : (s.avg <= s.target ? 'ok' : 'bad'),
                 meter: s.n ? s.ok_pct : null,
-                sub: `เป้า ≤ ${s.target} นาที` + (s.n ? ` · ทันเป้า ${s.ok_pct}% จาก ${fmt(s.n)} ราย` : '')
+                // บรรทัดล่างสั้น ๆ รายละเอียดเต็มอยู่ใน tooltip
+                sub: `เป้า ≤ ${s.target} นาที` + (s.n ? ` · ทัน ${s.ok_pct}%` : ''),
+                tip: s.n ? `ทันเป้า ${s.ok_pct}% จาก ${fmt(s.n)} ราย` : ''
             });
             const [scr, toDr, d2d, rx] = d.steps;
             const t = d.targets || {};
@@ -60,12 +62,14 @@
                 {
                     // ผ่านเมื่อทั้งค่าเฉลี่ย และ % จบใน 2 ชม. ถึงเป้า — ค่าเฉลี่ยผ่านแต่ % ไม่ถึง ต้องไม่ขึ้นเขียว
                     // ตัวหาร = visit ที่จบบริการแล้ว (คนละชุดกับแต่ละขั้น) จึงบอกจำนวนรายกำกับ
+                    wide: true,   // 5 ช่องในตาราง 3 คอลัมน์: ช่องนี้กว้าง 2 ให้แถวที่สองเต็ม
                     label: 'เวลารวมต่อราย', value: d.kpi.total === null ? null : fmt(d.kpi.total), unit: 'นาที',
                     state: d.kpi.total === null ? null
                         : (d.kpi.total > t.total ? 'bad' : (d.kpi.done !== null && d.kpi.done < t.done ? 'warn' : 'ok')),
                     stateText: d.kpi.total !== null && d.kpi.total <= t.total && d.kpi.done !== null && d.kpi.done < t.done ? 'จบ 2 ชม. ต่ำกว่าเป้า' : '',
                     meter: d.kpi.done,
-                    sub: `เป้า ≤ ${t.total} นาที` + (d.kpi.fin ? ` · จาก ${fmt(d.kpi.fin)} รายที่จบบริการ` : '')
+                    sub: `เป้า ≤ ${t.total} นาที` + (d.kpi.done === null ? '' : ` · จบใน 2 ชม. ${d.kpi.done}%`),
+                    tip: (d.kpi.fin ? `จาก ${fmt(d.kpi.fin)} รายที่จบบริการ` : '')
                         + (d.kpi.done === null ? '' : ` · จบใน 2 ชม. ${d.kpi.done}% (เป้า ≥ ${t.done}%)`)
                 }
             ].map(tile).join('');
@@ -97,10 +101,12 @@
                 },
                 {
                     // ไม่มีเป้ารวม (หน้า ER ตั้งเป้าแยกตามระดับ) จึงไม่ใส่สถานะ
-                    label: 'Door-to-Doctor ทันเป้าตามระดับ', value: p, unit: '%', meter: p,
-                    sub: timed ? `${fmt(within)} จาก ${fmt(timed)} ราย` + (ut ? ` · ระดับ 1–2: ${fmt(uw)}/${fmt(ut)}` : '') : 'ยังไม่มีเวลาพบแพทย์'
+                    wide: true,
+                    label: 'Door-to-Doctor ทันเป้า', value: p, unit: '%', meter: p,
+                    sub: timed ? `${fmt(within)} จาก ${fmt(timed)} ราย` : 'ยังไม่มีเวลาพบแพทย์',
+                    tip: timed ? 'เป้าตามระดับความเร่งด่วน' + (ut ? ` · ระดับ 1–2 ทัน ${fmt(uw)}/${fmt(ut)} ราย` : '') : ''
                 },
-                { label: 'Admit / Refer จาก ER วันนี้', value: `${fmt(sum.admit)} / ${fmt(sum.refer)}`, unit: 'ราย', sub: `จากผู้มารับบริการ ${fmt(sum.total)} ราย` }
+                { label: 'Admit / Refer วันนี้', value: `${fmt(sum.admit)} / ${fmt(sum.refer)}`, unit: 'ราย', sub: `จาก ${fmt(sum.total)} ราย` }
             ].map(tile).join('');
         } catch (e) {
             box.innerHTML = '<p class="q-msg">โหลดข้อมูลไม่สำเร็จ</p>';
