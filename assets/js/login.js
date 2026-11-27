@@ -4,7 +4,7 @@
 ========================================================= */
 (function () {
     function initGuestAccessPopup() {
-        var loginLink = document.querySelector('.custom-navbar .login-btn');
+        var loginLink = document.querySelector('.bbh-topbar .tb-login');
         if (!loginLink) return;
         var loginHref = loginLink.getAttribute('href');
 
@@ -174,7 +174,7 @@
             if (popup) return;
 
             // โลโก้เต็ม (มีชื่อ รพ.) อยู่โฟลเดอร์เดียวกับโลโก้ใน navbar — ไม่ต้องรู้ BASE_URL ของแต่ละหน้า
-            var navLogo = document.querySelector('.custom-navbar .brand-logo');
+            var navLogo = document.querySelector('.bbh-topbar .tb-logo');
             var logoSrc = navLogo ? navLogo.src.replace('logo-bbh-mark.png', 'logo-bbh.png') : '';
 
             popup = document.createElement('dialog');
@@ -240,8 +240,8 @@
     }
 
     function applyProviderAccessUI() {
-        /* navbar.php แสดง .login-btn เฉพาะเมื่อยังไม่ได้ Login Provider ID */
-        var isGuest = !!document.querySelector('.custom-navbar .login-btn');
+        /* navbar.php แสดง .tb-login เฉพาะเมื่อยังไม่ได้ Login Provider ID */
+        var isGuest = !!document.querySelector('.bbh-topbar .tb-login');
         var path = window.location.pathname;
         var isRestrictedDetailPage = /\/pages\/(opd_detail|ipd_detail|ipd_ward_detail|ER_detail)\.php$/i.test(path);
 

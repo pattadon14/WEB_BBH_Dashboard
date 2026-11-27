@@ -9,6 +9,10 @@ if ($providerName === '') {
         (string) ($_SESSION['provider_auth']['lastname_th'] ?? '')
     );
 }
+$providerFirst = trim((string) ($_SESSION['provider_auth']['firstname_th'] ?? ''));
+if ($providerFirst === '') {
+    $providerFirst = $providerName;
+}
 
 // Provider ID profile สามารถมีหลายหน่วยงาน ให้เลือกตำแหน่งจากหน่วยงานแรกที่มีข้อมูล
 $providerPosition = '';
@@ -18,80 +22,79 @@ foreach (($_SESSION['provider_auth']['organization'] ?? []) as $organization) {
         break;
     }
 }
+
+// อักษรย่อในวงกลม: พยัญชนะไทย/อักษรละตินตัวแรกของชื่อ (ข้ามสระหน้า เช่น เ แ โ)
+$providerInitial = preg_match('/[ก-ฮA-Za-z]/u', $providerFirst, $m) ? $m[0] : '';
+
+$h = static fn(string $s): string => htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
 ?>
 
-<nav class="main-header navbar navbar-expand navbar-light custom-navbar">
-    <ul class="navbar-nav">
-        <li class="nav-item">
-            <button type="button" class="bbh-menu-toggle" id="bbh-menu-toggle"
-                aria-label="เปิดเมนู" aria-expanded="false" aria-controls="bbh-sidebar">
-                <i class="fas fa-bars"></i>
-            </button>
-        </li>
-    </ul>
+<!-- แถบบน (แทน navbar เดิม 2026-11-27) — หน้าตาอยู่ที่ assets/css/sidebar.css (.bbh-topbar)
+     หน้าใดตั้ง $showWelcome = true จะแสดงคำทักทายทางซ้าย (หน้าแรก) · $showLiveStatus = ป้าย LIVE (header.php bbhSetLive) -->
+<header class="bbh-topbar" id="bbh-topbar">
 
-    <a href="<?= BASE_URL ?>" class="navbar-brand fw-bold">
-        <img class="brand-logo" src="<?= BASE_URL ?>assets/img/logo-bbh-mark.png" alt="" width="40" height="40">
-        <span class="brand-text">
-            <span class="brand-text-main">BBH DASHBOARD</span>
-            <span class="brand-sub">โรงพยาบาลบ้านบึง</span>
-        </span>
+    <button type="button" class="tb-icon bbh-menu-toggle" id="bbh-menu-toggle"
+        aria-label="แสดงแถบเมนู" aria-expanded="false" aria-controls="bbh-sidebar">
+        <i class="fa-solid fa-bars" aria-hidden="true"></i>
+    </button>
+
+    <a href="<?= BASE_URL ?>" class="tb-brand">
+        <img class="tb-logo" src="<?= BASE_URL ?>assets/img/logo-bbh-mark.png" alt="" width="36" height="36">
+        <span><b>BBH Dashboard</b><small>โรงพยาบาลบ้านบึง</small></span>
     </a>
 
-    <?php if (!empty($showLiveStatus)): ?>
-        <div class="live-status" id="live-status" role="status" aria-live="polite">
-            <span class="live-dot" aria-hidden="true"></span>
-            <span class="live-label">LIVE</span>
-            <span id="last-updated">กำลังโหลดข้อมูล…</span>
+    <?php if (!empty($showWelcome)): ?>
+        <div class="tb-heading">
+            <h1 id="hx-hello"><?= $isProviderLoggedIn && $providerFirst !== '' ? 'ยินดีต้อนรับ, ' . $h($providerFirst) : 'ยินดีต้อนรับสู่ BBH Dashboard' ?></h1>
+            <!-- วันที่ + เวลาอัปเดต ตั้งโดย markUpdated() ของหน้าแรก -->
+            <p class="tb-status" role="status" aria-live="polite">
+                <span class="tb-pulse" aria-hidden="true"></span>
+                <span><span id="hx-today"></span>, <span id="last-updated">กำลังโหลดข้อมูล…</span></span>
+            </p>
         </div>
     <?php endif; ?>
 
-    <ul class="navbar-nav ms-auto align-items-center">
-        <li class="nav-item">
-            <button type="button" class="theme-toggle" data-theme-toggle onclick="bbhToggleTheme()"
-                aria-label="โหมดมืด" title="สลับโหมดสว่าง / มืด" aria-pressed="false">
-                <i class="fa-solid fa-moon theme-icon-dark" aria-hidden="true"></i>
-                <i class="fa-solid fa-sun theme-icon-light" aria-hidden="true"></i>
-            </button>
-            <script>document.currentScript.previousElementSibling.setAttribute('aria-pressed', String(document.documentElement.getAttribute('data-theme') === 'dark'));</script>
-        </li>
-        <li class="nav-item">
-            <a href="https://docs.google.com/forms/d/e/1FAIpQLScKGR0_xvvq1uHqdwm3Npj0y6tEAZq0o5KEp9tQaufokUWzwg/viewform?usp=dialog" target="_blank" class="feedback-btn">
-                <i class="fas fa-comment-dots"></i>
-                <span class="btn-label">เสนอความคิดเห็น</span>
-            </a>
-        </li>
+    <div class="tb-actions">
+
+        <?php if (!empty($showLiveStatus)): ?>
+            <div class="tb-live" id="live-status" role="status" aria-live="polite">
+                <span class="tb-pulse" aria-hidden="true"></span>
+                <span class="tb-live-label">LIVE</span>
+                <span id="last-updated">กำลังโหลดข้อมูล…</span>
+            </div>
+        <?php endif; ?>
+
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLScKGR0_xvvq1uHqdwm3Npj0y6tEAZq0o5KEp9tQaufokUWzwg/viewform?usp=dialog"
+            target="_blank" rel="noopener" class="tb-pill tb-feedback" title="เสนอความคิดเห็น (Google Form)">
+            <i class="fa-solid fa-comment-dots" aria-hidden="true"></i>
+            <span class="tb-label">เสนอความคิดเห็น</span>
+        </a>
+
+        <!-- สวิตช์โหมดสว่าง/มืด: ลูกบิดเลื่อนซ้าย-ขวา (aria-checked = โหมดมืด) -->
+        <button type="button" class="tb-switch" data-theme-toggle role="switch" aria-checked="false"
+            aria-label="โหมดมืด" title="สลับโหมดสว่าง / มืด" onclick="bbhToggleTheme()">
+            <i class="fa-solid fa-sun tb-sw-sun" aria-hidden="true"></i>
+            <i class="fa-solid fa-moon tb-sw-moon" aria-hidden="true"></i>
+            <span class="tb-knob" aria-hidden="true"></span>
+        </button>
+        <script>document.currentScript.previousElementSibling.setAttribute('aria-checked', String(document.documentElement.getAttribute('data-theme') === 'dark'));</script>
 
         <?php if ($isProviderLoggedIn): ?>
-            <li class="nav-item">
-                <div class="provider-user" aria-label="ผู้ใช้งานที่เข้าสู่ระบบ"
-                    title="<?= htmlspecialchars($providerName !== '' ? $providerName : 'Provider ID', ENT_QUOTES, 'UTF-8') ?>">
-                    <i class="fas fa-user-circle provider-user-icon"></i>
-                    <div class="provider-user-info">
-                        <span class="provider-user-name">
-                            <?= htmlspecialchars($providerName !== '' ? $providerName : 'Provider ID', ENT_QUOTES, 'UTF-8') ?>
-                        </span>
-                        <?php if ($providerPosition !== ''): ?>
-                            <span class="provider-user-position">
-                                <?= htmlspecialchars($providerPosition, ENT_QUOTES, 'UTF-8') ?>
-                            </span>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </li>
-            <li class="nav-item">
-                <a href="<?= BASE_URL ?>auth/logout.php" class="logout-btn" aria-label="ออกจากระบบ" title="ออกจากระบบ">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span class="sr-only">ออกจากระบบ</span>
+            <div class="tb-user" title="<?= $h($providerName !== '' ? $providerName : 'Provider ID') ?>">
+                <span class="tb-avatar" aria-hidden="true"><?= $providerInitial !== '' ? $h($providerInitial) : '<i class="fa-solid fa-user"></i>' ?></span>
+                <span class="tb-user-text">
+                    <b><?= $h($providerName !== '' ? $providerName : 'Provider ID') ?></b>
+                    <?php if ($providerPosition !== ''): ?><small><?= $h($providerPosition) ?></small><?php endif; ?>
+                </span>
+                <a href="<?= BASE_URL ?>auth/logout.php" class="tb-logout" aria-label="ออกจากระบบ" title="ออกจากระบบ">
+                    <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
                 </a>
-            </li>
+            </div>
         <?php else: ?>
-            <li class="nav-item">
-                <a href="<?= BASE_URL ?>auth/provider_login.php" class="login-btn" id="provider-login-btn" aria-label="เข้าสู่ระบบด้วย MOPH Provider ID">
-                    <i class="fas fa-id-card"></i>
-                    <span class="btn-label">เข้าสู่ระบบ</span>
-                </a>
-            </li>
+            <a href="<?= BASE_URL ?>auth/provider_login.php" class="tb-pill tb-login" id="provider-login-btn" aria-label="เข้าสู่ระบบด้วย MOPH Provider ID">
+                <i class="fa-solid fa-id-card" aria-hidden="true"></i>
+                <span class="tb-label">เข้าสู่ระบบ</span>
+            </a>
         <?php endif; ?>
-    </ul>
-</nav>
+    </div>
+</header>

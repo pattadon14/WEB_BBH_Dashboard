@@ -863,9 +863,6 @@ html[data-theme="dark"] body:has(.er-theme.anc-theme) {
     --nav-ink: #ecd4de;
     --nav-muted: #d8bacb;
 }
-html[data-theme="dark"] .custom-navbar .brand-logo {
-    background: #161717;
-}
 
 /* ---- assets/css/opd_quality.css ---- */
 html[data-theme="dark"] .oq-title {

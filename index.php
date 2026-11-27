@@ -1,6 +1,7 @@
 <?php
 
-// หน้าแรกแสดงสถานะอัปเดตใต้คำทักทาย (.hx-head) แทนป้าย LIVE ใน navbar — จึงไม่ตั้ง $showLiveStatus
+// แถบบน (templates/navbar.php) แสดงคำทักทาย "ยินดีต้อนรับ, <ชื่อ>" + วันที่ + เวลาอัปเดต แทนป้าย LIVE — จึงไม่ตั้ง $showLiveStatus
+$showWelcome = true;
 
 include 'templates/header.php';
 include 'templates/navbar.php';
@@ -48,17 +49,6 @@ $services = [
             <div class="hx-orbs" aria-hidden="true"><i></i><i></i><i></i></div>
 
             <div class="hx-wrap">
-
-                <header class="hx-head">
-                    <div>
-                        <h1 id="hx-hello">สวัสดี</h1>
-                        <!-- เวลาอัปเดตโดย markUpdated() หลังโหลดข้อมูลสำเร็จ (รีเฟรชอัตโนมัติด้วย bbhPoll) -->
-                        <p class="hx-status" role="status" aria-live="polite">
-                            <span class="hx-pulse" aria-hidden="true"></span>
-                            <span><span id="hx-today"></span>, <span id="last-updated">กำลังโหลดข้อมูล…</span></span>
-                        </p>
-                    </div>
-                </header>
 
                 <!-- ============ ตัวเลขหลักวันนี้ (assets/js/dashboard.js loadCard) ============ -->
                 <section class="glass hx-strip" aria-label="ตัวเลขหลักวันนี้">
@@ -316,11 +306,8 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': 
 // แอนิเมชันเข้ามาเฉพาะครั้งแรกที่วาด ไม่เล่นซ้ำทุกครั้งที่ bbhPoll รีเฟรช
 const enterOnce = el => { if (!el.dataset.entered) { el.dataset.entered = '1'; el.classList.add('is-enter'); } };
 
-// คำทักทาย + วันที่ ตามเวลาเครื่องผู้ดู (เปลี่ยนเองเมื่อข้ามช่วงเวลา/ข้ามวัน เพราะเรียกซ้ำทุกครั้งที่อัปเดต)
+// วันที่ใต้คำทักทายในแถบบน ตามเวลาเครื่องผู้ดู (เรียกซ้ำทุกครั้งที่อัปเดต จึงเปลี่ยนเองเมื่อข้ามวัน)
 function setGreeting(now) {
-    const h = now.getHours();
-    document.getElementById('hx-hello').textContent =
-        'สวัสดี' + (h < 12 ? 'ตอนเช้า' : h < 16 ? 'ตอนบ่าย' : h < 19 ? 'ตอนเย็น' : 'ตอนค่ำ');
     document.getElementById('hx-today').textContent =
         now.toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 }
@@ -332,7 +319,7 @@ function markUpdated() {
     setGreeting(now);
     document.getElementById('last-updated').textContent =
         'อัปเดตข้อมูลล่าสุด ' + now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' น.';
-    document.querySelector('.hx-status').classList.add('is-live');
+    document.querySelector('.tb-status').classList.add('is-live');
 }
 
 /* ---------------- แนวโน้มผู้ป่วยนอกรายเดือน: ปีงบนี้ เทียบปีงบก่อน ---------------- */

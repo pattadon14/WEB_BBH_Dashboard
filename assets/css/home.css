@@ -50,6 +50,9 @@ html[data-theme="dark"] #hx {
 
 html, body { overflow-x: clip; }
 .content-wrapper.home-dash { background: #eef3f0; }
+/* แถบบน (.bbh-topbar) อยู่นอก content-wrapper บนพื้น body — ใช้สีเดียวกับพื้นหน้าแรก */
+body:has(#hx) { background: #eef3f0; }
+html[data-theme="dark"] body:has(#hx) { background: #070c0a; }
 html[data-theme="dark"] .content-wrapper.home-dash { background: #070c0a; }
 .content-wrapper.home-dash > section.content { padding: 0; }
 
@@ -57,7 +60,7 @@ html[data-theme="dark"] .content-wrapper.home-dash { background: #070c0a; }
     position: relative;
     isolation: isolate;
     min-height: calc(100vh - 57px);
-    padding: 20px 20px 32px;
+    padding: 12px 20px 32px;
     background: var(--bg);
     color: var(--ink);
     font-family: var(--font);
@@ -86,15 +89,6 @@ html[data-theme="dark"] .content-wrapper.home-dash { background: #070c0a; }
 #hx :is(h1, h2, h3, h4, h5, h6, button, input, select) { font-family: var(--font); }
 #hx a { color: var(--accent-ink); }
 #hx a:focus-visible, #hx button:focus-visible, #hx [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-
-/* ---------- หัวหน้า ---------- */
-#hx .hx-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 8px 16px; padding: 0 4px; }
-#hx .hx-head h1 { margin: 0; font-size: 28px; font-weight: 600; line-height: 1.25; color: var(--ink); }
-#hx .hx-status { display: flex; align-items: center; gap: 8px; margin: 4px 0 0; color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
-/* จุดสถานะ: เทา = ยังไม่ได้ข้อมูล, เขียวกะพริบ = อัปเดตอัตโนมัติอยู่ (มีข้อความ "อัปเดตข้อมูลล่าสุด" กำกับเสมอ) */
-#hx .hx-pulse { width: 8px; height: 8px; flex: none; border-radius: 50%; background: var(--muted); }
-#hx .hx-status.is-live .hx-pulse { background: var(--accent); animation: hx-pulse 2s infinite; }
-@keyframes hx-pulse { 0% { box-shadow: 0 0 0 0 var(--accent); } 70%, 100% { box-shadow: 0 0 0 8px transparent; } }
 
 /* ---------- ตัวเลขหลักวันนี้ ---------- */
 #hx .hx-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -340,7 +334,6 @@ html[data-theme="dark"] #hx .service-item { --svc: hsl(var(--h, 150) 70% 68%); -
     #hx .hx-chart svg { height: 210px; }
     #hx .hx-ring { grid-template-columns: 108px minmax(0, 1fr); gap: 14px; }
     #hx .hx-ring svg { width: 108px; height: 108px; }
-    #hx .hx-head h1 { font-size: 24px; }
     #hx .q-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
     #hx .q-tile.is-wide { grid-column: auto; }
     #hx .q-tile:last-child:nth-child(odd) { grid-column: 1 / -1; }
@@ -377,3 +370,31 @@ html[data-theme="dark"] #hx { --on-bad: #2a0a08; }
 #hx .hx-select select { appearance: auto; border: 0; background: transparent; color: var(--ink); font: 500 14px var(--font); cursor: pointer; padding: 4px 0; }
 #hx .hx-select select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
 html[data-theme="dark"] #hx .hx-select select option { background: #1a201d; color: #e7f2ec; }
+
+/* ---------- ช่องเวลารอ / ER: ทุกชั้นตรงกันทั้งแถว (subgrid 4 ชั้น: หัว / ตัวเลข / แถบ / คำอธิบาย) ---------- */
+#hx .q-grid { grid-auto-rows: auto; row-gap: 14px; }
+#hx .q-tile { display: grid; grid-row: span 4; grid-template-rows: subgrid; row-gap: 6px; align-content: start; }
+/* หัวสูงเท่ากันทุกช่อง (ชื่อ 1 บรรทัด + ป้ายสถานะ) — กล่อง OPD กับ ER ข้าง ๆ กันจึงตรงกันด้วย */
+#hx .q-top { min-height: 48px; justify-content: flex-start; }
+#hx .q-label { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }   /* ชื่อบรรทัดเดียวเสมอ ตัวเลขจึงไม่ถูกดันลง */
+#hx .q-value { margin: 0; align-self: end; line-height: 1; white-space: nowrap; }
+#hx .q-meter { margin: 2px 0 0; align-self: center; }
+#hx .q-meter.is-empty { visibility: hidden; }
+#hx .q-sub { margin-top: 2px; font-size: 12px; line-height: 1.4; color: var(--muted); opacity: .85; }
+
+/* ---------- รายรับ: คอลัมน์ยอดเงิน / ผลต่างกว้างคงที่ ทุกแถวตรงกัน ---------- */
+#hx .fin-row { grid-template-columns: minmax(0, 1fr) 7.5em 9.5em; }
+#hx .fin-row .fin-amt { text-align: right; }
+#hx .fin-row .fin-d { justify-self: stretch; justify-content: space-between; }
+#hx .fin-big { color: var(--good); }
+
+/* ---------- การ์ดหอผู้ป่วย: ช่องไฟตัวอักษรกว้างขึ้น อ่านสบายตา ---------- */
+#hx .ward-card { letter-spacing: .02em; gap: 12px; }
+#hx .ward-name { line-height: 1.4; }
+#hx .wc-ft { line-height: 1.5; row-gap: 4px; }
+@media (max-width: 575.98px) {
+    /* มือถือ: ชื่อ | ยอดเงิน แล้วแถบ | ผลต่าง — คอลัมน์ขวากว้างคงที่ ตัวเลขทุกแถวยังตรงกัน */
+    #hx .fin-row { grid-template-columns: minmax(0, 1fr) 8.5em; }
+    #hx .fin-row .fin-bar { grid-column: 1; grid-row: 2; }
+    #hx .fin-row .fin-d { grid-column: 2; grid-row: 2; }
+}

@@ -37,7 +37,7 @@ require_once __DIR__ . '/../config/app.php';
             document.documentElement.setAttribute('data-theme', next);
             document.documentElement.setAttribute('data-bs-theme', next);
             try { localStorage.setItem('bbh-theme', next); } catch (e) {}
-            document.querySelectorAll('[data-theme-toggle]').forEach(function (b) { b.setAttribute('aria-pressed', String(next === 'dark')); });
+            document.querySelectorAll('[data-theme-toggle]').forEach(function (b) { b.setAttribute(b.getAttribute('role') === 'switch' ? 'aria-checked' : 'aria-pressed', String(next === 'dark')); });
         };
     </script>
     <!-- ไอคอนแท็บ = ไอคอนเดียวกับเว็บหลัก รพ. (WordPress Site Icon ที่ /favicon.ico ของโดเมนหลัก)

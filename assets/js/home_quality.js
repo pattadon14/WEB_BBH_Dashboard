@@ -19,7 +19,8 @@
     };
 
     // ช่องตัวเลข: label, value (ตัวเลขหรือ null), unit, sub (บรรทัดล่าง), state (ok|bad|warn|null), stateText ทับข้อความสถานะ,
-    // meter = % ทันเป้า (แถบใต้ตัวเลข, null = ไม่แสดง)
+    // meter = % ทันเป้า (แถบใต้ตัวเลข, null = ช่องว่าง)
+    // ทุกช่องมีลูก 4 ชิ้นเสมอ (หัว / ตัวเลข / แถบ / คำอธิบาย) — home.css ใช้ subgrid ให้แต่ละชั้นตรงกันทั้งแถว
     const tile = t => `
         <div class="q-tile${t.state ? ' is-' + t.state : ''}${t.wide ? ' is-wide' : ''}"${t.tip ? ` title="${t.tip}"` : ''}>
             <div class="q-top">
@@ -27,8 +28,8 @@
                 ${t.state ? `<span class="q-state"><i class="fa-solid ${STATE[t.state][0]}" aria-hidden="true"></i> ${t.stateText || STATE[t.state][1]}</span>` : ''}
             </div>
             <span class="q-value">${t.value === null || t.value === undefined ? '—' : `<b>${t.value}</b>`}${t.unit && t.value !== null ? ` <small>${t.unit}</small>` : ''}</span>
-            ${t.meter == null ? '' : `<span class="q-meter" aria-hidden="true"><i style="width:${Math.max(0, Math.min(100, t.meter))}%"></i></span>`}
-            ${t.sub ? `<span class="q-sub">${t.sub}</span>` : ''}
+            <span class="q-meter${t.meter == null ? ' is-empty' : ''}" aria-hidden="true">${t.meter == null ? '' : `<i style="width:${Math.max(0, Math.min(100, t.meter))}%"></i>`}</span>
+            <span class="q-sub">${t.sub || ''}</span>
         </div>`;
 
     async function getJson(url) {
@@ -106,7 +107,7 @@
                     sub: timed ? `${fmt(within)} จาก ${fmt(timed)} ราย` : 'ยังไม่มีเวลาพบแพทย์',
                     tip: timed ? 'เป้าตามระดับความเร่งด่วน' + (ut ? ` · ระดับ 1–2 ทัน ${fmt(uw)}/${fmt(ut)} ราย` : '') : ''
                 },
-                { label: 'Admit / Refer วันนี้', value: `${fmt(sum.admit)} / ${fmt(sum.refer)}`, unit: 'ราย', sub: `จาก ${fmt(sum.total)} ราย` }
+                { label: 'Admit / Refer', value: `${fmt(sum.admit)} / ${fmt(sum.refer)}`, unit: 'ราย', sub: `วันนี้ จาก ${fmt(sum.total)} ราย` }
             ].map(tile).join('');
         } catch (e) {
             box.innerHTML = '<p class="q-msg">โหลดข้อมูลไม่สำเร็จ</p>';

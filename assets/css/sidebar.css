@@ -7,11 +7,11 @@
    โหมดมืดกำหนด token เองด้านล่าง — tools/build_dark_css.mjs ข้ามไฟล์นี้
 ========================================================= */
 /* ตั้งที่ .bbh-sidebar (ไม่ใช่ :root) เพื่อรับ --nav-* ของ body ตามโทนหน้า */
-:root { --sb-w: 256px; --sb-gap: 12px; --sb-top: 64px; }
-.bbh-sidebar, .bbh-sidebar-overlay {
+:root { --sb-w: 256px; --sb-gap: 12px; --sb-top: 0px; }
+.bbh-sidebar, .bbh-sidebar-overlay, .bbh-topbar {
     --sb-w: 256px;
     --sb-gap: 12px;
-    --sb-top: 64px;                                  /* ความสูง navbar (navbar.css .custom-navbar min-height) */
+    --sb-top: 0px;                                   /* ไม่มี navbar แล้ว แผงเริ่มจากขอบบน */
     --sb-bg: rgba(255, 255, 255, .66);
     --sb-rim: rgba(255, 255, 255, .85);
     --sb-line: rgba(19, 32, 26, .08);
@@ -27,7 +27,7 @@
     --sb-anc: #9d174d; --sb-anc-bg: #fdf2f7; --sb-anc-solid: #be185d;
     --sb-soon-bg: rgba(19, 32, 26, .06);
 }
-html[data-theme="dark"] :is(.bbh-sidebar, .bbh-sidebar-overlay) {
+html[data-theme="dark"] :is(.bbh-sidebar, .bbh-sidebar-overlay, .bbh-topbar) {
     --sb-bg: rgba(20, 26, 23, .7);
     --sb-rim: rgba(255, 255, 255, .1);
     --sb-line: rgba(255, 255, 255, .08);
@@ -93,7 +93,7 @@ body.bbh-sidebar-open { overflow: hidden; }
         transform: translateX(calc(-100% - var(--sb-gap) * 2));
     }
     html.bbh-sb-docked .bbh-sidebar { transform: none; }
-    html.bbh-sb-docked .content-wrapper { margin-left: calc(var(--sb-w) + var(--sb-gap)) !important; }
+    html.bbh-sb-docked :is(.content-wrapper, .bbh-topbar) { margin-left: calc(var(--sb-w) + var(--sb-gap)) !important; }
     .bbh-sidebar-overlay { display: none; }
     body.bbh-sidebar-open { overflow: auto; }
 }
@@ -265,4 +265,167 @@ body.bbh-sidebar-open { overflow: hidden; }
 
 @media (prefers-reduced-motion: reduce) {
     .bbh-sidebar, .bbh-sidebar-overlay, .bbh-sidebar-menu a, .bbh-sidebar-parent-toggle, .bbh-sidebar-arrow { transition: none; }
+}
+
+/* =========================================================
+   แถบบน (templates/navbar.php .bbh-topbar) — แทน navbar เดิม: ไม่มีพื้นแถบ อยู่ในเนื้อหาของหน้า (เลื่อนไปกับหน้า)
+   ปุ่มเป็นเม็ดกระจกลอย · ซ้าย: ☰ + โลโก้ (ซ่อนเมื่อแถบเมนูติดซ้าย) + คำทักทาย (หน้าแรก) · ขวา: LIVE / ความคิดเห็น / สวิตช์โหมด / ผู้ใช้
+========================================================= */
+.bbh-topbar {
+    position: relative;
+    z-index: 1025;                 /* อยู่เหนือลูกแสง (fixed) ของหน้าแรก */
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 14px;
+    padding: 18px 24px 6px;
+    font-family: "Prompt", system-ui, sans-serif;
+    color: var(--sb-ink);
+}
+@media (min-width: 1200px) {
+    html.bbh-sb-docked .bbh-topbar .tb-brand { display: none; }
+}
+
+.tb-icon,
+.tb-pill,
+.tb-switch,
+.tb-user,
+.tb-live {
+    background: var(--sb-bg);
+    -webkit-backdrop-filter: blur(20px) saturate(1.5);
+    backdrop-filter: blur(20px) saturate(1.5);
+    border: 1px solid var(--sb-rim);
+    box-shadow: inset 0 1px 0 var(--sb-rim), 0 10px 24px -18px rgba(19, 32, 26, .5);
+}
+
+.tb-icon {
+    flex: none;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border-radius: 14px;
+    color: var(--sb-icon);
+    font-size: 17px;
+    cursor: pointer;
+    transition: background-color .18s ease;
+}
+.tb-icon:hover { background: var(--sb-hover); }
+
+.tb-brand { display: inline-flex; align-items: center; gap: 10px; min-width: 0; color: var(--sb-ink); text-decoration: none; }
+.tb-brand:hover { color: var(--sb-ink); text-decoration: none; }
+.tb-brand b { display: block; font-size: 16px; font-weight: 700; line-height: 1.2; white-space: nowrap; }
+.tb-brand small { display: block; font-size: 12px; color: var(--sb-muted); white-space: nowrap; }
+.tb-logo { width: 36px; height: 36px; flex: none; padding: 3px; border-radius: 12px; background: #ffffff; box-shadow: 0 6px 16px -8px var(--sb-glow); }
+
+/* คำทักทาย (หน้าแรก) */
+.tb-heading { flex: 1 1 320px; min-width: 0; }
+.tb-heading h1 { margin: 0; font-family: inherit; font-size: 28px; font-weight: 600; line-height: 1.25; color: var(--sb-ink); overflow-wrap: break-word; }
+.tb-status { display: flex; align-items: center; gap: 8px; margin: 4px 0 0; font-size: 14px; color: var(--sb-muted); font-variant-numeric: tabular-nums; }
+
+/* จุดสถานะ: เทา = ยังไม่ได้ข้อมูล · สีโทนหน้ากะพริบ = อัปเดตอัตโนมัติอยู่ (มีข้อความกำกับเสมอ) */
+.tb-pulse { width: 8px; height: 8px; flex: none; border-radius: 50%; background: var(--sb-muted); }
+.tb-status.is-live .tb-pulse,
+.tb-live .tb-pulse { background: var(--sb-solid); animation: tb-pulse 2s infinite; }
+@keyframes tb-pulse { 0% { box-shadow: 0 0 0 0 var(--sb-solid); } 70%, 100% { box-shadow: 0 0 0 8px transparent; } }
+
+.tb-actions { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+
+/* ป้าย LIVE (หน้า OPD / ER / IPD) */
+.tb-live { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 16px 0 14px; border-radius: 999px; font-size: 13px; color: var(--sb-muted); font-variant-numeric: tabular-nums; }
+.tb-live-label { font-weight: 700; color: var(--sb-icon); }
+
+/* ปุ่มเม็ด: เสนอความคิดเห็น / เข้าสู่ระบบ */
+.tb-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 18px;
+    border-radius: 999px;
+    color: var(--sb-ink);
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color .18s ease, box-shadow .18s ease;
+}
+.tb-pill i { color: var(--sb-icon); font-size: 15px; }
+.tb-pill:hover { background: var(--sb-hover); color: var(--sb-ink); text-decoration: none; }
+.tb-login { border-color: transparent; background: var(--sb-solid); color: var(--sb-on); font-weight: 600; box-shadow: 0 10px 22px -10px var(--sb-solid); }
+.tb-login i { color: var(--sb-on); }
+.tb-login:hover { background: var(--sb-solid); color: var(--sb-on); filter: brightness(1.08); }
+
+/* สวิตช์โหมด: ลูกบิดแสดงโหมดปัจจุบัน (☀ / ☾) เลื่อนซ้าย-ขวา */
+.tb-switch {
+    position: relative;
+    flex: none;
+    width: 68px;
+    height: 38px;
+    padding: 0;
+    border-radius: 999px;
+    cursor: pointer;
+}
+.tb-switch .tb-sw-sun,
+.tb-switch .tb-sw-moon { position: absolute; top: 50%; font-size: 13px; color: var(--sb-muted); transform: translateY(-50%); }
+.tb-switch .tb-sw-sun { left: 12px; }
+.tb-switch .tb-sw-moon { right: 12px; }
+.tb-knob {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .2);
+    transition: transform .25s cubic-bezier(.2, .8, .2, 1);
+}
+.tb-knob::before { content: "\f185"; font: 900 13px "Font Awesome 6 Free"; color: #e0a100; }   /* fa-sun */
+.tb-switch[aria-checked="true"] .tb-knob { transform: translateX(30px); background: #1d2622; }
+.tb-switch[aria-checked="true"] .tb-knob::before { content: "\f186"; color: #ffd36b; }          /* fa-moon */
+.tb-switch:hover { background: var(--sb-hover); }
+
+/* ผู้ใช้: วงกลมอักษรย่อ + ชื่อ / ตำแหน่ง + ปุ่มออกจากระบบ */
+.tb-user { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 4px 4px 4px 4px; border-radius: 999px; min-width: 0; }
+.tb-avatar { width: 36px; height: 36px; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--sb-solid); color: var(--sb-on); font-size: 15px; font-weight: 600; }
+.tb-user-text { display: flex; flex-direction: column; min-width: 0; max-width: 200px; line-height: 1.25; }
+.tb-user-text b { font-size: 14px; font-weight: 600; color: var(--sb-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tb-user-text small { font-size: 12px; color: var(--sb-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tb-logout { width: 36px; height: 36px; flex: none; display: grid; place-items: center; border-radius: 50%; color: var(--sb-muted); font-size: 15px; text-decoration: none; transition: background-color .18s ease, color .18s ease; }
+.tb-logout:hover { background: var(--sb-hover); color: var(--sb-ink); }
+
+.bbh-topbar :is(a, button):focus-visible { outline: 2px solid var(--sb-solid); outline-offset: 2px; }
+
+/* จอกลาง: ป้ายเหลือไอคอน */
+/* จอที่ไม่มีแถบเมนูติดซ้าย: แถวแรก = ☰ โลโก้ ปุ่ม · คำทักทายลงแถวที่สองเต็มกว้าง */
+@media (max-width: 1199.98px) {
+    .tb-heading { order: 10; flex-basis: 100%; }
+}
+@media (max-width: 991.98px) {
+    .tb-user-text { display: none; }
+    .tb-user { padding-right: 4px; }
+}
+/* จอเล็ก: คำทักทายลงบรรทัดใหม่เต็มกว้าง · ปุ่มเหลือไอคอน */
+@media (max-width: 767.98px) {
+    .bbh-topbar { padding: 12px 12px 4px; gap: 10px; }
+    .tb-heading h1 { font-size: 22px; }
+    .tb-status { font-size: 13px; align-items: flex-start; }
+    .tb-status .tb-pulse { margin-top: 6px; }
+    .tb-actions { gap: 8px; }
+    .tb-pill .tb-label { display: none; }
+    .tb-pill { width: 44px; padding: 0; justify-content: center; }
+    .tb-live #last-updated { display: none; }
+    .tb-live { padding: 0 12px; }
+    .tb-brand small { display: none; }
+}
+@media (max-width: 400px) {
+    .tb-brand span { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .tb-knob, .tb-icon, .tb-pill, .tb-logout { transition: none; }
+    .tb-pulse { animation: none !important; }
 }
