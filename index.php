@@ -544,9 +544,9 @@ async function loadFinance() {
                 ${finDelta(t.cur.income, t.prev_same.income)}
                 <p class="fin-cmp">เดือนก่อนช่วงเดียวกัน ${baht(t.prev_same.income)} · ทั้งเดือน ${baht(t.prev_full.income)} บาท</p>
                 <div class="fin-split">
-                    <div class="hx-mini"><span>ผู้ป่วยนอก ${fmt(t.cur.visits)} ครั้ง</span><b>${baht(t.cur.opd)}</b></div>
+                    <div class="hx-mini"><span>ผู้ป่วยนอก ทุกแผนก ${fmt(t.cur.visits)} visit</span><b>${baht(t.cur.opd)}</b></div>
                     <div class="hx-mini"><span>ผู้ป่วยในจำหน่าย ${fmt(t.cur.discharges)} ราย</span><b>${baht(t.cur.ipd)}</b></div>
-                    <div class="hx-mini"><span>ผู้ป่วยชำระเอง</span><b>${baht(t.cur.paid)}</b></div>
+                    <div class="hx-mini"><span>ส่วนที่ผู้ป่วยจ่ายเอง (ทุกสิทธิ)</span><b>${baht(t.cur.paid)}</b></div>
                 </div>
             </div>
             <ul class="fin-list" aria-label="รายรับแยกตามสิทธิ เรียงมากไปน้อย">
@@ -561,7 +561,7 @@ async function loadFinance() {
                     </div>
                 </li>`).join('')}
             </ul>
-            <p class="fin-note">ขีดตั้ง = เดือนก่อนช่วงวันเดียวกัน · เป็นยอดเรียกเก็บใน HOSxP ไม่ใช่เงินที่กองทุนจ่ายจริง · ผู้ป่วยในนับเมื่อจำหน่าย</p>`;
+            <p class="fin-note">ขีดตั้ง = เดือนก่อนช่วงวันเดียวกัน · เป็นยอดเรียกเก็บใน HOSxP ไม่ใช่เงินที่กองทุนจ่ายจริง · ผู้ป่วยในนับเมื่อจำหน่าย · ผู้ป่วยนอกนับทุกแผนก (การ์ด OPD ด้านบนนับเฉพาะตรวจโรคทั่วไป + คลินิกพิเศษ)</p>`;
         enterOnce(box);
         markUpdated();
     } catch (e) {

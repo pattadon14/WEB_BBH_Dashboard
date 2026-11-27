@@ -205,7 +205,7 @@ function renderHeatmap() {
     const dark = document.documentElement.dataset.theme === 'dark';
     const ink = dark ? '#e4ece7' : '#1f2937';
     const surface = dark ? '#1a201d' : '#ffffff';
-    const axisText = { fontSize: isNarrow ? '12px' : '13px', color: ink, fontFamily: 'inherit' };   // ฟอนต์ตามหน้าแรก (home.css: Prompt)
+    const axisText = { fontSize: isNarrow ? '13px' : '14px', color: ink, fontFamily: 'inherit' };   // ฟอนต์ตามหน้าแรก (home.css: Prompt)
 
     Highcharts.chart('heatmap-chart', {
 
@@ -265,7 +265,7 @@ function renderHeatmap() {
                 [0.55, '#cb181d'],
                 [1.00, '#67000d']
             ],
-            labels: { style: { fontSize: '12px', color: ink } }
+            labels: { style: { fontSize: '13px', color: ink } }
         },
 
         legend: {
@@ -275,7 +275,7 @@ function renderHeatmap() {
             symbolWidth: isNarrow ? 150 : 240,
             symbolHeight: 12,
             margin: 6,
-            title: { text: 'จำนวนผู้ป่วย (ราย)', style: { fontSize: '12px', color: ink, fontWeight: '600' } }
+            title: { text: 'จำนวนผู้ป่วย (ราย)', style: { fontSize: '13px', color: ink, fontWeight: '600' } }
         },
 
         tooltip: {
@@ -300,7 +300,7 @@ function renderHeatmap() {
                     if (!this.point.value) return '';
                     return `<span style="color:${heatmapTextColor(this.point.color)}">${this.point.value}</span>`;
                 },
-                style: { fontSize: isNarrow ? '12px' : '13px', fontWeight: '600', textOutline: 'none' }
+                style: { fontSize: isNarrow ? '13px' : '14px', fontWeight: '600', textOutline: 'none' }
             }
         }]
 
