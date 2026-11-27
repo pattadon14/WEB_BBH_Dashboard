@@ -190,7 +190,7 @@ function renderHeatmap() {
 
     // สเกลสีรวมค่า LAB ด้วย ให้ทุกแถวเทียบสีกันได้
     const maxVal = data.reduce((m, d) => Math.max(m, d[2]), labMax);
-    const rowHeight = heatmapShowAll ? 30 : 36;
+    const rowHeight = heatmapShowAll ? 28 : 32;
     const chartHeight = rowLabels.length * rowHeight + 100;
     chartEl.style.height = chartHeight + 'px';
 
@@ -205,7 +205,7 @@ function renderHeatmap() {
     const dark = document.documentElement.dataset.theme === 'dark';
     const ink = dark ? '#e4ece7' : '#1f2937';
     const surface = dark ? '#1a201d' : '#ffffff';
-    const axisText = { fontSize: isNarrow ? '15px' : '17px', color: ink, fontFamily: 'THSarabun' };
+    const axisText = { fontSize: isNarrow ? '12px' : '13px', color: ink, fontFamily: 'inherit' };   // ฟอนต์ตามหน้าแรก (home.css: Prompt)
 
     Highcharts.chart('heatmap-chart', {
 
@@ -214,7 +214,7 @@ function renderHeatmap() {
             height: chartHeight,
             backgroundColor: surface,
             marginRight: isNarrow ? undefined : 64,   // พื้นที่คอลัมน์ "รวม"
-            style: { fontFamily: 'THSarabun' },
+            style: { fontFamily: 'inherit' },
             // จอแคบหรือวันที่มีหลายชั่วโมง: เลื่อนแนวนอน ชื่อแผนกอยู่กับที่ และเริ่มที่ชั่วโมงล่าสุด
             scrollablePlotArea: { minWidth: hours.length * 40 + (isNarrow ? 130 : 270), scrollPositionX: 1, opacity: 1 }
         },
@@ -265,7 +265,7 @@ function renderHeatmap() {
                 [0.55, '#cb181d'],
                 [1.00, '#67000d']
             ],
-            labels: { style: { fontSize: '15px', color: ink } }
+            labels: { style: { fontSize: '12px', color: ink } }
         },
 
         legend: {
@@ -275,7 +275,7 @@ function renderHeatmap() {
             symbolWidth: isNarrow ? 150 : 240,
             symbolHeight: 12,
             margin: 6,
-            title: { text: 'จำนวนผู้ป่วย (ราย)', style: { fontSize: '15px', color: ink, fontWeight: '700' } }
+            title: { text: 'จำนวนผู้ป่วย (ราย)', style: { fontSize: '12px', color: ink, fontWeight: '600' } }
         },
 
         tooltip: {
@@ -300,7 +300,7 @@ function renderHeatmap() {
                     if (!this.point.value) return '';
                     return `<span style="color:${heatmapTextColor(this.point.color)}">${this.point.value}</span>`;
                 },
-                style: { fontSize: isNarrow ? '16px' : '18px', fontWeight: '700', textOutline: 'none' }
+                style: { fontSize: isNarrow ? '12px' : '13px', fontWeight: '600', textOutline: 'none' }
             }
         }]
 

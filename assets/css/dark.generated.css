@@ -1,5 +1,5 @@
 /* ไฟล์สร้างอัตโนมัติจาก tools/build_dark_css.mjs — ห้ามแก้ตรง ๆ (แก้ใน dark.css แทน)
- * แหล่ง: 21 ชุด CSS + style="…" 8 แบบ */
+ * แหล่ง: 21 ชุด CSS + style="…" 6 แบบ */
 
 /* ---- assets/css/anc_theme.css ---- */
 html[data-theme="dark"] .er-theme.opd-theme.anc-theme {
@@ -2059,14 +2059,6 @@ html[data-theme="dark"] .bbh-guest-access-cancel:hover {
 }
 
 /* ---- style="…" ในโค้ด (ต้อง !important จึงชนะ inline) ---- */
-html[data-theme="dark"] [style*="color:#c2410c"],
-html[data-theme="dark"] [style*="color: #c2410c"] {
-    color: #fba185 !important;
-}
-html[data-theme="dark"] [style*="color:#b02a37"],
-html[data-theme="dark"] [style*="color: #b02a37"] {
-    color: #fba7a5 !important;
-}
 html[data-theme="dark"] [style*="color:#1f1f1f"],
 html[data-theme="dark"] [style*="color: #1f1f1f"] {
     color: #dcdcdc !important;

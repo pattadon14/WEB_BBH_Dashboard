@@ -230,7 +230,7 @@
          * เฉพาะ Guest เท่านั้น ส่วนผู้ที่ Login แล้วทำงานตามปกติ
          */
         document.addEventListener('click', function (event) {
-            var card = event.target.closest('.small-box, .ward-card');
+            var card = event.target.closest('.small-box, .ward-card, .hx-kpi a');   /* .hx-kpi = การ์ดตัวเลขหน้าแรก (home.css) */
             if (!card) return;
 
             event.preventDefault();
@@ -248,7 +248,7 @@
         if (!isGuest) return;
 
         /* Guest: ปุ่มท้ายการ์ดบอกว่าต้อง login (คลิก/Enter เปิดหน้าต่างเข้าสู่ระบบ — ใช้คีย์บอร์ดได้) */
-        document.querySelectorAll('.small-box-footer').forEach(function (link) {
+        document.querySelectorAll('.small-box-footer, .hx-kpi .hx-go:not(.is-solid)').forEach(function (link) {
             link.innerHTML = '<i class="fas fa-lock" aria-hidden="true"></i> เข้าสู่ระบบเพื่อดูรายละเอียด';
         });
 

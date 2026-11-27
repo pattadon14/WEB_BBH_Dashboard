@@ -15,222 +15,143 @@ function home_info_btn(string $key, string $label): string
         . '<i class="fa-solid fa-circle-info" aria-hidden="true"></i></button>';
 }
 
+// การ์ดบริการอื่น ๆ: key = key ของ api/service_summary_today.php (<key>_total) = id ตัวเลขที่ service_detail.js ใช้เปิดรายละเอียด
+$services = [
+    ['scope', 'ห้องส่องกล้อง', 'fa-video'],
+    ['or', 'ห้องผ่าตัด', 'fa-mask-face'],
+    ['pt', 'กายภาพบำบัด', 'fa-person-walking'],
+    ['thai', 'แพทย์แผนไทย', 'fa-mortar-pestle'],
+    ['dent', 'ทันตกรรม', 'fa-tooth'],
+    ['hemo', 'ไตเทียม', 'fa-droplet'],
+    ['wound', 'ห้องทำแผล-ฉีดยา', 'fa-syringe'],
+    ['us', 'อัลตราซาวน์', 'fa-wave-square'],
+    ['observe', 'Observe ER', 'fa-user-clock'],
+    ['xray', 'X-Ray', 'fa-x-ray'],
+    ['lr', 'LR', 'fa-person-pregnant'],
+    ['lab', 'Lab', 'fa-flask-vial'],
+    ['ct', 'CT Scan', 'fa-circle-radiation'],
+    ['cashier', 'ห้องเก็บเงิน', 'fa-cash-register'],
+    ['rights', 'ศูนย์พิทักษ์สิทธิ์', 'fa-scale-balanced'],
+];
+
 ?>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/index.css?v=<?= filemtime(__DIR__ . '/assets/css/index.css') ?>">
+<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/home.css?v=<?= filemtime(__DIR__ . '/assets/css/home.css') ?>">
 
 <div class="content-wrapper home-dash">
 
-    <section class="content pt-3">
+    <section class="content">
 
-        <div class="container-fluid">
+        <!-- ธีมกระจกเขียว: assets/css/home.css (ครอบด้วย #hx) -->
+        <div id="hx">
+            <div class="hx-orbs" aria-hidden="true"><i></i><i></i><i></i></div>
 
-            <!-- ============================================
-                 SECTION 1: สรุปยอดวันนี้
-                 ============================================ -->
-            <div class="row mt-2">
+            <div class="hx-wrap">
 
-                <div class="col-12 mb-2">
-                    <h5 class="text-success mb-0" style="font-weight:bold;">
-                        <i class="fa-solid fa-gauge-high"></i>
-                        ภาพรวมวันนี้
-                    </h5>
-                </div>
+                <header class="hx-head">
+                    <div>
+                        <h1>ภาพรวมโรงพยาบาลบ้านบึง</h1>
+                        <p id="hx-today"></p>
+                    </div>
+                </header>
 
-                <div class="col-lg-4 col-md-6 col-12 mb-2">
+                <!-- ============ ตัวเลขหลักวันนี้ (assets/js/dashboard.js loadCard) ============ -->
+                <section class="glass hx-strip" aria-label="ตัวเลขหลักวันนี้">
 
-                    <!-- สีการ์ด = สีแถบหัวของหน้ารายละเอียด (kpi-opd เขียว / kpi-ipd น้ำเงิน / kpi-er แดง ใน index.css) -->
-                    <div class="small-box elevation-3 opd-monitor-card kpi-tile kpi-opd">
-
-                        <div class="inner">
-
-                            <h3 id="opd-total">
-                                Loading…
-                            </h3>
-
-                            <!-- นิยามเดียวกับหน้า OPD หัวข้อ 7 (api/opd.php: ทุกแผนก OPD นับครั้ง) -->
-                            <p class="kpi-title mb-0">
-                                ผู้ป่วยนอก (OPD) วันนี้ <?= home_info_btn('opd', 'ผู้ป่วยนอกวันนี้') ?>
-                            </p>
-                            <span class="kpi-scope">ตรวจโรคทั่วไป + คลินิคพิเศษ</span>
-
-                            <small class="kpi-sub">
-
-                                (เดือนนี้
-
-                                <span id="opd-month-patient">
-                                    Loading…
-                                </span>
-
-                                คน /
-
-                                <span id="opd-month-visit">
-                                    Loading…
-                                </span>
-
-                                ครั้ง)
-
-                            </small>
-                            <!-- วันเดียวกันของสัปดาห์ก่อน ถึงเวลาเดียวกัน (prev_week ของ API การ์ด) -->
-                            <span class="kpi-trend" id="opd-trend"></span>
-
-
+                    <!-- นิยามเดียวกับหน้า OPD หัวข้อ 7 (api/opd.php: ทุกแผนก OPD นับครั้ง) -->
+                    <div class="hx-kpi">
+                        <div class="hx-lbl"><i class="fa-solid fa-stethoscope" aria-hidden="true"></i>ผู้ป่วยนอก (OPD) วันนี้ <?= home_info_btn('opd', 'ผู้ป่วยนอกวันนี้') ?></div>
+                        <div class="hx-big"><span id="opd-total">–</span><small>ครั้ง</small></div>
+                        <!-- วันเดียวกันของสัปดาห์ก่อน ถึงเวลาเดียวกัน (prev_week ของ API การ์ด) -->
+                        <span class="kpi-trend" id="opd-trend"></span>
+                        <span class="hx-sub">ตรวจโรคทั่วไป + คลินิคพิเศษ, เดือนนี้ <span id="opd-month-patient">–</span> คน / <span id="opd-month-visit">–</span> ครั้ง</span>
+                        <div class="hx-links">
+                            <a href="pages/opd_detail.php" class="hx-go">รายละเอียด <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+                            <a href="pages/opd_monitor.php" class="hx-go is-solid" aria-label="เปิด OPD Real-time Monitor"><i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i> Real-time Monitor</a>
                         </div>
-
-                        <div class="icon">
-
-                            <i class="fa-solid fa-stethoscope"></i>
-
-                        </div>
-
-                        <a href="pages/opd_monitor.php"
-                           class="opd-monitor-launch"
-                           title="เปิด OPD Real-time Monitor"
-                           aria-label="เปิด OPD Real-time Monitor">
-                            <i class="fa-solid fa-tower-broadcast"></i>
-                            <span>Real-time Monitor</span>
-                        </a>
-
-                        <a href="pages/opd_detail.php" class="small-box-footer">
-
-                            รายละเอียด
-                            <i class="fas fa-arrow-circle-right"></i>
-
-                        </a>
-
                     </div>
 
-                </div>
-                <div class="col-lg-4 col-md-6 col-12 mb-2">
-
-                    <div class="small-box elevation-3 kpi-tile kpi-ipd">
-
-                        <div class="inner">
-
-                            <h3 id="ipd-total">
-                                Loading…
-                            </h3>
-
-                            <!-- นิยามเดียวกับช่อง "รับใหม่" หน้า IPD (api/ipd.php: ipt.regdate ทุกหอ นับ AN) -->
-                            <p class="kpi-title mb-0">
-                                ผู้ป่วยในรับใหม่ (Admit) วันนี้ <?= home_info_btn('ipd', 'ผู้ป่วยในรับใหม่วันนี้') ?>
-                            </p>
-                            <span class="kpi-scope">ทุกหอผู้ป่วย</span>
-
-                            <small class="kpi-sub">
-
-                                (เดือนนี้
-
-                                <span id="ipd-month-patient">
-                                    Loading…
-                                </span>
-
-                                คน /
-
-                                <span id="ipd-month-visit">
-                                    Loading…
-                                </span>
-
-                                ราย)
-
-                            </small>
-                            <!-- วันเดียวกันของสัปดาห์ก่อน ถึงเวลาเดียวกัน (prev_week ของ API การ์ด) -->
-                            <span class="kpi-trend" id="ipd-trend"></span>
-
+                    <!-- นิยามเดียวกับ "ผู้มารับบริการ ER" หน้า ER (api/er.php: er_regist ทุกประเภท นับครั้ง) -->
+                    <div class="hx-kpi">
+                        <div class="hx-lbl"><i class="fa-solid fa-truck-medical" aria-hidden="true"></i>ผู้มารับบริการ ER วันนี้ <?= home_info_btn('er', 'ผู้มารับบริการ ER วันนี้') ?></div>
+                        <div class="hx-big"><span id="er-total">–</span><small>ครั้ง</small></div>
+                        <span class="kpi-trend" id="er-trend"></span>
+                        <span class="hx-sub">ทุกประเภทผู้ป่วย ER, เดือนนี้ <span id="er-month-patient">–</span> คน / <span id="er-month-visit">–</span> ครั้ง</span>
+                        <div class="hx-links">
+                            <a href="pages/ER_detail.php" class="hx-go">รายละเอียด <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
                         </div>
-
-                        <div class="icon">
-
-                            <i class="fa-solid fa-hospital-user"></i>
-
-                        </div>
-                        <a href="pages/ipd_detail.php" class="small-box-footer">
-
-                            รายละเอียด
-                            <i class="fas fa-arrow-circle-right"></i>
-
-                        </a>
-
                     </div>
 
-                </div>
-                <div class="col-lg-4 col-md-12 col-12 mb-2"><!-- แท็บเล็ต: การ์ด ER เต็มแถว ไม่เหลือช่องว่าง -->
-
-                    <div class="small-box elevation-3 kpi-tile kpi-er">
-
-                        <div class="inner">
-
-                            <h3 id="er-total">
-                                Loading…
-                            </h3>
-
-                            <!-- นิยามเดียวกับ "ผู้มารับบริการ ER" หน้า ER (api/er.php: er_regist ทุกประเภท นับครั้ง) -->
-                            <p class="kpi-title mb-0">
-                                ผู้มารับบริการ ER วันนี้ <?= home_info_btn('er', 'ผู้มารับบริการ ER วันนี้') ?>
-                            </p>
-                            <span class="kpi-scope">ทุกประเภทผู้ป่วย ER</span>
-
-                            <small class="kpi-sub">
-
-                                (เดือนนี้
-
-                                <span id="er-month-patient">
-                                    Loading…
-                                </span>
-
-                                คน /
-
-                                <span id="er-month-visit">
-                                    Loading…
-                                </span>
-
-                                ครั้ง)
-
-                            </small>
-                            <!-- วันเดียวกันของสัปดาห์ก่อน ถึงเวลาเดียวกัน (prev_week ของ API การ์ด) -->
-                            <span class="kpi-trend" id="er-trend"></span>
-
+                    <!-- นิยามเดียวกับช่อง "รับใหม่" หน้า IPD (api/ipd.php: ipt.regdate ทุกหอ นับ AN) -->
+                    <div class="hx-kpi">
+                        <div class="hx-lbl"><i class="fa-solid fa-hospital-user" aria-hidden="true"></i>ผู้ป่วยในรับใหม่ (Admit) วันนี้ <?= home_info_btn('ipd', 'ผู้ป่วยในรับใหม่วันนี้') ?></div>
+                        <div class="hx-big"><span id="ipd-total">–</span><small>ราย</small></div>
+                        <span class="kpi-trend" id="ipd-trend"></span>
+                        <span class="hx-sub">ทุกหอผู้ป่วย, เดือนนี้ <span id="ipd-month-patient">–</span> คน / <span id="ipd-month-visit">–</span> ราย</span>
+                        <div class="hx-links">
+                            <a href="pages/ipd_detail.php" class="hx-go">รายละเอียด <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
                         </div>
-
-                        <div class="icon">
-
-                            <i class="fa-solid fa-truck-medical"></i>
-
-                        </div>
-                        <a href="pages/ER_detail.php" class="small-box-footer">
-
-                            รายละเอียด
-                            <i class="fas fa-arrow-circle-right"></i>
-
-                        </a>
-
                     </div>
 
+                </section>
+
+                <!-- ============ แนวโน้มปีงบ + เตียง ============ -->
+                <div class="hx-lay">
+
+                    <!-- api/service_trend.php?year= (นับ visit ทุกแผนก OPD รายเดือน — นิยามเดียวกับกราฟแนวโน้มหน้า OPD) -->
+                    <section class="glass hx-sec hx-chart" aria-labelledby="hx-trend-title">
+                        <div class="hx-sec-h">
+                            <div>
+                                <h2 id="hx-trend-title">แนวโน้มผู้ป่วยนอกรายเดือน</h2>
+                                <p id="hx-trend-sum">กำลังโหลด…</p>
+                            </div>
+                            <a href="pages/opd_detail.php" class="hx-go">ดูหน้า OPD <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+                        </div>
+                        <svg id="hx-trend" role="img" aria-label="กราฟจำนวนผู้ป่วยนอกรายเดือน ปีงบประมาณนี้เทียบปีก่อน"></svg>
+                        <div class="hx-legend" id="hx-trend-legend"></div>
+                    </section>
+
+                    <!-- api/bed_summary.php (ไม่นับ Home Ward) -->
+                    <section class="glass hx-sec" aria-labelledby="hx-bed-title">
+                        <div class="hx-sec-h">
+                            <div>
+                                <h2 id="hx-bed-title">เตียงผู้ป่วยใน <?= home_info_btn('beds', 'สถิติผู้ป่วยในวันนี้') ?></h2>
+                                <p>อัตราครองเตียงทั้ง รพ. ตอนนี้</p>
+                            </div>
+                            <span class="chip" id="hx-bed-chip"></span>
+                        </div>
+                        <div class="hx-ring" id="hx-ring">
+                            <svg viewBox="0 0 136 136" id="hx-ring-svg" aria-hidden="true"></svg>
+                            <div class="hx-kv">
+                                <div><span id="wblank-label">เตียงว่าง</span><b id="wblank">–</b></div>
+                                <div><span>รับใหม่วันนี้</span><b id="admittoday">–</b></div>
+                                <div><span>จำหน่ายวันนี้</span><b id="dchtoday">–</b></div>
+                                <div><span>เตียงทั้งหมด</span><b id="bedcount">–</b></div>
+                            </div>
+                        </div>
+                        <div class="hx-rights" aria-label="ผู้ป่วยในตอนนี้แยกตามสิทธิ์">
+                            <div class="hx-mini"><span>สิทธิ์ UC</span><b id="uc">–</b></div>
+                            <div class="hx-mini"><span>ชำระเงินและเบิกได้</span><b id="mo">–</b></div>
+                            <div class="hx-mini"><span>สิทธิ์อื่น ๆ</span><b id="ot">–</b></div>
+                        </div>
+                    </section>
+
                 </div>
 
-            </div>
-
-            <!-- ============================================
-                 SECTION 1.5: คุณภาพบริการวันนี้ (assets/js/home_quality.js)
-                 ใช้ API ชุดเดียวกับหน้ารายละเอียด ตัวเลขจึงตรงกัน: OPD = api/opd_service_kpi.php (แท็บเวลารอ),
-                 ER = api/er_los.php (สถานะตอนนี้) + er_d2d.php + er_today_summary.php
-                 ============================================ -->
-            <div class="row mt-1">
-
-                <div class="col-12 mb-2">
-                    <h5 class="text-success mb-0" style="font-weight:bold;">
-                        <i class="fa-solid fa-stopwatch"></i>
-                        คุณภาพบริการวันนี้
-                    </h5>
-                </div>
-
-                <div class="col-xl-7 col-12 mb-2">
+                <!-- ============ คุณภาพบริการวันนี้ (assets/js/home_quality.js) ============
+                     ใช้ API ชุดเดียวกับหน้ารายละเอียด ตัวเลขจึงตรงกัน: OPD = api/opd_service_kpi.php (แท็บเวลารอ),
+                     ER = api/er_los.php (สถานะตอนนี้) + er_d2d.php + er_today_summary.php -->
+                <div class="hx-q">
                     <section class="q-panel q-opd" aria-labelledby="q-opd-title">
                         <header class="q-head">
                             <div class="q-title">
-                                <i class="fa-solid fa-stethoscope" aria-hidden="true"></i>
+                                <i class="fa-solid fa-stopwatch" aria-hidden="true"></i>
                                 <div>
-                                    <h6 id="q-opd-title">เวลารอ OPD <?= home_info_btn('q_opd', 'เวลารอ OPD') ?></h6>
+                                    <h6 id="q-opd-title">เวลารอ OPD วันนี้ <?= home_info_btn('q_opd', 'เวลารอ OPD') ?></h6>
                                     <p>นาทีเฉลี่ยต่อราย เทียบเป้าหมาย</p>
                                 </div>
                             </div>
@@ -238,9 +159,7 @@ function home_info_btn(string $key, string $label): string
                         </header>
                         <div class="q-grid" id="q-opd" aria-live="polite"><p class="q-msg">กำลังโหลด…</p></div>
                     </section>
-                </div>
 
-                <div class="col-xl-5 col-12 mb-2">
                     <section class="q-panel q-er" aria-labelledby="q-er-title">
                         <header class="q-head">
                             <div class="q-title">
@@ -256,518 +175,44 @@ function home_info_btn(string $key, string $label): string
                     </section>
                 </div>
 
-            </div>
-
-            <!-- ============================================
-                 SECTION 3: สถานะเตียงและบริการวันนี้
-                 ============================================ -->
-            <div class="row mt-2">
-                <div class="col-12 mb-2">
-                    <h5 class="text-success mb-0" style="font-weight:bold;">
-                        <i class="fa-solid fa-bed-pulse"></i>
-                        สถานะเตียงและบริการวันนี้ <?= home_info_btn('wards', 'สถานะเตียงรายหอผู้ป่วย') ?>
-                    </h5>
+                <!-- ============ สถานะเตียงรายหอผู้ป่วย (api/index_ward_bed.php · คลิกการ์ด = login.js เปิดหน้า Ward) ============ -->
+                <div class="hx-t">
+                    <h2><i class="fa-solid fa-bed-pulse" aria-hidden="true"></i>สถานะเตียงรายหอผู้ป่วย <?= home_info_btn('wards', 'สถานะเตียงรายหอผู้ป่วย') ?></h2>
                 </div>
-
-            </div>
-
-            <div class="row mt-1">
-
-                <div class="col-12">
-
-                    <div class="card shadow-lg border-white">
-
-                        <div class="card-body">
-
-                            <!-- BED STATUS -->
-                            <div class="row mt-2">
-
-                                <!-- =========================
-                                    LEFT SUMMARY
-                                    ========================== -->
-                                <div class="col-xl-3 col-lg-4 col-12 mb-4">
-
-                                    <div class="bed-summary-card">
-
-                                        <div class="summary-header">
-
-                                            <div class="summary-icon">
-
-                                                <i class="fa-solid fa-chart-simple"></i>
-
-                                            </div>
-
-                                            <div>
-
-                                                <div class="summary-title">
-
-                                                    สถิติผู้ป่วยในวันนี้ <?= home_info_btn('beds', 'สถิติผู้ป่วยในวันนี้') ?>
-
-                                                </div>
-
-                                                <div class="summary-sub">
-
-                                                    จำนวนเตียงทั้งหมด
-                                                    <span id="bedcount">
-                                                        Loading…
-                                                    </span>
-                                                    เตียง
-
-                                                </div>
-
-                                            </div>
-
-                                        </div>
-
-                                        <div class="summary-list">
-
-                                            <div class="summary-item">
-
-                                                <span>อัตราครองเตียงขณะนี้</span>
-
-                                                <span class="badge bg-danger" id="occupancy">
-                                                    Loading…
-                                                </span>
-
-                                            </div>
-
-                                            <div class="summary-item">
-
-                                                <span>รับใหม่วันนี้</span>
-
-                                                <span class="badge bg-success" id="admittoday">
-                                                    Loading…
-                                                </span>
-
-                                            </div>
-
-                                            <div class="summary-item">
-
-                                                <span>Admit อยู่</span>
-
-                                                <span class="badge bg-success" id="wtotal">
-                                                    Loading…
-                                                </span>
-
-                                            </div>
-
-                                            <div class="summary-item">
-
-                                                <span id="wblank-label">เตียงว่าง</span>
-
-                                                <span class="badge bg-success" id="wblank">
-                                                    Loading…
-                                                </span>
-
-                                            </div>
-
-                                            <div class="summary-item">
-
-                                                <span>จำหน่ายวันนี้</span>
-
-                                                <span class="badge bg-success" id="dchtoday">
-                                                    Loading…
-                                                </span>
-
-                                            </div>
-
-                                            <div class="summary-item">
-
-                                                <span>สิทธิ์ชำระเงินและเบิกได้</span>
-
-                                                <span class="badge bg-info" id="mo">
-                                                    Loading…
-                                                </span>
-
-                                            </div>
-
-                                            <div class="summary-item">
-
-                                                <span>สิทธิ์ UC</span>
-
-                                                <span class="badge bg-info" id="uc">
-                                                    Loading…
-                                                </span>
-
-                                            </div>
-
-                                            <div class="summary-item">
-
-                                                <span>สิทธิ์อื่นๆ</span>
-
-                                                <span class="badge bg-info" id="ot">
-                                                    Loading…
-                                                </span>
-
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-                                <!-- =========================
-                                    CENTER WARD
-                                    ========================== -->
-                                <div class="col-xl-6 col-lg-8 col-12 mb-4">
-
-                                    <div class="row" id="ward-container">
-
-                                    </div>
-
-                                </div>
-
-                                <!-- =========================
-                                    RIGHT OTHER SERVICE
-                                    ========================== -->
-                                <div class="col-xl-3 col-lg-12 col-12 mb-3">
-
-                                    <div class="service-summary-card">
-
-                                        <div class="service-header">
-
-                                            <i class="fa-solid fa-hospital"></i>
-
-                                            สถิติการใช้บริการอื่นๆ วันนี้ <?= home_info_btn('services', 'สถิติการใช้บริการอื่นๆ') ?>
-
-                                        </div>
-
-                                        <div id="service-container">
-
-                                            <div class="service-item">
-
-                                                <div class="service-name">
-
-                                                    <i class="fa-solid fa-video"></i>
-                                                    ห้องส่องกล้อง
-
-                                                </div>
-
-                                                <div class="service-total" id="scope_total">
-
-                                                    Loading…
-
-                                                </div>
-
-                                            </div>
-
-                                            <div class="service-item">
-
-                                                <div class="service-name">
-
-                                                    <i class="fa-solid fa-mask-face"></i>
-                                                    ห้องผ่าตัด
-
-                                                </div>
-
-                                                <div class="service-total" id="or_total">
-
-                                                    Loading…
-
-                                                </div>
-
-                                            </div>
-
-                                            <div class="service-item">
-
-                                                <div class="service-name">
-
-                                                    <i class="fa-solid fa-person-walking"></i>
-                                                    กายภาพบำบัด
-
-                                                </div>
-
-                                                <div class="service-total" id="pt_total">
-
-                                                    Loading…
-
-                                                </div>
-
-                                            </div>
-
-                                            <div class="service-item">
-
-                                                <div class="service-name">
-
-                                                    <i class="fa-solid fa-mortar-pestle"></i>
-                                                    แพทย์แผนไทย
-
-                                                </div>
-
-                                                <div class="service-total" id="thai_total">
-
-                                                    Loading…
-
-                                                </div>
-
-                                            </div>
-
-                                            <div class="service-item">
-
-                                                <div class="service-name">
-
-                                                    <i class="fa-solid fa-tooth"></i>
-                                                    ทันตกรรม
-
-                                                </div>
-
-                                                <div class="service-total" id="dent_total">
-
-                                                    Loading…
-
-                                                </div>
-
-                                            </div>
-
-                                            <div class="service-item">
-
-                                                <div class="service-name">
-
-                                                    <i class="fa-solid fa-droplet"></i>
-                                                    ไตเทียม
-
-                                                </div>
-
-                                                <div class="service-total" id="hemo_total">
-
-                                                    Loading…
-
-                                                </div>
-
-                                            </div>
-                                            <div class="service-item">
-
-                                                <div class="service-name">
-
-                                                    <i class="fa-solid fa-syringe"></i>
-                                                    ห้องทำแผล-ฉีดยา
-
-                                                </div>
-
-                                                <div class="service-total" id="wound_total">
-
-                                                    Loading…
-
-                                                </div>
-
-                                            </div>
-                                            <div class="service-item">
-
-                                                <div class="service-name">
-
-                                                    <i class="fa-solid fa-wave-square"></i>
-                                                    อัลตราซาวน์
-
-                                                </div>
-
-                                                <div class="service-total" id="us_total">
-
-                                                    Loading…
-
-                                                </div>
-
-                                            </div>
-
-                                            <div class="service-item">
-
-                                                <div class="service-name">
-
-                                                    <i class="fa-solid fa-user-clock"></i>
-                                                    Observe ER
-
-                                                </div>
-
-                                                <div class="service-total" id="observe_total">
-
-                                                    Loading…
-
-                                                </div>
-
-                                            </div>
-
-                                            <div class="service-item">
-
-                                                <div class="service-name">
-
-                                                    <i class="fa-solid fa-x-ray"></i>
-                                                    X-Ray
-
-                                                </div>
-
-                                                <div class="service-total" id="xray_total">
-
-                                                    Loading…
-
-                                                </div>
-
-                                            </div>
-
-                                            <div class="service-item">
-
-                                                <div class="service-name">
-
-                                                    <i class="fa-solid fa-person-pregnant"></i>
-                                                    LR
-
-                                                </div>
-
-                                                <div class="service-total" id="lr_total">
-
-                                                    Loading…
-
-                                                </div>
-
-                                            </div>
-                                            <div class="service-item">
-
-                                                <div class="service-name">
-
-                                                    <i class="fa-solid fa-flask-vial"></i>
-                                                    Lab
-
-                                                </div>
-
-                                                <div class="service-total" id="lab_total">
-
-                                                    Loading…
-
-                                                </div>
-                                            </div>
-
-                                            <div class="service-item">
-
-                                                <div class="service-name">
-
-                                                    <i class="fa-solid fa-circle-radiation"></i>
-                                                    CT Scan
-
-                                                </div>
-
-                                                <div class="service-total" id="ct_total">
-
-                                                    Loading…
-
-                                                </div>
-
-                                            </div>
-
-                                            <div class="service-item">
-
-                                                <div class="service-name">
-
-                                                    <i class="fa-solid fa-cash-register"></i>
-                                                    ห้องเก็บเงิน
-
-                                                </div>
-
-                                                <div class="service-total" id="cashier_total">
-
-                                                    Loading…
-
-                                                </div>
-
-                                            </div>
-
-                                            <div class="service-item">
-
-                                                <div class="service-name">
-
-                                                    <i class="fa-solid fa-scale-balanced"></i>
-                                                    ศูนย์พิทักษ์สิทธิ์
-
-                                                </div>
-
-                                                <div class="service-total" id="rights_total">
-
-                                                    Loading…
-
-                                                </div>
-
-                                            </div>
-
-                                        </div>
-
-                                        <!-- แสดงเมื่อมีรายการเกิน 10 และยังเลื่อนไม่สุด (fitServiceList) -->
-                                        <p class="service-more" id="service-more" hidden>
-                                            <i class="fa-solid fa-angles-down" aria-hidden="true"></i> เลื่อนลงดูอีก <b>0</b> รายการ
-                                        </p>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
+                <div class="hx-wards" id="ward-container" aria-live="polite"></div>
+
+                <!-- ============ บริการอื่น ๆ วันนี้ (api/service_summary_today.php · คลิก = service_detail.js) ============ -->
+                <div class="hx-t">
+                    <h2><i class="fa-solid fa-hand-holding-medical" aria-hidden="true"></i>บริการอื่น ๆ วันนี้ <?= home_info_btn('services', 'สถิติการใช้บริการอื่นๆ') ?></h2>
+                </div>
+                <div class="hx-svc" id="service-container">
+                    <?php foreach ($services as [$key, $name, $icon]): ?>
+                        <div class="service-item">
+                            <div class="service-name"><i class="fa-solid <?= $icon ?>" aria-hidden="true"></i><span><?= $name ?></span></div>
+                            <div class="service-total" id="<?= $key ?>_total">–</div>
                         </div>
-
-                    </div>
-
+                    <?php endforeach; ?>
                 </div>
+
+                <!-- ============ ความหนาแน่นแต่ละแผนกตามช่วงเวลา (Highcharts ใน dashboard.js) ============ -->
+                <div class="hx-t">
+                    <h2><i class="fa-solid fa-fire-flame-curved" aria-hidden="true"></i>ภาระงานแต่ละแผนกตามช่วงเวลา วันนี้ <?= home_info_btn('heatmap', 'ภาระงานแต่ละแผนก') ?></h2>
+                </div>
+                <section class="hx-hm" aria-label="Heatmap ภาระงานแต่ละแผนก">
+                    <div class="hx-hm-k">
+                        <div class="hx-mini"><span>ชั่วโมงที่แออัดสุด</span><b id="hm-peak-hour">–</b></div>
+                        <div class="hx-mini"><span>แผนกที่แออัดสุดวันนี้</span><b id="hm-peak-dept">–</b></div>
+                        <button type="button" id="hm-toggle" aria-controls="heatmap-chart" hidden></button>
+                    </div>
+                    <div id="heatmap-chart" style="min-height:400px;"></div>
+                </section>
 
             </div>
-
-            <!-- ============================================
-                 SECTION 2: Heatmap ภาระงานแต่ละแผนก
-                 ============================================ -->
-            <div class="row mt-1">
-
-                <div class="col-12 mb-2">
-                    <h5 class="text-success mb-0" style="font-weight:bold;">
-                        <i class="fa-solid fa-fire-flame-curved"></i>
-                        ภาระงานแต่ละแผนกตามช่วงเวลา วันนี้ <?= home_info_btn('heatmap', 'ภาระงานแต่ละแผนก') ?>
-                    </h5>
-                </div>
-
-                <div class="col-12 mb-2">
-                    <div class="card shadow-sm">
-                        <div class="card-body">
-
-                            <!-- KPI mini cards -->
-                            <div class="row mb-3">
-
-                                <div class="col-lg-3 col-6 mb-2">
-                                    <div class="summary-card">
-                                        <div class="summary-title" style="font-size:1.3rem;color:#c2410c">
-                                            <i class="fa-solid fa-clock"></i> ชั่วโมงที่แออัดสุด
-                                        </div>
-                                        <div class="summary-number" style="font-size:2.2rem;color:#c2410c">
-                                            <span id="hm-peak-hour">—</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-3 col-6 mb-2">
-                                    <div class="summary-card">
-                                        <div class="summary-title" style="font-size:1.3rem;color:#b02a37">
-                                            <i class="fa-solid fa-hospital"></i> แผนกที่แออัดสุดวันนี้
-                                        </div>
-                                        <div class="summary-number" style="font-size:2rem;color:#b02a37">
-                                            <span id="hm-peak-dept">—</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-6 col-12 mb-2 d-flex align-items-end justify-content-end">
-                                    <button type="button" id="hm-toggle" class="btn btn-outline-success" aria-controls="heatmap-chart" hidden></button>
-                                </div>
-
-                            </div>
-
-                            <!-- Heatmap chart -->
-                            <div id="heatmap-chart" style="min-height:400px;"></div>
-
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
         </div>
 
     </section>
 
-    <!-- รายละเอียดเมื่อคลิกบริการในการ์ด "สถิติการใช้บริการอื่นๆ วันนี้" (assets/js/service_detail.js · รายชื่อต้อง login) -->
+    <!-- รายละเอียดเมื่อคลิกบริการในการ์ด "บริการอื่น ๆ วันนี้" (assets/js/service_detail.js · รายชื่อต้อง login) -->
     <dialog class="opd-drill svc-detail" id="svc-detail" aria-labelledby="svc-detail-title">
         <!-- หัวหน้าต่าง: ชื่อบริการ | เลือกวันที่ (service_detail.js โหลดบริการเดิมของวันที่เลือก) | ปิด — จอแคบวันที่ลงบรรทัดใหม่ใต้ชื่อ -->
         <header class="opd-drill-head svc-head">
@@ -827,6 +272,14 @@ function home_info_btn(string $key, string $label): string
 <script src="assets/js/home_info.js?v=<?= filemtime(__DIR__ . '/assets/js/home_info.js') ?>"></script>
 <script src="assets/js/er_info.js?v=<?= filemtime(__DIR__ . '/assets/js/er_info.js') ?>"></script>
 <script>
+const fmt = n => Number(n).toLocaleString('th-TH');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+// แอนิเมชันเข้ามาเฉพาะครั้งแรกที่วาด ไม่เล่นซ้ำทุกครั้งที่ bbhPoll รีเฟรช
+const enterOnce = el => { if (!el.dataset.entered) { el.dataset.entered = '1'; el.classList.add('is-enter'); } };
+
+document.getElementById('hx-today').textContent =
+    new Date().toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
 // เรียกหลังโหลดข้อมูลสำเร็จเท่านั้น ถ้า API ล่ม เวลาจะค้างไว้ที่ครั้งล่าสุดที่ได้ข้อมูลจริง
 function markUpdated() {
 
@@ -845,6 +298,119 @@ function markUpdated() {
 
 }
 
+/* ---------------- แนวโน้มผู้ป่วยนอกรายเดือน: ปีงบนี้ เทียบปีงบก่อน ---------------- */
+// ปีงบประมาณ พ.ศ. (ต.ค.–ก.ย.) แบบเดียวกับ config/period.php
+const FY = new Date().getFullYear() + 543 + (new Date().getMonth() >= 9 ? 1 : 0);
+let trendData = null;
+
+async function loadTrend() {
+    const sum = document.getElementById('hx-trend-sum');
+    try {
+        const [cur, prev] = await Promise.all([FY, FY - 1].map(y =>
+            fetch('api/service_trend.php?year=' + y).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })));
+        trendData = { cur: cur.trend.map(t => t.opd), prev: prev.trend.map(t => t.opd), labels: prev.trend.map(t => t.label.split(' ')[0]) };
+
+        // เทียบเฉพาะเดือนที่จบแล้ว — เดือนปัจจุบันยังนับไม่ครบเดือน เทียบกับเดือนเต็มของปีก่อนไม่ได้
+        const done = trendData.cur.length - 1;
+        const a = trendData.cur.slice(0, done).reduce((s, v) => s + v, 0);
+        const b = trendData.prev.slice(0, done).reduce((s, v) => s + v, 0);
+        if (done > 0 && b > 0) {
+            const pct = Math.round((a - b) * 100 / b);
+            const span = done === 1 ? trendData.labels[0] : trendData.labels[0] + '–' + trendData.labels[done - 1];
+            sum.innerHTML = `ปีงบ ${FY} เดือนที่จบแล้ว (${span}) รวม <b>${fmt(a)}</b> visit, `
+                + (pct === 0 ? 'เท่ากับ' : `${pct > 0 ? 'มากกว่า' : 'น้อยกว่า'} <b>${Math.abs(pct)}%</b> จาก`) + `ช่วงเดียวกันปีงบ ${FY - 1}`;
+        } else {
+            sum.textContent = `ปีงบ ${FY} เริ่มเดือนนี้ ยังไม่มีเดือนที่จบแล้วให้เทียบ`;
+        }
+        document.getElementById('hx-trend-legend').innerHTML =
+            `<span><i></i>ปีงบ ${FY}</span><span><i class="is-prev"></i>ปีงบ ${FY - 1}</span><span>จุดเส้นประ = เดือนปัจจุบัน นับถึงวันนี้</span>`;
+        drawTrend();
+    } catch (e) {
+        console.error('loadTrend error:', e);
+        if (!trendData) sum.textContent = 'โหลดข้อมูลแนวโน้มไม่สำเร็จ';
+    }
+}
+
+function drawTrend() {
+    if (!trendData) return;
+    const svg = document.getElementById('hx-trend');
+    const W = Math.max(svg.clientWidth, 300), H = svg.clientHeight || 260;
+    const { cur, prev, labels } = trendData;
+    const L = 52, R = 12, T = 10, B = 30;
+    const max = Math.max(...cur, ...prev, 1);
+    const step = Math.pow(10, Math.floor(Math.log10(max / 4)));
+    const tick = [1, 2, 2.5, 5, 10].map(m => m * step).find(s => max / s <= 5) || step * 10;
+    const top = Math.ceil(max / tick) * tick;
+    const X = i => L + i * (W - L - R) / 11, Y = v => T + (1 - v / top) * (H - T - B);
+    const line = a => a.map((v, i) => (i ? 'L' : 'M') + X(i).toFixed(1) + ',' + Y(v).toFixed(1)).join('');
+
+    let s = '';
+    for (let v = 0; v <= top; v += tick) {
+        s += `<line class="gl" x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${L - 8}" y="${Y(v) + 4}" text-anchor="end">${fmt(v)}</text>`;
+    }
+    // จอแคบ: ชื่อเดือนเว้นเดือน ไม่ให้ทับกัน (ชี้ที่แถบยังเห็นทุกเดือน)
+    labels.forEach((m, i) => { if (W >= 520 || i % 2 === 0) s += `<text x="${X(i)}" y="${H - 8}" text-anchor="middle">${m}</text>`; });
+    s += `<path class="ln-prev" d="${line(prev)}"/>`;
+    if (cur.length) s += `<path class="ln-cur" pathLength="1" style="stroke-dasharray:1" d="${line(cur)}"/>`;
+    cur.forEach((v, i) => { s += `<circle class="pt${i === cur.length - 1 ? ' is-partial' : ''}" cx="${X(i)}" cy="${Y(v)}" r="4"/>`; });
+    // แถบโปร่งรายเดือน: ชี้แล้วเห็นตัวเลขทั้งสองปี
+    const bw = (W - L - R) / 11;
+    labels.forEach((m, i) => {
+        const tip = `${m} ปีงบ ${FY}: ${cur[i] === undefined ? 'ยังไม่ถึง' : fmt(cur[i]) + ' visit' + (i === cur.length - 1 ? ' (นับถึงวันนี้)' : '')}\n${m} ปีงบ ${FY - 1}: ${fmt(prev[i] ?? 0)} visit`;
+        s += `<rect class="hit" x="${X(i) - bw / 2}" y="${T}" width="${bw}" height="${H - T - B}" rx="8"><title>${tip}</title></rect>`;
+    });
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    svg.innerHTML = s;
+    enterOnce(svg.parentElement);
+}
+let trendResize;
+window.addEventListener('resize', () => { clearTimeout(trendResize); trendResize = setTimeout(drawTrend, 150); });
+
+loadTrend();
+bbhPoll(loadTrend, 5 * 60 * 1000);   // API cache 5 นาที
+
+/* ---------------- เตียงผู้ป่วยใน (api/bed_summary.php) ---------------- */
+async function loadBedSummary() {
+    try {
+        const data = await (await fetch('api/bed_summary.php')).json();
+        const occ = Number(data.occupancy);
+        const level = occ >= 100 ? 'hot' : occ >= 85 ? 'warm' : 'ok';
+
+        const ring = document.getElementById('hx-ring');
+        ring.className = 'hx-ring is-' + level;
+        document.getElementById('hx-ring-svg').innerHTML =
+            `<circle class="rb" cx="68" cy="68" r="56" fill="none" stroke-width="12"/>`
+            + `<circle class="rf" cx="68" cy="68" r="56" fill="none" stroke-width="12" pathLength="1" style="stroke-dasharray:${Math.min(occ, 100) / 100} 1"/>`
+            + `<text x="68" y="70" text-anchor="middle" font-size="27" font-weight="700">${occ.toLocaleString('th-TH', { maximumFractionDigits: 1 })}%</text>`
+            + `<text x="68" y="92" text-anchor="middle" font-size="12" opacity=".7">${fmt(data.wtotal)} / ${fmt(data.bedcount)} เตียง</text>`;
+        enterOnce(ring);
+
+        const chip = document.getElementById('hx-bed-chip');
+        chip.className = 'chip is-' + level;
+        chip.textContent = { hot: 'เกินจำนวนเตียง', warm: 'ใกล้เต็ม', ok: 'ปกติ' }[level];
+
+        // ติดลบ = ผู้ป่วยเกินจำนวนเตียง: แสดงเป็น "เกินเตียง" แทนเลขติดลบ
+        const over = data.wblank < 0;
+        document.getElementById('wblank-label').textContent = over ? 'เกินเตียง' : 'เตียงว่าง';
+        const wb = document.getElementById('wblank');
+        wb.textContent = fmt(Math.abs(data.wblank)) + ' เตียง';
+        wb.classList.toggle('is-bad', over);
+
+        document.getElementById('admittoday').textContent = fmt(data.admittoday) + ' ราย';
+        document.getElementById('dchtoday').textContent = fmt(data.dchtoday) + ' ราย';
+        document.getElementById('bedcount').textContent = fmt(data.bedcount) + ' เตียง';
+        ['uc', 'mo', 'ot'].forEach(k => { document.getElementById(k).textContent = fmt(data[k]) + ' ราย'; });
+
+        markUpdated();
+    } catch (e) {
+        console.error('loadBedSummary error:', e);
+    }
+}
+
+loadBedSummary();
+bbhPoll(loadBedSummary, 60000);
+
+/* ---------------- การ์ดหอผู้ป่วย (api/index_ward_bed.php) ---------------- */
 // ไอคอนตามชื่อ Ward ชุดเดียวกับเมนู IPD ใน templates/sidebar.php (ลำดับสำคัญ: "หลังคลอด" ต้องมาก่อน "คลอด")
 const WARD_ICONS = [
     [/พิเศษ/, 'fa-door-open'],
@@ -861,268 +427,71 @@ const WARD_ICONS = [
 ];
 
 function wardIcon(name) {
-
     const hit = WARD_ICONS.find(([re]) => re.test(String(name || '').trim()));
-
     return hit ? hit[1] : 'fa-bed';
-
 }
 
 async function loadWardBed() {
-
     try {
+        const data = await (await fetch('api/index_ward_bed.php')).json();
 
-        const response =
-            await fetch(
-                'api/index_ward_bed.php'
-            );
-
-        const data =
-            await response.json();
-
-        let html = '';
-
-        // Home Ward (23) ผู้ป่วยนอนที่บ้าน ไม่นับรวมยอดเตียงทั้งหมด (api/bed_summary.php) — แสดงไว้ท้ายสุด
+        // เรียงหอที่แน่นสุดก่อน · Home Ward (23) ผู้ป่วยนอนที่บ้าน ไม่นับรวมยอดเตียงทั้งหมด (api/bed_summary.php) — อยู่ท้ายสุด
         const HOME_WARD = '23';
-        data.sort((a, b) => (a.ward === HOME_WARD) - (b.ward === HOME_WARD));
+        data.sort((a, b) => (a.ward === HOME_WARD) - (b.ward === HOME_WARD) || b.occupancy_rate - a.occupancy_rate);
 
-        data.forEach(ward => {
-
-            let colorClass = 'success';
-            let statusText = '';
-            // ป้ายข้อความคู่กับสี (ไม่สื่อด้วยสีอย่างเดียว) — เกณฑ์เดียวกับ colorClass ด้านล่าง
-            const statusLabel = { success: 'ว่าง', info: 'ปานกลาง', warning: 'ใกล้เต็ม', danger: 'เต็ม/เกิน' };
-
-            const rate =
-                parseFloat(
-                    ward.occupancy_rate
-                );
-
-            // กำหนดสีตาม %
-            if (rate >= 100) {
-
-                colorClass = 'danger';
-
-            } else if (rate >= 75) {
-
-                colorClass = 'warning';
-
-            } else if (rate >= 50) {
-
-                colorClass = 'info';
-
-            }
-
-            // สถานะเตียง
-            if (
-                parseInt(ward.admitnow) >=
-                parseInt(ward.bedcount)
-            ) {
-
-                statusText = `
-                    <span class="bed-full">
-                        เต็ม
-                    </span>
-                `;
-
-            } else {
-
-                statusText = `
-                    ว่าง ${ward.available_bed}
-                `;
-
-            }
-
-            html += `
-
-            <div class="col-xl-6 col-lg-6 col-12 mb-2">
-
-                <div class="ward-card" tabindex="0" role="link">
-
-                    <div class="ward-icon text-${colorClass}">
-
-                        <i class="fa-solid ${wardIcon(ward.name)}"></i>
-
-                    </div>
-
-                    <div class="ward-name">
-
-                        ${ward.name}
-
-                    </div>
-
-                    <div class="ward-detail">
-
-                        Admit ${ward.admitnow}
-                        / ${ward.bedcount} เตียง
-
-                        (${statusText})
-
-                    </div>
-                    <div class="ward-percent">
-
-                        <span>ครองเตียง <strong class="ward-rate-${colorClass}">${rate}%</strong></span>
-                        <span class="ward-status ward-status-${colorClass}">${statusLabel[colorClass]}</span>
-
-                    </div>
-
-                    <div class="progress ward-progress">
-
-                        <div
-                            class="progress-bar bg-${colorClass}"
-                            style="width:${Math.min(rate,100)}%"
-                        >
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            `;
-
-        });
-
-        document.getElementById(
-            'ward-container'
-        ).innerHTML = html;
+        const box = document.getElementById('ward-container');
+        box.innerHTML = data.map(w => {
+            const rate = parseFloat(w.occupancy_rate) || 0;
+            // เกณฑ์เดียวกับการ์ดเดิม: ≥100 เต็ม/เกิน, ≥75 ใกล้เต็ม, ≥50 ปานกลาง — สีคู่กับข้อความเสมอ
+            const level = rate >= 100 ? 'hot' : rate >= 75 ? 'warm' : 'ok';
+            const label = rate >= 100 ? 'เต็ม/เกิน' : rate >= 75 ? 'ใกล้เต็ม' : rate >= 50 ? 'ปานกลาง' : 'ว่าง';
+            const admit = parseInt(w.admitnow, 10), beds = parseInt(w.bedcount, 10);
+            const free = admit >= beds ? (admit > beds ? `เกิน ${fmt(admit - beds)} เตียง` : 'เต็มทุกเตียง') : `ว่าง ${fmt(w.available_bed)} เตียง`;
+            // .ward-card + .ward-name (ชื่อตรงกับ API) — login.js ใช้หา Ward แล้วเปิดหน้ารายละเอียด
+            return `<div class="ward-card is-${level}" tabindex="0" role="link" aria-label="${esc(w.name)} ครองเตียง ${rate}% ${label} ดูรายละเอียดหอผู้ป่วย">
+                <div class="wc-hd"><i class="fa-solid ${wardIcon(w.name)}" aria-hidden="true"></i><div class="ward-name" title="${esc(w.name)}">${esc(w.name)}</div></div>
+                <div class="wc-ln"><span class="wc-pc">${rate}%</span><span class="wc-st">${label}</span></div>
+                <div class="hx-tr" aria-hidden="true"><i style="--w:${Math.min(rate, 100) / 100}"></i></div>
+                <small>Admit ${fmt(admit)} จาก ${fmt(beds)} เตียง, ${free}${w.ward === HOME_WARD ? ' (ไม่นับรวมยอดเตียง)' : ''}</small>
+            </div>`;
+        }).join('');
+        enterOnce(box);
 
         markUpdated();
-
-    } catch (error) {
-
-        console.error(error);
-
+    } catch (e) {
+        console.error('loadWardBed error:', e);
     }
-
 }
 
 loadWardBed();
+bbhPoll(loadWardBed, 60000);
 
-bbhPoll(
-    loadWardBed,
-    60000
-);
-
-async function loadBedSummary() {
-
-    const response =
-        await fetch(
-            'api/bed_summary.php'
-        );
-
-    const data =
-        await response.json();
-
-    document.getElementById(
-            'bedcount'
-        ).innerHTML =
-        data.bedcount;
-
-    document.getElementById(
-            'admittoday'
-        ).innerHTML =
-        data.admittoday + ' ราย';
-
-    document.getElementById(
-            'wtotal'
-        ).innerHTML =
-        data.wtotal + ' ราย';
-
-    // ติดลบ = ผู้ป่วยเกินจำนวนเตียง: แสดงเป็น "เกินเตียง" แทนเลขติดลบ
-    const over = data.wblank < 0;
-    document.getElementById('wblank-label').textContent = over ? 'เกินเตียง' : 'เตียงว่าง';
-    const wb = document.getElementById('wblank');
-    wb.textContent = Math.abs(data.wblank) + ' เตียง';
-    wb.classList.toggle('bg-success', !over);
-    wb.classList.toggle('bg-danger', over);
-
-    document.getElementById('dchtoday').innerHTML =
-        data.dchtoday + ' ราย';
-
-    document.getElementById('uc').innerHTML =
-        data.uc + ' ราย';
-
-    document.getElementById('mo').innerHTML =
-        data.mo + ' ราย';
-
-    document.getElementById('ot').innerHTML =
-        data.ot + ' ราย';
-
-    document.getElementById('occupancy').innerHTML =
-        data.occupancy + '%';
-
-    markUpdated();
-
-}
-
-loadBedSummary();
-
-bbhPoll(
-    loadBedSummary,
-    60000
-);
-
+/* ---------------- บริการอื่น ๆ วันนี้ (api/service_summary_today.php) ---------------- */
 async function loadServiceSummary() {
+    try {
+        const data = await (await fetch('api/service_summary_today.php')).json();
+        const box = document.getElementById('service-container');
 
-    const response =
-        await fetch('api/service_summary_today.php');
+        // key ของ API (<บริการ>_total) = id ตัวเลขในการ์ด · เรียงมากไปน้อย (stable: เท่ากันคงลำดับเดิม) · 0 = สีเทา
+        [...box.children]
+            .map(el => {
+                const total = el.querySelector('.service-total');
+                const n = Number(data[total.id]) || 0;
+                total.textContent = fmt(n);
+                el.classList.toggle('is-zero', n === 0);
+                return [el, n];
+            })
+            .sort((a, b) => b[1] - a[1])
+            .forEach(([el]) => box.appendChild(el));
 
-    const data =
-        await response.json();
-
-    // ตัวเลขแต่ละบริการ: key ของ API (<บริการ>_total) = id ในการ์ด (config/services.php)
-    Object.entries(data).forEach(([id, n]) => {
-        const el = document.getElementById(id);
-        if (el) el.textContent = Number(n).toLocaleString('th-TH') + ' ราย';
-    });
-
-    // เรียงมากไปน้อย และทำให้รายการที่เป็น 0 เป็นสีเทา ให้เห็นบริการที่มีผู้ใช้ก่อน (sort แบบ stable: เท่ากันคงลำดับเดิม)
-    const serviceBox = document.getElementById('service-container');
-    [...serviceBox.children]
-        .map(el => [el, parseInt(el.querySelector('.service-total').textContent.replace(/,/g, ''), 10) || 0])
-        .sort((a, b) => b[1] - a[1])
-        .forEach(([el, total]) => {
-            el.classList.toggle('is-zero', total === 0);
-            serviceBox.appendChild(el);
-        });
-    fitServiceList();
-
-    markUpdated();
-
-}
-
-// การ์ดบริการแสดง 10 รายการแรก (เรียงมากไปน้อย) ที่เหลือเลื่อนดูในกรอบ — สูงพอดี 10 รายการ วัดจากหน้าจอจริง
-const SERVICE_VISIBLE = 10;
-function fitServiceList() {
-    const box = document.getElementById('service-container');
-    const items = box.children;
-    const more = document.getElementById('service-more');
-    const extra = items.length - SERVICE_VISIBLE;
-    box.style.maxHeight = '';
-    box.classList.toggle('is-scroll', extra > 0);
-    if (extra > 0) {
-        const last = items[SERVICE_VISIBLE - 1];
-        box.style.maxHeight = (last.offsetTop + last.offsetHeight - items[0].offsetTop) + 'px';
-    }
-    if (more) {
-        more.hidden = extra <= 0 || box.scrollTop + box.clientHeight >= box.scrollHeight - 4;
-        more.querySelector('b').textContent = Math.max(extra, 0);
+        markUpdated();
+    } catch (e) {
+        console.error('loadServiceSummary error:', e);
     }
 }
-document.getElementById('service-container').addEventListener('scroll', () => {
-    const box = document.getElementById('service-container');
-    document.getElementById('service-more').hidden = box.scrollTop + box.clientHeight >= box.scrollHeight - 4;
-}, { passive: true });
-window.addEventListener('resize', fitServiceList);
 
 loadServiceSummary();
-
-bbhPoll(
-    loadServiceSummary,
-    60000
-);
+bbhPoll(loadServiceSummary, 60000);
 </script>
 
 <?php
