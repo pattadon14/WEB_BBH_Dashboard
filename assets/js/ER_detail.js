@@ -41,7 +41,7 @@ Highcharts.chart('er-chart', {
     chart: {
         type: 'column',
         backgroundColor: '#ffffff',
-        style: { fontFamily: 'THSarabun' }
+        style: { fontFamily: 'BBH Sans Chart' }
     },
 
     title: { text: null },
@@ -119,14 +119,14 @@ Highcharts.chart('er-pie-chart', {
     chart: {
         type: 'bar',
         backgroundColor: '#ffffff',
-        style: { fontFamily: 'THSarabun' }
+        style: { fontFamily: 'BBH Sans Chart' }
     },
 
     title: { text: null },
 
     xAxis: {
         categories: pieData.map(d => d.name),
-        labels: { style: { fontSize: '15px', fontWeight: 'normal' } }
+        labels: { style: { fontSize: '14px', fontWeight: 'normal' } }
     },
 
     yAxis: {
@@ -222,7 +222,7 @@ Highcharts.chart('er-triage-chart', {
     chart: {
         type: 'bar',
         backgroundColor: '#ffffff',
-        style: { fontFamily: 'THSarabun' }
+        style: { fontFamily: 'BBH Sans Chart' }
     },
 
     title: { text: null },
@@ -232,7 +232,7 @@ Highcharts.chart('er-triage-chart', {
         labels: {
             style: {
                 fontSize: '16px',
-                fontFamily: 'THSarabun',
+                fontFamily: 'BBH Sans Chart',
                 fontWeight: 'normal'
             }
         }
@@ -279,7 +279,7 @@ Highcharts.chart('er-triage-chart', {
                 },
                 style: {
                     fontSize: '14px',
-                    fontFamily: 'THSarabun',
+                    fontFamily: 'BBH Sans Chart',
                     fontWeight: 'normal',
                     textOutline: 'none'
                 }
@@ -336,7 +336,7 @@ Highcharts.chart('er-timeslot-chart', {
     chart: {
         type: 'column',
         backgroundColor: '#ffffff',
-        style: { fontFamily: 'THSarabun' }
+        style: { fontFamily: 'BBH Sans Chart' }
     },
 
     title: { text: null },
@@ -346,7 +346,7 @@ Highcharts.chart('er-timeslot-chart', {
         labels: {
             style: {
                 fontSize: '16px',
-                fontFamily: 'THSarabun',
+                fontFamily: 'BBH Sans Chart',
                 fontWeight: 'normal'
             }
         }
@@ -390,7 +390,7 @@ Highcharts.chart('er-timeslot-chart', {
                 },
                 style: {
                     fontSize: '14px',
-                    fontFamily: 'THSarabun',
+                    fontFamily: 'BBH Sans Chart',
                     fontWeight: 'normal',
                     textOutline: 'none'
                 },

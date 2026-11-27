@@ -46,7 +46,7 @@ const BAR_DATA_LABELS = { enabled: true, inside: false, crop: false, overflow: '
 
 // ฟอนต์ THSarabun ตัวเล็กกว่าฟอนต์ทั่วไป จึงขยายขนาดตัวอักษรทุกกราฟในหน้านี้
 Highcharts.setOptions({
-    chart: { style: { fontFamily: 'THSarabun' } },
+    chart: { style: { fontFamily: 'BBH Sans Chart' } },
     title: { style: { fontSize: '24px' } },
     subtitle: { style: { fontSize: '17px' } },
     xAxis: { labels: { style: { fontSize: '17px' } }, title: { style: { fontSize: '17px' } } },
@@ -118,7 +118,7 @@ async function loadChart() {
 
         chart: {
             style: {
-                fontFamily: 'THSarabun'
+                fontFamily: 'BBH Sans Chart'
             }
         },
 
@@ -231,7 +231,7 @@ async function loadPttypeChart(){
             type: 'bar',
             height: Math.max(260, points.length * 34 + 80),
             style: {
-                fontFamily: 'THSarabun'
+                fontFamily: 'BBH Sans Chart'
             }
         },
 
@@ -572,7 +572,7 @@ function renderNationChart(nations) {
     }
 
     Highcharts.chart('opd-nation-chart', {
-        chart: { type: 'bar', height: Math.max(260, points.length * 40 + 80), style: { fontFamily: 'THSarabun' } },
+        chart: { type: 'bar', height: Math.max(260, points.length * 40 + 80), style: { fontFamily: 'BBH Sans Chart' } },
         title: { text: null },
         xAxis: { type: 'category', labels: { style: BAR_LABEL_STYLE } },
         yAxis: { allowDecimals: false, maxPadding: 0.45, title: { text: 'จำนวน (ครั้ง)' } },
@@ -611,7 +611,7 @@ function renderDeptChart(depts) {
     }
 
     Highcharts.chart('opd-dept-chart', {
-        chart: { type: 'bar', height: Math.max(260, points.length * 34 + 80), style: { fontFamily: 'THSarabun' } },
+        chart: { type: 'bar', height: Math.max(260, points.length * 34 + 80), style: { fontFamily: 'BBH Sans Chart' } },
         title: { text: null },
         xAxis: { type: 'category', labels: { style: BAR_LABEL_STYLE } },
         yAxis: { allowDecimals: false, maxPadding: 0.2, title: { text: 'จำนวน (ครั้ง)' } },
@@ -640,7 +640,7 @@ function renderApptTimeChart(times) {
         `(${Math.round(peak.total * 100 / total)}% ของนัด ${fmtN(total)} ราย) · ไม่นับนัดที่ยกเลิก`;
 
     Highcharts.chart('opd-appt-time-chart', {
-        chart: { type: 'areaspline', height: 320, style: { fontFamily: 'THSarabun' } },
+        chart: { type: 'areaspline', height: 320, style: { fontFamily: 'BBH Sans Chart' } },
         title: { text: null },
         xAxis: { categories: times.map(t => t.time), title: { text: 'เวลานัด (ช่วงละ 30 นาที)' } },
         yAxis: { allowDecimals: false, min: 0, title: { text: 'จำนวนนัด (ราย)' } },

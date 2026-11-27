@@ -250,7 +250,7 @@
         return 'ปีงบประมาณ ' + year + ' (1 ตุลาคม ' + (year - 1) + ' - 30 กันยายน ' + year + ')';
     }
 
-    function chartFont() { return { fontFamily: 'THSarabun', fontSize: '15px' }; }
+    function chartFont() { return { fontFamily: 'BBH Sans Chart', fontSize: '15px' }; }
 
     function calculateAxis(values, targetTicks) {
         var maxValue = Math.max.apply(null, values.concat([0]));

@@ -100,7 +100,7 @@ function drawTrend(rows) {
     const many = rows.length > 14;
     const label = { enabled: !many, style: { fontSize: '15px', textOutline: 'none', color: '#2b1a22' } };
     Highcharts.chart('anc-trend-chart', {
-        chart: { style: { fontFamily: 'THSarabun' } },
+        chart: { style: { fontFamily: 'BBH Sans Chart' } },
         title: { text: null },
         xAxis: { categories: rows.map(r => r.label) },
         yAxis: { min: 0, allowDecimals: false, title: { text: 'จำนวน' } },
@@ -278,7 +278,7 @@ async function loadRefer() {
     setText('anc-refer-total', fmtN(r.total));
     const groups = ['teen', 'repro', 'elder', 'unknown'];
     Highcharts.chart('anc-refer-chart', {
-        chart: { type: 'column', style: { fontFamily: 'THSarabun' } },
+        chart: { type: 'column', style: { fontFamily: 'BBH Sans Chart' } },
         title: { text: null },
         xAxis: { categories: r.monthly.map(m => monthLabel(m.month)) },
         yAxis: { min: 0, allowDecimals: false, title: { text: 'ครั้ง' }, stackLabels: { enabled: r.monthly.length <= 14, style: { fontSize: '15px', textOutline: 'none' } } },

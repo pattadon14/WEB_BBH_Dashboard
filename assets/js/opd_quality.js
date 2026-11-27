@@ -70,7 +70,7 @@
     let chart = null;
     function hours(h, off) {
         const opts = {
-            chart: { type: 'column', style: { fontFamily: 'THSarabun' } },
+            chart: { type: 'column', style: { fontFamily: 'BBH Sans Chart' } },
             title: { text: null }, credits: { enabled: false },
             xAxis: { categories: h.map(x => String(x.h).padStart(2, '0') + ':00') },
             yAxis: { title: { text: 'ราย' }, stackLabels: { enabled: true } },

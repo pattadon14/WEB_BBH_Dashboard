@@ -1,0 +1,5 @@
+Prompt font (woff2 subsets: Thai + Latin, weights 400 / 500 / 600)
+Copyright 2016 The Prompt Project Authors (https://github.com/cadsondemak/prompt)
+Licensed under the SIL Open Font License, Version 1.1 — https://openfontlicense.org
+Files downloaded from Google Fonts (fonts.gstatic.com, Prompt v12) on 2026-11-27 and used unmodified.
+Used by assets/css/custom.css as font families 'BBH Sans' and 'BBH Sans Chart'.

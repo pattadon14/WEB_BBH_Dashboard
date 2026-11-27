@@ -75,6 +75,8 @@ require_once __DIR__ . '/../config/app.php';
     <!-- โหมดมืด: dark.generated.css สร้างจาก tools/build_dark_css.mjs · dark.css = ปรับด้วยมือ (ทำงานเฉพาะ html[data-theme="dark"]) -->
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/dark.generated.css?v=<?= filemtime(__DIR__ . '/../assets/css/dark.generated.css') ?>">
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/dark.css?v=<?= filemtime(__DIR__ . '/../assets/css/dark.css') ?>">
+    <!-- ธีมกระจกของหน้ารายละเอียด (ER/OPD/IPD/ANC/หอผู้ป่วย) — มี token โหมดมืดเอง -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/glass.css?v=<?= filemtime(__DIR__ . '/../assets/css/glass.css') ?>">
 
     <style>
         /* =========================================================

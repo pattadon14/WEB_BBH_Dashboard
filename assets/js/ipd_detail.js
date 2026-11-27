@@ -139,7 +139,7 @@ async function loadTrend() {
     };
 
     Highcharts.chart('ipd-chart', {
-        chart: { type: 'column', style: { fontFamily: 'THSarabun' } },
+        chart: { type: 'column', style: { fontFamily: 'BBH Sans Chart' } },
         title: { text: null },
         subtitle: { text: lastPartial ? `แท่งสีอ่อน = ${isDay ? 'วันนี้ (ยังไม่จบวัน)' : 'เดือนปัจจุบัน (ยังไม่ครบเดือน)'}` : null },
         xAxis: { categories: labels },
@@ -165,7 +165,7 @@ async function loadTrend() {
     });
 
     Highcharts.chart('bed-occupancy-chart', {
-        chart: { type: 'column', style: { fontFamily: 'THSarabun' } },
+        chart: { type: 'column', style: { fontFamily: 'BBH Sans Chart' } },
         title: { text: null },
         xAxis: { categories: labels },
         yAxis: {

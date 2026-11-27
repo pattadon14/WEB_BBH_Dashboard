@@ -1,0 +1,109 @@
+/* =========================================================
+   ธีมกระจก (Glassy) สำหรับหน้ารายละเอียด — ER / OPD / IPD / ANC (.content-wrapper.er-theme) และหน้าหอผู้ป่วย (.ipd-ward-page)
+   แบบเดียวกับหน้าแรก (home.css): พื้นหน้าโทนอ่อน + ลูกแสงสีตามโทนหน้า (--nav-*) + การ์ดโปร่งเบลอพื้นหลัง ขอบรับแสง
+   โหลดใน header.php ทุกหน้า · ตัวเลือกขึ้นต้น :root body เพื่อชนะกฎของหน้า (er_theme.css ฯลฯ ที่โหลดทีหลัง)
+   โหมดมืดกำหนด token เองด้านล่าง — tools/build_dark_css.mjs ข้ามไฟล์นี้
+   ช่องสีทึบที่สื่อความหมาย (ช่องภาพรวม .er-kpi, หัวตาราง, แถบหัวสี) คงเดิม เพื่อไม่ให้ความหมายของข้อมูลเปลี่ยน
+========================================================= */
+:root body:has(.er-theme, .ipd-ward-page) {
+    --g-canvas: color-mix(in srgb, var(--nav-tint, #eaf6ef) 55%, #f4f6f5);
+    --g-glass: rgba(255, 255, 255, .5);
+    --g-glass-2: rgba(255, 255, 255, .62);
+    --g-rim: rgba(255, 255, 255, .78);
+    --g-line: rgba(19, 32, 26, .08);
+    --g-sheen: linear-gradient(140deg, rgba(255, 255, 255, .5), rgba(255, 255, 255, .06) 45%, rgba(255, 255, 255, .2));
+    --g-shadow: 0 1px 1px rgba(19, 32, 26, .03), 0 18px 40px -24px rgba(19, 32, 26, .32);
+    --g-orb1: var(--nav-accent, #3cc48a);
+    --g-orb2: #f5b84a;
+    --g-orb3: var(--nav-solid, #198754);
+    background: var(--g-canvas);
+}
+html[data-theme="dark"] body:has(.er-theme, .ipd-ward-page) {
+    --g-canvas: #090c0b;
+    --g-glass: rgba(24, 30, 27, .55);
+    --g-glass-2: rgba(32, 40, 36, .6);
+    --g-rim: rgba(255, 255, 255, .1);
+    --g-line: rgba(255, 255, 255, .08);
+    --g-sheen: linear-gradient(140deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, 0) 45%, rgba(255, 255, 255, .03));
+    --g-shadow: 0 18px 40px -24px rgba(0, 0, 0, .8);
+    --g-orb2: #8a5a1f;
+    background: var(--g-canvas);
+}
+
+/* ลูกแสงติดจอ อยู่หลังทุกอย่าง — การ์ดกระจกจึงมีสีให้เบลอทุกตำแหน่งที่เลื่อน */
+:root body:has(.er-theme, .ipd-ward-page)::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        radial-gradient(520px circle at 8% 70%, color-mix(in srgb, var(--g-orb1) 38%, transparent), transparent 70%),
+        radial-gradient(420px circle at 88% 4%, color-mix(in srgb, var(--g-orb2) 30%, transparent), transparent 70%),
+        radial-gradient(520px circle at 96% 82%, color-mix(in srgb, var(--g-orb3) 26%, transparent), transparent 70%);
+}
+html[data-theme="dark"] body:has(.er-theme, .ipd-ward-page)::before { opacity: .7; }
+
+/* พื้นหน้าโปร่ง ให้เห็นลูกแสงของ body (ชนะ !important ของ er_theme.css / dark.css) */
+:root body .content-wrapper.er-theme,
+:root body .content-wrapper.ipd-ward-page,
+html[data-theme="dark"] body .content-wrapper.er-theme,
+html[data-theme="dark"] body .content-wrapper.ipd-ward-page { background: transparent !important; }
+
+/* ---------- การ์ดกระจก ---------- */
+:root body .er-theme .er-panel,
+:root body .ipd-ward-page .ward-main-card {
+    background-color: var(--g-glass);
+    background-image: var(--g-sheen);
+    border: 1px solid var(--g-rim);
+    border-radius: 20px;
+    box-shadow: inset 0 1px 0 var(--g-rim), inset 0 -1px 0 var(--g-line), var(--g-shadow);
+    -webkit-backdrop-filter: blur(24px) saturate(1.6);
+    backdrop-filter: blur(24px) saturate(1.6);
+}
+/* ของที่อยู่ในการ์ดซึ่งเดิมพื้นขาวทึบ → แผ่นใสชั้นที่สอง (ไม่เบลอซ้อน) */
+:root body .er-theme .er-panel { --er-page-bg: var(--g-glass-2); --er-row-bg: transparent; --er-card-line: var(--g-line); --er-line: var(--g-line); }
+/* หน้าต่าง (dialog) ต้องทึบ อ่านรายชื่อได้ชัด */
+:root body .er-theme dialog { --er-page-bg: #ffffff; }
+html[data-theme="dark"] body .er-theme dialog { --er-page-bg: #1a201d; }
+
+/* แถบหัวสี (ชื่อหน้า): คงสีทึบตามโทน (ตัวอักษรขาวผ่าน contrast) + แสงสะท้อนบาง ๆ ให้เข้าชุดกระจก */
+:root body .er-theme .er-mast,
+:root body .ipd-ward-page .ward-page-header {
+    border-radius: 20px;
+    background-image: linear-gradient(140deg, rgba(255, 255, 255, .16), rgba(255, 255, 255, 0) 50%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), 0 18px 36px -22px var(--er-glow, rgba(0, 0, 0, .3));
+}
+
+/* ปุ่ม/แถบที่อยู่นอกการ์ด (ย้อนกลับ, แท็บหน้า OPD) → เม็ดกระจก */
+:root body .er-theme :is(.opd-page-tabs, .opd-tool-btn:not(.is-3d)) {
+    background-color: var(--g-glass-2);
+    border-color: var(--g-rim);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+}
+
+/* หน้าหอผู้ป่วย: แผงย่อยในการ์ด (ประวัติ / สถานการณ์ Ward) เป็นแผ่นใสชั้นที่สอง */
+:root body .ipd-ward-page .ipd-ward-management { background: var(--g-glass-2); border-color: var(--g-rim); }
+
+/* =========================================================
+   ขนาดตัวอักษรขั้นต่ำหลังเปลี่ยนเป็น Prompt (BBH Sans ย่อ 62% — custom.css)
+   ข้อความรองที่เดิมตั้งเล็กไว้ (14–17px ของ THSarabun) จะเหลือ 9–11px → ยกขึ้นเป็นขั้นต่ำ ~12.4px (20px × 62%)
+   หัวข้อย่อย/ชื่อผู้ป่วยในหน้าหอ ~15px · ใช้ !important เพราะ ipd_ward_detail.css ตั้งขนาดแบบ !important ไว้
+========================================================= */
+:root body :is(.er-theme, .ipd-ward-page) :is(
+    small, .badge, .rank-badge, td.text-center, .bbh-range-sep, .diag-en,
+    .er-sec-sub, .er-note, .er-kpi-sub, .er-flag, .er-refer-n, .er-refer-nm, .er-refer-total, .er-refer-stats, .er-refer-warn, .er-refer-sub,
+    .opd-tool-btn, .opd-page-tab, .opd-wait-sub, .opd-cap-sub, .opd-live,
+    .ward-status, .ward-period, .ward-detail, .bed-full, .ipd-flag-warn,
+    .anc-h-note, .anc-src, .anc-srcb, .anc-delta, .anc-lv, .anc-pass-of, .anc-st, .anc-filter-label, .anc-alert,
+    .ipd-filter-label, .ipd-quick-label, .ipd-quick-btn, .ipd-filter-reset, .ipd-filter-result, .ipd-flow-label, .ipd-ward-status,
+    .patient-meta, .patient-badge, .patient-info-label, .admit-date, .doctor-name, .value,
+    input, select, .form-control, .form-select
+) { font-size: 20px !important; }
+:root body .ipd-ward-page :is(.ipd-management-title, .patient-name) { font-size: 24px !important; }
+:root body .ipd-ward-page :is(.ipd-history-trigger, .ipd-history-trigger span, .ward-page-header .btn) { font-size: 21px !important; }
+:root body .ipd-ward-page .ward-page-subtitle { font-size: 22px !important; }
+
+/* กราฟ: พื้นโปร่งให้เห็นกระจกของการ์ด (Highcharts วาดพื้นขาวเป็น attribute — CSS ชนะ) */
+:root body :is(.er-theme, .ipd-ward-page) .highcharts-background { fill: transparent; }

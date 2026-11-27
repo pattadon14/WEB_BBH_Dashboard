@@ -19,7 +19,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'assets/css/dark.generated.css');
-const SKIP_CSS = new Set(['dark.css', 'dark.generated.css', 'opd_monitor.css', 'home.css', 'sidebar.css']); // home.css / sidebar.css มี token โหมดมืดเอง · monitor = หน้าแยก ไม่มี navbar/ปุ่มสลับธีม
+const SKIP_CSS = new Set(['dark.css', 'dark.generated.css', 'opd_monitor.css', 'home.css', 'sidebar.css', 'glass.css']); // home.css / sidebar.css / glass.css มี token โหมดมืดเอง · monitor = หน้าแยก ไม่มี navbar/ปุ่มสลับธีม
 const SCOPE = 'html[data-theme="dark"]';
 
 /* ---------- สี ---------- */
