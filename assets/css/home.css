@@ -398,3 +398,7 @@ html[data-theme="dark"] #hx .hx-select select option { background: #1a201d; colo
     #hx .fin-row .fin-bar { grid-column: 1; grid-row: 2; }
     #hx .fin-row .fin-d { grid-column: 2; grid-row: 2; }
 }
+
+/* การ์ดหอ: ชื่อหอจางและบางลง ช่องไฟกว้างขึ้น · % ไม่หนาเกิน */
+#hx .ward-name { font-weight: 500; color: var(--muted); letter-spacing: .04em; }
+#hx .wc-pc { font-weight: 600; }

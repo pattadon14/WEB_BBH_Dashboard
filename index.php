@@ -37,7 +37,6 @@ $services = [
 ?>
 
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/index.css?v=<?= filemtime(__DIR__ . '/assets/css/index.css') ?>">
-<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/bbh-icons.css?v=<?= filemtime(__DIR__ . '/assets/css/bbh-icons.css') ?>">
 <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/home.css?v=<?= filemtime(__DIR__ . '/assets/css/home.css') ?>">
 
 <div class="content-wrapper home-dash">
@@ -486,7 +485,6 @@ async function loadWardBed() {
                 <div class="wc-ln"><span class="wc-pc">${rate}%</span><span class="wc-st">${label}</span></div>
                 <div class="hx-tr" aria-hidden="true"><i style="--w:${Math.min(rate, 100) / 100}"></i></div>
                 <div class="wc-ft"><span>ผู้ป่วย <b>${fmt(admit)}</b> / ${fmt(beds)} เตียง</span><b class="wc-free">${free}</b></div>
-                ${w.ward === HOME_WARD ? '<small>ผู้ป่วยอยู่ที่บ้าน ไม่นับรวมยอดเตียง</small>' : ''}
             </div>`;
         }).join('');
         // สรุปจำนวนหอตามสถานะ (ไม่นับ Home Ward) — สีคู่ข้อความ

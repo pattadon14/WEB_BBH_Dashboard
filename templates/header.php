@@ -55,6 +55,8 @@ require_once __DIR__ . '/../config/app.php';
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/AdminLTE/dist/css/adminlte.min.css">
     <!-- ?v= เวลาแก้ไฟล์ — ผู้ใช้ได้ CSS ใหม่ทันทีหลัง git pull ไม่ค้าง cache -->
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/custom.css?v=<?= filemtime(__DIR__ . '/../assets/css/custom.css') ?>">
+    <!-- ไอคอน IconSaga (.bi .bi-<ชื่อ>) — หน้าแรก + sidebar -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/bbh-icons.css?v=<?= filemtime(__DIR__ . '/../assets/css/bbh-icons.css') ?>">
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/sidebar.css?v=<?= filemtime(__DIR__ . '/../assets/css/sidebar.css') ?>">
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/ipd_ward_detail.css?v=<?= filemtime(__DIR__ . '/../assets/css/ipd_ward_detail.css') ?>">
 

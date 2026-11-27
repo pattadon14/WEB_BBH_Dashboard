@@ -137,7 +137,8 @@ function heatmapTextColor(fill) {
         return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
     });
     const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-    return 1.05 / (lum + 0.05) > (lum + 0.05) / 0.073 ? '#ffffff' : '#1f2937';
+    // โปร่งเล็กน้อยให้ตัวเลขจางลง (ยังอ่านออก: ขาว .85 บนช่องเข้ม / เทาเข้ม .72 บนช่องอ่อน)
+    return 1.05 / (lum + 0.05) > (lum + 0.05) / 0.073 ? 'rgba(255,255,255,.85)' : 'rgba(31,41,55,.72)';
 }
 
 function renderHeatmap() {
@@ -257,7 +258,7 @@ function renderHeatmap() {
                 x: 30,
                 reserveSpace: false,
                 formatter: function () { return rowTotals[this.pos] ?? ''; },
-                style: { ...axisText, color: ink, fontWeight: '600' }
+                style: { ...axisText, color: ink, fontWeight: '500' }
             }
         }]),
 
@@ -309,7 +310,7 @@ function renderHeatmap() {
                     if (!this.point.value) return '';
                     return `<span style="color:${heatmapTextColor(this.point.color)}">${this.point.value}</span>`;
                 },
-                style: { fontSize: isNarrow ? '12px' : '13px', fontWeight: '500', textOutline: 'none' }
+                style: { fontSize: isNarrow ? '11px' : '12px', fontWeight: '400', textOutline: 'none' }
             }
         }]
 
