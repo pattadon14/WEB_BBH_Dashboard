@@ -1,5 +1,5 @@
 /* ไฟล์สร้างอัตโนมัติจาก tools/build_dark_css.mjs — ห้ามแก้ตรง ๆ (แก้ใน dark.css แทน)
- * แหล่ง: 21 ชุด CSS + style="…" 6 แบบ */
+ * แหล่ง: 22 ชุด CSS + style="…" 6 แบบ */
 
 /* ---- assets/css/anc_theme.css ---- */
 html[data-theme="dark"] .er-theme.opd-theme.anc-theme {
