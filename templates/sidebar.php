@@ -134,18 +134,14 @@ $isProviderLoggedIn = provider_is_logged_in();
 
         <div class="bbh-sidebar-divider"></div>
 
-        <?php /* Dashboard ตามงาน — ANC มีหน้าแล้ว (ไฮไลต์ชมพู sidebar.css .bbh-sidebar-anc) · NCD / Finance ยังปิดไว้จนกว่าจะสร้างหน้า */ ?>
+        <?php /* Dashboard ตามงาน — Patient Dashboard = หน้าแรก · ANC มีหน้าแล้ว (ไอคอน/ข้อความชมพู sidebar.css .bbh-sidebar-anc) · NCD / Finance ยังปิดไว้จนกว่าจะสร้างหน้า */ ?>
         <div class="bbh-sidebar-section-title">Dashboard ตามงาน</div>
         <ul class="bbh-sidebar-menu">
+            <li><a href="<?= BASE_URL ?>" title="ภาพรวมการให้บริการผู้ป่วยทั้งโรงพยาบาลวันนี้ (หน้าแรก)"><i class="fa-solid fa-hospital"></i><span>Patient Dashboard</span></a></li>
             <li><a href="<?= BASE_URL ?>pages/ANC_detail.php" title="งานฝากครรภ์ (ANC)"
                     class="bbh-sidebar-anc <?= $currentPage === 'ANC_detail.php' ? 'active' : '' ?>"><i class="fa-solid fa-person-pregnant"></i><span>ANC Dashboard</span></a></li>
             <li><a href="#" class="bbh-sidebar-static-item" aria-disabled="true" tabindex="-1" title="โรคไม่ติดต่อเรื้อรัง (NCD) เช่น เบาหวาน ความดันโลหิตสูง"><i class="fa-solid fa-heart-circle-bolt"></i><span>NCD Dashboard</span><small class="bbh-soon">เร็วๆ นี้</small></a></li>
             <li><a href="#" class="bbh-sidebar-static-item" aria-disabled="true" tabindex="-1" title="การเงินและรายได้"><i class="fa-solid fa-sack-dollar"></i><span>Finance Dashboard</span><small class="bbh-soon">เร็วๆ นี้</small></a></li>
-        </ul>
-
-        <div class="bbh-sidebar-section-title">ระบบ</div>
-        <ul class="bbh-sidebar-menu">
-            <li><a href="<?= BASE_URL ?>" title="ภาพรวมการให้บริการทั้งโรงพยาบาลวันนี้ (หน้าแรก)"><i class="fa-solid fa-hospital"></i><span>ภาพรวมบริการ รพ.วันนี้</span></a></li>
         </ul>
     </div>
 </aside>
