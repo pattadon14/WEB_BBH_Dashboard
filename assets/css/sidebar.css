@@ -56,6 +56,8 @@ html[data-theme="dark"] :is(.bbh-sidebar, .bbh-sidebar-overlay, .bbh-topbar) {
     flex-direction: column;
     overflow-y: auto;
     overscroll-behavior: contain;
+    scrollbar-width: thin;                           /* เมนูยาว (เปิดเมนูย่อย IPD): แถบเลื่อนบาง กลืนกับแผง */
+    scrollbar-color: color-mix(in srgb, var(--sb-muted) 35%, transparent) transparent;
     color: var(--sb-ink);
     font-family: "Prompt", system-ui, sans-serif;   /* โหลดใน header.php */
     letter-spacing: .02em;                           /* ช่องไฟตัวอักษรกว้างขึ้นเล็กน้อย อ่านสบายตา */
@@ -337,7 +339,7 @@ body.bbh-sidebar-open { overflow: hidden; }
 .tb-actions { display: flex; align-items: center; gap: 10px; margin-left: auto; }
 
 /* ป้าย LIVE (หน้า OPD / ER / IPD) */
-.tb-live { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 16px 0 14px; border-radius: 999px; font-size: 13px; color: var(--sb-muted); font-variant-numeric: tabular-nums; }
+.tb-live { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 16px 0 14px; border-radius: 999px; font-size: 13px; color: var(--sb-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .tb-live-label { font-weight: 700; color: var(--sb-icon); }
 
 /* ปุ่มเม็ด: เสนอความคิดเห็น / เข้าสู่ระบบ */
@@ -408,6 +410,7 @@ body.bbh-sidebar-open { overflow: hidden; }
 /* จอที่ไม่มีแถบเมนูติดซ้าย: แถวแรก = ☰ โลโก้ ปุ่ม · คำทักทายลงแถวที่สองเต็มกว้าง */
 @media (max-width: 1199.98px) {
     .tb-heading { order: 10; flex-basis: 100%; }
+    .tb-live #last-updated { display: none; }   /* เวลาเต็มดูได้จาก tooltip ของป้าย — แถบบนอยู่แถวเดียว */
 }
 @media (max-width: 991.98px) {
     .tb-user-text { display: none; }
@@ -425,6 +428,12 @@ body.bbh-sidebar-open { overflow: hidden; }
     .tb-live #last-updated { display: none; }
     .tb-live { padding: 0 12px; }
     .tb-brand small { display: none; }
+}
+@media (max-width: 575.98px) {
+    /* หน้าที่มีป้าย LIVE: ซ่อนโลโก้ (มีในแผงเมนูอยู่แล้ว) ให้ปุ่มทั้งหมดอยู่แถวเดียวกับ ☰ */
+    .bbh-topbar:has(.tb-live) .tb-brand { display: none; }
+    .tb-switch { width: 62px; }
+    .tb-switch[aria-checked="true"] .tb-knob { transform: translateX(24px); }
 }
 @media (max-width: 400px) {
     .tb-brand span { display: none; }
