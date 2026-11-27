@@ -10,8 +10,10 @@
     --ink: #13201a;
     --muted: #56665e;
     --line: rgba(19, 32, 26, .09);
-    --glass: rgba(255, 255, 255, .64);
-    --glass-2: rgba(255, 255, 255, .82);
+    --glass: rgba(255, 255, 255, .42);
+    --glass-2: rgba(255, 255, 255, .62);
+    --rim: rgba(255, 255, 255, .75);           /* ขอบกระจกรับแสง */
+    --sheen: linear-gradient(140deg, rgba(255, 255, 255, .55), rgba(255, 255, 255, .08) 45%, rgba(255, 255, 255, .22));
     --track: rgba(19, 32, 26, .08);
     --accent: #0e9a63; --accent-strong: #0b7f52; /* ปุ่มพื้นทึบ: ขาวบน #0e9a63 ได้แค่ 3.6:1 */
     --accent-ink: #0b7a50;
@@ -30,8 +32,10 @@ html[data-theme="dark"] #hx {
     --ink: #e7f2ec;
     --muted: #9bada4;
     --line: rgba(255, 255, 255, .09);
-    --glass: rgba(24, 32, 28, .64);
-    --glass-2: rgba(30, 40, 35, .82);
+    --glass: rgba(22, 30, 26, .42);
+    --glass-2: rgba(30, 40, 35, .6);
+    --rim: rgba(255, 255, 255, .14);
+    --sheen: linear-gradient(140deg, rgba(255, 255, 255, .10), rgba(255, 255, 255, 0) 45%, rgba(255, 255, 255, .04));
     --track: rgba(255, 255, 255, .09);
     --accent: #22c983; --accent-strong: #22c983;
     --accent-ink: #5be3a4;
@@ -60,7 +64,8 @@ html[data-theme="dark"] .content-wrapper.home-dash { background: #070c0a; }
     font-size: 15px;
     line-height: 1.5;
 }
-#hx .hx-orbs { position: absolute; inset: 0; overflow: clip; pointer-events: none; z-index: -1; }
+/* fixed: ลูกแสงอยู่หลังจอตลอด การ์ดกระจกจึงมีสีให้เบลอทุกตำแหน่งที่เลื่อน */
+#hx .hx-orbs { position: fixed; inset: 0; overflow: clip; pointer-events: none; z-index: -1; }
 #hx .hx-orbs i { position: absolute; border-radius: 50%; }
 #hx .hx-orbs i:nth-child(1) { width: 520px; height: 520px; left: -220px; top: 30%; background: radial-gradient(circle at 60% 40%, var(--orb1), transparent 68%); opacity: .55; }
 #hx .hx-orbs i:nth-child(2) { width: 380px; height: 380px; right: 4%; top: -200px; background: radial-gradient(circle at 50% 60%, var(--orb2), transparent 66%); opacity: .5; }
@@ -256,6 +261,17 @@ html[data-theme="dark"] .content-wrapper.home-dash { background: #070c0a; }
 #hx .fin-bar .hx-tr { height: 9px; }
 #hx .fin-prev { position: absolute; top: -3px; bottom: -3px; left: calc(var(--x, 0) * 100%); width: 2px; margin-left: -1px; border-radius: 1px; background: var(--ink); opacity: .55; }
 #hx .fin-note { grid-column: 1 / -1; margin: 0; font-size: 13px; color: var(--muted); }
+
+/* ---------- ผิวกระจกร่วม (การ์ดทุกใบ ยกเว้น heatmap ที่ต้องพื้นทึบให้ตรงกับ Highcharts) ---------- */
+#hx .glass, #hx .q-panel, #hx .ward-card, #hx .service-item {
+    background-color: var(--glass);
+    background-image: var(--sheen);
+    border: 1px solid var(--rim);
+    box-shadow: inset 0 1px 0 var(--rim), inset 0 -1px 0 var(--line), var(--shadow);
+    -webkit-backdrop-filter: blur(28px) saturate(1.7);
+    backdrop-filter: blur(28px) saturate(1.7);
+}
+#hx .hx-mini, #hx .q-tile { background-color: var(--glass-2); border-color: var(--rim); }
 
 /* ---------- motion: เข้ามาครั้งแรกเท่านั้น ---------- */
 @keyframes hx-rise { from { opacity: 0; transform: translateY(10px); } }
