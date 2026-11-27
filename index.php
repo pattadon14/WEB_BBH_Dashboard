@@ -175,6 +175,17 @@ $services = [
                     </section>
                 </div>
 
+                <!-- ============ รายรับตามสิทธิเดือนนี้ (api/finance_income_pttype.php · ต้อง login) ============ -->
+                <section class="glass hx-sec hx-fin" aria-labelledby="hx-fin-title">
+                    <div class="hx-sec-h">
+                        <div>
+                            <h2 id="hx-fin-title"><i class="fa-solid fa-coins" aria-hidden="true"></i>รายรับตามสิทธิการรักษา เดือนนี้ <?= home_info_btn('finance', 'รายรับตามสิทธิ') ?></h2>
+                            <p id="hx-fin-sub">มูลค่าค่ารักษาที่เรียกเก็บ (OPD + IPD จำหน่าย) เทียบเดือนก่อนช่วงวันเดียวกัน</p>
+                        </div>
+                    </div>
+                    <div class="fin-body" id="hx-fin" aria-live="polite"><p class="fin-msg">กำลังโหลด…</p></div>
+                </section>
+
                 <!-- ============ สถานะเตียงรายหอผู้ป่วย (api/index_ward_bed.php · คลิกการ์ด = login.js เปิดหน้า Ward) ============ -->
                 <div class="hx-t">
                     <h2><i class="fa-solid fa-bed-pulse" aria-hidden="true"></i>สถานะเตียงรายหอผู้ป่วย <?= home_info_btn('wards', 'สถานะเตียงรายหอผู้ป่วย') ?></h2>
@@ -492,6 +503,75 @@ async function loadServiceSummary() {
 
 loadServiceSummary();
 bbhPoll(loadServiceSummary, 60000);
+
+/* ---------------- รายรับตามสิทธิเดือนนี้ (api/finance_income_pttype.php · guest ได้ 401) ---------------- */
+// หน่วยเดียวทั้งการ์ด (ล้านบาท ทศนิยม 2) ให้เทียบแถวกันได้ทันที
+const baht = n => (n / 1e6).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ล้าน';
+const thDay = (iso, withYear) => new Date(iso + 'T00:00:00').toLocaleDateString('th-TH',
+    withYear ? { day: 'numeric', month: 'short', year: 'numeric' } : { day: 'numeric', month: 'short' });
+
+// เทียบเดือนก่อนช่วงวันเดียวกัน: ลูกศร + ข้อความ (ไม่ใช้สีอย่างเดียว) · ต่างไม่ถึง 1% = ใกล้เคียง
+function finDelta(cur, prev) {
+    if (!prev) return '<span class="fin-d is-flat">ไม่มีข้อมูลเดือนก่อน</span>';
+    const p = (cur - prev) / prev * 100;
+    if (Math.abs(p) < 1) return '<span class="fin-d is-flat"><i class="fa-solid fa-equals" aria-hidden="true"></i>ใกล้เคียง</span>';
+    const up = p > 0;
+    return `<span class="fin-d ${up ? 'is-up' : 'is-down'}"><i class="fa-solid fa-arrow-${up ? 'up' : 'down'}" aria-hidden="true"></i>${up ? 'มากกว่า' : 'น้อยกว่า'} ${Math.abs(p).toFixed(1)}%</span>`;
+}
+
+async function loadFinance() {
+    const box = document.getElementById('hx-fin');
+    try {
+        const res = await fetch('api/finance_income_pttype.php');
+        if (res.status === 401) {
+            box.innerHTML = '<p class="fin-msg"><i class="fa-solid fa-lock" aria-hidden="true"></i> เข้าสู่ระบบ Provider ID เพื่อดูรายรับ</p>';
+            return;
+        }
+        const d = await res.json();
+        if (!res.ok || d.error) throw new Error(d.error || res.status);
+
+        const t = d.total;
+        document.getElementById('hx-fin-sub').textContent =
+            `${thDay(d.cur.start)}–${thDay(d.cur.end, true)} เทียบ ${thDay(d.prev.start)}–${thDay(d.prev.same_end, true)} · มูลค่าค่ารักษาที่เรียกเก็บ`;
+
+        const rows = d.groups.filter(g => g.cur.income || g.prev_same.income);
+        const max = Math.max(1, ...rows.map(g => Math.max(g.cur.income, g.prev_same.income)));
+
+        box.innerHTML = `
+            <div class="fin-sum">
+                <span class="fin-lbl">รวมทุกสิทธิ</span>
+                <div class="fin-big">${baht(t.cur.income)}<small>บาท</small></div>
+                ${finDelta(t.cur.income, t.prev_same.income)}
+                <p class="fin-cmp">เดือนก่อนช่วงเดียวกัน ${baht(t.prev_same.income)} · ทั้งเดือน ${baht(t.prev_full.income)} บาท</p>
+                <div class="fin-split">
+                    <div class="hx-mini"><span>ผู้ป่วยนอก ${fmt(t.cur.visits)} ครั้ง</span><b>${baht(t.cur.opd)}</b></div>
+                    <div class="hx-mini"><span>ผู้ป่วยในจำหน่าย ${fmt(t.cur.discharges)} ราย</span><b>${baht(t.cur.ipd)}</b></div>
+                    <div class="hx-mini"><span>ผู้ป่วยชำระเอง</span><b>${baht(t.cur.paid)}</b></div>
+                </div>
+            </div>
+            <ul class="fin-list" aria-label="รายรับแยกตามสิทธิ เรียงมากไปน้อย">
+                ${rows.map(g => `
+                <li class="fin-row">
+                    <span class="fin-name">${esc(g.label)}</span>
+                    <span class="fin-amt">${baht(g.cur.income)}</span>
+                    ${finDelta(g.cur.income, g.prev_same.income)}
+                    <div class="fin-bar" title="เดือนนี้ ${baht(g.cur.income)} · เดือนก่อนช่วงเดียวกัน ${baht(g.prev_same.income)} บาท">
+                        <div class="hx-tr"><i style="--w:${(g.cur.income / max).toFixed(4)}"></i></div>
+                        <b class="fin-prev" style="--x:${(g.prev_same.income / max).toFixed(4)}" aria-hidden="true"></b>
+                    </div>
+                </li>`).join('')}
+            </ul>
+            <p class="fin-note">ขีดตั้ง = เดือนก่อนช่วงวันเดียวกัน · เป็นยอดเรียกเก็บใน HOSxP ไม่ใช่เงินที่กองทุนจ่ายจริง · ผู้ป่วยในนับเมื่อจำหน่าย</p>`;
+        enterOnce(box);
+        markUpdated();
+    } catch (e) {
+        console.error('loadFinance error:', e);
+        box.innerHTML = '<p class="fin-msg">โหลดรายรับไม่สำเร็จ</p>';
+    }
+}
+
+loadFinance();
+bbhPoll(loadFinance, 5 * 60 * 1000);   // API cache 5 นาที
 </script>
 
 <?php
