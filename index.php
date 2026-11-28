@@ -185,14 +185,19 @@ $services = [
                                 <button type="button" data-kind="month" aria-pressed="true">รายเดือน</button>
                                 <button type="button" data-kind="year" aria-pressed="false">รายปีงบ</button>
                             </div>
-                            <label class="hx-select">
-                                <i class="fa-solid fa-calendar" aria-hidden="true"></i>
-                                <select id="hx-fin-a" aria-label="ช่วงที่ดู"></select>
-                            </label>
-                            <label class="hx-select">
-                                <span>เทียบกับ</span>
-                                <select id="hx-fin-b" aria-label="ช่วงที่ใช้เปรียบเทียบ"></select>
-                            </label>
+                            <!-- ตัวเลือกช่วง: กดแล้วเลือกปีก่อน (‹ ›) แล้วเลือกเดือนจากตาราง 12 เดือน · รายปีงบ = รายการปีงบ -->
+                            <div class="fin-pick" data-slot="a">
+                                <button type="button" class="hx-select fin-pick-btn" aria-haspopup="true" aria-expanded="false" aria-label="ช่วงที่ดู">
+                                    <i class="fa-solid fa-calendar" aria-hidden="true"></i><b class="fin-pick-lbl"></b><i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                                </button>
+                                <div class="fin-pop" hidden></div>
+                            </div>
+                            <div class="fin-pick" data-slot="b">
+                                <button type="button" class="hx-select fin-pick-btn" aria-haspopup="true" aria-expanded="false" aria-label="ช่วงที่ใช้เปรียบเทียบ">
+                                    <span>เทียบกับ</span><b class="fin-pick-lbl"></b><i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                                </button>
+                                <div class="fin-pop" hidden></div>
+                            </div>
                         </div>
                     </div>
                     <div class="fin-body" id="hx-fin" aria-live="polite"><p class="fin-msg">กำลังโหลด…</p></div>
@@ -561,32 +566,73 @@ function finDelta(cur, prev) {
 const finKey = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 const finLabel = (k, short) => k.startsWith('fy') ? `ปีงบ ${k.slice(2)}`
     : new Date(k + '-01T00:00:00').toLocaleDateString('th-TH', { month: short ? 'short' : 'long', year: 'numeric' });
-function finOptions(kind) {
-    if (kind === 'year') return [0, 1, 2, 3, 4, 5].map(k => 'fy' + (FY - k));
-    const now = new Date();
-    return Array.from({ length: 36 }, (_, k) => finKey(new Date(now.getFullYear(), now.getMonth() - k, 1)));
+const FIN_MIN_Y = 2015;   // ปี ค.ศ. เก่าสุดที่ให้เลือก
+const TH_MON = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+// ช่วงก่อนหน้า: เดือนก่อน / ปีงบก่อน
+const finPrev = k => k.startsWith('fy') ? 'fy' + (Number(k.slice(2)) - 1)
+    : finKey(new Date(Number(k.slice(0, 4)), Number(k.slice(5)) - 2, 1));
+const finState = { kind: 'month', a: finKey(new Date()), b: null };
+finState.b = finPrev(finState.a);
+const finPicks = [...document.querySelectorAll('#hx-fin-tools .fin-pick')];
+
+function finSync() {
+    finPicks.forEach(p => { p.querySelector('.fin-pick-lbl').textContent = finLabel(finState[p.dataset.slot]); });
 }
-const finState = { kind: 'month', a: null, b: null };
-const finSelA = document.getElementById('hx-fin-a');
-const finSelB = document.getElementById('hx-fin-b');
-function finFill(keepA) {
-    const opts = finOptions(finState.kind);
-    if (!keepA) finState.a = opts[0];
-    const ai = opts.indexOf(finState.a);
-    finState.b = opts[ai + 1] || opts[ai];
-    const html = opts.map(k => `<option value="${k}">${finLabel(k)}</option>`).join('');
-    finSelA.innerHTML = html; finSelA.value = finState.a;
-    finSelB.innerHTML = html; finSelB.value = finState.b;
+function finPopRender(p) {
+    const cur = finState[p.dataset.slot];
+    const pop = p.querySelector('.fin-pop');
+    const opt = (k, text, off) => `<button type="button" data-k="${k}" aria-pressed="${k === cur}"${off ? ' disabled' : ''}>${text}</button>`;
+    if (finState.kind === 'year') {
+        pop.innerHTML = `<div class="fin-pop-grid is-year">${[0, 1, 2, 3, 4, 5].map(i => opt('fy' + (FY - i), 'ปีงบ ' + (FY - i))).join('')}</div>`;
+        return;
+    }
+    const now = new Date(), y = p._y, maxY = now.getFullYear();
+    pop.innerHTML = `
+        <div class="fin-pop-h">
+            <button type="button" data-y="-1" aria-label="ปีก่อนหน้า"${y <= FIN_MIN_Y ? ' disabled' : ''}><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+            <b>พ.ศ. ${y + 543}</b>
+            <button type="button" data-y="1" aria-label="ปีถัดไป"${y >= maxY ? ' disabled' : ''}><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+        </div>
+        <div class="fin-pop-grid">${TH_MON.map((m, i) =>
+            opt(`${y}-${String(i + 1).padStart(2, '0')}`, m, y === maxY && i > now.getMonth())).join('')}</div>`;
 }
+function finClose(p, focus) {
+    p.querySelector('.fin-pop').hidden = true;
+    p.querySelector('.fin-pick-btn').setAttribute('aria-expanded', 'false');
+    if (focus) p.querySelector('.fin-pick-btn').focus();
+}
+finPicks.forEach(p => {
+    const btn = p.querySelector('.fin-pick-btn'), pop = p.querySelector('.fin-pop');
+    btn.addEventListener('click', () => {
+        if (!pop.hidden) return finClose(p);
+        finPicks.forEach(o => o !== p && finClose(o));
+        p._y = Number(finState[p.dataset.slot].slice(0, 4));   // เปิดที่ปีของช่วงที่เลือกอยู่
+        finPopRender(p);
+        pop.hidden = false;
+        btn.setAttribute('aria-expanded', 'true');
+        (pop.querySelector('[aria-pressed="true"]') || pop.querySelector('button:not([disabled])'))?.focus();
+    });
+    pop.addEventListener('click', e => {
+        e.stopPropagation();   // ปุ่มถูกวาดใหม่ (เปลี่ยนปี) — กันตัวปิดเมื่อคลิกนอกแผงเข้าใจผิด
+        const b = e.target.closest('button');
+        if (!b || b.disabled) return;
+        if (b.dataset.y) { p._y += Number(b.dataset.y); finPopRender(p); pop.querySelector(`[data-y="${b.dataset.y}"]`)?.focus(); return; }
+        finState[p.dataset.slot] = b.dataset.k;
+        if (p.dataset.slot === 'a') finState.b = finPrev(b.dataset.k);
+        finClose(p, true); finSync(); loadFinance();
+    });
+    p.addEventListener('keydown', e => { if (e.key === 'Escape' && !pop.hidden) finClose(p, true); });
+});
+document.addEventListener('click', e => finPicks.forEach(p => { if (!p.contains(e.target)) finClose(p); }));
 document.querySelectorAll('#hx-fin-tools .fin-seg button').forEach(btn => btn.addEventListener('click', () => {
     if (finState.kind === btn.dataset.kind) return;
     finState.kind = btn.dataset.kind;
     document.querySelectorAll('#hx-fin-tools .fin-seg button').forEach(x => x.setAttribute('aria-pressed', String(x === btn)));
-    finFill(false); loadFinance();
+    finState.a = finState.kind === 'year' ? 'fy' + FY : finKey(new Date());
+    finState.b = finPrev(finState.a);
+    finPicks.forEach(p => finClose(p)); finSync(); loadFinance();
 }));
-finSelA.addEventListener('change', () => { finState.a = finSelA.value; finFill(true); loadFinance(); });
-finSelB.addEventListener('change', () => { finState.b = finSelB.value; loadFinance(); });
-finFill(false);
+finSync();
 
 let finReq = 0;   // กันคำตอบเก่ามาทับเมื่อเปลี่ยนตัวกรองเร็ว ๆ
 async function loadFinance() {

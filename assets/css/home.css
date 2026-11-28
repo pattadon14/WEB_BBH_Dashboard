@@ -404,6 +404,28 @@ html[data-theme="dark"] #hx .hx-select select option { background: #1a201d; colo
 #hx .fin-seg button:hover:not([aria-pressed="true"]) { color: var(--ink); }
 #hx .fin-seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 #hx .fin-tools .hx-select span { color: var(--muted); font-size: 13px; }
+/* ตัวเลือกช่วง: ปุ่ม + แผงเลือกปี › เดือน (ข้อความโทนอ่อน ไม่แย่งความเด่นจากตัวเลข) */
+#hx .fin-pick { position: relative; }
+#hx .fin-pick-btn { cursor: pointer; font: 400 14px var(--font); color: var(--muted); }
+#hx .fin-pick-lbl { font-weight: 500; color: var(--muted); }
+#hx .fin-pick-btn .fa-chevron-down { font-size: 10px; opacity: .7; }
+#hx .fin-pick-btn:hover .fin-pick-lbl { color: var(--ink); }
+#hx .fin-pick-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#hx .hx-fin:has(.fin-pop:not([hidden])) { position: relative; z-index: 5; }   /* แผงลอยทับการ์ดถัดไป */
+#hx .fin-pop { position: absolute; top: calc(100% + 6px); right: 0; z-index: 10; width: 252px; padding: 10px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); box-shadow: 0 18px 40px -16px rgba(19, 32, 26, .35); }
+#hx .fin-pop[hidden] { display: none; }
+#hx .fin-pop-h { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+#hx .fin-pop-h b { font-size: 14px; font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
+#hx .fin-pop-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+#hx .fin-pop-grid.is-year { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+#hx .fin-pop button { min-height: 36px; border: 0; border-radius: 9px; background: transparent; color: var(--muted); font: 400 14px var(--font); cursor: pointer; transition: background-color .15s, color .15s; }
+#hx .fin-pop-h button { width: 36px; }
+#hx .fin-pop button:hover:not([disabled]):not([aria-pressed="true"]) { background: var(--track); color: var(--ink); }
+#hx .fin-pop button[aria-pressed="true"] { background: var(--accent-strong); color: var(--on-accent); font-weight: 500; }
+#hx .fin-pop button[disabled] { opacity: .35; cursor: default; }
+#hx .fin-pop button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+@media (max-width: 575.98px) { #hx .fin-pop { right: auto; left: 0; } }
+@media (prefers-reduced-motion: reduce) { #hx .fin-pop button, #hx .fin-seg button { transition: none; } }
 
 /* ---------- การ์ดหอผู้ป่วย: ช่องไฟตัวอักษรกว้างขึ้น อ่านสบายตา ---------- */
 #hx .ward-card { letter-spacing: .02em; gap: 12px; }
