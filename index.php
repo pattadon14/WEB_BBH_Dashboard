@@ -634,6 +634,30 @@ document.querySelectorAll('#hx-fin-tools .fin-seg button').forEach(btn => btn.ad
 }));
 finSync();
 
+// ค่าเฉลี่ยรายสิทธิ: ผู้ป่วยนอกต่อครั้ง (÷ visit) · ผู้ป่วยในต่อราย (÷ รายที่จำหน่าย) — ค่ารักษา (ยอดเรียกเก็บ) และต้นทุนยา
+function finAvgTable(d, la, lb) {
+    const avg = (x, n) => n ? Math.round(x / n).toLocaleString('th-TH') : '–';
+    const cell = (s, k, nk, unit) => `<td title="${esc(la)} ${avg(s.a[k], s.a[nk])} บาท จาก ${fmt(s.a[nk])} ${unit} · ${esc(lb)} ${avg(s.b[k], s.b[nk])} บาท">${avg(s.a[k], s.a[nk])}</td>`;
+    const row = (s, name) => `<tr><th scope="row">${esc(name)}</th>
+        ${cell(s, 'opd', 'visits', 'ครั้ง')}${cell(s, 'drug_opd', 'visits', 'ครั้ง')}
+        ${cell(s, 'ipd', 'discharges', 'ราย')}${cell(s, 'drug_ipd', 'discharges', 'ราย')}</tr>`;
+    const rows = d.groups.filter(g => g.a.visits || g.a.discharges);
+    return `
+        <div class="fin-avg">
+            <h3 class="fin-avg-h">ค่าเฉลี่ยต่อราย แยกสิทธิ · ${esc(la)} <small>(บาท)</small></h3>
+            <div class="fin-avg-scroll" tabindex="0" role="region" aria-label="ตารางค่าเฉลี่ยต่อราย แยกสิทธิ">
+                <table class="fin-avg-t">
+                    <thead>
+                        <tr><td></td><th scope="colgroup" colspan="2">ผู้ป่วยนอก ต่อครั้ง</th><th scope="colgroup" colspan="2">ผู้ป่วยใน ต่อราย</th></tr>
+                        <tr><th scope="col">สิทธิ</th><th scope="col">ค่ารักษา</th><th scope="col">ต้นทุนยา</th><th scope="col">ค่ารักษา</th><th scope="col">ต้นทุนยา</th></tr>
+                    </thead>
+                    <tbody>${rows.map(g => row(g, g.label)).join('')}</tbody>
+                    <tfoot>${row(d.total, 'เฉลี่ยทุกสิทธิ')}</tfoot>
+                </table>
+            </div>
+        </div>`;
+}
+
 let finReq = 0;   // กันคำตอบเก่ามาทับเมื่อเปลี่ยนตัวกรองเร็ว ๆ
 async function loadFinance() {
     const box = document.getElementById('hx-fin');
@@ -691,7 +715,8 @@ async function loadFinance() {
                     </li>`).join('')}
                 </ul>
             </div>
-            <p class="fin-note">ยอดเรียกเก็บ ไม่ใช่เงินที่ได้รับจริง (รายละเอียดที่ปุ่ม i)</p>`;
+            ${finAvgTable(d, la, lb)}
+            <p class="fin-note">ยอดเรียกเก็บ ไม่ใช่เงินที่ได้รับจริง · ต้นทุนยา = ราคาทุนยาที่จ่าย ไม่ใช่ต้นทุนเต็ม (รายละเอียดที่ปุ่ม i)</p>`;
         enterOnce(box);
         markUpdated();
     } catch (e) {

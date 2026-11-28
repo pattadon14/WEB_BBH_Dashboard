@@ -425,6 +425,26 @@ html[data-theme="dark"] #hx .hx-select select option { background: #1a201d; colo
 #hx .fin-pop button[disabled] { opacity: .35; cursor: default; }
 #hx .fin-pop button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 @media (max-width: 575.98px) { #hx .fin-pop { right: auto; left: 0; } }
+/* ตารางค่าเฉลี่ยต่อราย แยกสิทธิ — เต็มความกว้างการ์ด · มือถือเลื่อนแนวนอนในกรอบ */
+#hx .fin-avg { grid-column: 1 / -1; padding-top: 20px; border-top: 1px solid var(--line); }
+#hx .fin-avg-h { margin: 0 0 12px; font-size: 15px; font-weight: 600; color: var(--ink); }
+#hx .fin-avg-h small { font-size: 13px; font-weight: 400; color: var(--muted); }
+#hx .fin-avg-scroll { overflow-x: auto; border-radius: 12px; }
+#hx .fin-avg-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#hx .fin-avg-t { width: 100%; max-width: 860px; min-width: 440px; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+#hx .fin-avg-t th, #hx .fin-avg-t td { padding: 9px 12px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+#hx .fin-avg-t thead th { font-size: 13px; font-weight: 500; color: var(--muted); border-bottom: 0; padding-bottom: 4px; }
+#hx .fin-avg-t thead tr:first-child th { color: var(--ink); border-bottom: 2px solid var(--track); }
+#hx .fin-avg-t thead tr:last-child th { border-bottom: 1px solid var(--line); padding-top: 6px; }
+#hx .fin-avg-t th[scope="row"], #hx .fin-avg-t thead th:first-child { text-align: left; font-weight: 400; color: var(--ink); }
+#hx .fin-avg-t thead tr:last-child th:first-child { color: var(--muted); }
+#hx .fin-avg-t td { color: var(--ink); }
+#hx .fin-avg-t td:nth-child(3), #hx .fin-avg-t td:nth-child(5) { color: var(--muted); }   /* ต้นทุนยา โทนรอง */
+#hx .fin-avg-t td:nth-child(4), #hx .fin-avg-t thead tr:last-child th:nth-child(4) { border-left: 1px solid var(--line); }
+#hx .fin-avg-t thead tr:first-child th:last-child { border-left: 1px solid var(--line); }
+#hx .fin-avg-t tbody tr:hover { background: var(--track); }
+#hx .fin-avg-t tfoot th, #hx .fin-avg-t tfoot td { font-weight: 600; border-bottom: 0; border-top: 2px solid var(--track); }
+@media (max-width: 575.98px) { #hx .fin-avg-t th, #hx .fin-avg-t td { padding: 8px 6px; font-size: 13px; } }
 @media (prefers-reduced-motion: reduce) { #hx .fin-pop button, #hx .fin-seg button { transition: none; } }
 
 /* ---------- การ์ดหอผู้ป่วย: ช่องไฟตัวอักษรกว้างขึ้น อ่านสบายตา ---------- */
