@@ -173,12 +173,26 @@ $services = [
                     </section>
                 </div>
 
-                <!-- ============ รายรับตามสิทธิเดือนนี้ (api/finance_income_pttype.php · ต้อง login) ============ -->
+                <!-- ============ รายรับตามสิทธิ รายเดือน/รายปีงบ เทียบ 2 ช่วง (api/finance_income_pttype.php · ต้อง login) ============ -->
                 <section class="glass hx-sec hx-fin" aria-labelledby="hx-fin-title">
                     <div class="hx-sec-h">
                         <div>
-                            <h2 id="hx-fin-title"><i class="bi bi-banknote" aria-hidden="true"></i>รายรับตามสิทธิการรักษา เดือนนี้ <?= home_info_btn('finance', 'รายรับตามสิทธิ') ?></h2>
-                            <p id="hx-fin-sub">ยอดเรียกเก็บ เทียบเดือนก่อนช่วงวันเดียวกัน</p>
+                            <h2 id="hx-fin-title"><i class="bi bi-banknote" aria-hidden="true"></i>รายรับตามสิทธิการรักษา <?= home_info_btn('finance', 'รายรับตามสิทธิ') ?></h2>
+                            <p id="hx-fin-sub">ยอดเรียกเก็บ ทั้งเดือน</p>
+                        </div>
+                        <div class="hx-tools fin-tools" id="hx-fin-tools" hidden>
+                            <div class="fin-seg" role="group" aria-label="ดูรายเดือนหรือรายปี">
+                                <button type="button" data-kind="month" aria-pressed="true">รายเดือน</button>
+                                <button type="button" data-kind="year" aria-pressed="false">รายปีงบ</button>
+                            </div>
+                            <label class="hx-select">
+                                <i class="fa-solid fa-calendar" aria-hidden="true"></i>
+                                <select id="hx-fin-a" aria-label="ช่วงที่ดู"></select>
+                            </label>
+                            <label class="hx-select">
+                                <span>เทียบกับ</span>
+                                <select id="hx-fin-b" aria-label="ช่วงที่ใช้เปรียบเทียบ"></select>
+                            </label>
                         </div>
                     </div>
                     <div class="fin-body" id="hx-fin" aria-live="polite"><p class="fin-msg">กำลังโหลด…</p></div>
@@ -528,67 +542,114 @@ async function loadServiceSummary() {
 loadServiceSummary();
 bbhPoll(loadServiceSummary, 60000);
 
-/* ---------------- รายรับตามสิทธิเดือนนี้ (api/finance_income_pttype.php · guest ได้ 401) ---------------- */
+/* ---------------- รายรับตามสิทธิ รายเดือน/รายปีงบ เทียบ 2 ช่วง (api/finance_income_pttype.php · guest ได้ 401) ---------------- */
 // หน่วยเดียวทั้งการ์ด (ล้านบาท ทศนิยม 2) ให้เทียบแถวกันได้ทันที
 const baht = n => (n / 1e6).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ล้าน';
 const thDay = (iso, withYear) => new Date(iso + 'T00:00:00').toLocaleDateString('th-TH',
     withYear ? { day: 'numeric', month: 'short', year: 'numeric' } : { day: 'numeric', month: 'short' });
 
-// เทียบเดือนก่อนช่วงวันเดียวกัน: ลูกศร + ข้อความ (ไม่ใช้สีอย่างเดียว) · ต่างไม่ถึง 1% = ใกล้เคียง
+// เทียบช่วงที่เลือก (b): ลูกศร + ข้อความ (ไม่ใช้สีอย่างเดียว) · ต่างไม่ถึง 1% = ใกล้เคียง
 function finDelta(cur, prev) {
-    if (!prev) return '<span class="fin-d is-flat">ไม่มีข้อมูลเดือนก่อน</span>';
+    if (!prev) return '<span class="fin-d is-flat">ไม่มีข้อมูลช่วงที่เทียบ</span>';
     const p = (cur - prev) / prev * 100;
     if (Math.abs(p) < 1) return '<span class="fin-d is-flat"><i class="fa-solid fa-equals" aria-hidden="true"></i>ใกล้เคียง</span>';
     const up = p > 0;
     return `<span class="fin-d ${up ? 'is-up' : 'is-down'}"><i class="fa-solid fa-arrow-${up ? 'up' : 'down'}" aria-hidden="true"></i>${up ? 'มากกว่า' : 'น้อยกว่า'} ${Math.abs(p).toFixed(1)}%</span>`;
 }
 
+// ตัวกรอง: รายเดือน (ทั้งเดือน) / รายปีงบ · เลือกช่วงที่ดู (a) และช่วงที่เทียบ (b) — เปลี่ยน a แล้ว b กลับเป็นช่วงก่อนหน้า
+const finKey = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+const finLabel = (k, short) => k.startsWith('fy') ? `ปีงบ ${k.slice(2)}`
+    : new Date(k + '-01T00:00:00').toLocaleDateString('th-TH', { month: short ? 'short' : 'long', year: 'numeric' });
+function finOptions(kind) {
+    if (kind === 'year') return [0, 1, 2, 3, 4, 5].map(k => 'fy' + (FY - k));
+    const now = new Date();
+    return Array.from({ length: 36 }, (_, k) => finKey(new Date(now.getFullYear(), now.getMonth() - k, 1)));
+}
+const finState = { kind: 'month', a: null, b: null };
+const finSelA = document.getElementById('hx-fin-a');
+const finSelB = document.getElementById('hx-fin-b');
+function finFill(keepA) {
+    const opts = finOptions(finState.kind);
+    if (!keepA) finState.a = opts[0];
+    const ai = opts.indexOf(finState.a);
+    finState.b = opts[ai + 1] || opts[ai];
+    const html = opts.map(k => `<option value="${k}">${finLabel(k)}</option>`).join('');
+    finSelA.innerHTML = html; finSelA.value = finState.a;
+    finSelB.innerHTML = html; finSelB.value = finState.b;
+}
+document.querySelectorAll('#hx-fin-tools .fin-seg button').forEach(btn => btn.addEventListener('click', () => {
+    if (finState.kind === btn.dataset.kind) return;
+    finState.kind = btn.dataset.kind;
+    document.querySelectorAll('#hx-fin-tools .fin-seg button').forEach(x => x.setAttribute('aria-pressed', String(x === btn)));
+    finFill(false); loadFinance();
+}));
+finSelA.addEventListener('change', () => { finState.a = finSelA.value; finFill(true); loadFinance(); });
+finSelB.addEventListener('change', () => { finState.b = finSelB.value; loadFinance(); });
+finFill(false);
+
+let finReq = 0;   // กันคำตอบเก่ามาทับเมื่อเปลี่ยนตัวกรองเร็ว ๆ
 async function loadFinance() {
     const box = document.getElementById('hx-fin');
+    const req = ++finReq;
     try {
-        const res = await fetch('api/finance_income_pttype.php');
+        const res = await fetch(`api/finance_income_pttype.php?a=${encodeURIComponent(finState.a)}&b=${encodeURIComponent(finState.b)}`);
+        if (req !== finReq) return;
         if (res.status === 401) {
             box.innerHTML = '<p class="fin-msg"><i class="fa-solid fa-lock" aria-hidden="true"></i> เข้าสู่ระบบ Provider ID เพื่อดูรายรับ</p>';
             return;
         }
         const d = await res.json();
+        if (req !== finReq) return;
         if (!res.ok || d.error) throw new Error(d.error || res.status);
+        document.getElementById('hx-fin-tools').hidden = false;
 
         const t = d.total;
-        document.getElementById('hx-fin-sub').textContent =
-            `${thDay(d.cur.start)}–${thDay(d.cur.end, true)} เทียบ ${thDay(d.prev.start)}–${thDay(d.prev.same_end, true)}`;
+        const unit = d.kind === 'year' ? 'ปีงบ' : 'เดือน';
+        const la = finLabel(d.a.key, true), lb = finLabel(d.b.key, true);
+        const span = p => `${thDay(p.start, p.start.slice(0, 4) !== p.end.slice(0, 4))}–${thDay(p.end, true)}`;
+        document.getElementById('hx-fin-sub').textContent = `ยอดเรียกเก็บทั้ง${unit} · ${span(d.a)} เทียบ ${span(d.b)}`;
 
-        const rows = d.groups.filter(g => g.cur.income || g.prev_same.income);
-        const max = Math.max(1, ...rows.map(g => Math.max(g.cur.income, g.prev_same.income)));
+        const rows = d.groups.filter(g => g.a.income || g.b.income);
+        const max = Math.max(1, ...rows.map(g => Math.max(g.a.income, g.b.income)));
+        const partial = !d.a.complete ? `<p class="fin-partial"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i>${unit}นี้ยังไม่จบ ข้อมูลถึง ${thDay(d.a.end, true)}</p>` : '';
 
         box.innerHTML = `
             <div class="fin-sum">
-                <span class="fin-lbl">รวมทุกสิทธิ</span>
-                <div class="fin-big">${baht(t.cur.income)}<small>บาท</small></div>
-                ${finDelta(t.cur.income, t.prev_same.income)}
-                <p class="fin-cmp">เดือนก่อน ${baht(t.prev_same.income)} (ทั้งเดือน ${baht(t.prev_full.income)})</p>
+                <span class="fin-lbl">รวมทุกสิทธิ ${esc(finLabel(d.a.key))}</span>
+                <div class="fin-big">${baht(t.a.income)}<small>บาท</small></div>
+                ${finDelta(t.a.income, t.b.income)}
+                <p class="fin-cmp">${esc(lb)} ${baht(t.b.income)}</p>
+                ${partial}
                 <div class="fin-split">
-                    <div class="hx-mini" title="ผู้ป่วยนอกทุกแผนก ${fmt(t.cur.visits)} visit"><span>ผู้ป่วยนอก</span><b>${baht(t.cur.opd)}</b></div>
-                    <div class="hx-mini" title="ผู้ป่วยในจำหน่าย ${fmt(t.cur.discharges)} ราย"><span>ผู้ป่วยใน</span><b>${baht(t.cur.ipd)}</b></div>
-                    <div class="hx-mini" title="ส่วนที่ผู้ป่วยจ่ายเอง ทุกสิทธิ"><span>ผู้ป่วยจ่ายเอง</span><b>${baht(t.cur.paid)}</b></div>
+                    <div class="hx-mini" title="ผู้ป่วยนอกทุกแผนก ${fmt(t.a.visits)} visit"><span>ผู้ป่วยนอก</span><b>${baht(t.a.opd)}</b></div>
+                    <div class="hx-mini" title="ผู้ป่วยในจำหน่าย ${fmt(t.a.discharges)} ราย"><span>ผู้ป่วยใน</span><b>${baht(t.a.ipd)}</b></div>
+                    <div class="hx-mini" title="ส่วนที่ผู้ป่วยจ่ายเอง ทุกสิทธิ"><span>ผู้ป่วยจ่ายเอง</span><b>${baht(t.a.paid)}</b></div>
                 </div>
             </div>
-            <ul class="fin-list" aria-label="รายรับแยกตามสิทธิ เรียงมากไปน้อย">
-                ${rows.map(g => `
-                <li class="fin-row">
-                    <span class="fin-name">${esc(g.label)}</span>
-                    <span class="fin-amt">${baht(g.cur.income)}</span>
-                    ${finDelta(g.cur.income, g.prev_same.income)}
-                    <div class="fin-bar" title="เดือนนี้ ${baht(g.cur.income)} · เดือนก่อนช่วงเดียวกัน ${baht(g.prev_same.income)} บาท">
-                        <div class="hx-tr"><i style="--w:${(g.cur.income / max).toFixed(4)}"></i></div>
-                        <b class="fin-prev" style="--x:${(g.prev_same.income / max).toFixed(4)}" aria-hidden="true"></b>
-                    </div>
-                </li>`).join('')}
-            </ul>
-            <p class="fin-note">ขีดตั้ง = เดือนก่อนช่วงวันเดียวกัน · ยอดเรียกเก็บ ไม่ใช่เงินที่ได้รับจริง (รายละเอียดที่ปุ่ม i)</p>`;
+            <div class="fin-main">
+                <p class="fin-legend" aria-hidden="true">
+                    <span><i class="fin-key-bar"></i>${esc(la)}</span>
+                    <span><i class="fin-key-tick"></i>${esc(lb)}</span>
+                </p>
+                <ul class="fin-list" aria-label="รายรับแยกตามสิทธิ ${esc(la)} เทียบ ${esc(lb)} เรียงมากไปน้อย">
+                    ${rows.map(g => `
+                    <li class="fin-row">
+                        <span class="fin-name">${esc(g.label)}</span>
+                        <span class="fin-amt">${baht(g.a.income)}</span>
+                        ${finDelta(g.a.income, g.b.income)}
+                        <div class="fin-bar" title="${esc(la)} ${baht(g.a.income)} · ${esc(lb)} ${baht(g.b.income)} บาท">
+                            <div class="hx-tr"><i style="--w:${(g.a.income / max).toFixed(4)}"></i></div>
+                            <b class="fin-prev" style="--x:${(g.b.income / max).toFixed(4)}" aria-hidden="true"></b>
+                        </div>
+                    </li>`).join('')}
+                </ul>
+            </div>
+            <p class="fin-note">ยอดเรียกเก็บ ไม่ใช่เงินที่ได้รับจริง (รายละเอียดที่ปุ่ม i)</p>`;
         enterOnce(box);
         markUpdated();
     } catch (e) {
+        if (req !== finReq) return;
         console.error('loadFinance error:', e);
         box.innerHTML = '<p class="fin-msg">โหลดรายรับไม่สำเร็จ</p>';
     }

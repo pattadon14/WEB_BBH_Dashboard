@@ -1,16 +1,17 @@
 <?php
 
 /*
- * รายรับตามสิทธิการรักษา — เดือนนี้เทียบเดือนก่อน  ?month=YYYY-MM (ไม่ส่ง = เดือนปัจจุบัน)
+ * รายรับตามสิทธิการรักษา — เทียบ 2 ช่วง  ?a=<ช่วง>&b=<ช่วง>
+ *   ช่วง = YYYY-MM (รายเดือน ทั้งเดือน) หรือ fyNNNN (ปีงบประมาณ พ.ศ. = 1 ต.ค. NNNN-544 ถึง 30 ก.ย. NNNN-543)
+ *   a, b ต้องเป็นชนิดเดียวกัน · ไม่ใส่ a = เดือนปัจจุบัน · ไม่ใส่ b = ช่วงก่อนหน้า (เดือนก่อน / ปีงบก่อน)
  *
  * นิยาม (มูลค่าค่ารักษาที่บันทึกใน HOSxP = ยอดเรียกเก็บ ไม่ใช่เงินที่ได้รับจริงจากกองทุน):
  *   OPD = vn_stat.income ตามวันรับบริการ (vstdate)
  *   IPD = an_stat.income ตามวันจำหน่าย (dchdate) — ผู้ป่วยที่ยังนอนอยู่ยังไม่นับ
  *   paid = ส่วนที่ผู้ป่วยชำระเอง (paid_money)
  *   สิทธิ = pttype.hipdata_code (รหัสกองทุน สปสช.) รวมเป็นกลุ่มตาม FIN_GROUPS
- * เทียบ: cur = วันที่ 1 ถึงวันนี้ (หรือสิ้นเดือนถ้าเป็นเดือนที่จบแล้ว)
- *        prev_same = เดือนก่อน วันที่ 1 ถึงวันเดียวกัน (เทียบแบบยุติธรรมระหว่างเดือน) · prev_full = เดือนก่อนทั้งเดือน
- * ยอดเดือนปัจจุบันยังเปลี่ยนได้ (ค่าใช้จ่ายบันทึกย้อนหลัง) — ตรวจกับ SQL ตรงแล้ว 27 พ.ย. 2569
+ * นับทั้งช่วง (ทั้งเดือน / ทั้งปีงบ) — ช่วงที่ยังไม่จบ (เดือน/ปีงบปัจจุบัน) มีข้อมูลถึงวันนี้ complete=false
+ * ยอดช่วงปัจจุบันยังเปลี่ยนได้ (ค่าใช้จ่ายบันทึกย้อนหลัง) — ตรวจกับ SQL ตรงแล้ว 27 พ.ย. 2569
  */
 
 header('Content-Type: application/json; charset=utf-8');
@@ -36,52 +37,65 @@ const FIN_GROUPS = [
     'oth' => ['ชำระเงินเอง/อื่น ๆ',          []],   // OTH, ไม่มีรหัส และรหัสอื่นทั้งหมด
 ];
 
-$month = $_GET['month'] ?? date('Y-m');
-$curStart = DateTime::createFromFormat('!Y-m-d', (is_string($month) ? $month : '') . '-01');
-if (!$curStart || $curStart->format('Y-m') !== $month || $month > date('Y-m')) {
+// แปลงช่วงเป็น [kind, start, end(ไม่เกินวันนี้), complete] · ผิดรูปแบบ/อนาคต = null
+function fin_period(string $p): ?array
+{
+    $today = date('Y-m-d');
+    if (preg_match('/^fy(\d{4})$/', $p, $m)) {
+        $y = (int)$m[1] - 543;                       // ปีงบ 2569 = 1 ต.ค. 2025 – 30 ก.ย. 2026
+        $start = sprintf('%04d-10-01', $y - 1);
+        $end = sprintf('%04d-09-30', $y);
+        $kind = 'year';
+    } else {
+        $d = DateTime::createFromFormat('!Y-m-d', $p . '-01');
+        if (!$d || $d->format('Y-m') !== $p) {
+            return null;
+        }
+        $start = $d->format('Y-m-d');
+        $end = $d->format('Y-m-t');
+        $kind = 'month';
+    }
+    if ($start > $today || $start < '2010-01-01') {
+        return null;
+    }
+    return ['kind' => $kind, 'key' => $p, 'start' => $start, 'end' => min($end, $today), 'complete' => $end < $today];
+}
+
+$aKey = is_string($_GET['a'] ?? null) ? $_GET['a'] : date('Y-m');
+$a = fin_period($aKey);
+$bDefault = $a === null ? '' : ($a['kind'] === 'year'
+    ? 'fy' . ((int)substr($aKey, 2) - 1)
+    : date('Y-m', strtotime($a['start'] . ' -1 month')));
+$bKey = is_string($_GET['b'] ?? null) ? $_GET['b'] : $bDefault;
+$b = fin_period($bKey);
+if (!$a || !$b || $a['kind'] !== $b['kind']) {
     http_response_code(400);
-    echo json_encode(['error' => 'เดือนไม่ถูกต้อง (YYYY-MM)'], JSON_UNESCAPED_UNICODE);
+    echo json_encode(['error' => 'ช่วงเวลาไม่ถูกต้อง (YYYY-MM หรือ fyNNNN ชนิดเดียวกัน)'], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-$isCurrent  = $month === date('Y-m');
-$curEnd     = $isCurrent ? date('Y-m-d') : $curStart->format('Y-m-t');
-$days       = (int)substr($curEnd, 8, 2);
-$prevStart  = (clone $curStart)->modify('-1 month');
-$prevEnd    = $prevStart->format('Y-m-t');
-$prevSame   = $prevStart->format('Y-m-') . sprintf('%02d', min($days, (int)$prevStart->format('t')));
-
 require_once '../config/cache.php';
-api_cache('finance_income_pttype_' . $month . '_' . $curEnd, $isCurrent ? 300 : 1800);
+// ช่วงที่ยังไม่จบ cache 5 นาที · ช่วงที่จบแล้ว 6 ชม. (ยังมีบันทึกย้อนหลังได้บ้าง)
+api_cache('finance_income_pttype_' . $aKey . '_' . $bKey . '_' . date('Y-m-d'),
+    ($a['complete'] && $b['complete']) ? 21600 : 300);
 require_once '../config/database.php';
 
 try {
-    $sql = "SELECT x.src,
+    $stmt = $conn->prepare("SELECT x.src,
             COALESCE(x.hip, '') AS hip,
-            CASE WHEN x.d >= :curStart THEN 'cur'
-                 WHEN x.d <= :prevSame THEN 'prev_same'
-                 ELSE 'prev_rest' END AS bucket,
             COUNT(*) AS n,
             COALESCE(SUM(x.income), 0) AS income,
             COALESCE(SUM(x.paid), 0) AS paid
         FROM (
-            SELECT 'opd' AS src, v.vstdate AS d, p.hipdata_code AS hip, v.income, v.paid_money AS paid
+            SELECT 'opd' AS src, p.hipdata_code AS hip, v.income, v.paid_money AS paid
             FROM vn_stat v LEFT JOIN pttype p ON p.pttype = v.pttype
             WHERE v.vstdate BETWEEN :s1 AND :e1
             UNION ALL
-            SELECT 'ipd', a.dchdate, p.hipdata_code, a.income, a.paid_money
+            SELECT 'ipd', p.hipdata_code, a.income, a.paid_money
             FROM an_stat a LEFT JOIN pttype p ON p.pttype = a.pttype
             WHERE a.dchdate BETWEEN :s2 AND :e2
         ) x
-        GROUP BY 1, 2, 3";
-
-    $stmt = $conn->prepare($sql);
-    $stmt->execute([
-        ':curStart' => $curStart->format('Y-m-d'),
-        ':prevSame' => $prevSame,
-        ':s1' => $prevStart->format('Y-m-d'), ':e1' => $curEnd,
-        ':s2' => $prevStart->format('Y-m-d'), ':e2' => $curEnd,
-    ]);
+        GROUP BY 1, 2");
 
     $codeToGroup = [];
     foreach (FIN_GROUPS as $key => [, $codes]) {
@@ -91,12 +105,11 @@ try {
     }
 
     $zero = fn() => ['income' => 0.0, 'opd' => 0.0, 'ipd' => 0.0, 'paid' => 0.0, 'visits' => 0, 'discharges' => 0];
-    $blank = fn() => ['cur' => $zero(), 'prev_same' => $zero(), 'prev_full' => $zero()];
     $groups = [];
     foreach (FIN_GROUPS as $key => [$label, $codes]) {
-        $groups[$key] = ['key' => $key, 'label' => $label, 'codes' => $codes] + $blank();
+        $groups[$key] = ['key' => $key, 'label' => $label, 'codes' => $codes, 'a' => $zero(), 'b' => $zero()];
     }
-    $total = $blank();
+    $total = ['a' => $zero(), 'b' => $zero()];
 
     $add = function (array &$slot, array $r) {
         $inc = (float)$r['income'];
@@ -106,18 +119,17 @@ try {
         $slot[$r['src'] === 'opd' ? 'visits' : 'discharges'] += (int)$r['n'];
     };
 
-    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $r) {
-        $g = $codeToGroup[$r['hip']] ?? 'oth';
-        // prev_full = prev_same + prev_rest
-        $slots = $r['bucket'] === 'cur' ? ['cur'] : ($r['bucket'] === 'prev_same' ? ['prev_same', 'prev_full'] : ['prev_full']);
-        foreach ($slots as $s) {
-            $add($groups[$g][$s], $r);
-            $add($total[$s], $r);
+    // คำนวณแยกทีละช่วง — ช่วงซ้อนกันได้ (เช่นเลือกช่วงเดียวกัน) โดยไม่นับปนกัน
+    foreach (['a' => $a, 'b' => $b] as $slot => $per) {
+        $stmt->execute([':s1' => $per['start'], ':e1' => $per['end'], ':s2' => $per['start'], ':e2' => $per['end']]);
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $r) {
+            $add($groups[$codeToGroup[$r['hip']] ?? 'oth'][$slot], $r);
+            $add($total[$slot], $r);
         }
     }
 
     $round = function (array $p) {
-        foreach (['cur', 'prev_same', 'prev_full'] as $s) {
+        foreach (['a', 'b'] as $s) {
             foreach (['income', 'opd', 'ipd', 'paid'] as $k) {
                 $p[$s][$k] = round($p[$s][$k], 2);
             }
@@ -125,14 +137,14 @@ try {
         return $p;
     };
     $groups = array_map($round, array_values($groups));
-    usort($groups, fn($a, $b) => $b['cur']['income'] <=> $a['cur']['income']);
+    usort($groups, fn($x, $y) => $y['a']['income'] <=> $x['a']['income']);
 
     echo json_encode([
-        'month'     => $month,
-        'cur'       => ['start' => $curStart->format('Y-m-d'), 'end' => $curEnd, 'complete' => !$isCurrent],
-        'prev'      => ['start' => $prevStart->format('Y-m-d'), 'same_end' => $prevSame, 'end' => $prevEnd],
-        'total'     => $round($total),
-        'groups'    => $groups,
+        'kind'   => $a['kind'],
+        'a'      => $a,
+        'b'      => $b,
+        'total'  => $round($total),
+        'groups' => $groups,
     ], JSON_UNESCAPED_UNICODE);
 
 } catch (Exception $e) {

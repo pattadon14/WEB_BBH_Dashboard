@@ -388,6 +388,23 @@ html[data-theme="dark"] #hx .hx-select select option { background: #1a201d; colo
 #hx .fin-row .fin-d { justify-self: stretch; justify-content: space-between; }
 #hx .fin-big { color: var(--good); }
 
+/* รายรับ: ขีดตั้ง (ช่วงที่เทียบ) ชัดขึ้น — หนา 3px สูงเกินแถบ สีเข้มเต็ม + ขอบสีพื้นแยกจากแถบ */
+#hx .fin-bar .hx-tr { height: 10px; }
+#hx .fin-prev { top: -6px; bottom: -6px; width: 3px; margin-left: -1.5px; border-radius: 2px; background: var(--ink); opacity: 1; box-shadow: 0 0 0 2px var(--surface); }
+#hx .fin-legend { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 0 0 14px; font-size: 13px; color: var(--muted); }
+#hx .fin-legend span { display: inline-flex; align-items: center; gap: 8px; }
+#hx .fin-key-bar { width: 22px; height: 10px; border-radius: 4px; background: var(--accent); }
+#hx .fin-key-tick { width: 3px; height: 18px; border-radius: 2px; background: var(--ink); }
+#hx .fin-partial { display: flex; align-items: center; gap: 6px; margin: -8px 0 14px; font-size: 13px; color: var(--warn); }
+#hx .fin-main { min-width: 0; }
+/* ตัวกรอง รายเดือน/รายปีงบ */
+#hx .fin-seg { display: inline-flex; padding: 3px; gap: 2px; border-radius: 12px; border: 1px solid var(--rim); background: var(--glass-2); }
+#hx .fin-seg button { min-height: 30px; padding: 0 12px; border: 0; border-radius: 9px; background: transparent; color: var(--muted); font: 500 14px var(--font); cursor: pointer; transition: background-color .15s, color .15s; }
+#hx .fin-seg button[aria-pressed="true"] { background: var(--accent-strong); color: var(--on-accent); }
+#hx .fin-seg button:hover:not([aria-pressed="true"]) { color: var(--ink); }
+#hx .fin-seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#hx .fin-tools .hx-select span { color: var(--muted); font-size: 13px; }
+
 /* ---------- การ์ดหอผู้ป่วย: ช่องไฟตัวอักษรกว้างขึ้น อ่านสบายตา ---------- */
 #hx .ward-card { letter-spacing: .02em; gap: 12px; }
 #hx .ward-name { line-height: 1.4; }
