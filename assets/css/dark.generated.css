@@ -1,5 +1,5 @@
 /* ไฟล์สร้างอัตโนมัติจาก tools/build_dark_css.mjs — ห้ามแก้ตรง ๆ (แก้ใน dark.css แทน)
- * แหล่ง: 20 ชุด CSS + style="…" 6 แบบ */
+ * แหล่ง: 20 ชุด CSS + style="…" 5 แบบ */
 
 /* ---- assets/css/anc_theme.css ---- */
 html[data-theme="dark"] .er-theme.opd-theme.anc-theme {
@@ -1384,6 +1384,12 @@ html[data-theme="dark"] .er-theme.opd-theme {
     --er-card-line: #303b34;
     --er-row-bg: #161817;
 }
+html[data-theme="dark"] body .er-theme.opd-theme .oq-kpi {
+    border-top: 4px solid #198754;
+}
+html[data-theme="dark"] body .er-theme.opd-theme .oq-kpi.bad {
+    border-top-color: #e5484d;
+}
 
 /* ---- assets/css/theme.css ---- */
 html[data-theme="dark"] {
@@ -1833,10 +1839,6 @@ html[data-theme="dark"] [style*="color: #2563eb"] {
 html[data-theme="dark"] [style*="color:#be185d"],
 html[data-theme="dark"] [style*="color: #be185d"] {
     color: #fe9eb6 !important;
-}
-html[data-theme="dark"] [style*="background:#fff"],
-html[data-theme="dark"] [style*="background: #fff"] {
-    background: #161616 !important;
 }
 html[data-theme="dark"] [style*="color:#333"],
 html[data-theme="dark"] [style*="color: #333"] {

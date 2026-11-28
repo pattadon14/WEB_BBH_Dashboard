@@ -106,4 +106,5 @@ html[data-theme="dark"] body .er-theme dialog { --er-page-bg: #1a201d; }
 :root body .ipd-ward-page .ward-page-subtitle { font-size: 22px !important; }
 
 /* กราฟ: พื้นโปร่งให้เห็นกระจกของการ์ด (Highcharts วาดพื้นขาวเป็น attribute — CSS ชนะ) */
-:root body :is(.er-theme, .ipd-ward-page) .highcharts-background { fill: transparent; }
+/* !important: custom.css บังคับ .highcharts-background เป็นขาวแบบ !important ไว้ */
+:root body :is(.er-theme, .ipd-ward-page) .highcharts-background { fill: transparent !important; }

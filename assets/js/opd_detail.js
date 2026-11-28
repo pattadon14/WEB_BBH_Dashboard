@@ -31,9 +31,9 @@ const PAYER_GROUPS = {
 const G = { light: '#5fb98a', main: '#22894f', dark: '#146c3c', deep: '#0f5132', soft: '#9fd3b5' };
 const OTHER_COLOR = '#9aa9a2';
 const MISS_COLOR = '#c2410c';   // ตัวเลขขาวบนแท่งผ่าน 5:1
-// ไล่เฉดตามทิศของแท่ง: bar (แนวนอน) ซ้าย→ขวา, column (แนวตั้ง) ล่าง→บน
-const gBar = (from = G.light, to = G.dark) => ({ linearGradient: { x1: 0, y1: 0, x2: 1, y2: 0 }, stops: [[0, from], [1, to]] });
-const gCol = (from = G.light, to = G.dark) => ({ linearGradient: { x1: 0, y1: 1, x2: 0, y2: 0 }, stops: [[0, from], [1, to]] });
+// แท่งสีเรียบ (ไม่ไล่เฉด) เข้าชุดแถบในหน้าแรก — gCol(a, b) ใช้สีที่ 2 ซึ่งเป็นเฉดหลักของชุดนั้น
+const gBar = () => G.main;
+const gCol = (from, to = G.main) => to;
 // แท่งกราฟที่มี point.drill = [type, key, label?, slot?] คลิกแล้วเปิดรายชื่อ (แท่ง "อื่นๆ" ที่รวมหลายกลุ่มไม่มี drill)
 const DRILL_BAR = {
     cursor: 'pointer',
@@ -41,18 +41,31 @@ const DRILL_BAR = {
 };
 
 // กราฟแท่งแนวนอน: ชื่อยาวขึ้นบรรทัดใหม่แทนการตัด "..." และตัวเลขอยู่นอกแท่งเสมอ (ในแท่งสีเข้มอ่านไม่ออก)
-const BAR_LABEL_STYLE = { fontSize: '18px', width: '180px', textOverflow: 'none' };
-const BAR_DATA_LABELS = { enabled: true, inside: false, crop: false, overflow: 'allow', color: '#000', style: { fontSize: '18px', textOutline: 'none' } };
+const BAR_LABEL_STYLE = { fontSize: '15px', width: '170px', textOverflow: 'none' };
+const BAR_DATA_LABELS = { enabled: true, inside: false, crop: false, overflow: 'allow', color: '#17241d', style: { fontSize: '15px', fontWeight: '600', textOutline: 'none' } };
+// กราฟแท่งแนวนอน: แท่งหนาคงที่ + ความสูงตามจำนวนแถว — วันหยุดที่มี 1–2 แถว แท่งไม่พองเต็มกรอบ
+const BAR_ROW = 36;
+const barHeight = (n, extra = 70) => n * BAR_ROW + extra;
 
-// ฟอนต์ THSarabun ตัวเล็กกว่าฟอนต์ทั่วไป จึงขยายขนาดตัวอักษรทุกกราฟในหน้านี้
+// ธีมกราฟหน้า OPD (เข้าชุดหน้าแรก): 'BBH Sans Chart' = Prompt ย่อ 88% → 14px ≈ Prompt 12.3px
+// พื้นโปร่ง (กระจกของการ์ด), เส้น grid จาง, ไม่มีเส้นแกน, แท่งมุมมน
 Highcharts.setOptions({
-    chart: { style: { fontFamily: 'BBH Sans Chart' } },
-    title: { style: { fontSize: '24px' } },
-    subtitle: { style: { fontSize: '17px' } },
-    xAxis: { labels: { style: { fontSize: '17px' } }, title: { style: { fontSize: '17px' } } },
-    yAxis: { labels: { style: { fontSize: '16px' } }, title: { style: { fontSize: '17px' } } },
-    tooltip: { style: { fontSize: '17px' } },
-    legend: { itemStyle: { fontSize: '18px' } }
+    chart: { backgroundColor: 'transparent', spacing: [8, 8, 8, 4], style: { fontFamily: 'BBH Sans Chart' } },
+    title: { style: { fontSize: '17px', fontWeight: '600' } },
+    subtitle: { style: { fontSize: '14px' } },
+    xAxis: { lineWidth: 0, tickLength: 0, labels: { style: { fontSize: '14px' } }, title: { style: { fontSize: '14px' } } },
+    yAxis: { gridLineDashStyle: 'Dash', labels: { style: { fontSize: '13px' } }, title: { style: { fontSize: '14px' } } },
+    tooltip: { borderRadius: 10, borderWidth: 0, shadow: { color: 'rgba(19,32,26,.18)', offsetY: 4, width: 12 }, style: { fontSize: '15px' } },
+    legend: { itemStyle: { fontSize: '14px', fontWeight: '500' }, symbolRadius: 3 },
+    plotOptions: {
+        bar: { pointWidth: 14, borderRadius: 7, borderWidth: 0 },
+        column: { maxPointWidth: 40, borderRadius: 6, borderWidth: 0 }
+    },
+    // มือถือ: กราฟแท่งแนวนอน ชื่อแคบลง + เว้นที่ท้ายแท่งให้ป้ายตัวเลข "79 (18 นาที)" ไม่ถูกตัด
+    responsive: { rules: [{
+        condition: { callback() { return this.inverted && this.chartWidth <= 420; } },
+        chartOptions: { xAxis: { labels: { style: { width: '110px' } } }, yAxis: { maxPadding: 0.65 } }
+    }] }
 });
 
 /*
@@ -157,21 +170,22 @@ async function loadChart() {
         },
 
         plotOptions: {
-            column: { maxPointWidth: 72 }   // ต้นปีงบ / เดือนนี้มีไม่กี่แท่ง แท่งจะกว้างเต็มจอ
+            column: { maxPointWidth: 56 }   // ต้นปีงบ / เดือนนี้มีไม่กี่แท่ง แท่งจะกว้างเต็มจอ
         },
 
         series: [{
             type: 'column',
             name: 'ผู้ป่วยนอก',
             color: gCol(G.main, G.dark),
-            borderRadius: 4,
             ...FY_DRILL,
             data: columnData,
             dataLabels: {
                 enabled: trend.length <= 16,   // รายวันหลายแท่ง ป้ายตัวเลขจะทับกัน
-                color: '#000000',
+                color: '#17241d',
                 style: {
-                    fontSize: '17px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    textOutline: 'none'
                 }
             }
         }, {
@@ -179,8 +193,8 @@ async function loadChart() {
             type: 'spline',
             name: 'แนวโน้ม',
             color: '#c2410c',
-            lineWidth: 3,
-            marker: { enabled: trend.length <= 31, radius: 5, fillColor: '#fff', lineWidth: 2, lineColor: '#c2410c' },
+            lineWidth: 2,
+            marker: { enabled: trend.length <= 31, radius: 4, fillColor: '#fff', lineWidth: 2, lineColor: '#c2410c' },
             data: columnData.map(p => (p.partial ? { y: p.y, partial: true } : p.y)),
             zoneAxis: 'x',
             zones: lastPartial ? [{ value: trend.length - 2 }, { dashStyle: 'Dot' }] : []
@@ -229,10 +243,7 @@ async function loadPttypeChart(){
 
         chart: {
             type: 'bar',
-            height: Math.max(260, points.length * 34 + 80),
-            style: {
-                fontFamily: 'BBH Sans Chart'
-            }
+            height: barHeight(points.length)
         },
 
         title: {
@@ -265,7 +276,6 @@ async function loadPttypeChart(){
 
         plotOptions: {
             bar: {
-                borderRadius: 4,
                 minPointLength: 6,
                 ...DRILL_BAR,
                 dataLabels: {
@@ -572,7 +582,7 @@ function renderNationChart(nations) {
     }
 
     Highcharts.chart('opd-nation-chart', {
-        chart: { type: 'bar', height: Math.max(260, points.length * 40 + 80), style: { fontFamily: 'BBH Sans Chart' } },
+        chart: { type: 'bar', height: barHeight(points.length) },
         title: { text: null },
         xAxis: { type: 'category', labels: { style: BAR_LABEL_STYLE } },
         yAxis: { allowDecimals: false, maxPadding: 0.45, title: { text: 'จำนวน (ครั้ง)' } },
@@ -583,7 +593,6 @@ function renderNationChart(nations) {
         },
         plotOptions: {
             bar: {
-                borderRadius: 4,
                 minPointLength: 6,   // แท่งที่มีแค่ 1–2 ครั้งยังเห็นสีประจำสัญชาติ
                 ...DRILL_BAR,
                 dataLabels: { ...BAR_DATA_LABELS, formatter() { return `${fmtN(this.y)} (${pct(this.y)}%)`; } }
@@ -611,12 +620,12 @@ function renderDeptChart(depts) {
     }
 
     Highcharts.chart('opd-dept-chart', {
-        chart: { type: 'bar', height: Math.max(260, points.length * 34 + 80), style: { fontFamily: 'BBH Sans Chart' } },
+        chart: { type: 'bar', height: barHeight(points.length) },
         title: { text: null },
         xAxis: { type: 'category', labels: { style: BAR_LABEL_STYLE } },
         yAxis: { allowDecimals: false, maxPadding: 0.2, title: { text: 'จำนวน (ครั้ง)' } },
         tooltip: { pointFormat: '<b>{point.y} ครั้ง</b>' },
-        plotOptions: { bar: { borderRadius: 4, ...DRILL_BAR, dataLabels: { ...BAR_DATA_LABELS } } },
+        plotOptions: { bar: { ...DRILL_BAR, dataLabels: { ...BAR_DATA_LABELS } } },
         credits: { enabled: false },
         legend: { enabled: false },
         series: [{ name: 'ผู้มารับบริการ', color: gBar(), data: points }]
@@ -640,18 +649,18 @@ function renderApptTimeChart(times) {
         `(${Math.round(peak.total * 100 / total)}% ของนัด ${fmtN(total)} ราย) · ไม่นับนัดที่ยกเลิก`;
 
     Highcharts.chart('opd-appt-time-chart', {
-        chart: { type: 'areaspline', height: 320, style: { fontFamily: 'BBH Sans Chart' } },
+        chart: { type: 'areaspline', height: 320 },
         title: { text: null },
         xAxis: { categories: times.map(t => t.time), title: { text: 'เวลานัด (ช่วงละ 30 นาที)' } },
         yAxis: { allowDecimals: false, min: 0, title: { text: 'จำนวนนัด (ราย)' } },
         tooltip: { headerFormat: '<b>{point.key} น.</b><br>', pointFormat: 'นัด <b>{point.y} ราย</b><br>คลิกเพื่อดูรายชื่อ' },
         plotOptions: {
             areaspline: {
-                lineWidth: 3,
-                fillColor: { linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 }, stops: [[0, 'rgba(34, 137, 79, .35)'], [1, 'rgba(34, 137, 79, .02)']] },
-                marker: { enabled: true, radius: 5, fillColor: '#fff', lineWidth: 2, lineColor: G.dark },
+                lineWidth: 2,
+                fillColor: { linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 }, stops: [[0, 'rgba(34, 137, 79, .28)'], [1, 'rgba(34, 137, 79, 0)']] },
+                marker: { enabled: true, radius: 4, fillColor: '#fff', lineWidth: 2, lineColor: G.dark },
                 ...DRILL_BAR,
-                dataLabels: { enabled: true, color: '#000', style: { fontSize: '17px', textOutline: '2px #fff' } }
+                dataLabels: { enabled: true, color: '#17241d', style: { fontSize: '14px', fontWeight: '600', textOutline: 'none' } }
             }
         },
         credits: { enabled: false },
@@ -728,8 +737,7 @@ function renderFlowChart(hours) {
         yAxis: { allowDecimals: false, min: 0, title: { text: 'จำนวน (ครั้ง)' } },
         tooltip: { shared: true, headerFormat: '<b>{point.key} น.</b><br>' },
         plotOptions: { column: { borderRadius: 4, groupPadding: 0.12, pointPadding: 0.04, ...DRILL_BAR,
-            dataLabels: { enabled: true, color: '#000', style: { fontSize: '15px', textOutline: 'none' } } } },
-        legend: { itemStyle: { fontSize: '17px' } },
+            dataLabels: { enabled: true, color: '#17241d', style: { fontSize: '13px', fontWeight: '600', textOutline: 'none' } } } },
         credits: { enabled: false },
         // สองชุดเขียวต่างความเข้ม: มาลงทะเบียน = อ่อน, พบแพทย์ = เข้ม
         series: [
@@ -751,7 +759,7 @@ function renderRoomChart(rooms) {
         points.push({ name: `จุดอื่นๆ (${rest.length} จุด)`, y: rest.reduce((s, r) => s + r.seen, 0), wait: null, color: OTHER_COLOR });
     }
     Highcharts.chart('opd-room-chart', {
-        chart: { type: 'bar', height: Math.max(260, points.length * 34 + 80) },
+        chart: { type: 'bar', height: barHeight(points.length) },
         title: { text: null },
         xAxis: { type: 'category', labels: { style: BAR_LABEL_STYLE } },
         yAxis: { allowDecimals: false, maxPadding: 0.3, title: { text: 'จำนวนที่ตรวจ (ครั้ง)' } },
@@ -760,7 +768,7 @@ function renderRoomChart(rooms) {
                 return `ตรวจ <b>${fmtN(this.y)} ครั้ง</b>` + (this.wait != null ? `<br>รอแพทย์เฉลี่ย ${this.wait} นาที` : '');
             }
         },
-        plotOptions: { bar: { borderRadius: 4, ...DRILL_BAR, dataLabels: { ...BAR_DATA_LABELS,
+        plotOptions: { bar: { ...DRILL_BAR, dataLabels: { ...BAR_DATA_LABELS,
             formatter() { return fmtN(this.y) + (this.point.wait != null ? ` (${this.point.wait} นาที)` : ''); } } } },
         credits: { enabled: false },
         legend: { enabled: false },
@@ -788,15 +796,15 @@ function renderClinicChart(clinics, isToday) {
         (worst && worst.miss ? ` · ${missLabel}สัดส่วนสูงสุด: ${worst.name} ${Math.round(worst.miss * 100 / worst.total)}%` : ''));
 
     Highcharts.chart('opd-clinic-chart', {
-        chart: { type: 'bar', height: Math.max(260, shown.length * 34 + 110) },
+        chart: { type: 'bar', height: barHeight(shown.length, 100) },
         title: { text: null },
         xAxis: { categories: shown.map(c => c.name), labels: { style: BAR_LABEL_STYLE } },
         yAxis: { allowDecimals: false, reversedStacks: false, title: { text: 'จำนวน (ราย)' } },
         tooltip: { shared: true },
-        plotOptions: { bar: { stacking: 'normal', borderRadius: 3, borderWidth: 2, borderColor: '#fff', ...DRILL_BAR,
-            dataLabels: { enabled: true, color: '#fff', style: { fontSize: '15px', textOutline: 'none' },
-                filter: { property: 'y', operator: '>', value: 4 } } } },
-        legend: { itemStyle: { fontSize: '17px' } },
+        // แท่งเรียงต่อกัน: หนากว่าแท่งเดี่ยวให้ตัวเลขในแท่งอ่านได้ · className dl-in = ตัวขาว (glass.css ชนะ custom.css ที่บังคับ #333)
+        plotOptions: { bar: { stacking: 'normal', pointWidth: 20, borderRadius: 4, borderWidth: 2, borderColor: 'rgba(255,255,255,.85)', ...DRILL_BAR,
+            dataLabels: { enabled: true, className: 'dl-in', color: '#fff', style: { fontSize: '13px', fontWeight: '600', textOutline: 'none' },
+                filter: { property: 'y', operator: '>', value: 0 } } } },
         credits: { enabled: false },
         // คลิกแท่ง = รายชื่อมาตามนัด / ยังไม่มา ของคลินิกนั้น ("คลินิกอื่นๆ" ที่รวมหลายคลินิกไม่มีรายชื่อ)
         series: [
@@ -1052,13 +1060,7 @@ try {
 
         cardHtml += `
             <div class="col-xl-3 col-md-6 mb-2">
-                <div class="opd-age-card" style="
-                    background:#fff;
-                    border-radius:12px;
-                    padding:12px 16px;
-                    border:1px solid var(--bbh-border);
-                    box-shadow:rgba(0,0,0,0.08) 0 2px 6px;
-                ">
+                <div class="opd-age-card">
                     <div style="font-size:19px;font-weight:600;color:#333;margin-bottom:6px">
                         <span aria-hidden="true" style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${color};margin-right:6px"></span>${escHtml(d.name)}
                     </div>

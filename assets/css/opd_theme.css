@@ -74,6 +74,28 @@
 :root .er-theme.opd-theme .opd-wait-more:is(:hover, :focus-visible) { background: var(--er-solid); color: var(--er-on-solid); }
 :root .er-theme.opd-theme .opd-wait-more:focus-visible { outline: 2px solid var(--er-ink-text); outline-offset: 2px; }
 
+/* การ์ดย่อยในแผง (กราฟ, กลุ่มอายุ, ปุ่มไปแท็บเวลารอ) = แผ่นกระจกชั้นที่สอง (token ใน glass.css มีค่าโหมดมืดแล้ว) — ไม่เบลอซ้อนกับแผง */
+:root body .er-theme.opd-theme :is(.er-chart, .opd-age-card, .oq-kpi) {
+    background: color-mix(in srgb, var(--g-glass-2) 55%, transparent);
+    border: 1px solid var(--g-rim);
+    border-radius: 16px;
+    box-shadow: inset 0 1px 0 var(--g-rim), 0 10px 24px -20px rgba(19, 32, 26, .35);
+}
+:root body .er-theme.opd-theme .opd-age-card { padding: 12px 16px; }
+/* แท็บเวลารอ: การ์ดตัวเลขคงขีดสีด้านบน (เขียว/แดง = ผ่าน/ไม่ผ่าน) · ตารางพื้นใส หัวตารางเขียวจาง */
+:root body .er-theme.opd-theme .oq-kpi { border-top: 4px solid #198754; }
+:root body .er-theme.opd-theme .oq-kpi.bad { border-top-color: #e5484d; }
+:root body .er-theme.opd-theme .oq-table td { background: transparent; }
+:root body .er-theme.opd-theme .oq-table thead th { background: color-mix(in srgb, var(--er-wash) 60%, transparent); }
+:root body .er-theme.opd-theme .opd-wait-more:not(:hover, :focus-visible) { background: color-mix(in srgb, var(--g-glass-2) 55%, transparent); border-color: var(--g-rim); }
+
+/* ข้อความในกราฟ: custom.css บังคับ #333 !important ไว้ทุกหน้า → หน้า OPD ใช้สีหมึก/สีรองของธีม (โหมดมืดตาม token) */
+:root body .er-theme.opd-theme :is(.highcharts-axis-labels text, .highcharts-axis-title, .highcharts-legend-item text) { fill: var(--er-muted-text) !important; color: var(--er-muted-text) !important; }
+:root body .er-theme.opd-theme .highcharts-data-label text { fill: var(--er-ink-text) !important; color: var(--er-ink-text) !important; }
+/* ตัวเลขในแท่งสีเข้ม (นัดหมายรายคลินิก) = ขาว */
+:root body .er-theme.opd-theme .highcharts-data-label.dl-in text { fill: var(--er-on-solid) !important; color: var(--er-on-solid) !important; }
+:root body .er-theme.opd-theme .highcharts-grid-line { stroke: var(--g-line) !important; }
+
 /* ส่วนช่วงเวลา: แถว 10 อันดับโรค คลิกดูรายชื่อ (opd_detail.js openFyDrill) · การ์ดกลุ่มอายุเป็นยอดสรุปอย่างเดียว */
 .er-theme.opd-theme #opd-top10-tbody tr[data-pdx] { cursor: pointer; }
 :root .er-theme.opd-theme #opd-top10-tbody tr[data-pdx]:focus-visible { outline: 2px solid var(--er-solid); outline-offset: 2px; }
