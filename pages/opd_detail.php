@@ -315,7 +315,7 @@ function opd_info_btn(string $key, string $label, bool $onMast = false): string
                             <thead>
                                 <tr>
                                     <th class="text-center" style="width:64px">อันดับ</th>
-                                    <th class="text-center" style="width:100px">ICD-10</th>
+                                    <th class="text-center d-none d-sm-table-cell" style="width:100px">ICD-10</th>
                                     <th>ชื่อโรค / การวินิจฉัย</th>
                                     <th class="text-center" style="width:90px">รวม</th>
                                     <th class="text-center" style="width:80px"><i class="fa-solid fa-mars" aria-hidden="true"></i> ชาย</th>

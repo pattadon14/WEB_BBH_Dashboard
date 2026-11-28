@@ -991,13 +991,13 @@ try {
                         ${row.rank}
                     </span>
                 </td>
-                <td class="text-center">
+                <td class="text-center d-none d-sm-table-cell">
                     <span class="badge bg-secondary"
                           style="font-size:14px;letter-spacing:1px">
                         ${row.icd10 || '—'}
                     </span>
                 </td>
-                <td>${diagCell(row.diag_th, row.diag_en)}</td>
+                <td>${row.icd10 ? `<span class="badge bg-secondary opd-icd-inline d-sm-none">${escHtml(row.icd10)}</span>` : ''}${diagCell(row.diag_th, row.diag_en)}</td>
 
                 <td class="text-center fw-bold text-success">
                     ${row.total.toLocaleString()}

@@ -123,4 +123,13 @@
     .er-theme.opd-theme .opd-kpis .er-k1 { grid-column: 1 / -1; }
     .er-theme.opd-theme .opd-page-tabs { display: flex; flex-wrap: wrap; }
     .er-theme.opd-theme .opd-page-tab { flex: 1 1 auto; min-width: 0; }
+    /* 10 อันดับโรค: ซ่อนคอลัมน์ ICD (ย้ายไปเป็นป้ายเหนือชื่อโรค) + ช่องแคบลง ให้ชาย/หญิงพอดีจอไม่ต้องเลื่อน */
+    .er-theme.opd-theme .table-ipd-top10 :is(th, td) { padding: 8px 4px; }
+    .er-theme.opd-theme .table-ipd-top10 th:not(:nth-child(3)) { width: auto !important; white-space: nowrap; }
+    .er-theme.opd-theme .table-ipd-top10 th .fa-solid { display: none; }
+    .er-theme.opd-theme .opd-icd-inline { display: inline-block; margin-bottom: 2px; padding: 1px 6px; letter-spacing: .5px; line-height: 1.4; }
+    /* ชื่ออังกฤษบรรทัดเดียว (ชื่อเต็มยังอยู่ในหน้ารายชื่อเมื่อแตะแถว) */
+    .er-theme.opd-theme #opd-top10-tbody .diag-en { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 100%; }
+    .er-theme.opd-theme #opd-top10-tbody td:nth-child(3) { max-width: 0; width: 100%; }
+    .er-theme.opd-theme .table-ipd-top10 .rank-badge { width: 26px; height: 26px; }
 }
